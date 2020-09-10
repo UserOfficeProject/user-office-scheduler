@@ -1,8 +1,17 @@
-import {} from './types/System';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { GraphQLResolverMap } from 'apollo-graphql';
 
-export default function federationSources() {
+import { ResolverContext } from '../context';
+import { System, resolveSystemReference } from './types/System';
+
+export default function federationSources(): {
+  orphanedTypes: Array<{ new (): any }>;
+  referenceResolvers: GraphQLResolverMap<ResolverContext>;
+} {
   return {
-    orphanedTypes: [],
-    referenceResolvers: {},
+    orphanedTypes: [System],
+    referenceResolvers: {
+      System: { __resolveReference: resolveSystemReference },
+    },
   };
 }

@@ -8,3 +8,5 @@ uploads
 
 .vscode/launch.json
 .vscode/settings.json
+*.env
+!example.env

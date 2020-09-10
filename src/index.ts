@@ -1,9 +1,11 @@
+// import this first, so environment variables are loaded
+import 'dotenv/config';
+
 import { logger } from '@esss-swap/duo-logger';
 import cookieParser from 'cookie-parser';
 import 'reflect-metadata';
 import express from 'express';
 
-// import authorization from './middlewares/authorization';
 import exceptionHandler from './middlewares/exceptionHandler';
 import apolloServer from './middlewares/graphql';
 
@@ -11,10 +13,7 @@ async function bootstrap() {
   const PORT = process.env.PORT || 4000;
   const app = express();
 
-  app
-    .use(cookieParser())
-    // .use(authorization())
-    .use(exceptionHandler());
+  app.use(cookieParser()).use(exceptionHandler());
 
   await apolloServer(app);
 

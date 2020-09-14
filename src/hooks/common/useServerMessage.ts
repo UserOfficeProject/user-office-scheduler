@@ -4,17 +4,17 @@ import { useUnauthorizedApi } from './useDataApi';
 
 export default function useServerMessage() {
   const [loading, setLoading] = useState(true);
-  const [serverMessage, setServerMessage] = useState('');
+  const [serverMessage, setServerMessage] = useState<{} | null>(null);
 
   const unauthorizedApi = useUnauthorizedApi();
 
   useEffect(() => {
     setLoading(true);
     unauthorizedApi()
-      .getServerMessage()
+      .serverHealthCheck()
       .then(data => {
-        if (data.serverMessage) {
-          setServerMessage(data.serverMessage);
+        if (data.healthCheck) {
+          setServerMessage(data.healthCheck);
         }
 
         setLoading(false);

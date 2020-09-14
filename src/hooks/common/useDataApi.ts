@@ -9,7 +9,7 @@ import { useCallback } from 'react';
 
 import { getSdk } from 'generated/sdk';
 
-const endpoint = '/graphql';
+const endpoint = '/gateway';
 
 const notificationWithClientLog = async (
   enqueueSnackbar: WithSnackbarProps['enqueueSnackbar'],

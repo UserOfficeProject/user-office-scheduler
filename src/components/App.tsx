@@ -10,7 +10,14 @@ function DummyComponent() {
   const { loading, serverMessage } = useServerMessage();
 
   return (
-    <h1>The server says: {loading ? <em>Loading...</em> : serverMessage}</h1>
+    <div>
+      <h1>The server says: </h1>
+      {loading ? (
+        <em>Loading...</em>
+      ) : (
+        <pre>{JSON.stringify(serverMessage, null, 2)}</pre>
+      )}
+    </div>
   );
 }
 

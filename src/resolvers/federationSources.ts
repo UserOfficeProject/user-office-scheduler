@@ -2,16 +2,15 @@
 import { GraphQLResolverMap } from 'apollo-graphql';
 
 import { ResolverContext } from '../context';
-import { System, resolveSystemReference } from './types/System';
 
 export default function federationSources(): {
   orphanedTypes: Array<{ new (): any }>;
   referenceResolvers: GraphQLResolverMap<ResolverContext>;
 } {
   return {
-    orphanedTypes: [System],
+    orphanedTypes: [],
     referenceResolvers: {
-      System: { __resolveReference: resolveSystemReference },
+      // $Name: { __resolveReference: resolve$NameReference },
     },
   };
 }

@@ -15,7 +15,7 @@ import {
 // TODO: should be ported to a lerna as a separate package, so we can reuse it across the backends
 export async function buildFederatedSchema<TContext extends {} = {}>(
   options: Omit<BuildSchemaOptions, 'skipCheck'>,
-  referenceResolvers?: GraphQLResolverMap<TContext>
+  referenceResolvers?: GraphQLResolverMap<TContext> // this should be `GraphQLReferenceResolver` but the types not match
 ) {
   const schema = await buildSchema({
     ...options,
@@ -25,6 +25,9 @@ export async function buildFederatedSchema<TContext extends {} = {}>(
       ...(options.directives || []),
     ],
     skipCheck: true,
+    // we don't use `class-validator`, we have yup instead
+    // we have to do this to disable `class-validator` warning
+    validate: false,
   });
 
   const federatedSchema = buildApolloFederationSchema({

@@ -11,7 +11,7 @@ import { buildFederatedSchema } from '../utils/buildFederatedSchema';
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Request extends ExpressRequest {}
 
-const PATH = '/graphql';
+export const PATH = '/graphql';
 
 const apolloServer = async (app: Express) => {
   registerEnums();

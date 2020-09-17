@@ -26,6 +26,10 @@ export default class PostgreScheduledEventDataSource
     newScheduledEvent: NewScheduledEventInput
   ): Promise<ScheduledEvent> {
     return database.transaction(async trx => {
+      // I don't know how strict we want to be about scheduled events
+      // supposedly this should prevent other writes to happen while allows reads
+      await trx.raw(`LOCK TABLE ${this.tableName} IN EXCLUSIVE MODE`, []);
+
       const { count } = await trx<ScheduledEventRecord>(this.tableName)
         .count('*')
         //

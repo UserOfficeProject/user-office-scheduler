@@ -11,9 +11,9 @@ export class ScheduledEvent {
     public createdAt: Date,
     public updatedAt: Date,
     public bookingType: ScheduledEventBookingType,
-    public scheduledFrom: Date, // TODO
-    public endsAt: Date, // TODO
-    public scheduledBy: { id: number }, // todo
+    public scheduledFrom: Date,
+    public endsAt: Date,
+    public scheduledBy: { id: number },
     public description: string | null
   ) {}
 }

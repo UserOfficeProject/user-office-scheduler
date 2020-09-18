@@ -3,7 +3,14 @@ import Knex from 'knex';
 
 const db = Knex({
   client: 'postgresql',
-  connection: process.env.DATABASE_URL,
+  connection: {
+    host: process.env.DATABASE_HOSTNAME,
+    port: +(process.env.DATABASE_PORT as string) || 5432,
+    user: process.env.DATABASE_USER,
+    password: process.env.DATABASE_PASSWORD,
+    database: process.env.DATABASE_DATABASE,
+    timezone: 'UTC',
+  },
 });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -5,6 +5,7 @@ coverage
 .DS_Store
 downloads
 uploads
+.dev/
 
 .vscode/launch.json
 .vscode/settings.json

@@ -7,7 +7,7 @@ import 'reflect-metadata';
 import express from 'express';
 
 import exceptionHandler from './middlewares/exceptionHandler';
-import apolloServer from './middlewares/graphql';
+import apolloServer, { PATH } from './middlewares/graphql';
 
 async function bootstrap() {
   const PORT = process.env.PORT || 4000;
@@ -22,7 +22,9 @@ async function bootstrap() {
   });
 
   app.listen(PORT, () => {
-    console.info(`Running a GraphQL API server at http://localhost:${PORT}/`);
+    console.info(
+      `Running a GraphQL API server at http://localhost:${PORT}${PATH}`
+    );
   });
 }
 

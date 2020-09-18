@@ -4,22 +4,8 @@ import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { getTheme } from 'theme';
 
-import useServerMessage from 'hooks/common/useServerMessage';
-
-function DummyComponent() {
-  const { loading, serverMessage } = useServerMessage();
-
-  return (
-    <div>
-      <h1>The server says: </h1>
-      {loading ? (
-        <em>Loading...</em>
-      ) : (
-        <pre>{JSON.stringify(serverMessage, null, 2)}</pre>
-      )}
-    </div>
-  );
-}
+import Dashboard from './Dashboard';
+import { PATH_ROOT } from './paths';
 
 class App extends React.Component {
   // static getDerivedStateFromError(): void {
@@ -44,7 +30,8 @@ class App extends React.Component {
           <Router>
             <div className="App">
               <Switch>
-                <Route path="/" component={DummyComponent} />
+                {/* public root now, probably will be private in the future */}
+                <Route path={PATH_ROOT} component={Dashboard} />
               </Switch>
             </div>
           </Router>

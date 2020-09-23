@@ -7,7 +7,7 @@ import { ScheduledEvent } from '../types/ScheduledEvent';
 @InputType()
 export class ScheduledEventFilter {
   @Field(() => TzLessDateTime, { nullable: true })
-  public scheduledFrom: Date;
+  public startsAt: Date;
 
   @Field(() => TzLessDateTime, { nullable: true })
   public endsAt: Date;

@@ -17,7 +17,7 @@ BEGIN
       , created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       , updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       , booking_type varchar(30) NOT NULL
-      , scheduled_from TIMESTAMP NOT NULL
+      , starts_at TIMESTAMP NOT NULL
       , ends_at TIMESTAMP NOT NULL
       , scheduled_by int NOT NULL -- comes from a different db?
       , description varchar(200) DEFAULT NULL

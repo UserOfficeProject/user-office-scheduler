@@ -11,7 +11,7 @@ export class ScheduledEvent {
     public createdAt: Date,
     public updatedAt: Date,
     public bookingType: ScheduledEventBookingType,
-    public scheduledFrom: Date,
+    public startsAt: Date,
     public endsAt: Date,
     public scheduledBy: { id: number },
     public description: string | null

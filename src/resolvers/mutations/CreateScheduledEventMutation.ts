@@ -23,7 +23,7 @@ export class NewScheduledEventInput implements Partial<ScheduledEventBase> {
   bookingType: ScheduledEventBookingType;
 
   @Field(() => TzLessDateTime)
-  scheduledFrom: Date;
+  startsAt: Date;
 
   @Field(() => TzLessDateTime)
   endsAt: Date;

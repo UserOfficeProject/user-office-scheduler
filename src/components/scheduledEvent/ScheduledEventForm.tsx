@@ -33,6 +33,7 @@ export default function ScheduledEventForm() {
           ampm={false}
           minutesStep={60}
           fullWidth
+          data-cy="startsAt"
         />
         <Field
           component={KeyboardDateTimePicker}
@@ -44,6 +45,7 @@ export default function ScheduledEventForm() {
           ampm={false}
           minutesStep={60}
           fullWidth
+          data-cy="endsAt"
         />
       </MuiPickersUtilsProvider>
       <Field
@@ -54,6 +56,7 @@ export default function ScheduledEventForm() {
         label="Booking type"
         margin="normal"
         fullWidth
+        data-cy="bookingType"
       >
         {Object.entries(BookingTypesMap).map(([key, value]) => (
           <MenuItem key={key} value={key}>
@@ -68,6 +71,7 @@ export default function ScheduledEventForm() {
         helperText="Optional"
         margin="normal"
         fullWidth
+        data-cy="description"
       />
     </>
   );

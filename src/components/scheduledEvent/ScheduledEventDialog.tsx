@@ -111,6 +111,7 @@ export default function ScheduledEventDialog({
                   color="primary"
                   onClick={() => closeDialog()}
                   disabled={!isEdit && isSubmitting}
+                  data-cy="btn-close-dialog"
                 >
                   Cancel
                 </Button>
@@ -119,6 +120,7 @@ export default function ScheduledEventDialog({
                   variant="contained"
                   color="primary"
                   disabled={isSubmitting}
+                  data-cy="btn-save-event"
                 >
                   {!isEdit && isSubmitting ? (
                     <CircularProgress size={24} />

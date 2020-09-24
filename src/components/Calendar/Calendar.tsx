@@ -77,6 +77,13 @@ function isOverlapping(
   });
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function slotPropGetter(date: Date): any {
+  return {
+    'data-cy': `event-slot-${date.toISOString()}`,
+  };
+}
+
 export default function Calendar() {
   const classes = useStyles();
 
@@ -167,16 +174,19 @@ export default function Calendar() {
               defaultDate={startsAt}
               step={60}
               timeslots={1}
+              showMultiDayTimes={true}
               dayLayoutAlgorithm={'no-overlap'}
+              eventPropGetter={eventPropGetter}
+              slotPropGetter={slotPropGetter}
               onSelectEvent={onSelectEvent}
               onSelectSlot={onSelectSlot}
               onSelecting={onSelecting}
               onNavigate={onNavigate}
               onView={onViewChange}
-              eventPropGetter={eventPropGetter}
               components={{
                 toolbar: Toolbar,
                 event: Event,
+                // timeSlotWrapper: TimeSlotWrapper,
               }}
             />
             {loading && <Loader />}

@@ -62,6 +62,7 @@ export default function Toolbar({
           variant="contained"
           color={view === name ? 'primary' : 'default'}
           onClick={onChangeView(name)}
+          data-cy={`btn-view-${name}`}
         >
           {messages[name]}
         </Button>
@@ -73,17 +74,34 @@ export default function Toolbar({
     <div className={classes.tooltip}>
       <Grid container>
         <Grid item xs={5} className={classes.buttonGrp}>
-          <Button variant="contained" onClick={onNav('TODAY')}>
+          <Button
+            variant="contained"
+            onClick={onNav('TODAY')}
+            data-cy="btn-view-today"
+          >
             Today
           </Button>
-          <Button variant="contained" onClick={onNav('PREV')}>
+          <Button
+            variant="contained"
+            onClick={onNav('PREV')}
+            data-cy="btn-view-prev"
+          >
             Back
           </Button>
-          <Button variant="contained" onClick={onNav('NEXT')}>
+          <Button
+            variant="contained"
+            onClick={onNav('NEXT')}
+            data-cy="btn-view-next"
+          >
             Next
           </Button>
         </Grid>
-        <Grid item xs={2} className={clsx(classes.flex, classes.centered)}>
+        <Grid
+          item
+          xs={2}
+          className={clsx(classes.flex, classes.centered)}
+          data-cy="content-calendar-toolbar"
+        >
           {label}
         </Grid>
         <Grid

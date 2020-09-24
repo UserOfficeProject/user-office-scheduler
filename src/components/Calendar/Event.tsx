@@ -64,13 +64,13 @@ export function eventPropGetter(
 }
 
 export default function Event({
-  event: { description },
+  event: { description, start },
   title,
 }: EventProps<CalendarScheduledEvent>) {
   const classes = useStyles();
 
   return (
-    <div>
+    <div data-cy={`event-${start.toISOString()}`}>
       <strong>{title}</strong>
       {/* TODO: should be hidden in some cases, like Month view */}
       {description && (

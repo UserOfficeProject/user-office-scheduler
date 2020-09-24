@@ -23,7 +23,7 @@ export class ScheduledEvent implements Partial<ScheduledEventBase> {
   public bookingType: ScheduledEventBookingType;
 
   @Field(() => TzLessDateTime)
-  public scheduledFrom: Date;
+  public startsAt: Date;
 
   @Field(() => TzLessDateTime)
   public endsAt: Date;

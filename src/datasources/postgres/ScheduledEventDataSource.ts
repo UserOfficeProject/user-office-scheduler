@@ -33,11 +33,11 @@ export default class PostgreScheduledEventDataSource
       const { count } = await trx<ScheduledEventRecord>(this.tableName)
         .count('*')
         //
-        .where('scheduled_from', '>=', newScheduledEvent.scheduledFrom)
+        .where('starts_at', '>=', newScheduledEvent.startsAt)
         .andWhere('ends_at', '<=', newScheduledEvent.endsAt)
         //
-        .orWhere('scheduled_from', '<', newScheduledEvent.endsAt)
-        .andWhere('ends_at', '>', newScheduledEvent.scheduledFrom)
+        .orWhere('starts_at', '<', newScheduledEvent.endsAt)
+        .andWhere('ends_at', '>', newScheduledEvent.startsAt)
         .first<{ count: string }>();
 
       if (+count > 0) {
@@ -49,7 +49,7 @@ export default class PostgreScheduledEventDataSource
       const [scheduledEvent] = await trx
         .insert<CreateFields>({
           booking_type: newScheduledEvent.bookingType,
-          scheduled_from: newScheduledEvent.scheduledFrom,
+          starts_at: newScheduledEvent.startsAt,
           ends_at: newScheduledEvent.endsAt,
           scheduled_by: newScheduledEvent.scheduledById,
           description: newScheduledEvent.description,
@@ -80,8 +80,8 @@ export default class PostgreScheduledEventDataSource
   ): Promise<ScheduledEvent[]> {
     const qb = database<ScheduledEventRecord>(this.tableName).select();
 
-    if (filter?.scheduledFrom) {
-      qb.where('scheduled_from', '>=', filter.scheduledFrom);
+    if (filter?.startsAt) {
+      qb.where('starts_at', '>=', filter.startsAt);
     }
 
     if (filter?.endsAt) {

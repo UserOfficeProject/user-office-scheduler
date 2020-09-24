@@ -24,11 +24,7 @@ export default class ScheduledEventMutations {
           error.errorCode ===
             ScheduledEventDataSourceErrorTypes.SCHEDULED_EVENT_OVERLAP
         ) {
-          return rejection(
-            // TODO: add to validators
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ScheduledEventDataSourceErrorTypes.SCHEDULED_EVENT_OVERLAP as any
-          );
+          return rejection('SCHEDULED_EVENT_OVERLAP');
         }
 
         logger.logException('Could not create scheduled event', error, {

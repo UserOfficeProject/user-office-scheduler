@@ -18,7 +18,7 @@ export interface ScheduledEventRecord {
   readonly created_at: Date;
   readonly updated_at: Date;
   readonly booking_type: ScheduledEventBookingType;
-  readonly scheduled_from: Date;
+  readonly starts_at: Date;
   readonly ends_at: Date;
   readonly scheduled_by: number;
   readonly description: string;
@@ -32,7 +32,7 @@ export const createScheduledEventObject = (
     scheduledEvent.created_at,
     scheduledEvent.updated_at,
     scheduledEvent.booking_type,
-    scheduledEvent.scheduled_from,
+    scheduledEvent.starts_at,
     scheduledEvent.ends_at,
     { id: scheduledEvent.scheduled_by }, // federation expect `{[@key field1]: $value, [@key field2]}` format
     scheduledEvent.description

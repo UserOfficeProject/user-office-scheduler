@@ -14,7 +14,7 @@ const endpoint = '/gateway';
 const notificationWithClientLog = async (
   enqueueSnackbar: WithSnackbarProps['enqueueSnackbar'],
   message: string,
-  error = ''
+  error: unknown = ''
 ) => {
   enqueueSnackbar(message, {
     variant: 'error',
@@ -22,10 +22,14 @@ const notificationWithClientLog = async (
   });
 
   if (error) {
-    // await getSdk(
-    //   // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    //   new UnauthorizedGraphQLClient(endpoint, enqueueSnackbar)
-    // ).addClientLog({ error });
+    try {
+      // await getSdk(
+      //   // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      //   new UnauthorizedGraphQLClient(endpoint, enqueueSnackbar)
+      // ).addClientLog({ error });
+    } catch {
+      // if this fails we can't do anything
+    }
   }
 };
 
@@ -43,13 +47,17 @@ class UnauthorizedGraphQLClient extends GraphQLClient {
     variables?: Variables
   ): Promise<T> {
     return super.request(query, variables).catch(error => {
-      if (error.response.error.includes('ECONNREFUSED')) {
+      // if the connection fails the `error` exists
+      // otherwise it won't, so this `includes` would fail
+      if (error.response.error?.includes('ECONNREFUSED')) {
         notificationWithClientLog(this.enqueueSnackbar, 'Connection problem!');
       } else {
         notificationWithClientLog(
           this.enqueueSnackbar,
           'Something went wrong!',
-          error.response.errors[0].message
+          // Server error's should have `errors`
+          // everything else `error`
+          error.response.error ?? error.response.errors
         );
       }
 

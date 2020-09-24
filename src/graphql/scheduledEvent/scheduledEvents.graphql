@@ -1,0 +1,9 @@
+query scheduledEvents($filter: ScheduledEventFilter) {
+  scheduledEvents(filter: $filter) {
+    id
+    bookingType
+    startsAt
+    endsAt
+    description
+  }
+}

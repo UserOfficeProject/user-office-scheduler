@@ -28,11 +28,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-
-      - run: npm ci
-      - run: npm run build --if-present
-      - run: npm test --if-present
-
+        # - run: npm ci
+        # - run: npm run build --if-present
+        # - run: npm test --if-present
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 

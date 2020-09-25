@@ -2,10 +2,7 @@ version: '3.1'
 
 services:
   scheduler-frontend:
-    build:
-      context: './${USER_OFFICE_SCHEDULER_FRONTEND_DIR}'
-      args:
-        - PUBLIC_URL=/scheduler
+    image: 'dmsc/duo-scheduler-backend:${USER_OFFICE_SCHEDULER_FRONTEND_TAG}'
     labels:
-      - 'traefik.frontend.rule=PathPrefix:/scheduler'
+      - 'traefik.frontend.rule=PathPrefix:/scheduler; PathPrefixStrip:/scheduler'
       - 'traefik.port=80'

@@ -66,3 +66,4 @@ jobs:
         with:
           push: true
           tags: dmsc/duo-scheduler-frontend:${{ steps.extract_branch.outputs.branch }}
+          env: -PUBLIC_URL=scheduler

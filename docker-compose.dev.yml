@@ -1,19 +1,21 @@
-version: '3.1'
+version: "3.1"
 
 # Used by user-office-develop to be able to run every components
 services:
   scheduler-backend:
-    # image: TODO
-    build:
-      context: './${USER_OFFICE_SCHEDULER_BACKEND_DIR}'
+    image: "dmsc/duo-scheduler-backend:${USER_OFFICE_SCHEDULER_BACKEND_TAG}"
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=postgres://schedulerUser:schedulerPassword@scheduler-db:5432/scheduler
+      - DATABASE_HOSTNAME=scheduler-db
+      - DATABASE_PORT=5432
+      - DATABASE_USER=schedulerUser
+      - DATABASE_PASSWORD=schedulerPassword
+      - DATABASE_DATABASE=scheduler
     depends_on:
       - scheduler-db
     labels:
-      - 'traefik.frontend.rule=PathPrefix:/scheduler-backend; PathPrefixStrip:/scheduler-backend'
-      - 'traefik.port=4000'
+      - "traefik.frontend.rule=PathPrefix:/scheduler-backend; PathPrefixStrip:/scheduler-backend"
+      - "traefik.port=4000"
 
   scheduler-db:
     image: postgres:11.2
@@ -25,4 +27,4 @@ services:
     ports:
       - 5432
     volumes:
-      - './${USER_OFFICE_SCHEDULER_BACKEND_DIR}/db_patches/:/docker-entrypoint-initdb.d/'
+      - "./${USER_OFFICE_SCHEDULER_BACKEND_DIR}/db_patches/:/docker-entrypoint-initdb.d/"

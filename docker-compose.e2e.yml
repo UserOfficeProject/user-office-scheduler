@@ -9,6 +9,8 @@ services:
     labels:
       - "traefik.frontend.rule=PathPrefix:/scheduler"
       - "traefik.port=80"
+    depends_on:
+      - gateway
 
   cypress:
     build:

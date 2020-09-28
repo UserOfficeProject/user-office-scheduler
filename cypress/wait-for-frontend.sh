@@ -13,5 +13,5 @@ until curl "$host"; do
 done
 
 >&2 echo "frontend is up - executing command"
-sleep 20
+sleep 60
 exec $cmd

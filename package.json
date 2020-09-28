@@ -5,6 +5,7 @@
   "main": "build/index.js",
   "scripts": {
     "build": "rm -rf ./build && tsc",
+    "test": "jest",
     "prod": "npm run build && node ./build/index.js",
     "dev": "ts-node-dev --rs --respawn --watch ./src ./src/index.ts",
     "dev:db:up": "docker-compose -f docker-compose.local.yml up -d",
@@ -67,6 +68,7 @@
     "jest": "^25.4.0",
     "lint-staged": "^10.4.0",
     "prettier": "^1.19.1",
+    "ts-jest": "^25.4.0",
     "ts-node-dev": "^1.0.0-pre.63"
   }
 }

@@ -4,5 +4,5 @@ services:
   scheduler-frontend:
     image: "dmsc/duo-scheduler-frontend:${USER_OFFICE_SCHEDULER_FRONTEND_TAG}"
     labels:
-      - "traefik.frontend.rule=PathPrefix:/scheduler"
+      - "traefik.frontend.rule=PathPrefix:/scheduler; PathPrefixStrip:/scheduler"
       - "traefik.port=80"

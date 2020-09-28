@@ -7,7 +7,7 @@ services:
       args:
         - PUBLIC_URL=/scheduler
     labels:
-      - "traefik.frontend.rule=PathPrefix:/scheduler"
+      - "traefik.frontend.rule=PathPrefix:/scheduler; PathPrefixStrip:/scheduler"
       - "traefik.port=80"
     depends_on:
       - gateway
@@ -16,11 +16,11 @@ services:
     build:
       context: "./${USER_OFFICE_SCHEDULER_FRONTEND_DIR}/cypress"
     ipc: host
-    command:
+    entrypoint:
       [
         "./wait-for-frontend.sh",
         "scheduler-frontend:80/scheduler",
-        "cypress run",
+        "npm run cy:run",
       ]
     depends_on:
       - scheduler-frontend

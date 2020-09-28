@@ -1,4 +1,4 @@
-FROM cypress/included:5.1.0
+FROM cypress/included:5.2.0
 COPY cypress.json .
 COPY package.json .
 COPY tsconfig.json .

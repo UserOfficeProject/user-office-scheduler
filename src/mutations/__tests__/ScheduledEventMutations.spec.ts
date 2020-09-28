@@ -6,7 +6,7 @@ const scheduledEventMutations = new ScheduledEventMutations(
   new MockupScheduledEventDataSource()
 );
 
-test('test', () => {
+test('should create a new scheduled event', () => {
   const startsAt = new Date();
   const endsAt = new Date(+startsAt + 60 * 60 * 1e3);
 

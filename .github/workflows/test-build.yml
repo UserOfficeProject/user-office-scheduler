@@ -49,12 +49,15 @@ jobs:
       - name: Download required repositories
         run: |
           cd "$GITHUB_WORKSPACE/.."
+
           git clone --depth 1 --branch "${{ steps.resolve_rep.outputs.SCHEDULER_BE_TAG }}" https://github.com/UserOfficeProject/user-office-scheduler-backend.git
           git clone --depth 1 --branch "${{ steps.resolve_rep.outputs.UO_BE_TAG }}" https://github.com/UserOfficeProject/user-office-backend.git
           git clone --depth 1 --branch "${{ steps.resolve_rep.outputs.GATEWAY_TAG }}" https://github.com/UserOfficeProject/user-office-gateway.git
 
       - name: Setup base docker-compose
         run: |
+          cd "$GITHUB_WORKSPACE/.."
+
           cat > docker-compose.all.yml << EOF
           version: "3.1"
 
@@ -71,6 +74,8 @@ jobs:
 
       - name: Run docker-compose
         run: |
+          cd "$GITHUB_WORKSPACE/.."
+
           USER_OFFICE_BACKEND_TAG=${{ steps.resolve_rep.outputs.UO_BE_TAG }} \
           USER_OFFICE_BACKEND_DIR=user-office-backend \
           USER_OFFICE_SCHEDULER_BACKEND_TAG=${{ steps.resolve_rep.outputs.SCHEDULER_BE_TAG }} \

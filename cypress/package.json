@@ -1,0 +1,12 @@
+{
+  "name": "duo-scheduler-frontend-e2e",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "typescript": "^3.9.7"
+  },
+  "scripts": {
+    "cypress:open": "cypress open",
+    "cy:run": "cypress run --headless --browser chrome"
+  }
+}

@@ -11,26 +11,89 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  build:
+  e2e:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [12.x]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-        # - run: npm ci
-        # - run: npm run build --if-present
-        # - run: npm test --if-present
+      - name: Resolve required repositories
+        id: resolve_rep
+        run: |
+          SCHEDULER_BE_TAGS_JSON=$(curl -sb -H https://registry.hub.docker.com/v1/repositories/dmsc/duo-scheduler-backend/tags)
+          UO_BE_TAGS_JSON=$(curl -sb -H https://registry.hub.docker.com/v1/repositories/dmsc/duo-backend/tags)
+          GATEWAY_TAGS_JSON=$(curl -sb -H https://registry.hub.docker.com/v1/repositories/dmsc/duo-gateway/tags)
+
+          SCHEDULER_BE_TAG=develop
+          if [[ $(echo $SCHEDULER_BE_TAGS_JSON | jq -c '.[] | select(.name=="${{ github.head_ref }}")' | jq -s '. | length') ]]; then
+            SCHEDULER_BE_TAG="${{ github.head_ref }}"
+          fi
+
+          UO_BE_TAG=develop
+          if [[ $(echo $UO_BE_TAGS_JSON | jq -c '.[] | select(.name=="${{ github.head_ref }}")' | jq -s '. | length') ]]; then
+            UO_BE_TAG="${{ github.head_ref }}"
+          fi
+
+          GATEWAY_TAG=develop
+          if [[ $(echo $GATEWAY_TAGS_JSON | jq -c '.[] | select(.name=="${{ github.head_ref }}")' | jq -s '. | length') ]]; then
+            GATEWAY_TAG="${{ github.head_ref }}"
+          fi
+
+          echo ::set-output name=SCHEDULER_BE_TAG::${SCHEDULER_BE_TAG}
+          echo ::set-output name=UO_BE_TAG::${UO_BE_TAG}
+          echo ::set-output name=GATEWAY_TAG::${GATEWAY_TAG}
+
+      - name: Download required repositories
+        run: |
+          cd "$GITHUB_WORKSPACE/.."
+          git clone --depth 1 --branch "${{ steps.resolve_rep.outputs.SCHEDULER_BE_TAG }}" https://github.com/UserOfficeProject/user-office-scheduler-backend.git
+          git clone --depth 1 --branch "${{ steps.resolve_rep.outputs.UO_BE_TAG }}" https://github.com/UserOfficeProject/user-office-backend.git
+          git clone --depth 1 --branch "${{ steps.resolve_rep.outputs.GATEWAY_TAG }}" https://github.com/UserOfficeProject/user-office-gateway.git
+
+      - name: Setup base docker-compose
+        run: |
+          cat > docker-compose.all.yml << EOF
+          version: "3.1"
+
+          services:
+            reverse-proxy:
+              image: traefik:1.7 # The official Traefik docker image
+              command: --api --docker # Enables the web UI and tells Traefik to listen to docker
+              ports:
+                - "8080:8080" # The Traefik Web UI (enabled by --api)
+                - "8081:80"
+              volumes:
+                - /var/run/docker.sock:/var/run/docker.sock:ro
+          EOF
+
+      - name: Run docker-compose
+        run: |
+          USER_OFFICE_BACKEND_TAG=${{ steps.resolve_rep.outputs.UO_BE_TAG }} \
+          USER_OFFICE_BACKEND_DIR=user-office-backend \
+          USER_OFFICE_SCHEDULER_BACKEND_TAG=${{ steps.resolve_rep.outputs.SCHEDULER_BE_TAG }} \
+          USER_OFFICE_SCHEDULER_BACKEND_DIR=user-office-scheduler-backend \
+          USER_OFFICE_GATEWAY_TAG=${{ steps.resolve_rep.outputs.GATEWAY_TAG }} \
+          USER_OFFICE_BACKEND=http://backend:4000/graphql \
+          USER_OFFICE_SCHEDULER_BACKEND=http://scheduler-backend:4000/graphql \
+          docker-compose -f docker-compose.all.yml \
+            -f user-office-scheduler-backend/docker-compose.e2e.yml \
+            -f user-office-backend/docker-compose.e2e.yml \
+            -f user-office-gateway/docker-compose.e2e.yml \
+            -f "$GITHUB_WORKSPACE/docker-compose.e2e.yml" \
+            up --force-recreate --build --exit-code-from cypress
+
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
@@ -40,23 +103,9 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Extract branch name
-        id: extract_branch
-        shell: bash
-        run: |
-          # Extract branch name
-          # `develop` is the default
-          BRANCH_NAME="develop"
-          if [ "${{ github.head_ref }}" != "" ]; then
-            BRANCH_NAME="${{ github.head_ref }}"
-          fi
-
-          # set output variable accessible in the action
-          echo ::set-output name=branch::${BRANCH_NAME}
-
       # For debugging capture the selected branch
-      - name: Extracted branch
-        run: echo "Extracted branch ${{ steps.extract_branch.outputs.branch }}"
+      - name: Branch
+        run: echo "Branch ${{ github.head_ref }}"
 
       - name: Build and push
         id: docker_build
@@ -64,4 +113,4 @@ jobs:
         with:
           build-args: PUBLIC_URL=/scheduler
           push: true
-          tags: dmsc/duo-scheduler-frontend:${{ steps.extract_branch.outputs.branch }}
+          tags: dmsc/duo-scheduler-frontend:${{ github.head_ref }}

@@ -2,14 +2,18 @@ version: "3.1"
 
 services:
   scheduler-frontend:
-    build: "./${USER_OFFICE_FRONTEND_DIR}"
+    build:
+      context: "./${USER_OFFICE_SCHEDULER_FRONTEND_DIR}"
+      args:
+        - PUBLIC_URL=/scheduler
     labels:
       - "traefik.frontend.rule=PathPrefix:/scheduler"
       - "traefik.port=80"
 
   cypress:
+    build:
+      context: "./${USER_OFFICE_SCHEDULER_FRONTEND_DIR}/cypress"
     ipc: host
-    build: "./${USER_OFFICE_FRONTEND_DIR}/cypress"
     command:
       [
         "./wait-for-frontend.sh",

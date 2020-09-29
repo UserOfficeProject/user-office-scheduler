@@ -5,10 +5,11 @@
   "main": "build/index.js",
   "scripts": {
     "build": "rm -rf ./build && tsc",
+    "test": "jest",
     "prod": "npm run build && node ./build/index.js",
     "dev": "ts-node-dev --rs --respawn --watch ./src ./src/index.ts",
-    "dev:db:up": "docker-compose -f docker-compose.dev.yml up -d",
-    "dev:db:down": "docker-compose -f docker-compose.dev.yml down -v",
+    "dev:db:up": "docker-compose -f docker-compose.local.yml up -d",
+    "dev:db:down": "docker-compose -f docker-compose.local.yml down -v",
     "lint": "tsc --noEmit && eslint ./src --ext .js,.ts --quiet",
     "lint:all": "tsc --noEmit && eslint ./src --ext .js,.ts",
     "lint:fix": "tsc --noEmit && eslint ./src --ext .js,.ts --fix --quiet"
@@ -29,6 +30,8 @@
     "@esss-swap/duo-logger": "^1.0.3",
     "@esss-swap/duo-validation": "^1.1.33",
     "@types/cookie-parser": "^1.4.2",
+    "@types/luxon": "^1.25.0",
+    "@types/yup": "^0.29.7",
     "apollo-graphql": "^0.6.0",
     "apollo-server": "^2.18.0",
     "apollo-server-express": "^2.18.0",
@@ -54,8 +57,6 @@
     "@types/express": "^4.17.8",
     "@types/express-jwt": "0.0.42",
     "@types/jest": "^25.2.1",
-    "@types/luxon": "^1.25.0",
-    "@types/yup": "^0.29.7",
     "@typescript-eslint/eslint-plugin": "^2.29.0",
     "@typescript-eslint/parser": "^2.29.0",
     "eslint": "^6.8.0",
@@ -67,6 +68,7 @@
     "jest": "^25.4.0",
     "lint-staged": "^10.4.0",
     "prettier": "^1.19.1",
+    "ts-jest": "^25.4.0",
     "ts-node-dev": "^1.0.0-pre.63"
   }
 }

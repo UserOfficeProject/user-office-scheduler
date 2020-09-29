@@ -1,9 +1,9 @@
-version: '3.1'
+version: "3.1"
 
 # we only need a db for local development
 services:
   scheduler-db:
-    image: postgres:11.2
+    image: postgres:11-alpine
     restart: always
     environment:
       POSTGRES_DB: scheduler

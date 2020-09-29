@@ -1,0 +1,4 @@
+{
+  "video": false,
+  "baseUrl": "http://reverse-proxy:80/scheduler"
+}

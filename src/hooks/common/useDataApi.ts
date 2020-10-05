@@ -9,7 +9,9 @@ import { useCallback } from 'react';
 
 import { getSdk } from 'generated/sdk';
 
-const endpoint = '/gateway';
+const BACKEND_ENDPOINT = process.env.REACT_APP_API_URL || '';
+
+const endpoint = BACKEND_ENDPOINT + '/gateway';
 
 const notificationWithClientLog = async (
   enqueueSnackbar: WithSnackbarProps['enqueueSnackbar'],

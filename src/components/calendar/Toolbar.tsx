@@ -1,12 +1,26 @@
-import { Button, Grid, makeStyles } from '@material-ui/core';
+import {
+  Button,
+  CircularProgress,
+  Grid,
+  makeStyles,
+  MenuItem,
+  Select,
+  TextField,
+} from '@material-ui/core';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import clsx from 'clsx';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Messages,
   NavigateAction,
   ToolbarProps,
   View,
 } from 'react-big-calendar';
+import { useHistory } from 'react-router';
+
+import { Instrument } from 'generated/sdk';
+import { useQuery } from 'hooks/common/useQuery';
+import useInstruments from 'hooks/instrument/useInstruments';
 
 const useStyles = makeStyles(theme => ({
   flex: {
@@ -18,18 +32,27 @@ const useStyles = makeStyles(theme => ({
   justifyContentFlexEnd: {
     justifyContent: 'flex-end',
   },
+  verticalCenter: {
+    alignItems: 'center',
+  },
   centered: {
     justifyContent: 'center',
     alignItems: 'center',
   },
+  calendarViewSelect: {
+    minWidth: 120,
+  },
+  instrumentSelect: {
+    width: 300,
+  },
   buttonGrp: {
-    '& > button:first-child': {
+    '& > *:first-child': {
       marginLeft: 0,
     },
-    '& > button:last-child': {
+    '& > *:last-child': {
       marginRight: 0,
     },
-    '& > button': {
+    '& > *': {
       margin: theme.spacing(1),
     },
   },
@@ -44,30 +67,81 @@ export default function Toolbar({
   view,
 }: ToolbarProps) {
   const classes = useStyles();
+  const history = useHistory();
+  const { loading: instrumentsLoading, instruments } = useInstruments();
+
+  const query = useQuery();
+
+  const queryInstrument = query.get('instrument');
+
+  const [queryValueInitialized, setQueryValueInitialized] = useState(
+    !queryInstrument // if the link has query instrument query value when rendering this component
+  );
+
+  const [selectedInstrument, setSelectedInstrument] = useState<Pick<
+    Instrument,
+    'id' | 'name'
+  > | null>(null);
+
+  useEffect(() => {
+    if (!instrumentsLoading && queryInstrument) {
+      const found = instruments.find(({ id }) => `${id}` === queryInstrument);
+
+      found && setSelectedInstrument(found);
+      setQueryValueInitialized(true);
+    }
+  }, [instrumentsLoading, instruments, queryInstrument, setSelectedInstrument]);
+
+  useEffect(() => {
+    if (
+      instrumentsLoading ||
+      !queryValueInitialized ||
+      (!selectedInstrument && !queryInstrument)
+    ) {
+      return;
+    }
+
+    if (!selectedInstrument && queryInstrument) {
+      query.delete('instrument');
+    } else if (
+      selectedInstrument &&
+      queryInstrument !== `${selectedInstrument.id}`
+    ) {
+      query.set('instrument', `${selectedInstrument.id}`);
+    } else {
+      return;
+    }
+
+    history.push(`?${query}`);
+  }, [
+    queryValueInitialized,
+    instrumentsLoading,
+    selectedInstrument,
+    queryInstrument,
+    query,
+    history,
+  ]);
 
   const onNav = (navAction: NavigateAction) => () => onNavigate(navAction);
 
-  const onChangeView = (view: View) => () => onView(view);
+  const onChangeView = (view: View) => onView(view);
+
+  const onInstrumentSelect = (
+    selectedInstrument: Pick<Instrument, 'id' | 'name'> | null
+  ) => {
+    setSelectedInstrument(selectedInstrument);
+  };
 
   const viewNamesGroup = (messages: Messages) => {
     if (!Array.isArray(views)) {
       return null;
     }
 
-    if (views.length > 1) {
-      return views.map(name => (
-        <Button
-          key={name}
-          type="button"
-          variant="contained"
-          color={view === name ? 'primary' : 'default'}
-          onClick={onChangeView(name)}
-          data-cy={`btn-view-${name}`}
-        >
-          {messages[name]}
-        </Button>
-      ));
-    }
+    return views.map(name => (
+      <MenuItem key={name} value={name}>
+        {messages[name]}
+      </MenuItem>
+    ));
   };
 
   return (
@@ -95,6 +169,13 @@ export default function Toolbar({
           >
             Next
           </Button>
+          <Select
+            className={classes.calendarViewSelect}
+            value={view}
+            onChange={e => onChangeView(e.target.value as View)}
+          >
+            {viewNamesGroup(messages)}
+          </Select>
         </Grid>
         <Grid
           item
@@ -109,11 +190,47 @@ export default function Toolbar({
           xs={5}
           className={clsx(
             classes.flex,
+            classes.justifyContentFlexEnd,
             classes.buttonGrp,
-            classes.justifyContentFlexEnd
+            classes.verticalCenter
           )}
         >
-          {viewNamesGroup(messages)}
+          <Autocomplete
+            loading={instrumentsLoading}
+            disabled={instrumentsLoading}
+            selectOnFocus
+            clearOnBlur
+            handleHomeEndKeys
+            className={classes.instrumentSelect}
+            options={instruments}
+            getOptionLabel={instrument => instrument.name}
+            renderInput={params => (
+              <TextField
+                {...params}
+                placeholder="Instrument"
+                disabled={instrumentsLoading}
+                InputProps={{
+                  ...params.InputProps,
+                  endAdornment: (
+                    <React.Fragment>
+                      {instrumentsLoading ? (
+                        <CircularProgress color="inherit" size={20} />
+                      ) : null}
+                      {params.InputProps.endAdornment}
+                    </React.Fragment>
+                  ),
+                }}
+              />
+            )}
+            value={selectedInstrument}
+            onChange={(
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              e: any,
+              newValue: Pick<Instrument, 'id' | 'name'> | null
+            ) => {
+              onInstrumentSelect(newValue);
+            }}
+          />
         </Grid>
       </Grid>
     </div>

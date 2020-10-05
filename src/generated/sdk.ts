@@ -13,8 +13,17 @@ export type Scalars = {
   /** The javascript `Date` as string. Type represents date and time as the ISO Date string. */
   DateTime: any;
   IntStringDateBoolArray: any;
-  /** DateTime without timezone in `yyyy-MM-dd HH:mm:ss` format */
+  /** DateTime without timezone in 'yyyy-MM-dd HH:mm:ss' format */
   TzLessDateTime: string;
+};
+
+export type AddProposalWorkflowStatusInput = {
+  proposalWorkflowId: Scalars['Int'];
+  sortOrder: Scalars['Int'];
+  proposalStatusId: Scalars['Int'];
+  nextProposalStatusId?: Maybe<Scalars['Int']>;
+  prevProposalStatusId?: Maybe<Scalars['Int']>;
+  nextStatusEventType: Scalars['String'];
 };
 
 export type AddSepMembersRole = {
@@ -153,6 +162,11 @@ export type DateConfig = {
 };
 
 
+export type DeleteProposalWorkflowStatusInput = {
+  proposalStatusId: Scalars['Int'];
+  proposalWorkflowId: Scalars['Int'];
+};
+
 export type EmailVerificationResponseWrap = {
   __typename?: 'EmailVerificationResponseWrap';
   error: Maybe<Scalars['String']>;
@@ -289,6 +303,12 @@ export type InstrumentWithAvailabilityTime = {
   submitted: Maybe<Scalars['Boolean']>;
 };
 
+
+export type MoveProposalWorkflowStatusInput = {
+  from: Scalars['Int'];
+  to: Scalars['Int'];
+  proposalWorkflowId: Scalars['Int'];
+};
 
 export type OrcIdInformation = {
   __typename?: 'OrcIDInformation';
@@ -444,6 +464,25 @@ export type ProposalWorkflow = {
   id: Scalars['Int'];
   name: Scalars['String'];
   description: Scalars['String'];
+  proposalWorkflowConnections: Array<ProposalWorkflowConnection>;
+};
+
+export type ProposalWorkflowConnection = {
+  __typename?: 'ProposalWorkflowConnection';
+  id: Scalars['Int'];
+  sortOrder: Scalars['Int'];
+  proposalWorkflowId: Scalars['Int'];
+  proposalStatusId: Scalars['Int'];
+  proposalStatus: ProposalStatus;
+  nextProposalStatusId: Maybe<Scalars['Int']>;
+  prevProposalStatusId: Maybe<Scalars['Int']>;
+  nextStatusEventType: Scalars['String'];
+};
+
+export type ProposalWorkflowConnectionResponseWrap = {
+  __typename?: 'ProposalWorkflowConnectionResponseWrap';
+  error: Maybe<Scalars['String']>;
+  proposalWorkflowConnection: Maybe<ProposalWorkflowConnection>;
 };
 
 export type ProposalWorkflowResponseWrap = {
@@ -840,6 +879,22 @@ export type NewScheduledEventInput = {
   description?: Maybe<Scalars['String']>;
 };
 
+export type ProposalBooking = {
+  __typename?: 'ProposalBooking';
+  id: Scalars['ID'];
+  call: Call;
+  proposal: Proposal;
+  createdAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime'];
+  status: ProposalBookingStatus;
+  allocatedTime: Scalars['Int'];
+  instrument: Instrument;
+};
+
+export enum ProposalBookingStatus {
+  DRAFT = 'DRAFT'
+}
+
 export type ScheduledEvent = {
   __typename?: 'ScheduledEvent';
   id: Scalars['ID'];
@@ -922,8 +977,9 @@ export type Query = {
   user: Maybe<User>;
   me: Maybe<User>;
   users: Maybe<UserQueryResult>;
-  scheduledEvent: Maybe<ScheduledEvent>;
+  instrumentProposalBookings: Array<ProposalBooking>;
   scheduledEvents: Array<ScheduledEvent>;
+  scheduledEvent: Maybe<ScheduledEvent>;
   healthCheck: System;
 };
 
@@ -1124,13 +1180,18 @@ export type QueryUsersArgs = {
 };
 
 
-export type QueryScheduledEventArgs = {
+export type QueryInstrumentProposalBookingsArgs = {
   id: Scalars['ID'];
 };
 
 
 export type QueryScheduledEventsArgs = {
   filter?: Maybe<ScheduledEventFilter>;
+};
+
+
+export type QueryScheduledEventArgs = {
+  id: Scalars['ID'];
 };
 
 export type Mutation = {
@@ -1151,8 +1212,11 @@ export type Mutation = {
   submitInstrument: SuccessResponseWrap;
   administrationProposal: ProposalResponseWrap;
   updateProposal: ProposalResponseWrap;
+  addProposalWorkflowStatus: ProposalWorkflowConnectionResponseWrap;
   createProposalStatus: ProposalStatusResponseWrap;
   createProposalWorkflow: ProposalWorkflowResponseWrap;
+  deleteProposalWorkflowStatus: SuccessResponseWrap;
+  moveProposalWorkflowStatus: ProposalWorkflowConnectionResponseWrap;
   updateProposalStatus: ProposalStatusResponseWrap;
   updateProposalWorkflow: ProposalWorkflowResponseWrap;
   answerTopic: QuestionaryStepResponseWrap;
@@ -1189,6 +1253,7 @@ export type Mutation = {
   addClientLog: SuccessResponseWrap;
   applyPatches: PrepareDbResponseWrap;
   assignQuestionsToTopic: AssignQuestionsToTopicResponseWrap;
+  cloneSample: SampleResponseWrap;
   cloneTemplate: TemplateResponseWrap;
   createAnswerQuestionaryRelations: AnswerBasicResponseWrap;
   createProposal: ProposalResponseWrap;
@@ -1352,6 +1417,11 @@ export type MutationUpdateProposalArgs = {
 };
 
 
+export type MutationAddProposalWorkflowStatusArgs = {
+  newProposalWorkflowStatusInput: AddProposalWorkflowStatusInput;
+};
+
+
 export type MutationCreateProposalStatusArgs = {
   newProposalStatusInput: CreateProposalStatusInput;
 };
@@ -1359,6 +1429,16 @@ export type MutationCreateProposalStatusArgs = {
 
 export type MutationCreateProposalWorkflowArgs = {
   newProposalWorkflowInput: CreateProposalWorkflowInput;
+};
+
+
+export type MutationDeleteProposalWorkflowStatusArgs = {
+  deleteProposalWorkflowStatusInput: DeleteProposalWorkflowStatusInput;
+};
+
+
+export type MutationMoveProposalWorkflowStatusArgs = {
+  moveProposalWorkflowStatusInput: MoveProposalWorkflowStatusInput;
 };
 
 
@@ -1633,6 +1713,11 @@ export type MutationAssignQuestionsToTopicArgs = {
 };
 
 
+export type MutationCloneSampleArgs = {
+  sampleId: Scalars['Int'];
+};
+
+
 export type MutationCloneTemplateArgs = {
   templateId: Scalars['Int'];
 };
@@ -1801,6 +1886,41 @@ export type ServerHealthCheckQuery = (
   ) }
 );
 
+export type InstrumentsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type InstrumentsQuery = (
+  { __typename?: 'Query' }
+  & { instruments: Maybe<(
+    { __typename?: 'InstrumentsQueryResult' }
+    & Pick<InstrumentsQueryResult, 'totalCount'>
+    & { instruments: Array<(
+      { __typename?: 'Instrument' }
+      & Pick<Instrument, 'id' | 'name'>
+    )> }
+  )> }
+);
+
+export type InstrumentProposalBookingsQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type InstrumentProposalBookingsQuery = (
+  { __typename?: 'Query' }
+  & { instrumentProposalBookings: Array<(
+    { __typename?: 'ProposalBooking' }
+    & Pick<ProposalBooking, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'allocatedTime'>
+    & { call: (
+      { __typename?: 'Call' }
+      & Pick<Call, 'id' | 'shortCode' | 'startCycle' | 'endCycle' | 'cycleComment'>
+    ), proposal: (
+      { __typename?: 'Proposal' }
+      & Pick<Proposal, 'id' | 'title' | 'shortCode'>
+    ) }
+  )> }
+);
+
 export type CreateScheduledEventMutationVariables = Exact<{
   input: NewScheduledEventInput;
 }>;
@@ -1844,6 +1964,40 @@ export const ServerHealthCheckDocument = gql`
   }
 }
     `;
+export const InstrumentsDocument = gql`
+    query instruments {
+  instruments {
+    totalCount
+    instruments {
+      id
+      name
+    }
+  }
+}
+    `;
+export const InstrumentProposalBookingsDocument = gql`
+    query instrumentProposalBookings($id: ID!) {
+  instrumentProposalBookings(id: $id) {
+    id
+    call {
+      id
+      shortCode
+      startCycle
+      endCycle
+      cycleComment
+    }
+    proposal {
+      id
+      title
+      shortCode
+    }
+    createdAt
+    updatedAt
+    status
+    allocatedTime
+  }
+}
+    `;
 export const CreateScheduledEventDocument = gql`
     mutation createScheduledEvent($input: NewScheduledEventInput!) {
   createScheduledEvent(newScheduledEvent: $input) {
@@ -1878,6 +2032,12 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
   return {
     serverHealthCheck(variables?: ServerHealthCheckQueryVariables): Promise<ServerHealthCheckQuery> {
       return withWrapper(() => client.request<ServerHealthCheckQuery>(print(ServerHealthCheckDocument), variables));
+    },
+    instruments(variables?: InstrumentsQueryVariables): Promise<InstrumentsQuery> {
+      return withWrapper(() => client.request<InstrumentsQuery>(print(InstrumentsDocument), variables));
+    },
+    instrumentProposalBookings(variables: InstrumentProposalBookingsQueryVariables): Promise<InstrumentProposalBookingsQuery> {
+      return withWrapper(() => client.request<InstrumentProposalBookingsQuery>(print(InstrumentProposalBookingsDocument), variables));
     },
     createScheduledEvent(variables: CreateScheduledEventMutationVariables): Promise<CreateScheduledEventMutation> {
       return withWrapper(() => client.request<CreateScheduledEventMutation>(print(CreateScheduledEventDocument), variables));

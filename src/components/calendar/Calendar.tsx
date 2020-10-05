@@ -23,6 +23,7 @@ import { parseTzLessDateTime } from 'utils/date';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import 'styles/react-big-calendar.css';
 
+import CalendarTodoBox from './CalendarTodoBox';
 import Event, { CalendarScheduledEvent, eventPropGetter } from './Event';
 import Toolbar from './Toolbar';
 
@@ -163,32 +164,39 @@ export default function Calendar() {
               isDialogOpen={selectedEvent !== null}
               closeDialog={closeDialog}
             />
-            <BigCalendar
-              selectable
-              // TODO: needs some position fixing
-              // popup
-              localizer={localizer}
-              events={events}
-              defaultView={CALENDAR_DEFAULT_VIEW}
-              views={['month', 'week']}
-              defaultDate={startsAt}
-              step={60}
-              timeslots={1}
-              showMultiDayTimes={true}
-              dayLayoutAlgorithm={'no-overlap'}
-              eventPropGetter={eventPropGetter}
-              slotPropGetter={slotPropGetter}
-              onSelectEvent={onSelectEvent}
-              onSelectSlot={onSelectSlot}
-              onSelecting={onSelecting}
-              onNavigate={onNavigate}
-              onView={onViewChange}
-              components={{
-                toolbar: Toolbar,
-                event: Event,
-                // timeSlotWrapper: TimeSlotWrapper,
-              }}
-            />
+            <Grid container className={classes.fullHeight}>
+              <Grid item xs className={classes.fullHeight}>
+                <BigCalendar
+                  selectable
+                  // TODO: needs some position fixing
+                  // popup
+                  localizer={localizer}
+                  events={events}
+                  defaultView={CALENDAR_DEFAULT_VIEW}
+                  views={['month', 'week']}
+                  defaultDate={startsAt}
+                  step={60}
+                  timeslots={1}
+                  showMultiDayTimes={true}
+                  dayLayoutAlgorithm={'no-overlap'}
+                  eventPropGetter={eventPropGetter}
+                  slotPropGetter={slotPropGetter}
+                  onSelectEvent={onSelectEvent}
+                  onSelectSlot={onSelectSlot}
+                  onSelecting={onSelecting}
+                  onNavigate={onNavigate}
+                  onView={onViewChange}
+                  components={{
+                    toolbar: Toolbar,
+                    event: Event,
+                    // timeSlotWrapper: TimeSlotWrapper,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={2} className={classes.fullHeight}>
+                <CalendarTodoBox refreshCalendar={refresh} />
+              </Grid>
+            </Grid>
             {loading && <Loader />}
           </StyledPaper>
         </Grid>

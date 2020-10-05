@@ -1,4 +1,4 @@
-import { Arg, Ctx, Field, InputType, Query, Resolver } from 'type-graphql';
+import { Arg, Ctx, Field, ID, InputType, Query, Resolver } from 'type-graphql';
 
 import { ResolverContext } from '../../context';
 import { TzLessDateTime } from '../CustomScalars';
@@ -22,5 +22,14 @@ export class ScheduledEventsQuery {
     filter: ScheduledEventFilter
   ) {
     return context.queries.scheduledEvent.scheduledEvents(filter);
+  }
+
+  @Query(() => ScheduledEvent, { nullable: true })
+  scheduledEvent(
+    @Ctx() context: ResolverContext,
+    @Arg('id', () => ID)
+    id: number
+  ) {
+    return context.queries.scheduledEvent.scheduledEvent(id);
   }
 }

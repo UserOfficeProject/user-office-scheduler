@@ -7,24 +7,24 @@ BEGIN
     CREATE OR REPLACE FUNCTION trigger_set_timestamp()
     RETURNS TRIGGER AS $$
     BEGIN
-      NEW.updated_at = NOW();
+      NEW."updated_at" = NOW();
       RETURN NEW;
     END;
     $$ LANGUAGE plpgsql;
 
-    CREATE TABLE scheduled_events (
-        scheduled_event_id serial PRIMARY KEY
-      , created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-      , updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-      , booking_type varchar(30) NOT NULL
-      , starts_at TIMESTAMP NOT NULL
-      , ends_at TIMESTAMP NOT NULL
-      , scheduled_by int NOT NULL -- comes from a different db?
-      , description varchar(200) DEFAULT NULL
+    CREATE TABLE "scheduled_events" (
+        "scheduled_event_id" SERIAL PRIMARY KEY
+      , "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      , "updated_at" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      , "booking_type" varchar(30) NOT NULL
+      , "starts_at" TIMESTAMP NOT NULL
+      , "ends_at" TIMESTAMP NOT NULL
+      , "scheduled_by" int NOT NULL -- comes from a different db?
+      , "description" varchar(200) DEFAULT NULL
     );
 
     CREATE TRIGGER set_timestamp
-    BEFORE UPDATE ON scheduled_events
+    BEFORE UPDATE ON "scheduled_events"
     FOR EACH ROW
     EXECUTE PROCEDURE trigger_set_timestamp();
 

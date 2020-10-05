@@ -1,5 +1,6 @@
 import ScheduledEventMutations from '../mutations/ScheduledEventMutations';
 import SystemMutations from '../mutations/SystemMutations';
+import ProposalBookingQueries from '../queries/ProposalBookingQueries';
 import ScheduledEventQueries from '../queries/ScheduledEventQueries';
 import SystemQueries from '../queries/SystemQueries';
 
@@ -9,6 +10,7 @@ interface ResolverContextMutations {
 }
 
 interface ResolverContextQueries {
+  proposalBooking: ProposalBookingQueries;
   scheduledEvent: ScheduledEventQueries;
   system: SystemQueries;
 }

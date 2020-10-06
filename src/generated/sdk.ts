@@ -865,6 +865,12 @@ export enum UserRole {
   SAMPLE_SAFETY_REVIEWER = 'SAMPLE_SAFETY_REVIEWER'
 }
 
+export type BulkUpsertScheduledEventsInput = {
+  scheduledById: Scalars['ID'];
+  proposalBookingId: Scalars['ID'];
+  scheduledEvents: Array<SimpleScheduledEvent>;
+};
+
 export type DbStat = {
   __typename?: 'DbStat';
   total: Scalars['Float'];
@@ -923,6 +929,18 @@ export type ScheduledEventResponseWrap = {
   __typename?: 'ScheduledEventResponseWrap';
   error: Maybe<Scalars['String']>;
   scheduledEvent: Maybe<ScheduledEvent>;
+};
+
+export type ScheduledEventsResponseWrap = {
+  __typename?: 'ScheduledEventsResponseWrap';
+  error: Maybe<Scalars['String']>;
+  scheduledEvent: Maybe<Array<ScheduledEvent>>;
+};
+
+export type SimpleScheduledEvent = {
+  id: Scalars['ID'];
+  startsAt: Scalars['TzLessDateTime'];
+  endsAt: Scalars['TzLessDateTime'];
 };
 
 export type System = {
@@ -1284,6 +1302,7 @@ export type Mutation = {
   updateSampleTitle: SampleResponseWrap;
   updateTopicOrder: UpdateTopicOrderResponseWrap;
   createScheduledEvent: ScheduledEventResponseWrap;
+  bulkUpsertScheduledEvents: ScheduledEventsResponseWrap;
 };
 
 
@@ -1871,6 +1890,11 @@ export type MutationCreateScheduledEventArgs = {
   newScheduledEvent: NewScheduledEventInput;
 };
 
+
+export type MutationBulkUpsertScheduledEventsArgs = {
+  bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput;
+};
+
 export type ServerHealthCheckQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -1919,6 +1943,23 @@ export type InstrumentProposalBookingsQuery = (
       & Pick<Proposal, 'id' | 'title' | 'shortCode'>
     ) }
   )> }
+);
+
+export type BulkUpsertScheduledEventsMutationVariables = Exact<{
+  input: BulkUpsertScheduledEventsInput;
+}>;
+
+
+export type BulkUpsertScheduledEventsMutation = (
+  { __typename?: 'Mutation' }
+  & { bulkUpsertScheduledEvents: (
+    { __typename?: 'ScheduledEventsResponseWrap' }
+    & Pick<ScheduledEventsResponseWrap, 'error'>
+    & { scheduledEvent: Maybe<Array<(
+      { __typename?: 'ScheduledEvent' }
+      & Pick<ScheduledEvent, 'id' | 'bookingType' | 'startsAt' | 'endsAt' | 'description'>
+    )>> }
+  ) }
 );
 
 export type CreateScheduledEventMutationVariables = Exact<{
@@ -1998,6 +2039,20 @@ export const InstrumentProposalBookingsDocument = gql`
   }
 }
     `;
+export const BulkUpsertScheduledEventsDocument = gql`
+    mutation bulkUpsertScheduledEvents($input: BulkUpsertScheduledEventsInput!) {
+  bulkUpsertScheduledEvents(bulkUpsertScheduledEvents: $input) {
+    error
+    scheduledEvent {
+      id
+      bookingType
+      startsAt
+      endsAt
+      description
+    }
+  }
+}
+    `;
 export const CreateScheduledEventDocument = gql`
     mutation createScheduledEvent($input: NewScheduledEventInput!) {
   createScheduledEvent(newScheduledEvent: $input) {
@@ -2038,6 +2093,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     instrumentProposalBookings(variables: InstrumentProposalBookingsQueryVariables): Promise<InstrumentProposalBookingsQuery> {
       return withWrapper(() => client.request<InstrumentProposalBookingsQuery>(print(InstrumentProposalBookingsDocument), variables));
+    },
+    bulkUpsertScheduledEvents(variables: BulkUpsertScheduledEventsMutationVariables): Promise<BulkUpsertScheduledEventsMutation> {
+      return withWrapper(() => client.request<BulkUpsertScheduledEventsMutation>(print(BulkUpsertScheduledEventsDocument), variables));
     },
     createScheduledEvent(variables: CreateScheduledEventMutationVariables): Promise<CreateScheduledEventMutation> {
       return withWrapper(() => client.request<CreateScheduledEventMutation>(print(CreateScheduledEventDocument), variables));

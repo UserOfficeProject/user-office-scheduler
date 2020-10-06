@@ -98,7 +98,7 @@ export default function ProposalBookingDialog({
   closeDialog,
 }: ProposalBookingDialogProps) {
   const classes = useStyles();
-  const [activeStep, setActiveStep] = useState(3);
+  const [activeStep, setActiveStep] = useState(0);
   const [isDirty, setIsDirty] = useState(false);
   const [activeConfirmation, setActiveConfirmation] = useState<
     (() => void) | null

@@ -1,6 +1,8 @@
 import {
   Avatar,
+  Backdrop,
   Button,
+  CircularProgress,
   DialogActions,
   DialogContent,
   Divider,
@@ -21,9 +23,11 @@ import {
 import clsx from 'clsx';
 import humanizeDuration from 'humanize-duration';
 import moment, { Moment } from 'moment';
+import { useSnackbar } from 'notistack';
 import React, { useMemo, useState } from 'react';
 
 import ConfirmationDialog from 'components/common/ConfirmationDialog';
+import { useUnauthorizedApi } from 'hooks/common/useDataApi';
 import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
 import { toTzLessDateTime } from 'utils/date';
 import { hasOverlappingEvents } from 'utils/scheduledEvent';
@@ -66,18 +70,38 @@ const useStyles = makeStyles(theme => ({
     flexBasis: 0,
     alignSelf: 'flex-start',
   },
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
+  },
 }));
 
-type test = TimeTableRow & { newlyCreated?: true };
-
-const _rows: test[] = [
-  // {
-  //   id: '00001',
-  //   startsAt: moment().startOf('hour'),
-  //   endsAt: moment()
-  //     .startOf('hour')
-  //     .add(1, 'hour'),
-  // },
+const _rows: TimeTableRow[] = [
+  {
+    id: '00001',
+    startsAt: moment().startOf('hour'),
+    endsAt: moment()
+      .startOf('hour')
+      .add(2, 'days'),
+  },
+  {
+    id: '00010',
+    startsAt: moment()
+      .startOf('hour')
+      .add(2, 'day'),
+    endsAt: moment()
+      .startOf('hour')
+      .add(4, 'day'),
+  },
+  {
+    id: '00100',
+    startsAt: moment()
+      .startOf('hour')
+      .add(4, 'days'),
+    endsAt: moment()
+      .startOf('hour')
+      .add(5, 'days'),
+  },
 ];
 
 const formatDuration = (durSec: number) =>
@@ -89,8 +113,8 @@ const formatDuration = (durSec: number) =>
 
 type BookingEventStepProps = {
   proposalBooking: InstrumentProposalBooking;
-  handleNext: () => void;
   isDirty: boolean;
+  handleNext: () => void;
   handleSetDirty: (isDirty: boolean) => void;
 };
 
@@ -107,7 +131,10 @@ export default function BookingEventStep({
 
   const classes = useStyles();
 
+  const { enqueueSnackbar } = useSnackbar();
+  const api = useUnauthorizedApi();
   const [rows, setRows] = useState(_rows);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { allocated, allocatable } = useMemo(() => {
     const max = proposalBooking.allocatedTime;
@@ -205,8 +232,49 @@ export default function BookingEventStep({
     }
   };
 
-  const handleSubmit = () => {
-    console.log('handle submit');
+  const handleSubmit = async () => {
+    try {
+      console.log('handle submit');
+      setIsSubmitting(true);
+
+      const updateObj = {
+        scheduledById: '0',
+        proposalBookingId: proposalBooking.id,
+        scheduledEvents: rows.map(({ id, startsAt, endsAt }) => ({
+          id,
+          startsAt,
+          endsAt,
+        })),
+      };
+
+      const {
+        bulkUpsertScheduledEvents: { error, scheduledEvent },
+      } = await api().bulkUpsertScheduledEvents({
+        input: {
+          scheduledById: '0',
+          proposalBookingId: proposalBooking.id,
+          scheduledEvents: rows.map(({ id, startsAt, endsAt }) => ({
+            id,
+            startsAt: toTzLessDateTime(startsAt),
+            endsAt: toTzLessDateTime(endsAt),
+          })),
+        },
+      });
+
+      if (error) {
+        // enqueueSnackbar(getTranslation(error as ResourceId), {
+        //   variant: 'error',
+        // });
+        console.error({ error });
+      } else {
+        console.log({ scheduledEvent });
+      }
+    } catch (e) {
+      // TODO
+      console.error(e);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleSaveDraft = () => {
@@ -227,6 +295,9 @@ export default function BookingEventStep({
           message={activeConfirmation?.message ?? ''}
           onClose={handleConfirmationClose}
         />
+        <Backdrop className={classes.backdrop} open={isSubmitting}>
+          <CircularProgress color="inherit" />
+        </Backdrop>
 
         <Grid container spacing={2}>
           <Grid item xs={6}>

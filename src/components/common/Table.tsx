@@ -90,23 +90,25 @@ interface EnhancedTableProps<T> {
   headCells: HeadCell<T>[];
   classes: ReturnType<typeof useStyles>;
   numSelected: number;
-  onRequestSort: (event: React.MouseEvent<unknown>, property: keyof T) => void;
-  onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
   order: Order;
   orderBy: keyof T;
   rowCount: number;
+  disableSelect?: boolean;
+  onRequestSort: (event: React.MouseEvent<unknown>, property: keyof T) => void;
+  onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 function EnhancedTableHead<T>(props: EnhancedTableProps<T>) {
   const {
     headCells,
     classes,
-    onSelectAllClick,
     order,
     orderBy,
     numSelected,
     rowCount,
+    disableSelect,
     onRequestSort,
+    onSelectAllClick,
   } = props;
   const createSortHandler = (property: keyof T) => (
     event: React.MouseEvent<unknown>
@@ -117,14 +119,16 @@ function EnhancedTableHead<T>(props: EnhancedTableProps<T>) {
   return (
     <TableHead>
       <TableRow>
-        <TableCell padding="checkbox">
-          <Checkbox
-            indeterminate={numSelected > 0 && numSelected < rowCount}
-            checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
-            inputProps={{ 'aria-label': 'select all' }}
-          />
-        </TableCell>
+        {!disableSelect && (
+          <TableCell padding="checkbox">
+            <Checkbox
+              indeterminate={numSelected > 0 && numSelected < rowCount}
+              checked={rowCount > 0 && numSelected === rowCount}
+              onChange={onSelectAllClick}
+              inputProps={{ 'aria-label': 'select all' }}
+            />
+          </TableCell>
+        )}
         {headCells.map(headCell => (
           <TableCell
             key={`${headCell.id}`}
@@ -178,11 +182,13 @@ const useToolbarStyles = makeStyles((theme: Theme) =>
 interface EnhancedTableToolbarProps {
   numSelected: number;
   title: string | JSX.Element;
+  onDelete: () => void;
 }
 
 const EnhancedTableToolbar = ({
   numSelected,
   title,
+  onDelete,
 }: EnhancedTableToolbarProps) => {
   const classes = useToolbarStyles();
 
@@ -213,7 +219,7 @@ const EnhancedTableToolbar = ({
       )}
       {numSelected > 0 && (
         <Tooltip title="Delete">
-          <IconButton aria-label="delete">
+          <IconButton aria-label="delete" onClick={onDelete}>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
@@ -222,37 +228,40 @@ const EnhancedTableToolbar = ({
   );
 };
 
-type Props<T extends object> = {
+type TableProps<T extends object> = {
   headCells: HeadCell<T>[];
   rows: T[];
   tableTitle: string | JSX.Element;
   defaultOrderBy: keyof T;
-  rowsPerPageOptions?: number[];
+  rowsPerPageOptions?: Array<number | { value: number; label: string }>;
   showEmptyRows?: boolean;
+  tableContainerMaxHeight?: number;
+  disableSelect?: boolean;
   renderRow: (row: T) => JSX.Element;
   extractKey: (obj: T) => string;
+  onDelete?: (ids: string[]) => void;
 };
 
-const defaultRowsPerPageOptions = [5, 10, 25];
+const defaultRowsPerPageOptions = [5, 10, 25, { value: -1, label: 'All' }];
 
 export default function Table<T extends { [k: string]: any }>({
   headCells,
   rows,
   tableTitle,
   defaultOrderBy,
-  rowsPerPageOptions,
   showEmptyRows,
+  tableContainerMaxHeight,
+  disableSelect,
   renderRow,
   extractKey,
-}: Props<T>) {
+  onDelete,
+}: TableProps<T>) {
   const classes = useStyles();
   const [order, setOrder] = useState<Order>('asc');
   const [orderBy, setOrderBy] = useState<keyof T>(defaultOrderBy);
   const [selected, setSelected] = useState<string[]>([]);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState<number>(
-    rowsPerPageOptions?.[0] ?? defaultRowsPerPageOptions[0]
-  );
+  const [rowsPerPage, setRowsPerPage] = useState<number>(5);
 
   const handleRequestSort = (
     _: React.MouseEvent<unknown>,
@@ -304,6 +313,11 @@ export default function Table<T extends { [k: string]: any }>({
     setPage(0);
   };
 
+  const handleDelete = () => {
+    onDelete?.(selected);
+    setSelected([]);
+  };
+
   const isSelected = (key: string) => selected.indexOf(key) !== -1;
 
   const emptyRows =
@@ -311,8 +325,15 @@ export default function Table<T extends { [k: string]: any }>({
 
   return (
     <>
-      <EnhancedTableToolbar title={tableTitle} numSelected={selected.length} />
-      <TableContainer style={{ maxHeight: 440 }}>
+      <EnhancedTableToolbar
+        title={tableTitle}
+        numSelected={selected.length}
+        onDelete={handleDelete}
+      />
+      <TableContainer
+        style={{ maxHeight: tableContainerMaxHeight }}
+        className="MuiPaper-elevation2"
+      >
         <MUiTable
           className={classes.table}
           aria-labelledby="tableTitle"
@@ -328,6 +349,7 @@ export default function Table<T extends { [k: string]: any }>({
             orderBy={orderBy}
             onSelectAllClick={handleSelectAllClick}
             onRequestSort={handleRequestSort}
+            disableSelect={disableSelect}
             rowCount={rows.length}
           />
           <TableBody>
@@ -355,12 +377,14 @@ export default function Table<T extends { [k: string]: any }>({
                     tabIndex={-1}
                     selected={isItemSelected}
                   >
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        checked={isItemSelected}
-                        onClick={event => handleClick(event, extractKey(row))}
-                      />
-                    </TableCell>
+                    {!disableSelect && (
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          checked={isItemSelected}
+                          onClick={event => handleClick(event, extractKey(row))}
+                        />
+                      </TableCell>
+                    )}
                     {renderRow(row)}
                   </TableRow>
                 );
@@ -374,7 +398,7 @@ export default function Table<T extends { [k: string]: any }>({
         </MUiTable>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={rowsPerPageOptions ?? defaultRowsPerPageOptions}
+        rowsPerPageOptions={defaultRowsPerPageOptions}
         component="div"
         count={rows.length}
         rowsPerPage={rowsPerPage}

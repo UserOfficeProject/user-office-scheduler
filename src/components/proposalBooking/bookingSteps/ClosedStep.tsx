@@ -1,33 +1,42 @@
-import { DialogContent, Typography } from '@material-ui/core';
+import { DialogContent, makeStyles } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import moment from 'moment';
 import React from 'react';
 
 import TimeTable from '../TimeTable';
 
-type Test = { id: string; startsAt: Date; endsAt: Date };
+const useStyles = makeStyles(() => ({
+  resetFlex: {
+    flexShrink: 0,
+    flexGrow: 0,
+  },
+}));
 
-const rows: Test[] = new Array(60).fill(0).map((_, i) => ({
+const rows = new Array(60).fill(0).map((_, i) => ({
   id: `${i}`,
-  startsAt: moment()
-    .startOf('hour')
-    .toDate(),
+  startsAt: moment().startOf('hour'),
   endsAt: moment()
     .startOf('hour')
-    .add(1, 'hour')
-    .toDate(),
+    .add(1, 'hour'),
 }));
 
 export default function ClosedStep() {
+  const classes = useStyles();
+
   return (
     <>
-      <DialogContent style={{ flexShrink: 0 }}>
+      <DialogContent className={classes.resetFlex}>
         <Alert severity="info">
           Proposal booking is already closed, you can not edit it.
         </Alert>
       </DialogContent>
       <DialogContent>
-        <TimeTable rows={rows} titleComponent="Logged lost time" />
+        <TimeTable
+          disableSelect
+          maxHeight={530}
+          rows={rows}
+          titleComponent="Logged lost time"
+        />
       </DialogContent>
     </>
   );

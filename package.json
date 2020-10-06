@@ -45,6 +45,7 @@
     "formik-material-ui-pickers": "0.0.11",
     "graphql": "^15.3.0",
     "graphql-request": "^3.1.0",
+    "humanize-duration": "^3.24.0",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.20",
     "moment": "^2.29.0",
@@ -84,6 +85,7 @@
   },
   "devDependencies": {
     "@types/eslint": "~6.8.1",
+    "@types/humanize-duration": "^3.18.1",
     "@types/node": "^12.12.62",
     "@typescript-eslint/eslint-plugin": "~2.34.0",
     "@typescript-eslint/parser": "~2.34.0",

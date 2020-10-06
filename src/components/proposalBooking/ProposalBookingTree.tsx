@@ -127,11 +127,16 @@ export default function ProposalBookingTree({
 
   return (
     <div className={clsx(classes.flexBox, classes.autoOverflow)}>
-      <ProposalBookingDialog
-        proposalBooking={selectedProposalBooking}
-        isDialogOpen={selectedProposalBooking !== null}
-        closeDialog={closeDialog}
-      />
+      {// unmount the component when the dialog is closed
+      // so next time we start from scratch
+      selectedProposalBooking !== null && (
+        <ProposalBookingDialog
+          proposalBooking={selectedProposalBooking}
+          isDialogOpen={true}
+          closeDialog={closeDialog}
+        />
+      )}
+
       <TreeView
         defaultCollapseIcon={<ExpandMoreIcon />}
         defaultExpandIcon={<ChevronRightIcon />}

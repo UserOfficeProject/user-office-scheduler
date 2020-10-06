@@ -9,9 +9,10 @@ import {
   MuiPickersUtilsProvider,
   KeyboardDateTimePicker,
 } from '@material-ui/pickers';
-import moment, { Moment } from 'moment';
-import React, { useState } from 'react';
+import { Moment } from 'moment';
+import React, { useMemo, useState } from 'react';
 
+import AlertDialog from 'components/common/AlertDialog';
 import Table, { HeadCell } from 'components/common/Table';
 import {
   toTzLessDateTime,
@@ -20,17 +21,11 @@ import {
 
 export type TimeTableRow = {
   id: string;
-  startsAt: Date;
-  endsAt: Date;
+  startsAt: Moment;
+  endsAt: Moment;
 };
 
-const headCells: HeadCell<TimeTableRow>[] = [
-  {
-    id: 'id',
-    numeric: false,
-    disablePadding: true,
-    label: 'Actions',
-  },
+const defaultHeadCells: HeadCell<TimeTableRow>[] = [
   { id: 'startsAt', numeric: false, disablePadding: false, label: 'Starts at' },
   { id: 'endsAt', numeric: false, disablePadding: false, label: 'Ends at' },
 ];
@@ -48,67 +43,88 @@ function InlineTimeEdit({
 }: {
   row: TimeTableRow;
   onDiscard: () => void;
-  onSave: (startsAt: Moment, endsAt: Moment) => void;
+  onSave: (id: string, startsAt: Moment, endsAt: Moment) => void;
 }) {
   const classes = useStyles();
-  const [startsAt, setStartsAt] = useState<Moment | null>(moment(row.startsAt));
-  const [endsAt, setEndsAt] = useState<Moment | null>(moment(row.endsAt));
+  const [startsAt, setStartsAt] = useState<Moment | null>(row.startsAt);
+  const [endsAt, setEndsAt] = useState<Moment | null>(row.endsAt);
+  const [alertOn, setAlertOn] = useState(false);
 
   const handleOnSave = () => {
-    if (!startsAt || !endsAt) {
+    if (!startsAt || !endsAt || !startsAt.isValid() || !endsAt.isValid()) {
+      // when the value is empty or invalid it is quite obvious why we prevent save
       return;
     }
 
-    onSave(startsAt, endsAt);
+    if (startsAt >= endsAt) {
+      // when the starting date is after ending date
+      // it may be less obvious for the user, show alert
+      setAlertOn(true);
+
+      return;
+    }
+
+    onSave(row.id, startsAt, endsAt);
+  };
+
+  const handleAlertClose = () => {
+    setAlertOn(false);
   };
 
   return (
-    <MuiPickersUtilsProvider utils={MomentUtils}>
-      <TableCell component="th" scope="row" padding="none">
-        <IconButton onClick={handleOnSave}>
-          <CheckIcon />
-        </IconButton>
-        <IconButton onClick={onDiscard}>
-          <ClearIcon />
-        </IconButton>
-      </TableCell>
-      <TableCell align="left">
-        <KeyboardDateTimePicker
-          required
-          name={`startsAt`}
-          margin="none"
-          size="small"
-          format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
-          ampm={false}
-          minutesStep={60}
-          fullWidth
-          data-cy="startsAt"
-          InputProps={{
-            className: classes.smaller,
-          }}
-          value={startsAt}
-          onChange={newValue => setStartsAt(newValue)}
-        />
-      </TableCell>
-      <TableCell align="left">
-        <KeyboardDateTimePicker
-          required
-          name={`endsAt`}
-          margin="none"
-          size="small"
-          format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
-          ampm={false}
-          minutesStep={60}
-          fullWidth
-          data-cy="endsAt"
-          InputProps={{
-            className: classes.smaller,
-          }}
-          value={endsAt}
-          onChange={newValue => setEndsAt(newValue)}
-        />
-      </TableCell>
-    </MuiPickersUtilsProvider>
+    <>
+      <AlertDialog
+        open={alertOn}
+        onClose={handleAlertClose}
+        message="The starting date needs to be before the ending date"
+      />
+      <MuiPickersUtilsProvider utils={MomentUtils}>
+        <TableCell component="th" scope="row" padding="none">
+          <IconButton onClick={handleOnSave}>
+            <CheckIcon />
+          </IconButton>
+          <IconButton onClick={onDiscard}>
+            <ClearIcon />
+          </IconButton>
+        </TableCell>
+        <TableCell align="left">
+          <KeyboardDateTimePicker
+            required
+            name={`startsAt`}
+            margin="none"
+            size="small"
+            format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
+            ampm={false}
+            minutesStep={60}
+            fullWidth
+            data-cy="startsAt"
+            InputProps={{
+              className: classes.smaller,
+            }}
+            value={startsAt}
+            onChange={newValue => setStartsAt(newValue)}
+          />
+        </TableCell>
+        <TableCell align="left">
+          <KeyboardDateTimePicker
+            required
+            name={`endsAt`}
+            margin="none"
+            size="small"
+            format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
+            ampm={false}
+            minutesStep={60}
+            fullWidth
+            data-cy="endsAt"
+            InputProps={{
+              className: classes.smaller,
+            }}
+            value={endsAt}
+            onChange={newValue => setEndsAt(newValue)}
+          />
+        </TableCell>
+      </MuiPickersUtilsProvider>
+    </>
   );
 }
 
@@ -116,35 +132,63 @@ type TimeTableProps<T> = {
   rows: T[];
   titleComponent: string | JSX.Element;
   editable?: boolean;
+  maxHeight?: number;
+  disableSelect?: boolean;
+  // TODO
+  onSave?: (id: string, startsAt: Moment, endsAt: Moment) => void;
+  onDelete?: (ids: string[]) => void;
 };
 
 export default function TimeTable<T extends TimeTableRow>({
   rows,
   titleComponent,
   editable,
+  maxHeight,
+  disableSelect,
+  onSave,
+  onDelete,
 }: TimeTableProps<T>) {
   const [editing, setEditing] = useState<string | false>(false);
 
-  const handleOnSave = (startsAt: Moment, endsAt: Moment) => {
-    //
+  const handleOnSave = (id: string, startsAt: Moment, endsAt: Moment) => {
     setEditing(false);
+    onSave?.(id, startsAt, endsAt);
   };
 
   const handleEditing = (id: string | false) => () => {
     setEditing(id);
   };
 
+  const handleDelete = (ids: string[]) => {
+    setEditing(false);
+    onDelete?.(ids);
+  };
+
+  const headCells = useMemo(() => {
+    const copy = [...defaultHeadCells];
+    if (!disableSelect) {
+      copy.unshift({
+        id: 'id',
+        numeric: false,
+        disablePadding: true,
+        label: 'Actions',
+      });
+    }
+
+    return copy;
+  }, [disableSelect]);
+
   return (
     <Table
-      rowsPerPageOptions={[10]}
+      disableSelect={disableSelect}
+      tableContainerMaxHeight={maxHeight}
       defaultOrderBy="id"
       tableTitle={titleComponent}
       headCells={headCells}
       rows={rows}
       extractKey={el => el.id}
+      onDelete={handleDelete}
       renderRow={row => {
-        console.log('render row ', row.id);
-
         if (editing && row.id === editing) {
           return (
             <InlineTimeEdit
@@ -157,13 +201,15 @@ export default function TimeTable<T extends TimeTableRow>({
 
         return (
           <>
-            <TableCell component="th" scope="row" padding="none">
-              {editable && !editing && (
-                <IconButton onClick={handleEditing(row.id)}>
-                  <EditIcon />
-                </IconButton>
-              )}
-            </TableCell>
+            {!disableSelect && (
+              <TableCell component="th" scope="row" padding="none">
+                {editable && !editing && (
+                  <IconButton onClick={handleEditing(row.id)}>
+                    <EditIcon />
+                  </IconButton>
+                )}
+              </TableCell>
+            )}
             <TableCell align="left">{toTzLessDateTime(row.startsAt)}</TableCell>
             <TableCell align="left">{toTzLessDateTime(row.endsAt)}</TableCell>
           </>

@@ -17,3 +17,12 @@ export class ScheduledEventResponseWrap extends ResponseWrapBase<
   @Field(() => ScheduledEvent, { nullable: true })
   public scheduledEvent: ScheduledEvent;
 }
+
+@ObjectType()
+export class ScheduledEventsResponseWrap extends ResponseWrapBase<
+  ScheduledEvent
+> {
+  @Response()
+  @Field(() => [ScheduledEvent], { nullable: true })
+  public scheduledEvent: ScheduledEvent[];
+}

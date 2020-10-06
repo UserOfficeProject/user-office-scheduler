@@ -4,7 +4,10 @@ import {
   ScheduledEvent,
   ScheduledEventBookingType,
 } from '../../models/ScheduledEvent';
-import { NewScheduledEventInput } from '../../resolvers/mutations/CreateScheduledEventMutation';
+import {
+  BulkUpsertScheduledEventsInput,
+  NewScheduledEventInput,
+} from '../../resolvers/mutations/CreateScheduledEventMutation';
 import { ScheduledEventFilter } from '../../resolvers/queries/ScheduledEventsQuery';
 import { ScheduledEventDataSource } from '../ScheduledEventDataSource';
 
@@ -46,6 +49,12 @@ export default class MockupScheduledEventDataSource
       { id: newScheduledEvent.scheduledById },
       newScheduledEvent.description
     );
+  }
+
+  bulkUpsert(
+    bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput
+  ): Promise<ScheduledEvent[]> {
+    throw new Error('Method not implemented.');
   }
 
   async delete(): Promise<null> {

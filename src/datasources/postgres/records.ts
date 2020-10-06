@@ -25,7 +25,8 @@ export interface ScheduledEventRecord {
   readonly starts_at: Date;
   readonly ends_at: Date;
   readonly scheduled_by: number;
-  readonly description: string;
+  readonly description: string | null;
+  readonly proposal_booking_id: number | null;
 }
 
 export const createScheduledEventObject = (

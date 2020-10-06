@@ -7,7 +7,7 @@
     "build": "rm -rf ./build && tsc",
     "test": "jest",
     "prod": "npm run build && node ./build/index.js",
-    "dev": "ts-node-dev --rs --respawn --files ./src/index.ts",
+    "dev": "ts-node-dev --rs --respawn ./src/index.ts",
     "dev:db:up": "docker-compose -f docker-compose.local.yml up -d",
     "dev:db:down": "docker-compose -f docker-compose.local.yml down -v",
     "lint": "tsc --noEmit && eslint ./src --ext .js,.ts --quiet",

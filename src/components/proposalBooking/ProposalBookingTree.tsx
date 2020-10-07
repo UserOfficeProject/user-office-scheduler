@@ -131,7 +131,7 @@ export default function ProposalBookingTree({
       // so next time we start from scratch
       selectedProposalBooking !== null && (
         <ProposalBookingDialog
-          proposalBooking={selectedProposalBooking}
+          activeProposalBookingId={selectedProposalBooking.id}
           isDialogOpen={true}
           closeDialog={closeDialog}
         />

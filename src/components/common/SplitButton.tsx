@@ -11,22 +11,35 @@ import {
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import React, { useRef, useState } from 'react';
 
-type SplitButtonProps = { options: string[]; disabled?: boolean };
+type SplitButtonOption<T> = {
+  label: string;
+  key: T;
+};
 
-export default function SplitButton({ options, disabled }: SplitButtonProps) {
+type SplitButtonProps<T> = {
+  options: SplitButtonOption<T>[];
+  disabled?: boolean;
+  onClick?: (selectedKey: T) => void;
+};
+
+export default function SplitButton<T extends string>({
+  options,
+  disabled,
+  onClick,
+}: SplitButtonProps<T>) {
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLDivElement>(null);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedKey, setSelectedKey] = useState<T>(options[0]?.key ?? '');
 
   const handleClick = () => {
-    console.info(`You clicked ${options[selectedIndex]}`);
+    onClick?.(selectedKey);
   };
 
   const handleMenuItemClick = (
     event: React.MouseEvent<HTMLLIElement, MouseEvent>,
-    index: number
+    key: T
   ) => {
-    setSelectedIndex(index);
+    setSelectedKey(key);
     setOpen(false);
   };
 
@@ -53,7 +66,7 @@ export default function SplitButton({ options, disabled }: SplitButtonProps) {
         aria-label="split button"
       >
         <Button disabled={disabled} onClick={handleClick}>
-          {options[selectedIndex]}
+          {options.find(({ key }) => key === selectedKey)?.label}
         </Button>
         <Button
           color="primary"
@@ -86,13 +99,13 @@ export default function SplitButton({ options, disabled }: SplitButtonProps) {
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList id="split-button-menu">
-                  {options.map((option, index) => (
+                  {options.map(option => (
                     <MenuItem
-                      key={option}
-                      selected={index === selectedIndex}
-                      onClick={event => handleMenuItemClick(event, index)}
+                      key={option.key}
+                      selected={option.key === selectedKey}
+                      onClick={event => handleMenuItemClick(event, option.key)}
                     >
-                      {option}
+                      {option.label}
                     </MenuItem>
                   ))}
                 </MenuList>

@@ -1,0 +1,10 @@
+mutation bulkUpsertLostTimes($input: BulkUpsertLostTimesInput!) {
+  bulkUpsertLostTimes(bulkUpsertLostTimes: $input) {
+    error
+    lostTime {
+      id
+      startsAt
+      endsAt
+    }
+  }
+}

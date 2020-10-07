@@ -3,10 +3,8 @@ mutation bulkUpsertScheduledEvents($input: BulkUpsertScheduledEventsInput!) {
     error
     scheduledEvent {
       id
-      bookingType
       startsAt
       endsAt
-      description
     }
   }
 }

@@ -865,6 +865,11 @@ export enum UserRole {
   SAMPLE_SAFETY_REVIEWER = 'SAMPLE_SAFETY_REVIEWER'
 }
 
+export type BulkUpsertLostTimesInput = {
+  proposalBookingId: Scalars['ID'];
+  lostTimes: Array<SimpleLostTime>;
+};
+
 export type BulkUpsertScheduledEventsInput = {
   scheduledById: Scalars['ID'];
   proposalBookingId: Scalars['ID'];
@@ -875,6 +880,22 @@ export type DbStat = {
   __typename?: 'DbStat';
   total: Scalars['Float'];
   state: Maybe<Scalars['String']>;
+};
+
+export type LostTime = {
+  __typename?: 'LostTime';
+  id: Scalars['ID'];
+  proposalBookingId: Scalars['ID'];
+  createdAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime'];
+  startsAt: Scalars['TzLessDateTime'];
+  endsAt: Scalars['TzLessDateTime'];
+};
+
+export type LostTimesResponseWrap = {
+  __typename?: 'LostTimesResponseWrap';
+  error: Maybe<Scalars['String']>;
+  lostTime: Maybe<Array<LostTime>>;
 };
 
 export type NewScheduledEventInput = {
@@ -897,8 +918,21 @@ export type ProposalBooking = {
   instrument: Instrument;
 };
 
+export enum ProposalBookingFinalizeAction {
+  CLOSE = 'CLOSE',
+  RESTART = 'RESTART'
+}
+
+export type ProposalBookingResponseWrap = {
+  __typename?: 'ProposalBookingResponseWrap';
+  error: Maybe<Scalars['String']>;
+  proposalBooking: Maybe<ProposalBooking>;
+};
+
 export enum ProposalBookingStatus {
-  DRAFT = 'DRAFT'
+  DRAFT = 'DRAFT',
+  BOOKED = 'BOOKED',
+  CLOSED = 'CLOSED'
 }
 
 export type ScheduledEvent = {
@@ -935,6 +969,12 @@ export type ScheduledEventsResponseWrap = {
   __typename?: 'ScheduledEventsResponseWrap';
   error: Maybe<Scalars['String']>;
   scheduledEvent: Maybe<Array<ScheduledEvent>>;
+};
+
+export type SimpleLostTime = {
+  id: Scalars['ID'];
+  startsAt: Scalars['TzLessDateTime'];
+  endsAt: Scalars['TzLessDateTime'];
 };
 
 export type SimpleScheduledEvent = {
@@ -995,9 +1035,12 @@ export type Query = {
   user: Maybe<User>;
   me: Maybe<User>;
   users: Maybe<UserQueryResult>;
+  proposalBookingLostTimes: Array<LostTime>;
   instrumentProposalBookings: Array<ProposalBooking>;
+  proposalBooking: Maybe<ProposalBooking>;
   scheduledEvents: Array<ScheduledEvent>;
   scheduledEvent: Maybe<ScheduledEvent>;
+  proposalBookingScheduledEvents: Array<ScheduledEvent>;
   healthCheck: System;
 };
 
@@ -1198,7 +1241,17 @@ export type QueryUsersArgs = {
 };
 
 
+export type QueryProposalBookingLostTimesArgs = {
+  proposalBookingId: Scalars['ID'];
+};
+
+
 export type QueryInstrumentProposalBookingsArgs = {
+  instrumentId: Scalars['ID'];
+};
+
+
+export type QueryProposalBookingArgs = {
   id: Scalars['ID'];
 };
 
@@ -1210,6 +1263,11 @@ export type QueryScheduledEventsArgs = {
 
 export type QueryScheduledEventArgs = {
   id: Scalars['ID'];
+};
+
+
+export type QueryProposalBookingScheduledEventsArgs = {
+  proposalBookingId: Scalars['ID'];
 };
 
 export type Mutation = {
@@ -1301,6 +1359,9 @@ export type Mutation = {
   updateSampleSafetyReview: SampleResponseWrap;
   updateSampleTitle: SampleResponseWrap;
   updateTopicOrder: UpdateTopicOrderResponseWrap;
+  bulkUpsertLostTimes: LostTimesResponseWrap;
+  finalizeProposalBooking: ProposalBookingResponseWrap;
+  activateProposalBooking: ProposalBookingResponseWrap;
   createScheduledEvent: ScheduledEventResponseWrap;
   bulkUpsertScheduledEvents: ScheduledEventsResponseWrap;
 };
@@ -1886,6 +1947,22 @@ export type MutationUpdateTopicOrderArgs = {
 };
 
 
+export type MutationBulkUpsertLostTimesArgs = {
+  bulkUpsertLostTimes: BulkUpsertLostTimesInput;
+};
+
+
+export type MutationFinalizeProposalBookingArgs = {
+  id: Scalars['ID'];
+  action: ProposalBookingFinalizeAction;
+};
+
+
+export type MutationActivateProposalBookingArgs = {
+  id: Scalars['ID'];
+};
+
+
 export type MutationCreateScheduledEventArgs = {
   newScheduledEvent: NewScheduledEventInput;
 };
@@ -1925,14 +2002,91 @@ export type InstrumentsQuery = (
   )> }
 );
 
-export type InstrumentProposalBookingsQueryVariables = Exact<{
+export type BulkUpsertLostTimesMutationVariables = Exact<{
+  input: BulkUpsertLostTimesInput;
+}>;
+
+
+export type BulkUpsertLostTimesMutation = (
+  { __typename?: 'Mutation' }
+  & { bulkUpsertLostTimes: (
+    { __typename?: 'LostTimesResponseWrap' }
+    & Pick<LostTimesResponseWrap, 'error'>
+    & { lostTime: Maybe<Array<(
+      { __typename?: 'LostTime' }
+      & Pick<LostTime, 'id' | 'startsAt' | 'endsAt'>
+    )>> }
+  ) }
+);
+
+export type ProposalBookingLostTimesQueryVariables = Exact<{
+  proposalBookingId: Scalars['ID'];
+}>;
+
+
+export type ProposalBookingLostTimesQuery = (
+  { __typename?: 'Query' }
+  & { proposalBookingLostTimes: Array<(
+    { __typename?: 'LostTime' }
+    & Pick<LostTime, 'id' | 'startsAt' | 'endsAt'>
+  )> }
+);
+
+export type ActivateProposalBookingMutationVariables = Exact<{
   id: Scalars['ID'];
+}>;
+
+
+export type ActivateProposalBookingMutation = (
+  { __typename?: 'Mutation' }
+  & { activateProposalBooking: (
+    { __typename?: 'ProposalBookingResponseWrap' }
+    & Pick<ProposalBookingResponseWrap, 'error'>
+  ) }
+);
+
+export type FinalizeProposalBookingMutationVariables = Exact<{
+  action: ProposalBookingFinalizeAction;
+  id: Scalars['ID'];
+}>;
+
+
+export type FinalizeProposalBookingMutation = (
+  { __typename?: 'Mutation' }
+  & { finalizeProposalBooking: (
+    { __typename?: 'ProposalBookingResponseWrap' }
+    & Pick<ProposalBookingResponseWrap, 'error'>
+  ) }
+);
+
+export type InstrumentProposalBookingsQueryVariables = Exact<{
+  instrumentId: Scalars['ID'];
 }>;
 
 
 export type InstrumentProposalBookingsQuery = (
   { __typename?: 'Query' }
   & { instrumentProposalBookings: Array<(
+    { __typename?: 'ProposalBooking' }
+    & Pick<ProposalBooking, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'allocatedTime'>
+    & { call: (
+      { __typename?: 'Call' }
+      & Pick<Call, 'id' | 'shortCode' | 'startCycle' | 'endCycle' | 'cycleComment'>
+    ), proposal: (
+      { __typename?: 'Proposal' }
+      & Pick<Proposal, 'id' | 'title' | 'shortCode'>
+    ) }
+  )> }
+);
+
+export type ProposalBookingQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type ProposalBookingQuery = (
+  { __typename?: 'Query' }
+  & { proposalBooking: Maybe<(
     { __typename?: 'ProposalBooking' }
     & Pick<ProposalBooking, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'allocatedTime'>
     & { call: (
@@ -1957,7 +2111,7 @@ export type BulkUpsertScheduledEventsMutation = (
     & Pick<ScheduledEventsResponseWrap, 'error'>
     & { scheduledEvent: Maybe<Array<(
       { __typename?: 'ScheduledEvent' }
-      & Pick<ScheduledEvent, 'id' | 'bookingType' | 'startsAt' | 'endsAt' | 'description'>
+      & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
     )>> }
   ) }
 );
@@ -1977,6 +2131,19 @@ export type CreateScheduledEventMutation = (
       & Pick<ScheduledEvent, 'id' | 'bookingType' | 'startsAt' | 'endsAt' | 'description'>
     )> }
   ) }
+);
+
+export type ProposalBookingScheduledEventsQueryVariables = Exact<{
+  proposalBookingId: Scalars['ID'];
+}>;
+
+
+export type ProposalBookingScheduledEventsQuery = (
+  { __typename?: 'Query' }
+  & { proposalBookingScheduledEvents: Array<(
+    { __typename?: 'ScheduledEvent' }
+    & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
+  )> }
 );
 
 export type ScheduledEventsQueryVariables = Exact<{
@@ -2016,9 +2183,67 @@ export const InstrumentsDocument = gql`
   }
 }
     `;
+export const BulkUpsertLostTimesDocument = gql`
+    mutation bulkUpsertLostTimes($input: BulkUpsertLostTimesInput!) {
+  bulkUpsertLostTimes(bulkUpsertLostTimes: $input) {
+    error
+    lostTime {
+      id
+      startsAt
+      endsAt
+    }
+  }
+}
+    `;
+export const ProposalBookingLostTimesDocument = gql`
+    query proposalBookingLostTimes($proposalBookingId: ID!) {
+  proposalBookingLostTimes(proposalBookingId: $proposalBookingId) {
+    id
+    startsAt
+    endsAt
+  }
+}
+    `;
+export const ActivateProposalBookingDocument = gql`
+    mutation activateProposalBooking($id: ID!) {
+  activateProposalBooking(id: $id) {
+    error
+  }
+}
+    `;
+export const FinalizeProposalBookingDocument = gql`
+    mutation finalizeProposalBooking($action: ProposalBookingFinalizeAction!, $id: ID!) {
+  finalizeProposalBooking(action: $action, id: $id) {
+    error
+  }
+}
+    `;
 export const InstrumentProposalBookingsDocument = gql`
-    query instrumentProposalBookings($id: ID!) {
-  instrumentProposalBookings(id: $id) {
+    query instrumentProposalBookings($instrumentId: ID!) {
+  instrumentProposalBookings(instrumentId: $instrumentId) {
+    id
+    call {
+      id
+      shortCode
+      startCycle
+      endCycle
+      cycleComment
+    }
+    proposal {
+      id
+      title
+      shortCode
+    }
+    createdAt
+    updatedAt
+    status
+    allocatedTime
+  }
+}
+    `;
+export const ProposalBookingDocument = gql`
+    query proposalBooking($id: ID!) {
+  proposalBooking(id: $id) {
     id
     call {
       id
@@ -2045,10 +2270,8 @@ export const BulkUpsertScheduledEventsDocument = gql`
     error
     scheduledEvent {
       id
-      bookingType
       startsAt
       endsAt
-      description
     }
   }
 }
@@ -2064,6 +2287,15 @@ export const CreateScheduledEventDocument = gql`
       endsAt
       description
     }
+  }
+}
+    `;
+export const ProposalBookingScheduledEventsDocument = gql`
+    query proposalBookingScheduledEvents($proposalBookingId: ID!) {
+  proposalBookingScheduledEvents(proposalBookingId: $proposalBookingId) {
+    id
+    startsAt
+    endsAt
   }
 }
     `;
@@ -2091,14 +2323,32 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     instruments(variables?: InstrumentsQueryVariables): Promise<InstrumentsQuery> {
       return withWrapper(() => client.request<InstrumentsQuery>(print(InstrumentsDocument), variables));
     },
+    bulkUpsertLostTimes(variables: BulkUpsertLostTimesMutationVariables): Promise<BulkUpsertLostTimesMutation> {
+      return withWrapper(() => client.request<BulkUpsertLostTimesMutation>(print(BulkUpsertLostTimesDocument), variables));
+    },
+    proposalBookingLostTimes(variables: ProposalBookingLostTimesQueryVariables): Promise<ProposalBookingLostTimesQuery> {
+      return withWrapper(() => client.request<ProposalBookingLostTimesQuery>(print(ProposalBookingLostTimesDocument), variables));
+    },
+    activateProposalBooking(variables: ActivateProposalBookingMutationVariables): Promise<ActivateProposalBookingMutation> {
+      return withWrapper(() => client.request<ActivateProposalBookingMutation>(print(ActivateProposalBookingDocument), variables));
+    },
+    finalizeProposalBooking(variables: FinalizeProposalBookingMutationVariables): Promise<FinalizeProposalBookingMutation> {
+      return withWrapper(() => client.request<FinalizeProposalBookingMutation>(print(FinalizeProposalBookingDocument), variables));
+    },
     instrumentProposalBookings(variables: InstrumentProposalBookingsQueryVariables): Promise<InstrumentProposalBookingsQuery> {
       return withWrapper(() => client.request<InstrumentProposalBookingsQuery>(print(InstrumentProposalBookingsDocument), variables));
+    },
+    proposalBooking(variables: ProposalBookingQueryVariables): Promise<ProposalBookingQuery> {
+      return withWrapper(() => client.request<ProposalBookingQuery>(print(ProposalBookingDocument), variables));
     },
     bulkUpsertScheduledEvents(variables: BulkUpsertScheduledEventsMutationVariables): Promise<BulkUpsertScheduledEventsMutation> {
       return withWrapper(() => client.request<BulkUpsertScheduledEventsMutation>(print(BulkUpsertScheduledEventsDocument), variables));
     },
     createScheduledEvent(variables: CreateScheduledEventMutationVariables): Promise<CreateScheduledEventMutation> {
       return withWrapper(() => client.request<CreateScheduledEventMutation>(print(CreateScheduledEventDocument), variables));
+    },
+    proposalBookingScheduledEvents(variables: ProposalBookingScheduledEventsQueryVariables): Promise<ProposalBookingScheduledEventsQuery> {
+      return withWrapper(() => client.request<ProposalBookingScheduledEventsQuery>(print(ProposalBookingScheduledEventsDocument), variables));
     },
     scheduledEvents(variables?: ScheduledEventsQueryVariables): Promise<ScheduledEventsQuery> {
       return withWrapper(() => client.request<ScheduledEventsQuery>(print(ScheduledEventsDocument), variables));

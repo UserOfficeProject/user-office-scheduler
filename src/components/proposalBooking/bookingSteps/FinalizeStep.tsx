@@ -1,3 +1,4 @@
+import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
 import {
   Button,
   Checkbox,
@@ -6,33 +7,68 @@ import {
 } from '@material-ui/core';
 import { Add as AddIcon } from '@material-ui/icons';
 import { Alert, AlertTitle } from '@material-ui/lab';
-import moment, { Moment } from 'moment';
-import React, { useState } from 'react';
+import moment from 'moment';
+import { useSnackbar } from 'notistack';
+import React, { useEffect, useState } from 'react';
 
+import ConfirmationDialog from 'components/common/ConfirmationDialog';
+import Loader from 'components/common/Loader';
 import SplitButton from 'components/common/SplitButton';
-import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
+import { ProposalBookingFinalizeAction } from 'generated/sdk';
+import { useUnauthorizedApi } from 'hooks/common/useDataApi';
+import useProposalBookingLostTimes from 'hooks/lostTime/useProposalBookingLostTimes';
+import { DetailedProposalBooking } from 'hooks/proposalBooking/useProposalBooking';
+import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
+import { hasOverlappingEvents } from 'utils/scheduledEvent';
 
 import TimeTable, { TimeTableRow } from '../TimeTable';
 
-const _rows: TimeTableRow[] = [];
-
 type FinalizeStepProps = {
-  proposalBooking: InstrumentProposalBooking;
+  proposalBooking: DetailedProposalBooking;
   isDirty: boolean;
   handleSetDirty: (isDirty: boolean) => void;
+  handleNext: () => void;
+  handleResetSteps: () => void;
 };
 
 export default function FinalizeStep({
   proposalBooking,
   isDirty,
   handleSetDirty,
+  handleNext,
+  handleResetSteps,
 }: FinalizeStepProps) {
+  const { loading, lostTimes } = useProposalBookingLostTimes(
+    proposalBooking.id
+  );
+
+  const { enqueueSnackbar } = useSnackbar();
+  const api = useUnauthorizedApi();
   const [warningAccepted, setWarningAccepted] = useState(false);
-  const [rows, setRows] = useState<TimeTableRow[]>(_rows);
+  const [rows, setRows] = useState<TimeTableRow[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!loading) {
+      setRows(
+        lostTimes.map(({ startsAt, endsAt, ...rest }) => ({
+          ...rest,
+          startsAt: parseTzLessDateTime(startsAt),
+          endsAt: parseTzLessDateTime(endsAt),
+        }))
+      );
+
+      setIsLoading(false);
+    }
+  }, [loading, lostTimes]);
+
+  const handleRowsChange = (cb: React.SetStateAction<TimeTableRow[]>) => {
+    !isDirty && handleSetDirty(true);
+    setRows(cb);
+  };
 
   const handleAdd = () => {
-    !isDirty && handleSetDirty(true);
-    setRows(rows => [
+    handleRowsChange(rows => [
       ...rows,
       {
         id: `tmp-${Date.now()}`,
@@ -45,39 +81,144 @@ export default function FinalizeStep({
     ]);
   };
 
-  const handleSave = (id: string, startsAt: Moment, endsAt: Moment) => {
-    !isDirty && handleSetDirty(true);
+  const handleSaveSubmit = async () => {
+    try {
+      console.log('handle submit');
+      setIsLoading(true);
 
-    setRows(
-      rows.map(row => {
-        if (row.id !== id) {
-          return row;
-        }
+      const {
+        bulkUpsertLostTimes: { error, lostTime },
+      } = await api().bulkUpsertLostTimes({
+        input: {
+          proposalBookingId: proposalBooking.id,
+          lostTimes: rows.map(({ id, startsAt, endsAt }) => ({
+            id,
+            startsAt: toTzLessDateTime(startsAt),
+            endsAt: toTzLessDateTime(endsAt),
+          })),
+        },
+      });
 
-        return {
-          ...row,
-          startsAt,
-          endsAt,
-        };
-      })
-    );
+      if (error) {
+        enqueueSnackbar(getTranslation(error as ResourceId), {
+          variant: 'error',
+        });
+      } else {
+        console.log({ lostTime });
+      }
+
+      handleSetDirty(false);
+    } catch (e) {
+      // TODO
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleDelete = (ids: string[]) => {
-    !isDirty && handleSetDirty(true);
+  const [activeConfirmation, setActiveConfirmation] = useState<{
+    message: string | React.ReactNode;
+    cb: () => void;
+  } | null>(null);
 
-    setRows(rows.filter(row => !ids.includes(row.id)));
+  const showConfirmation = (
+    confirmationDialog: 'saveLostTime' | 'unsavedWork',
+    cb: () => void
+  ) => {
+    switch (confirmationDialog) {
+      case 'saveLostTime':
+        setActiveConfirmation({
+          message: (
+            <>
+              You have <strong>overlapping events</strong>, are you sure you
+              want to continue?
+            </>
+          ),
+          cb,
+        });
+        break;
+      case 'unsavedWork':
+        setActiveConfirmation({
+          message: (
+            <>
+              You have <strong>unsaved work</strong>, are you sure you want to
+              continue?
+            </>
+          ),
+          cb,
+        });
+        break;
+    }
+  };
+
+  const handleConfirmationClose = (confirmed: boolean) => {
+    setActiveConfirmation(null);
+
+    if (confirmed) {
+      activeConfirmation?.cb();
+    }
+  };
+
+  const handleSave = () => {
+    hasOverlappingEvents(rows)
+      ? showConfirmation('saveLostTime', handleSaveSubmit)
+      : handleSaveSubmit();
+  };
+
+  const handleFinalizeSubmit = async (
+    selectedKey: ProposalBookingFinalizeAction
+  ) => {
+    try {
+      setIsLoading(true);
+
+      const {
+        finalizeProposalBooking: { error },
+      } = await api().finalizeProposalBooking({
+        action: selectedKey,
+        id: proposalBooking.id,
+      });
+
+      if (error) {
+        enqueueSnackbar(getTranslation(error as ResourceId), {
+          variant: 'error',
+        });
+
+        setIsLoading(false);
+      } else {
+        selectedKey === ProposalBookingFinalizeAction.CLOSE
+          ? handleNext()
+          : handleResetSteps();
+      }
+    } catch (e) {
+      // TODO
+
+      setIsLoading(false);
+      console.error(e);
+    }
+  };
+
+  const handleFinalize = (selectedKey: ProposalBookingFinalizeAction) => {
+    isDirty
+      ? showConfirmation('unsavedWork', () => handleFinalizeSubmit(selectedKey))
+      : handleFinalizeSubmit(selectedKey);
   };
 
   return (
     <>
+      {isLoading && <Loader />}
+
+      <ConfirmationDialog
+        open={activeConfirmation !== null}
+        message={activeConfirmation?.message ?? ''}
+        onClose={handleConfirmationClose}
+      />
+
       <DialogContent>
         <TimeTable
           editable
           maxHeight={380}
           rows={rows}
-          onDelete={handleDelete}
-          onSave={handleSave}
+          handleRowsChange={handleRowsChange}
           titleComponent={
             <>
               Lost time
@@ -94,7 +235,7 @@ export default function FinalizeStep({
           }
         />
         <div>
-          <Button variant="contained" color="primary">
+          <Button variant="contained" color="primary" onClick={handleSave}>
             Save
           </Button>
         </div>
@@ -102,7 +243,8 @@ export default function FinalizeStep({
           style={{
             display: 'flex',
             alignItems: 'center',
-            marginTop: 8 + 8 + 8,
+            marginTop: 3 * 8,
+            marginLeft: 8,
           }}
         >
           <FormControlLabel
@@ -117,7 +259,17 @@ export default function FinalizeStep({
             label="I wish to proceed"
           />
           <SplitButton
-            options={['Close proposal booking', 'Restart the booking process']}
+            options={[
+              {
+                key: ProposalBookingFinalizeAction.CLOSE,
+                label: 'Close proposal booking',
+              },
+              {
+                key: ProposalBookingFinalizeAction.RESTART,
+                label: 'Restart the booking process',
+              },
+            ]}
+            onClick={handleFinalize}
             disabled={!warningAccepted}
           />
         </div>

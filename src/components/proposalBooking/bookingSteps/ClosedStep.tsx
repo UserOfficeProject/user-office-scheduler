@@ -1,9 +1,13 @@
 import { DialogContent, makeStyles } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
-import moment from 'moment';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
-import TimeTable from '../TimeTable';
+import Loader from 'components/common/Loader';
+import useProposalBookingLostTimes from 'hooks/lostTime/useProposalBookingLostTimes';
+import { DetailedProposalBooking } from 'hooks/proposalBooking/useProposalBooking';
+import { parseTzLessDateTime } from 'utils/date';
+
+import TimeTable, { TimeTableRow } from '../TimeTable';
 
 const useStyles = makeStyles(() => ({
   resetFlex: {
@@ -12,19 +16,37 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const rows = new Array(60).fill(0).map((_, i) => ({
-  id: `${i}`,
-  startsAt: moment().startOf('hour'),
-  endsAt: moment()
-    .startOf('hour')
-    .add(1, 'hour'),
-}));
+type ClosedStepStepProps = {
+  proposalBooking: DetailedProposalBooking;
+};
 
-export default function ClosedStep() {
+export default function ClosedStep({ proposalBooking }: ClosedStepStepProps) {
   const classes = useStyles();
+
+  const { loading, lostTimes } = useProposalBookingLostTimes(
+    proposalBooking.id
+  );
+
+  const [rows, setRows] = useState<TimeTableRow[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!loading) {
+      setRows(
+        lostTimes.map(({ startsAt, endsAt, ...rest }) => ({
+          ...rest,
+          startsAt: parseTzLessDateTime(startsAt),
+          endsAt: parseTzLessDateTime(endsAt),
+        }))
+      );
+
+      setIsLoading(false);
+    }
+  }, [loading, lostTimes]);
 
   return (
     <>
+      {isLoading && <Loader />}
       <DialogContent className={classes.resetFlex}>
         <Alert severity="info">
           Proposal booking is already closed, you can not edit it.

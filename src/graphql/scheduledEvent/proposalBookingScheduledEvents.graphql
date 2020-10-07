@@ -1,0 +1,7 @@
+query proposalBookingScheduledEvents($proposalBookingId: ID!) {
+  proposalBookingScheduledEvents(proposalBookingId: $proposalBookingId) {
+    id
+    startsAt
+    endsAt
+  }
+}

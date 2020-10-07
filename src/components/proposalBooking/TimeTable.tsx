@@ -134,9 +134,7 @@ type TimeTableProps<T> = {
   editable?: boolean;
   maxHeight?: number;
   disableSelect?: boolean;
-  // TODO
-  onSave?: (id: string, startsAt: Moment, endsAt: Moment) => void;
-  onDelete?: (ids: string[]) => void;
+  handleRowsChange?: (cb: React.SetStateAction<TimeTableRow[]>) => void;
 };
 
 export default function TimeTable<T extends TimeTableRow>({
@@ -145,23 +143,34 @@ export default function TimeTable<T extends TimeTableRow>({
   editable,
   maxHeight,
   disableSelect,
-  onSave,
-  onDelete,
+  handleRowsChange,
 }: TimeTableProps<T>) {
   const [editing, setEditing] = useState<string | false>(false);
 
   const handleOnSave = (id: string, startsAt: Moment, endsAt: Moment) => {
     setEditing(false);
-    onSave?.(id, startsAt, endsAt);
-  };
+    handleRowsChange?.(rows =>
+      rows.map(row => {
+        if (row.id !== id) {
+          return row;
+        }
 
-  const handleEditing = (id: string | false) => () => {
-    setEditing(id);
+        return {
+          ...row,
+          startsAt,
+          endsAt,
+        };
+      })
+    );
   };
 
   const handleDelete = (ids: string[]) => {
     setEditing(false);
-    onDelete?.(ids);
+    handleRowsChange?.(rows => rows.filter(row => !ids.includes(row.id)));
+  };
+
+  const handleEditing = (id: string | false) => () => {
+    setEditing(id);
   };
 
   const headCells = useMemo(() => {

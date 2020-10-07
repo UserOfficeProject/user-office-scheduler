@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Call, Proposal, ProposalBooking } from 'generated/sdk';
 import { useUnauthorizedApi } from 'hooks/common/useDataApi';
 
-export type InstrumentProposalBooking = Pick<
+export type DetailedProposalBooking = Pick<
   ProposalBooking,
   'id' | 'createdAt' | 'updatedAt' | 'status' | 'allocatedTime'
 > & {
@@ -15,11 +15,12 @@ export type InstrumentProposalBooking = Pick<
   proposal: Pick<Proposal, 'id' | 'title' | 'shortCode'>;
 };
 
-export default function useInstrumentProposalBookings(instrumentId: string) {
+export default function useProposalBooking(id: string) {
   const [loading, setLoading] = useState(true);
-  const [proposalBookings, setProposalBookings] = useState<
-    InstrumentProposalBooking[]
-  >([]);
+  const [
+    proposalBooking,
+    setProposalBooking,
+  ] = useState<DetailedProposalBooking | null>(null);
 
   const unauthorizedApi = useUnauthorizedApi();
 
@@ -28,14 +29,14 @@ export default function useInstrumentProposalBookings(instrumentId: string) {
 
     setLoading(true);
     unauthorizedApi()
-      .instrumentProposalBookings({ instrumentId })
+      .proposalBooking({ id })
       .then(data => {
         if (unmount) {
           return;
         }
 
-        if (data.instrumentProposalBookings) {
-          setProposalBookings(data.instrumentProposalBookings);
+        if (data.proposalBooking) {
+          setProposalBooking(data.proposalBooking);
         }
 
         setLoading(false);
@@ -45,7 +46,7 @@ export default function useInstrumentProposalBookings(instrumentId: string) {
     return () => {
       unmount = true;
     };
-  }, [instrumentId, unauthorizedApi]);
+  }, [id, unauthorizedApi]);
 
-  return { loading, proposalBookings } as const;
+  return { loading, proposalBooking } as const;
 }

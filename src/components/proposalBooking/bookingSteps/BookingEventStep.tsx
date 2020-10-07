@@ -1,8 +1,7 @@
+import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
 import {
   Avatar,
-  Backdrop,
   Button,
-  CircularProgress,
   DialogActions,
   DialogContent,
   Divider,
@@ -22,14 +21,16 @@ import {
 } from '@material-ui/icons';
 import clsx from 'clsx';
 import humanizeDuration from 'humanize-duration';
-import moment, { Moment } from 'moment';
+import moment from 'moment';
 import { useSnackbar } from 'notistack';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import ConfirmationDialog from 'components/common/ConfirmationDialog';
+import Loader from 'components/common/Loader';
 import { useUnauthorizedApi } from 'hooks/common/useDataApi';
-import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
-import { toTzLessDateTime } from 'utils/date';
+import { DetailedProposalBooking } from 'hooks/proposalBooking/useProposalBooking';
+import useProposalBookingScheduledEvents from 'hooks/scheduledEvent/useProposalBookingScheduledEvents';
+import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
 import { hasOverlappingEvents } from 'utils/scheduledEvent';
 
 import TimeTable, { TimeTableRow } from '../TimeTable';
@@ -76,34 +77,6 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const _rows: TimeTableRow[] = [
-  {
-    id: '00001',
-    startsAt: moment().startOf('hour'),
-    endsAt: moment()
-      .startOf('hour')
-      .add(2, 'days'),
-  },
-  {
-    id: '00010',
-    startsAt: moment()
-      .startOf('hour')
-      .add(2, 'day'),
-    endsAt: moment()
-      .startOf('hour')
-      .add(4, 'day'),
-  },
-  {
-    id: '00100',
-    startsAt: moment()
-      .startOf('hour')
-      .add(4, 'days'),
-    endsAt: moment()
-      .startOf('hour')
-      .add(5, 'days'),
-  },
-];
-
 const formatDuration = (durSec: number) =>
   humanizeDuration(durSec * 1000, {
     conjunction: ' and ',
@@ -112,7 +85,7 @@ const formatDuration = (durSec: number) =>
   });
 
 type BookingEventStepProps = {
-  proposalBooking: InstrumentProposalBooking;
+  proposalBooking: DetailedProposalBooking;
   isDirty: boolean;
   handleNext: () => void;
   handleSetDirty: (isDirty: boolean) => void;
@@ -131,10 +104,14 @@ export default function BookingEventStep({
 
   const classes = useStyles();
 
+  const { loading, scheduledEvents } = useProposalBookingScheduledEvents(
+    proposalBooking.id
+  );
+
   const { enqueueSnackbar } = useSnackbar();
   const api = useUnauthorizedApi();
-  const [rows, setRows] = useState(_rows);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [rows, setRows] = useState<TimeTableRow[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const { allocated, allocatable } = useMemo(() => {
     const max = proposalBooking.allocatedTime;
@@ -150,44 +127,19 @@ export default function BookingEventStep({
     };
   }, [rows, proposalBooking]);
 
-  const handleAdd = () => {
-    !isDirty && handleSetDirty(true);
-    setRows(rows => [
-      ...rows,
-      {
-        id: `tmp-${Date.now()}`,
-        newlyCreated: true,
-        startsAt: moment().startOf('hour'),
-        endsAt: moment()
-          .startOf('hour')
-          .add(1, 'hour'),
-      },
-    ]);
-  };
+  useEffect(() => {
+    if (!loading) {
+      setRows(
+        scheduledEvents.map(({ startsAt, endsAt, ...rest }) => ({
+          ...rest,
+          startsAt: parseTzLessDateTime(startsAt),
+          endsAt: parseTzLessDateTime(endsAt),
+        }))
+      );
 
-  const handleSave = (id: string, startsAt: Moment, endsAt: Moment) => {
-    !isDirty && handleSetDirty(true);
-
-    setRows(
-      rows.map(row => {
-        if (row.id !== id) {
-          return row;
-        }
-
-        return {
-          ...row,
-          startsAt,
-          endsAt,
-        };
-      })
-    );
-  };
-
-  const handleDelete = (ids: string[]) => {
-    !isDirty && handleSetDirty(true);
-
-    setRows(rows.filter(row => !ids.includes(row.id)));
-  };
+      setIsLoading(false);
+    }
+  }, [loading, scheduledEvents]);
 
   const [activeConfirmation, setActiveConfirmation] = useState<{
     message: string | React.ReactNode;
@@ -195,7 +147,7 @@ export default function BookingEventStep({
   } | null>(null);
 
   const showConfirmation = (
-    confirmationDialog: 'saveDraft' | 'handleNext',
+    confirmationDialog: 'unsavedWork' | 'handleNext',
     cb: () => void
   ) => {
     switch (confirmationDialog) {
@@ -210,7 +162,7 @@ export default function BookingEventStep({
           cb,
         });
         break;
-      case 'saveDraft':
+      case 'unsavedWork':
         setActiveConfirmation({
           message: (
             <>
@@ -224,6 +176,25 @@ export default function BookingEventStep({
     }
   };
 
+  const handleRowsChange = (cb: React.SetStateAction<TimeTableRow[]>) => {
+    !isDirty && handleSetDirty(true);
+    setRows(cb);
+  };
+
+  const handleAdd = () => {
+    handleRowsChange(rows => [
+      ...rows,
+      {
+        id: `tmp-${Date.now()}`,
+        newlyCreated: true,
+        startsAt: moment().startOf('hour'),
+        endsAt: moment()
+          .startOf('hour')
+          .add(1, 'hour'),
+      },
+    ]);
+  };
+
   const handleConfirmationClose = (confirmed: boolean) => {
     setActiveConfirmation(null);
 
@@ -235,17 +206,7 @@ export default function BookingEventStep({
   const handleSubmit = async () => {
     try {
       console.log('handle submit');
-      setIsSubmitting(true);
-
-      const updateObj = {
-        scheduledById: '0',
-        proposalBookingId: proposalBooking.id,
-        scheduledEvents: rows.map(({ id, startsAt, endsAt }) => ({
-          id,
-          startsAt,
-          endsAt,
-        })),
-      };
+      setIsLoading(true);
 
       const {
         bulkUpsertScheduledEvents: { error, scheduledEvent },
@@ -262,24 +223,26 @@ export default function BookingEventStep({
       });
 
       if (error) {
-        // enqueueSnackbar(getTranslation(error as ResourceId), {
-        //   variant: 'error',
-        // });
+        enqueueSnackbar(getTranslation(error as ResourceId), {
+          variant: 'error',
+        });
         console.error({ error });
       } else {
         console.log({ scheduledEvent });
       }
+
+      handleSetDirty(false);
     } catch (e) {
       // TODO
       console.error(e);
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
   const handleSaveDraft = () => {
     hasOverlappingEvents(rows)
-      ? showConfirmation('saveDraft', handleSubmit)
+      ? showConfirmation('unsavedWork', handleSubmit)
       : handleSubmit();
   };
 
@@ -289,16 +252,14 @@ export default function BookingEventStep({
 
   return (
     <>
-      <DialogContent className={classes.resetFlex}>
-        <ConfirmationDialog
-          open={activeConfirmation !== null}
-          message={activeConfirmation?.message ?? ''}
-          onClose={handleConfirmationClose}
-        />
-        <Backdrop className={classes.backdrop} open={isSubmitting}>
-          <CircularProgress color="inherit" />
-        </Backdrop>
+      {isLoading && <Loader />}
+      <ConfirmationDialog
+        open={activeConfirmation !== null}
+        message={activeConfirmation?.message ?? ''}
+        onClose={handleConfirmationClose}
+      />
 
+      <DialogContent className={classes.resetFlex}>
         <Grid container spacing={2}>
           <Grid item xs={6}>
             <List className={classes.list} dense>
@@ -390,8 +351,7 @@ export default function BookingEventStep({
           editable
           maxHeight={380}
           rows={rows}
-          onSave={handleSave}
-          onDelete={handleDelete}
+          handleRowsChange={handleRowsChange}
           titleComponent={
             <>
               Time slots

@@ -1,9 +1,11 @@
+import MockupProposalBookingDataSource from '../../datasources/mockups/ProposalBookingDataSource';
 import MockupScheduledEventDataSource from '../../datasources/mockups/ScheduledEventDataSource';
 import { ScheduledEventBookingType } from '../../models/ScheduledEvent';
 import ScheduledEventMutations from '../ScheduledEventMutations';
 
 const scheduledEventMutations = new ScheduledEventMutations(
-  new MockupScheduledEventDataSource()
+  new MockupScheduledEventDataSource(),
+  new MockupProposalBookingDataSource()
 );
 
 test('should create a new scheduled event', () => {

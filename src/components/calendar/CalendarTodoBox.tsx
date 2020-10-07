@@ -8,12 +8,10 @@ import { useQuery } from 'hooks/common/useQuery';
 import ProposalBookingTree from '../proposalBooking/ProposalBookingTree';
 
 const useStyles = makeStyles(theme => ({
-  flexBox: {
+  root: {
     display: 'flex',
     height: '100%',
     flexDirection: 'column',
-  },
-  containerSpacing: {
     paddingTop: theme.spacing(1),
     paddingLeft: theme.spacing(2),
   },
@@ -41,14 +39,7 @@ export default function CalendarTodoBox({
 
   if (!queryInstrument) {
     return (
-      <div
-        className={clsx(
-          classes.flexBox,
-          classes.centered,
-          classes.containerSpacing,
-          classes.gray
-        )}
-      >
+      <div className={clsx(classes.root, classes.centered, classes.gray)}>
         <InfoIcon className={classes.bottomSpacing} fontSize="large" />
         Please select an instrument
       </div>
@@ -56,7 +47,7 @@ export default function CalendarTodoBox({
   }
 
   return (
-    <div className={clsx(classes.flexBox, classes.containerSpacing)}>
+    <div className={classes.root}>
       <Button
         startIcon={<AddIcon />}
         fullWidth

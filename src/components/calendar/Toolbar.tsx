@@ -212,20 +212,19 @@ export default function Toolbar({
                 InputProps={{
                   ...params.InputProps,
                   endAdornment: (
-                    <React.Fragment>
+                    <>
                       {instrumentsLoading ? (
                         <CircularProgress color="inherit" size={20} />
                       ) : null}
                       {params.InputProps.endAdornment}
-                    </React.Fragment>
+                    </>
                   ),
                 }}
               />
             )}
             value={selectedInstrument}
             onChange={(
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              e: any,
+              event: React.ChangeEvent<unknown>,
               newValue: Pick<Instrument, 'id' | 'name'> | null
             ) => {
               onInstrumentSelect(newValue);

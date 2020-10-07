@@ -4,6 +4,7 @@ import {
   Checkbox,
   DialogContent,
   FormControlLabel,
+  makeStyles,
 } from '@material-ui/core';
 import { Add as AddIcon } from '@material-ui/icons';
 import { Alert, AlertTitle } from '@material-ui/lab';
@@ -23,6 +24,17 @@ import { hasOverlappingEvents } from 'utils/scheduledEvent';
 
 import TimeTable, { TimeTableRow } from '../TimeTable';
 
+const useStyles = makeStyles(theme => ({
+  spacing: {
+    display: 'flex',
+    alignItems: 'center',
+    margin: theme.spacing(3, 1, 1),
+  },
+  spacingLeft: {
+    marginLeft: theme.spacing(2),
+  },
+}));
+
 type FinalizeStepProps = {
   proposalBooking: DetailedProposalBooking;
   isDirty: boolean;
@@ -38,6 +50,8 @@ export default function FinalizeStep({
   handleNext,
   handleResetSteps,
 }: FinalizeStepProps) {
+  const classes = useStyles();
+
   const { loading, lostTimes } = useProposalBookingLostTimes(
     proposalBooking.id
   );
@@ -83,7 +97,6 @@ export default function FinalizeStep({
 
   const handleSaveSubmit = async () => {
     try {
-      console.log('handle submit');
       setIsLoading(true);
 
       const {
@@ -206,7 +219,6 @@ export default function FinalizeStep({
   return (
     <>
       {isLoading && <Loader />}
-
       <ConfirmationDialog
         open={activeConfirmation !== null}
         message={activeConfirmation?.message ?? ''}
@@ -226,7 +238,7 @@ export default function FinalizeStep({
                 variant="contained"
                 color="primary"
                 startIcon={<AddIcon />}
-                style={{ marginLeft: 16 }}
+                className={classes.spacingLeft}
                 onClick={handleAdd}
               >
                 Add
@@ -239,14 +251,7 @@ export default function FinalizeStep({
             Save
           </Button>
         </div>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            marginTop: 3 * 8,
-            marginLeft: 8,
-          }}
-        >
+        <div className={classes.spacing}>
           <FormControlLabel
             control={
               <Checkbox
@@ -273,7 +278,7 @@ export default function FinalizeStep({
             disabled={!warningAccepted}
           />
         </div>
-        <div style={{ marginTop: 8 }}>
+        <div>
           <Alert severity="warning">
             <AlertTitle>Warning</AlertTitle>
             Lorem ipsum

@@ -6,14 +6,31 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
+  makeStyles,
 } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
+import clsx from 'clsx';
 import { useSnackbar } from 'notistack';
 import React, { useState } from 'react';
 
 import Loader from 'components/common/Loader';
 import { useUnauthorizedApi } from 'hooks/common/useDataApi';
 import { DetailedProposalBooking } from 'hooks/proposalBooking/useProposalBooking';
+
+const useStyles = makeStyles(theme => ({
+  root: { display: 'flex', flexDirection: 'column' },
+  positionBottom: {
+    display: 'flex',
+    flexGrow: 1,
+    justifyContent: 'flex-end',
+    flexDirection: 'column',
+  },
+  spacing: {
+    display: 'flex',
+    alignItems: 'center',
+    margin: theme.spacing(1),
+  },
+}));
 
 type ReviewFeedbackStepProps = {
   proposalBooking: DetailedProposalBooking;
@@ -26,6 +43,7 @@ export default function ReviewFeedbackStep({
   handleBack,
   handleNext,
 }: ReviewFeedbackStepProps) {
+  const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
   const api = useUnauthorizedApi();
 
@@ -61,27 +79,12 @@ export default function ReviewFeedbackStep({
   return (
     <>
       {isLoading && <Loader />}
-      <DialogContent style={{ display: 'flex', flexDirection: 'column' }}>
+      <DialogContent className={classes.root}>
         <Typography align="center">
           Not implemented yet, please proceed
         </Typography>
-        <div
-          style={{
-            display: 'flex',
-            flexGrow: 1,
-            justifyContent: 'flex-end',
-            marginTop: 3 * 8,
-
-            flexDirection: 'column',
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              marginLeft: 8,
-            }}
-          >
+        <div className={classes.positionBottom}>
+          <div className={clsx(classes.spacing)}>
             <FormControlLabel
               control={
                 <Checkbox
@@ -102,7 +105,7 @@ export default function ReviewFeedbackStep({
               Activate booking
             </Button>
           </div>
-          <div style={{ marginTop: 8 }}>
+          <div>
             <Alert severity="warning">
               <AlertTitle>Warning</AlertTitle>
               Lorem ipsum

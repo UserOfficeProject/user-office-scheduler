@@ -5,11 +5,10 @@ import {
   PriorityHigh as PriorityHighIcon,
   Visibility as VisibilityIcon,
 } from '@material-ui/icons';
-import TreeItem from '@material-ui/lab/TreeItem';
-import TreeView from '@material-ui/lab/TreeView';
+import { TreeView, TreeItem } from '@material-ui/lab';
 import clsx from 'clsx';
 import * as _ from 'lodash';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import useInstrumentProposalBookings, {
   InstrumentProposalBooking,
@@ -21,11 +20,11 @@ type RenderTree = {
   id: string;
   name: string;
   children?: RenderTree[];
-  onClick?: (event: React.MouseEvent<Element, MouseEvent>) => void;
+  onClick?: React.MouseEventHandler;
 };
 
 const useStyles = makeStyles(theme => ({
-  flexBox: {
+  root: {
     display: 'flex',
     height: '100%',
     flexDirection: 'column',
@@ -34,7 +33,7 @@ const useStyles = makeStyles(theme => ({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  autoOverflow: {
+  autoOverflowY: {
     overflowY: 'auto',
   },
   bottomSpacing: {
@@ -63,26 +62,24 @@ export default function ProposalBookingTree({
     setSelectedProposalBooking,
   ] = useState<InstrumentProposalBooking | null>(null);
 
-  useEffect(() => {
-    setSelectedProposalBooking(proposalBookings[0]);
-  }, [loading, proposalBookings]);
-
-  const groupedByCall: RenderTree[] = useMemo(() => {
-    return _.chain(proposalBookings)
-      .groupBy(({ call: { id } }) => id)
-      .map((proposalBookings, id) => ({
-        id: `call-${id}`, // avoid ID collision
-        name: `Call: ${proposalBookings[0].call.shortCode}`,
-        children: proposalBookings.map(proposalBooking => ({
-          id: `proposal-${proposalBooking.proposal.id}`, // avoid ID collision
-          name: `Proposal: ${proposalBooking.proposal.title}`,
-          onClick: () => {
-            setSelectedProposalBooking(proposalBooking);
-          },
-        })),
-      }))
-      .value();
-  }, [proposalBookings]);
+  const groupedByCall: RenderTree[] = useMemo(
+    () =>
+      _.chain(proposalBookings)
+        .groupBy(({ call: { id } }) => id)
+        .map((proposalBookings, id) => ({
+          id: `call-${id}`, // avoid numerical ID collision
+          name: `Call: ${proposalBookings[0].call.shortCode}`,
+          children: proposalBookings.map(proposalBooking => ({
+            id: `proposal-${proposalBooking.proposal.id}`, // avoid numerical ID collision
+            name: `Proposal: ${proposalBooking.proposal.title}`,
+            onClick: () => {
+              setSelectedProposalBooking(proposalBooking);
+            },
+          })),
+        }))
+        .value(),
+    [proposalBookings]
+  );
 
   const renderTree = (nodes: RenderTree) => {
     return (
@@ -100,7 +97,7 @@ export default function ProposalBookingTree({
     );
   };
 
-  const closeDialog = (shouldRefresh?: boolean) => {
+  const handleCloseDialog = (shouldRefresh?: boolean) => {
     setSelectedProposalBooking(null);
 
     if (shouldRefresh) {
@@ -110,7 +107,7 @@ export default function ProposalBookingTree({
 
   if (loading) {
     return (
-      <div className={clsx(classes.flexBox, classes.centered)}>
+      <div className={clsx(classes.root, classes.centered)}>
         <CircularProgress />
       </div>
     );
@@ -118,7 +115,7 @@ export default function ProposalBookingTree({
 
   if (groupedByCall.length === 0) {
     return (
-      <div className={clsx(classes.flexBox, classes.centered, classes.gray)}>
+      <div className={clsx(classes.root, classes.centered, classes.gray)}>
         <PriorityHighIcon className={classes.bottomSpacing} fontSize="large" />
         Instrument has no calls
       </div>
@@ -126,14 +123,14 @@ export default function ProposalBookingTree({
   }
 
   return (
-    <div className={clsx(classes.flexBox, classes.autoOverflow)}>
+    <div className={clsx(classes.root, classes.autoOverflowY)}>
       {// unmount the component when the dialog is closed
       // so next time we start from scratch
       selectedProposalBooking !== null && (
         <ProposalBookingDialog
           activeProposalBookingId={selectedProposalBooking.id}
           isDialogOpen={true}
-          closeDialog={closeDialog}
+          closeDialog={handleCloseDialog}
         />
       )}
 

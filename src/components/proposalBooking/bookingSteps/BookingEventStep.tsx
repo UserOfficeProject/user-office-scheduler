@@ -36,7 +36,7 @@ import { hasOverlappingEvents } from 'utils/scheduledEvent';
 import TimeTable, { TimeTableRow } from '../TimeTable';
 
 const useStyles = makeStyles(theme => ({
-  resetFlex: {
+  root: {
     flexShrink: 0,
     flexGrow: 0,
   },
@@ -46,18 +46,6 @@ const useStyles = makeStyles(theme => ({
   },
   divider: {
     marginLeft: theme.spacing(6),
-  },
-  flexStart: {
-    justifyContent: 'flex-start',
-  },
-  spacing: {
-    padding: theme.spacing(1),
-  },
-  widthAuto: {
-    width: 'auto',
-  },
-  verticalCenter: {
-    alignItems: 'center',
   },
   allocatablePositive: {
     color: theme.palette.success.main,
@@ -71,9 +59,8 @@ const useStyles = makeStyles(theme => ({
     flexBasis: 0,
     alignSelf: 'flex-start',
   },
-  backdrop: {
-    zIndex: theme.zIndex.drawer + 1,
-    color: '#fff',
+  spacingLeft: {
+    marginLeft: theme.spacing(2),
   },
 }));
 
@@ -114,8 +101,6 @@ export default function BookingEventStep({
   const [isLoading, setIsLoading] = useState(true);
 
   const { allocated, allocatable } = useMemo(() => {
-    const max = proposalBooking.allocatedTime;
-
     const allocated = rows.reduce(
       (total, curr) => total + curr.endsAt.diff(curr.startsAt, 'seconds'),
       0
@@ -123,7 +108,7 @@ export default function BookingEventStep({
 
     return {
       allocated,
-      allocatable: max - allocated,
+      allocatable: proposalBooking.allocatedTime - allocated,
     };
   }, [rows, proposalBooking]);
 
@@ -205,11 +190,13 @@ export default function BookingEventStep({
 
   const handleSubmit = async () => {
     try {
-      console.log('handle submit');
       setIsLoading(true);
 
       const {
-        bulkUpsertScheduledEvents: { error, scheduledEvent },
+        bulkUpsertScheduledEvents: {
+          error,
+          scheduledEvent: updatedScheduledEvents,
+        },
       } = await api().bulkUpsertScheduledEvents({
         input: {
           scheduledById: '0',
@@ -226,9 +213,15 @@ export default function BookingEventStep({
         enqueueSnackbar(getTranslation(error as ResourceId), {
           variant: 'error',
         });
-        console.error({ error });
       } else {
-        console.log({ scheduledEvent });
+        updatedScheduledEvents &&
+          setRows(
+            updatedScheduledEvents.map(({ startsAt, endsAt, ...rest }) => ({
+              ...rest,
+              startsAt: parseTzLessDateTime(startsAt),
+              endsAt: parseTzLessDateTime(endsAt),
+            }))
+          );
       }
 
       handleSetDirty(false);
@@ -259,7 +252,7 @@ export default function BookingEventStep({
         onClose={handleConfirmationClose}
       />
 
-      <DialogContent className={classes.resetFlex}>
+      <DialogContent className={classes.root}>
         <Grid container spacing={2}>
           <Grid item xs={6}>
             <List className={classes.list} dense>
@@ -359,7 +352,7 @@ export default function BookingEventStep({
                 variant="contained"
                 color="primary"
                 startIcon={<AddIcon />}
-                style={{ marginLeft: 16 }}
+                className={classes.spacingLeft}
                 onClick={handleAdd}
               >
                 Add

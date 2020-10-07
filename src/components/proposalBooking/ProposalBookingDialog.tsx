@@ -23,17 +23,17 @@ import FinalizeStep from './bookingSteps/FinalizeStep';
 import RequestReviewStep from './bookingSteps/RequestReviewStep';
 import ReviewFeedbackStep from './bookingSteps/ReviewFeedbackStep';
 
-type ProposalBookingDialogProps = {
-  activeProposalBookingId: string;
-  isDialogOpen: boolean;
-  closeDialog: (shouldRefresh?: boolean) => void;
-};
+const useStyles = makeStyles(() => ({
+  fullHeight: {
+    height: '100%',
+  },
+}));
 
 const steps = ['Book events', 'Request review', 'Review feedbacks', 'Finalize'];
 const maxSteps = steps.length;
 
 function getActiveStep({
-  step,
+  activeStep,
   isDirty,
   proposalBooking,
   handleNext,
@@ -41,7 +41,7 @@ function getActiveStep({
   handleResetSteps,
   handleSetDirty,
 }: {
-  step: number;
+  activeStep: number;
   proposalBooking: InstrumentProposalBooking;
   isDirty: boolean;
   handleNext: () => void;
@@ -49,7 +49,7 @@ function getActiveStep({
   handleResetSteps: () => void;
   handleSetDirty: (isDirty: boolean) => void;
 }) {
-  switch (step) {
+  switch (activeStep) {
     case 0:
       return (
         <BookingEventStep
@@ -99,12 +99,6 @@ function getActiveStep({
   }
 }
 
-const useStyles = makeStyles(() => ({
-  fullHeight: {
-    height: '100%',
-  },
-}));
-
 const getActiveStepByStatus = (status: ProposalBookingStatus): number => {
   switch (status) {
     case ProposalBookingStatus.DRAFT:
@@ -119,12 +113,19 @@ const getActiveStepByStatus = (status: ProposalBookingStatus): number => {
   }
 };
 
+type ProposalBookingDialogProps = {
+  activeProposalBookingId: string;
+  isDialogOpen: boolean;
+  closeDialog: (shouldRefresh?: boolean) => void;
+};
+
 export default function ProposalBookingDialog({
   activeProposalBookingId,
   isDialogOpen,
   closeDialog,
 }: ProposalBookingDialogProps) {
   const classes = useStyles();
+
   const [activeStep, setActiveStep] = useState(-1);
   const [isDirty, setIsDirty] = useState(false);
   const [activeConfirmation, setActiveConfirmation] = useState<
@@ -213,20 +214,18 @@ export default function ProposalBookingDialog({
       />
       <DialogTitle>Proposal booking</DialogTitle>
       <Stepper activeStep={activeStep}>
-        {steps.map(label => {
-          return (
-            <Step key={label}>
-              <StepLabel>{label}</StepLabel>
-            </Step>
-          );
-        })}
+        {steps.map(label => (
+          <Step key={label}>
+            <StepLabel>{label}</StepLabel>
+          </Step>
+        ))}
       </Stepper>
       {proposalBooking &&
         (activeStep === steps.length ? (
           <ClosedStep proposalBooking={proposalBooking} />
         ) : (
           getActiveStep({
-            step: activeStep,
+            activeStep,
             proposalBooking,
             isDirty,
             handleNext,
@@ -236,11 +235,7 @@ export default function ProposalBookingDialog({
           })
         ))}
       <DialogActions>
-        <Button
-          color="primary"
-          onClick={handleCloseDialog}
-          data-cy="btn-close-dialog"
-        >
+        <Button color="primary" onClick={handleCloseDialog}>
           Cancel
         </Button>
       </DialogActions>

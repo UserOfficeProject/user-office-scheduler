@@ -45,10 +45,9 @@ export class RabbitMQMessageBroker implements MessageBroker {
         type: type,
       });
 
-      console.log(writeable);
+      // TODO: handle false result (queue up messages and listen for `drain` event)
       if (!writeable) {
-        // todo: handle false result (queue up messages and listen for `drain` event)
-        throw new Error('not writeable, todo');
+        throw new Error('not writeable, not implemented yet');
       }
     } catch (err) {
       console.error('sending message failed at some point', err);
@@ -82,10 +81,12 @@ export class RabbitMQMessageBroker implements MessageBroker {
 
       console.log('RabbitMQMessageBroker: Setup finished');
     } catch (e) {
+      console.error('RabbitMQMessageBroker: Setup failed:', e.message);
+
       // if we already have a connection but failed to register channel
-      // try it again
+      // close the channel and restart the process
       if (this.conn) {
-        this.conn
+        await this.conn
           .close()
           .catch(() =>
             console.error(
@@ -95,7 +96,6 @@ export class RabbitMQMessageBroker implements MessageBroker {
         this.conn = null;
       }
 
-      console.error('RabbitMQMessageBroker: Setup failed:', e.message);
       this.scheduleReconnect();
     }
   }
@@ -178,12 +178,21 @@ export class RabbitMQMessageBroker implements MessageBroker {
             cb(msg.properties.type, content, msg.properties)
               .then(() => {
                 /**
-                 * TODO: handle such situations
-                 * although I think it is not possible
+                 * NOTE:
+                 * `this.ch` can be null when something goes down while processing an event.
+                 * If a channel with not acknowledged message is closed
+                 * the event gets back to the queue.
+                 * Even if we establish a channel while processing the event
+                 * RabbitMQ won't accept the ack request
+                 *
+                 * See: https://www.rabbitmq.com/confirms.html
                  * Acknowledgement must be sent on the same channel that received the delivery.
                  * Attempts to acknowledge using a different channel will result in a channel-level
                  * protocol exception. See the doc guide on confirmations to learn more.
-                 * https://www.rabbitmq.com/confirms.html
+                 *
+                 * TODO: maybe try to handle it gracefully and handle duplicate
+                 * event processing in the listener
+                 *
                  */
                 this.ch?.ack(msg);
               })
@@ -194,7 +203,12 @@ export class RabbitMQMessageBroker implements MessageBroker {
                   { ...msg, content },
                   err
                 );
-                // TODO:
+                /***
+                 * Same situation we have above
+                 * TODO: maybe try handle gracefully
+                 *
+                 * NOTE: not acknowledged events go to a dead letter queue
+                 */
                 this.ch?.nack(msg, false, false);
               });
           },
@@ -223,6 +237,7 @@ export class RabbitMQMessageBroker implements MessageBroker {
     await this.ch.bindQueue(deadLetterQueue, deadLetterExchange, '');
     await this.ch.assertQueue(queue, {
       deadLetterExchange: deadLetterExchange,
+      durable: true,
     });
   }
 }

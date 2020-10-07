@@ -7,8 +7,8 @@ import {
 import {
   BulkUpsertScheduledEventsInput,
   NewScheduledEventInput,
-} from '../../resolvers/mutations/CreateScheduledEventMutation';
-import { ScheduledEventFilter } from '../../resolvers/queries/ScheduledEventsQuery';
+} from '../../resolvers/mutations/ScheduledEventMutation';
+import { ScheduledEventFilter } from '../../resolvers/queries/ScheduledEventQuery';
 import { ScheduledEventDataSource } from '../ScheduledEventDataSource';
 
 export const dummyScheduledEvents: ScheduledEvent[] = [
@@ -69,5 +69,11 @@ export default class MockupScheduledEventDataSource
     filter?: ScheduledEventFilter
   ): Promise<ScheduledEvent[]> {
     return dummyScheduledEvents;
+  }
+
+  proposalBookingScheduledEvents(
+    proposalBookingId: number
+  ): Promise<ScheduledEvent[]> {
+    throw new Error('Method not implemented.');
   }
 }

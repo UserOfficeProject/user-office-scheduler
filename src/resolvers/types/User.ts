@@ -6,5 +6,5 @@ import { Directive, Field, Int, ObjectType } from 'type-graphql';
 export class User {
   @Directive('@external')
   @Field(() => Int)
-  public id: number;
+  id: number;
 }

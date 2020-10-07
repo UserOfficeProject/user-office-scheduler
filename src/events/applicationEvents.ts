@@ -38,7 +38,7 @@ interface GeneralEvent {
 
 interface ProposalNotifiedEvent extends GeneralEvent {
   type: Event.PROPOSAL_NOTIFIED;
-  proposal: any; // Proposal;
+  proposal: any; // Proposal, TODO
 }
 
 // interface UserResetPasswordEmailEvent extends GeneralEvent {

@@ -12,7 +12,7 @@ import { Proposal } from './Proposal';
 @ObjectType()
 export class ProposalBooking implements Partial<ProposalBookingBase> {
   @Field(() => ID)
-  public id: number;
+  id: number;
 
   @Type(() => Call)
   @Field()
@@ -23,10 +23,10 @@ export class ProposalBooking implements Partial<ProposalBookingBase> {
   proposal: Proposal;
 
   @Field(() => Date)
-  public createdAt: Date;
+  createdAt: Date;
 
   @Field(() => Date)
-  public updatedAt: Date;
+  updatedAt: Date;
 
   @Field(() => ProposalBookingStatus)
   status: ProposalBookingStatus;

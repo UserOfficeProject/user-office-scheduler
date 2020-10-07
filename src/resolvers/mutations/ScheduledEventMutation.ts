@@ -5,7 +5,6 @@ import {
   ID,
   InputType,
   Mutation,
-  ObjectType,
   Resolver,
 } from 'type-graphql';
 
@@ -64,7 +63,7 @@ export class BulkUpsertScheduledEventsInput {
 }
 
 @Resolver()
-export class CreateScheduledEventMutation {
+export class ScheduledEventMutation {
   @Mutation(() => ScheduledEventResponseWrap)
   createScheduledEvent(
     @Ctx() ctx: ResolverContext,

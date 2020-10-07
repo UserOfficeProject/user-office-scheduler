@@ -4,7 +4,13 @@ import { ProposalBooking } from '../models/ProposalBooking';
 export default class ProposalBookingQueries {
   constructor(private proposalBookingDataSource: ProposalBookingDataSource) {}
 
-  instrumentProposalBookings(id: number): Promise<ProposalBooking[]> {
-    return this.proposalBookingDataSource.instrumentProposalBookings(id);
+  instrumentProposalBookings(instrumentId: number): Promise<ProposalBooking[]> {
+    return this.proposalBookingDataSource.instrumentProposalBookings(
+      instrumentId
+    );
+  }
+
+  get(id: number): Promise<ProposalBooking | null> {
+    return this.proposalBookingDataSource.get(id);
   }
 }

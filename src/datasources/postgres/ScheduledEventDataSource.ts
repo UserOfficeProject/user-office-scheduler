@@ -6,8 +6,8 @@ import {
 import {
   BulkUpsertScheduledEventsInput,
   NewScheduledEventInput,
-} from '../../resolvers/mutations/CreateScheduledEventMutation';
-import { ScheduledEventFilter } from '../../resolvers/queries/ScheduledEventsQuery';
+} from '../../resolvers/mutations/ScheduledEventMutation';
+import { ScheduledEventFilter } from '../../resolvers/queries/ScheduledEventQuery';
 import { ScheduledEventDataSource } from '../ScheduledEventDataSource';
 import database from './database';
 import { ScheduledEventRecord, createScheduledEventObject } from './records';
@@ -68,6 +68,12 @@ export default class PostgreScheduledEventDataSource
         .where('proposal_booking_id', '=', proposalBookingId)
         .delete();
 
+      // when the insert has empty array as param it
+      // returns an object instead of an empty record array
+      if (scheduledEvents.length === 0) {
+        return [];
+      }
+
       const newlyCreatedRecords = await trx<BulkUpsertFields>(this.tableName)
         .insert(
           scheduledEvents.map(newObj => ({
@@ -111,8 +117,20 @@ export default class PostgreScheduledEventDataSource
       qb.where('ends_at', '<=', filter.endsAt);
     }
 
-    const scheduledEvents = await qb;
+    const scheduledEventRecords = await qb;
 
-    return scheduledEvents.map(createScheduledEventObject);
+    return scheduledEventRecords.map(createScheduledEventObject);
+  }
+
+  async proposalBookingScheduledEvents(
+    proposalBookingId: number
+  ): Promise<ScheduledEvent[]> {
+    const scheduledEventRecords = await database<ScheduledEventRecord>(
+      this.tableName
+    )
+      .select()
+      .where('proposal_booking_id', '=', proposalBookingId);
+
+    return scheduledEventRecords.map(createScheduledEventObject);
   }
 }

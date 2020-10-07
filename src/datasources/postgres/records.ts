@@ -1,3 +1,4 @@
+import { LostTime } from '../../models/LostTime';
 import {
   ProposalBooking,
   ProposalBookingStatus,
@@ -66,4 +67,23 @@ export const createProposalBookingObject = (
     proposalBooking.status,
     proposalBooking.allocated_time,
     { id: proposalBooking.instrument_id }
+  );
+
+export interface LostTimeRecord {
+  readonly lost_time_id: number;
+  readonly proposal_booking_id: number;
+  readonly created_at: Date;
+  readonly updated_at: Date;
+  readonly starts_at: Date;
+  readonly ends_at: Date;
+}
+
+export const createLostTimeObject = (lostTime: LostTimeRecord) =>
+  new LostTime(
+    lostTime.lost_time_id,
+    lostTime.proposal_booking_id,
+    lostTime.created_at,
+    lostTime.updated_at,
+    lostTime.starts_at,
+    lostTime.ends_at
   );

@@ -8,8 +8,8 @@ BEGIN
         "proposal_booking_id" SERIAL PRIMARY KEY
       , "proposal_id" int NOT NULL
       , "call_id" int NOT NULL
-      , "created_at" TIMESTAMP NOT NULL DEFAULT (NOW())
-      , "updated_at" TIMESTAMP NOT NULL DEFAULT (NOW())
+      , "created_at" TIMESTAMPTZ NOT NULL DEFAULT (NOW())
+      , "updated_at" TIMESTAMPTZ NOT NULL DEFAULT (NOW())
       , "status" varchar(30) NOT NULL
       , "allocated_time" int NOT NULL
       , "instrument_id" int NOT NULL

@@ -7,9 +7,10 @@ BEGIN
     CREATE TABLE "lost_time" (
         "lost_time_id" SERIAL PRIMARY KEY
       , "proposal_booking_id" int NOT NULL
-      , "created_at" TIMESTAMP NOT NULL DEFAULT (NOW())
-      , "updated_at" TIMESTAMP NOT NULL DEFAULT (NOW())
-      , "total" int NOT NULL
+      , "created_at" TIMESTAMPTZ NOT NULL DEFAULT (NOW())
+      , "updated_at" TIMESTAMPTZ NOT NULL DEFAULT (NOW())
+      , "starts_at" TIMESTAMP NOT NULL
+      , "ends_at" TIMESTAMP NOT NULL
     );
 
     ALTER TABLE "lost_time" ADD CONSTRAINT lost_time_proposal_booking_id_fkey 

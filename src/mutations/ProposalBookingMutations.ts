@@ -17,7 +17,7 @@ export default class ProposalBookingMutations {
     return this.proposalBookingDataSource
       .finalize(action, id)
       .catch((error: Error) => {
-        logger.logException('ProposalBooking bulkUpsert failed', error);
+        logger.logException('ProposalBooking finalize failed', error);
 
         return rejection('INTERNAL_ERROR');
       });

@@ -8,5 +8,3 @@ const eventHandlers = createEventHandlers({
 });
 
 export const eventBus = new EventBus<ApplicationEvent>(eventHandlers);
-
-// process.exit(1);

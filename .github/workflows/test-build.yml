@@ -28,17 +28,17 @@ jobs:
           GATEWAY_TAGS_JSON=$(curl -sb -H https://registry.hub.docker.com/v1/repositories/dmsc/duo-gateway/tags)
 
           SCHEDULER_BE_TAG=develop
-          if [[ $(echo $SCHEDULER_BE_TAGS_JSON | jq -c '.[] | select(.name=="${{ github.head_ref }}")' | jq -s '. | length') ]]; then
+          if [[ $(echo $SCHEDULER_BE_TAGS_JSON | jq -c '.[] | select(.name=="${{ github.head_ref }}")' | jq -s '. | length') != "0" ]]; then
             SCHEDULER_BE_TAG="${{ github.head_ref }}"
           fi
 
           UO_BE_TAG=develop
-          if [[ $(echo $UO_BE_TAGS_JSON | jq -c '.[] | select(.name=="${{ github.head_ref }}")' | jq -s '. | length') ]]; then
+          if [[ $(echo $UO_BE_TAGS_JSON | jq -c '.[] | select(.name=="${{ github.head_ref }}")' | jq -s '. | length') != "0" ]]; then
             UO_BE_TAG="${{ github.head_ref }}"
           fi
 
           GATEWAY_TAG=develop
-          if [[ $(echo $GATEWAY_TAGS_JSON | jq -c '.[] | select(.name=="${{ github.head_ref }}")' | jq -s '. | length') ]]; then
+          if [[ $(echo $GATEWAY_TAGS_JSON | jq -c '.[] | select(.name=="${{ github.head_ref }}")' | jq -s '. | length') != "0" ]]; then
             GATEWAY_TAG="${{ github.head_ref }}"
           fi
 

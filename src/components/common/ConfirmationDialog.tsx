@@ -8,14 +8,17 @@ import {
 } from '@material-ui/core';
 import React from 'react';
 
-type ConfirmationDialogProps = {
-  open: boolean;
-  message: string | React.ReactNode;
+export type ConfirmationOptionalOptions = {
   title?: string | React.ReactNode;
   cancelButtonText?: string;
   confirmButtonText?: string;
-  onClose: (confirmed: boolean) => void;
 };
+
+type ConfirmationDialogProps = {
+  open: boolean;
+  message: string | React.ReactNode;
+  onClose: (confirmed: boolean) => void;
+} & ConfirmationOptionalOptions;
 
 export default function ConfirmationDialog({
   open,

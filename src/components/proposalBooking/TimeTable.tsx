@@ -10,10 +10,10 @@ import {
   KeyboardDateTimePicker,
 } from '@material-ui/pickers';
 import { Moment } from 'moment';
-import React, { useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 
-import AlertDialog from 'components/common/AlertDialog';
 import Table, { HeadCell } from 'components/common/Table';
+import { AppContext } from 'context/AppContext';
 import {
   toTzLessDateTime,
   TZ_LESS_DATE_TIME_LOW_PREC_FORMAT,
@@ -46,9 +46,10 @@ function InlineTimeEdit({
   onSave: (id: string, startsAt: Moment, endsAt: Moment) => void;
 }) {
   const classes = useStyles();
+
+  const { showAlert } = useContext(AppContext);
   const [startsAt, setStartsAt] = useState<Moment | null>(row.startsAt);
   const [endsAt, setEndsAt] = useState<Moment | null>(row.endsAt);
-  const [alertOn, setAlertOn] = useState(false);
 
   const handleOnSave = () => {
     if (!startsAt || !endsAt || !startsAt.isValid() || !endsAt.isValid()) {
@@ -59,7 +60,9 @@ function InlineTimeEdit({
     if (startsAt >= endsAt) {
       // when the starting date is after ending date
       // it may be less obvious for the user, show alert
-      setAlertOn(true);
+      showAlert({
+        message: 'The starting date needs to be before the ending date',
+      });
 
       return;
     }
@@ -67,17 +70,8 @@ function InlineTimeEdit({
     onSave(row.id, startsAt, endsAt);
   };
 
-  const handleAlertClose = () => {
-    setAlertOn(false);
-  };
-
   return (
     <>
-      <AlertDialog
-        open={alertOn}
-        onClose={handleAlertClose}
-        message="The starting date needs to be before the ending date"
-      />
       <MuiPickersUtilsProvider utils={MomentUtils}>
         <TableCell component="th" scope="row" padding="none">
           <IconButton onClick={handleOnSave}>

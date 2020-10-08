@@ -9,10 +9,10 @@ import {
   StepLabel,
   Stepper,
 } from '@material-ui/core';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
-import ConfirmationDialog from 'components/common/ConfirmationDialog';
 import Loader from 'components/common/Loader';
+import { AppContext } from 'context/AppContext';
 import { ProposalBookingStatus } from 'generated/sdk';
 import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
 import useProposalBooking from 'hooks/proposalBooking/useProposalBooking';
@@ -126,11 +126,9 @@ export default function ProposalBookingDialog({
 }: ProposalBookingDialogProps) {
   const classes = useStyles();
 
+  const { showConfirmation } = useContext(AppContext);
   const [activeStep, setActiveStep] = useState(-1);
   const [isDirty, setIsDirty] = useState(false);
-  const [activeConfirmation, setActiveConfirmation] = useState<
-    (() => void) | null
-  >(null);
 
   const { loading, proposalBooking } = useProposalBooking(
     activeProposalBookingId
@@ -159,21 +157,20 @@ export default function ProposalBookingDialog({
 
   const handleCloseDialog = () => {
     isDirty
-      ? // double callback, as set{ActionName} accepts function too
-        setActiveConfirmation(() => () => closeDialog(true))
+      ? showConfirmation({
+          message: (
+            <>
+              You have <strong>unsaved work</strong>, are you sure you want to
+              continue?
+            </>
+          ),
+          cb: () => closeDialog(true),
+        })
       : closeDialog(true);
   };
 
   const handleSetDirty = (isDirty: boolean) => {
     setIsDirty(isDirty);
-  };
-
-  const handleConfirmationClose = (confirmed: boolean) => {
-    setActiveConfirmation(null);
-
-    if (confirmed) {
-      activeConfirmation?.();
-    }
   };
 
   if (loading) {
@@ -202,16 +199,6 @@ export default function ProposalBookingDialog({
         className: classes.fullHeight,
       }}
     >
-      <ConfirmationDialog
-        open={activeConfirmation !== null}
-        onClose={handleConfirmationClose}
-        message={
-          <>
-            You have <strong>unsaved work</strong>, are you sure you want to
-            continue?
-          </>
-        }
-      />
       <DialogTitle>Proposal booking</DialogTitle>
       <Stepper activeStep={activeStep}>
         {steps.map(label => (

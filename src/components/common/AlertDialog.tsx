@@ -8,13 +8,16 @@ import {
 } from '@material-ui/core';
 import React from 'react';
 
+export type AlertOptionalOptions = {
+  title?: string | React.ReactNode;
+  buttonText?: string;
+};
+
 type AlertDialogProps = {
   open: boolean;
   message: string | React.ReactNode;
-  title?: string | React.ReactNode;
-  buttonText?: string;
   onClose: () => void;
-};
+} & AlertOptionalOptions;
 
 export default function AlertDialog({
   open,

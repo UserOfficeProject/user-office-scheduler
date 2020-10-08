@@ -23,10 +23,10 @@ import clsx from 'clsx';
 import humanizeDuration from 'humanize-duration';
 import moment from 'moment';
 import { useSnackbar } from 'notistack';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 
-import ConfirmationDialog from 'components/common/ConfirmationDialog';
 import Loader from 'components/common/Loader';
+import { AppContext } from 'context/AppContext';
 import { useUnauthorizedApi } from 'hooks/common/useDataApi';
 import { DetailedProposalBooking } from 'hooks/proposalBooking/useProposalBooking';
 import useProposalBookingScheduledEvents from 'hooks/scheduledEvent/useProposalBookingScheduledEvents';
@@ -95,6 +95,7 @@ export default function BookingEventStep({
     proposalBooking.id
   );
 
+  const { showConfirmation } = useContext(AppContext);
   const { enqueueSnackbar } = useSnackbar();
   const api = useUnauthorizedApi();
   const [rows, setRows] = useState<TimeTableRow[]>([]);
@@ -126,41 +127,6 @@ export default function BookingEventStep({
     }
   }, [loading, scheduledEvents]);
 
-  const [activeConfirmation, setActiveConfirmation] = useState<{
-    message: string | React.ReactNode;
-    cb: () => void;
-  } | null>(null);
-
-  const showConfirmation = (
-    confirmationDialog: 'unsavedWork' | 'handleNext',
-    cb: () => void
-  ) => {
-    switch (confirmationDialog) {
-      case 'handleNext':
-        setActiveConfirmation({
-          message: (
-            <>
-              You have <strong>unsaved work</strong>, are you sure you want to
-              continue?
-            </>
-          ),
-          cb,
-        });
-        break;
-      case 'unsavedWork':
-        setActiveConfirmation({
-          message: (
-            <>
-              You have <strong>overlapping bookings</strong>, are you sure you
-              want to continue?
-            </>
-          ),
-          cb,
-        });
-        break;
-    }
-  };
-
   const handleRowsChange = (cb: React.SetStateAction<TimeTableRow[]>) => {
     !isDirty && handleSetDirty(true);
     setRows(cb);
@@ -178,14 +144,6 @@ export default function BookingEventStep({
           .add(1, 'hour'),
       },
     ]);
-  };
-
-  const handleConfirmationClose = (confirmed: boolean) => {
-    setActiveConfirmation(null);
-
-    if (confirmed) {
-      activeConfirmation?.cb();
-    }
   };
 
   const handleSubmit = async () => {
@@ -235,22 +193,35 @@ export default function BookingEventStep({
 
   const handleSaveDraft = () => {
     hasOverlappingEvents(rows)
-      ? showConfirmation('unsavedWork', handleSubmit)
+      ? showConfirmation({
+          message: (
+            <>
+              You have <strong>overlapping bookings</strong>, are you sure you
+              want to continue?
+            </>
+          ),
+          cb: handleSubmit,
+        })
       : handleSubmit();
   };
 
   const handleNextStep = () => {
-    isDirty ? showConfirmation('handleNext', handleNext) : handleNext();
+    isDirty
+      ? showConfirmation({
+          message: (
+            <>
+              You have <strong>unsaved work</strong>, are you sure you want to
+              continue?
+            </>
+          ),
+          cb: handleNext,
+        })
+      : handleNext();
   };
 
   return (
     <>
       {isLoading && <Loader />}
-      <ConfirmationDialog
-        open={activeConfirmation !== null}
-        message={activeConfirmation?.message ?? ''}
-        onClose={handleConfirmationClose}
-      />
 
       <DialogContent className={classes.root}>
         <Grid container spacing={2}>

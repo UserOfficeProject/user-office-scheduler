@@ -10,11 +10,11 @@ import { Add as AddIcon } from '@material-ui/icons';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import moment from 'moment';
 import { useSnackbar } from 'notistack';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
-import ConfirmationDialog from 'components/common/ConfirmationDialog';
 import Loader from 'components/common/Loader';
 import SplitButton from 'components/common/SplitButton';
+import { AppContext } from 'context/AppContext';
 import { ProposalBookingFinalizeAction } from 'generated/sdk';
 import { useUnauthorizedApi } from 'hooks/common/useDataApi';
 import useProposalBookingLostTimes from 'hooks/lostTime/useProposalBookingLostTimes';
@@ -56,6 +56,7 @@ export default function FinalizeStep({
     proposalBooking.id
   );
 
+  const { showConfirmation } = useContext(AppContext);
   const { enqueueSnackbar } = useSnackbar();
   const api = useUnauthorizedApi();
   const [warningAccepted, setWarningAccepted] = useState(false);
@@ -129,52 +130,17 @@ export default function FinalizeStep({
     }
   };
 
-  const [activeConfirmation, setActiveConfirmation] = useState<{
-    message: string | React.ReactNode;
-    cb: () => void;
-  } | null>(null);
-
-  const showConfirmation = (
-    confirmationDialog: 'saveLostTime' | 'unsavedWork',
-    cb: () => void
-  ) => {
-    switch (confirmationDialog) {
-      case 'saveLostTime':
-        setActiveConfirmation({
+  const handleSave = () => {
+    hasOverlappingEvents(rows)
+      ? showConfirmation({
           message: (
             <>
               You have <strong>overlapping events</strong>, are you sure you
               want to continue?
             </>
           ),
-          cb,
-        });
-        break;
-      case 'unsavedWork':
-        setActiveConfirmation({
-          message: (
-            <>
-              You have <strong>unsaved work</strong>, are you sure you want to
-              continue?
-            </>
-          ),
-          cb,
-        });
-        break;
-    }
-  };
-
-  const handleConfirmationClose = (confirmed: boolean) => {
-    setActiveConfirmation(null);
-
-    if (confirmed) {
-      activeConfirmation?.cb();
-    }
-  };
-
-  const handleSave = () => {
-    hasOverlappingEvents(rows)
-      ? showConfirmation('saveLostTime', handleSaveSubmit)
+          cb: handleSaveSubmit,
+        })
       : handleSaveSubmit();
   };
 
@@ -212,18 +178,21 @@ export default function FinalizeStep({
 
   const handleFinalize = (selectedKey: ProposalBookingFinalizeAction) => {
     isDirty
-      ? showConfirmation('unsavedWork', () => handleFinalizeSubmit(selectedKey))
+      ? showConfirmation({
+          message: (
+            <>
+              You have <strong>unsaved work</strong>, are you sure you want to
+              continue?
+            </>
+          ),
+          cb: () => handleFinalizeSubmit(selectedKey),
+        })
       : handleFinalizeSubmit(selectedKey);
   };
 
   return (
     <>
       {isLoading && <Loader />}
-      <ConfirmationDialog
-        open={activeConfirmation !== null}
-        message={activeConfirmation?.message ?? ''}
-        onClose={handleConfirmationClose}
-      />
 
       <DialogContent>
         <TimeTable

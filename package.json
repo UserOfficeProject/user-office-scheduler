@@ -29,6 +29,7 @@
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
     "@types/dateformat": "^3.0.1",
+    "@types/humanize-duration": "^3.18.1",
     "@types/jest": "^24.9.1",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/lodash": "^4.14.161",
@@ -85,7 +86,6 @@
   },
   "devDependencies": {
     "@types/eslint": "~6.8.1",
-    "@types/humanize-duration": "^3.18.1",
     "@types/node": "^12.12.62",
     "@typescript-eslint/eslint-plugin": "~2.34.0",
     "@typescript-eslint/parser": "~2.34.0",

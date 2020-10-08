@@ -173,6 +173,7 @@ export default function Toolbar({
             className={classes.calendarViewSelect}
             value={view}
             onChange={e => onChangeView(e.target.value as View)}
+            data-cy="select-active-view"
           >
             {viewNamesGroup(messages)}
           </Select>

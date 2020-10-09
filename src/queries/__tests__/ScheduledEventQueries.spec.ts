@@ -8,9 +8,13 @@ const scheduledEventQueries = new ScheduledEventQueries(
 );
 
 test('should return the list of all scheduled events', () => {
-  return expect(scheduledEventQueries.scheduledEvents()).resolves.toEqual(
-    dummyScheduledEvents
-  );
+  return expect(
+    scheduledEventQueries.scheduledEvents({
+      instrumentId: 0,
+      endsAt: null,
+      startsAt: null,
+    })
+  ).resolves.toEqual(dummyScheduledEvents);
 });
 
 test('should return the scheduled event with the given ID', () => {

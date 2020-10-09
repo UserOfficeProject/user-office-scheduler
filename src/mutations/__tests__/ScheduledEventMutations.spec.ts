@@ -19,6 +19,7 @@ test('should create a new scheduled event', () => {
       startsAt,
       endsAt,
       scheduledById: 0,
+      instrumentId: 0,
     })
   ).resolves.toMatchObject({
     bookingType: ScheduledEventBookingType.USER_OPERATIONS,
@@ -26,5 +27,6 @@ test('should create a new scheduled event', () => {
     startsAt,
     endsAt,
     scheduledBy: { id: 0 },
+    instrument: { id: 0 },
   });
 });

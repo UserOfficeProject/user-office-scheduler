@@ -112,7 +112,7 @@ export default class PostgreScheduledEventDataSource
   async scheduledEvents(
     filter: ScheduledEventFilter
   ): Promise<ScheduledEvent[]> {
-    if (filter.instrumentId === null) {
+    if (!filter.instrumentId) {
       return [];
     }
 

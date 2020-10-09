@@ -7,10 +7,10 @@ import { ScheduledEvent } from '../types/ScheduledEvent';
 @InputType()
 export class ScheduledEventFilter {
   @Field(() => TzLessDateTime, { nullable: true })
-  startsAt: Date;
+  startsAt: Date | null;
 
   @Field(() => TzLessDateTime, { nullable: true })
-  endsAt: Date;
+  endsAt: Date | null;
 
   @Field(() => ID, { nullable: true })
   instrumentId: number | null;

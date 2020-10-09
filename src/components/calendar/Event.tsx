@@ -57,7 +57,7 @@ export function eventPropGetter(
   return {
     style: {
       borderRadius: 0,
-      border: 0,
+      border: '1px solid #FFF',
       ...getBookingTypeStyle(event.bookingType),
     },
   };

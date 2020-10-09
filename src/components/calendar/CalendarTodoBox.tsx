@@ -27,9 +27,13 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-type CalendarTodoBoxProps = { refreshCalendar: () => void };
+type CalendarTodoBoxProps = {
+  onNewSimpleEvent: () => void;
+  refreshCalendar: () => void;
+};
 
 export default function CalendarTodoBox({
+  onNewSimpleEvent,
   refreshCalendar,
 }: CalendarTodoBoxProps) {
   const classes = useStyles();
@@ -54,6 +58,7 @@ export default function CalendarTodoBox({
         variant="contained"
         color="primary"
         className={classes.bottomSpacing}
+        onClick={onNewSimpleEvent}
       >
         New event
       </Button>

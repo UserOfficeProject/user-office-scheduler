@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import generateScheduledEventFilter from 'filters/scheduledEvent/scheduledEventsFilter';
 import moment from 'moment';
 import 'moment/locale/en-gb';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useContext, useEffect } from 'react';
 import {
   Calendar as BigCalendar,
   momentLocalizer,
@@ -15,7 +15,9 @@ import ScheduledEventDialog, {
   SlotInfo,
 } from 'components/scheduledEvent/ScheduledEventDialog';
 import { BookingTypesMap } from 'components/scheduledEvent/ScheduledEventForm';
+import { AppContext } from 'context/AppContext';
 import { ScheduledEvent } from 'generated/sdk';
+import { useQuery } from 'hooks/common/useQuery';
 import useScheduledEvents from 'hooks/scheduledEvent/useScheduledEvents';
 import { ContentContainer, StyledPaper } from 'styles/StyledComponents';
 import { parseTzLessDateTime } from 'utils/date';
@@ -88,6 +90,10 @@ function slotPropGetter(date: Date): any {
 export default function Calendar() {
   const classes = useStyles();
 
+  const query = useQuery();
+  const queryInstrument = query.get('instrument');
+
+  const { showAlert } = useContext(AppContext);
   const [selectedEvent, setSelectedEvent] = useState<
     | Pick<
         ScheduledEvent,
@@ -101,28 +107,38 @@ export default function Calendar() {
       .startOf(CALENDAR_DEFAULT_VIEW)
       .toDate()
   );
+  const [view, setView] = useState<View>(CALENDAR_DEFAULT_VIEW);
   const [filter, setFilter] = useState(
-    generateScheduledEventFilter(startsAt, CALENDAR_DEFAULT_VIEW)
+    generateScheduledEventFilter(queryInstrument, startsAt, view)
   );
 
   const { loading, scheduledEvents, refresh } = useScheduledEvents(filter);
+
+  useEffect(() => {
+    setFilter(generateScheduledEventFilter(queryInstrument, startsAt, view));
+  }, [queryInstrument, startsAt, view]);
 
   const events = useMemo(() => transformEvent(scheduledEvents), [
     scheduledEvents,
   ]);
 
   const onNavigate = (newDate: Date, newView: View) => {
-    // we don't have this info during view change, so we have to store it
     setStartAt(newDate);
-    setFilter(generateScheduledEventFilter(newDate, newView));
+    setView(newView);
   };
 
   const onViewChange = (newView: View) => {
-    setFilter(generateScheduledEventFilter(startsAt, newView));
+    setView(newView);
   };
 
   const onSelectSlot = (slotInfo: SlotInfo) => {
     if (isOverlapping({ start: slotInfo.start, end: slotInfo.end }, events)) {
+      return;
+    }
+
+    if (!queryInstrument) {
+      showAlert({ message: <>You have to select an instrument</> });
+
       return;
     }
 
@@ -149,6 +165,24 @@ export default function Calendar() {
     }
   };
 
+  const handleNewSimpleEvent = () => {
+    const start = moment()
+      .startOf('hour')
+      .toDate();
+
+    const end = moment()
+      .startOf('hour')
+      .add(1, 'hour')
+      .toDate();
+
+    setSelectedEvent({
+      action: 'click',
+      start,
+      end,
+      slots: [start, end],
+    });
+  };
+
   // 100% height needed for month view
   // also the other components make whole page scrollable without it
   return (
@@ -159,11 +193,14 @@ export default function Calendar() {
             margin={[0, 1]}
             className={clsx(classes.fullHeight, classes.relative)}
           >
-            <ScheduledEventDialog
-              selectedEvent={selectedEvent}
-              isDialogOpen={selectedEvent !== null}
-              closeDialog={closeDialog}
-            />
+            {queryInstrument && (
+              <ScheduledEventDialog
+                selectedEvent={selectedEvent}
+                selectedInstrumentId={queryInstrument}
+                isDialogOpen={selectedEvent !== null}
+                closeDialog={closeDialog}
+              />
+            )}
             <Grid container className={classes.fullHeight}>
               <Grid item xs className={classes.fullHeight}>
                 <BigCalendar
@@ -189,12 +226,14 @@ export default function Calendar() {
                   components={{
                     toolbar: Toolbar,
                     event: Event,
-                    // timeSlotWrapper: TimeSlotWrapper,
                   }}
                 />
               </Grid>
               <Grid item xs={2} className={classes.fullHeight}>
-                <CalendarTodoBox refreshCalendar={refresh} />
+                <CalendarTodoBox
+                  refreshCalendar={refresh}
+                  onNewSimpleEvent={handleNewSimpleEvent}
+                />
               </Grid>
             </Grid>
             {loading && <Loader />}

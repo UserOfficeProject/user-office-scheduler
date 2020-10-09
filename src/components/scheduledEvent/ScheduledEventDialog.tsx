@@ -39,12 +39,14 @@ type ScheduledEventDialogProps = {
     | SlotInfo
     | null;
   isDialogOpen: boolean;
+  selectedInstrumentId: string;
   closeDialog: (shouldRefresh?: boolean) => void;
 };
 
 export default function ScheduledEventDialog({
   selectedEvent,
   isDialogOpen,
+  selectedInstrumentId,
   closeDialog,
 }: ScheduledEventDialogProps) {
   const { enqueueSnackbar } = useSnackbar();
@@ -77,6 +79,7 @@ export default function ScheduledEventDialog({
             createScheduledEvent: { error },
           } = await api().createScheduledEvent({
             input: {
+              instrumentId: selectedInstrumentId,
               // validation should take care about this
               bookingType: values.bookingType as ScheduledEventBookingType,
               endsAt: toTzLessDateTime(values.endsAt),

@@ -904,6 +904,7 @@ export type NewScheduledEventInput = {
   endsAt: Scalars['TzLessDateTime'];
   scheduledById: Scalars['ID'];
   description?: Maybe<Scalars['String']>;
+  instrumentId: Scalars['ID'];
 };
 
 export type ProposalBooking = {
@@ -945,6 +946,7 @@ export type ScheduledEvent = {
   endsAt: Scalars['TzLessDateTime'];
   scheduledBy: User;
   description: Maybe<Scalars['String']>;
+  instrument: Instrument;
 };
 
 export enum ScheduledEventBookingType {
@@ -957,6 +959,7 @@ export enum ScheduledEventBookingType {
 export type ScheduledEventFilter = {
   startsAt?: Maybe<Scalars['TzLessDateTime']>;
   endsAt?: Maybe<Scalars['TzLessDateTime']>;
+  instrumentId?: Maybe<Scalars['ID']>;
 };
 
 export type ScheduledEventResponseWrap = {
@@ -1257,7 +1260,7 @@ export type QueryProposalBookingArgs = {
 
 
 export type QueryScheduledEventsArgs = {
-  filter?: Maybe<ScheduledEventFilter>;
+  filter: ScheduledEventFilter;
 };
 
 
@@ -2147,7 +2150,7 @@ export type ProposalBookingScheduledEventsQuery = (
 );
 
 export type ScheduledEventsQueryVariables = Exact<{
-  filter?: Maybe<ScheduledEventFilter>;
+  filter: ScheduledEventFilter;
 }>;
 
 
@@ -2300,7 +2303,7 @@ export const ProposalBookingScheduledEventsDocument = gql`
 }
     `;
 export const ScheduledEventsDocument = gql`
-    query scheduledEvents($filter: ScheduledEventFilter) {
+    query scheduledEvents($filter: ScheduledEventFilter!) {
   scheduledEvents(filter: $filter) {
     id
     bookingType
@@ -2350,7 +2353,7 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     proposalBookingScheduledEvents(variables: ProposalBookingScheduledEventsQueryVariables): Promise<ProposalBookingScheduledEventsQuery> {
       return withWrapper(() => client.request<ProposalBookingScheduledEventsQuery>(print(ProposalBookingScheduledEventsDocument), variables));
     },
-    scheduledEvents(variables?: ScheduledEventsQueryVariables): Promise<ScheduledEventsQuery> {
+    scheduledEvents(variables: ScheduledEventsQueryVariables): Promise<ScheduledEventsQuery> {
       return withWrapper(() => client.request<ScheduledEventsQuery>(print(ScheduledEventsDocument), variables));
     }
   };

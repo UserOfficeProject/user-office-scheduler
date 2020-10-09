@@ -1,7 +1,8 @@
+import { Queue, RabbitMQMessageBroker } from '@esss-swap/duo-message-broker';
+
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
 import { ApplicationEvent } from '../events/applicationEvents';
 import { Event } from '../events/event.enum';
-import { Queue, RabbitMQMessageBroker } from '../messageBroker';
 
 export default function createHandler({
   proposalBookingDataSource,
@@ -9,6 +10,12 @@ export default function createHandler({
   proposalBookingDataSource: ProposalBookingDataSource;
 }) {
   const rabbitMQ = new RabbitMQMessageBroker();
+
+  // don't try to initialize during testing
+  // causes infinite loop
+  if (process.env.NODE_ENV !== 'test') {
+    rabbitMQ.setup();
+  }
 
   rabbitMQ.listenOn(Queue.PROPOSAL, async (type, message) => {
     switch (type) {

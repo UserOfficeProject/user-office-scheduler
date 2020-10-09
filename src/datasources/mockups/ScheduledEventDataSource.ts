@@ -20,7 +20,8 @@ export const dummyScheduledEvents: ScheduledEvent[] = [
     new Date(),
     new Date(),
     { id: 0 },
-    null
+    null,
+    { id: 0 }
   ),
   new ScheduledEvent(
     321,
@@ -30,7 +31,8 @@ export const dummyScheduledEvents: ScheduledEvent[] = [
     new Date(),
     new Date(),
     { id: 0 },
-    'dummy'
+    'dummy',
+    { id: 0 }
   ),
 ];
 
@@ -47,11 +49,13 @@ export default class MockupScheduledEventDataSource
       newScheduledEvent.startsAt,
       newScheduledEvent.endsAt,
       { id: newScheduledEvent.scheduledById },
-      newScheduledEvent.description
+      newScheduledEvent.description,
+      { id: newScheduledEvent.instrumentId }
     );
   }
 
   bulkUpsert(
+    instrumentId: 0,
     bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput
   ): Promise<ScheduledEvent[]> {
     throw new Error('Method not implemented.');

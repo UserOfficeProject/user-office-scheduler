@@ -9,6 +9,8 @@ import {
 } from '../../models/ScheduledEvent';
 import { System, DbStat } from '../../models/System';
 
+export type MetaFields = 'created_at' | 'updated_at';
+
 export interface SystemRecord {
   readonly id: string;
   readonly message: string;
@@ -28,6 +30,7 @@ export interface ScheduledEventRecord {
   readonly scheduled_by: number;
   readonly description: string | null;
   readonly proposal_booking_id: number | null;
+  readonly instrument_id: number;
 }
 
 export const createScheduledEventObject = (
@@ -41,7 +44,8 @@ export const createScheduledEventObject = (
     scheduledEvent.starts_at,
     scheduledEvent.ends_at,
     { id: scheduledEvent.scheduled_by }, // federation expect `{[@key field1]: $value, [@key field2]}` format
-    scheduledEvent.description
+    scheduledEvent.description,
+    { id: scheduledEvent.instrument_id }
   );
 
 export interface ProposalBookingRecord {

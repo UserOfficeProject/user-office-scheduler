@@ -11,6 +11,9 @@ export class ScheduledEventFilter {
 
   @Field(() => TzLessDateTime, { nullable: true })
   endsAt: Date;
+
+  @Field(() => ID, { nullable: true })
+  instrumentId: number | null;
 }
 
 @Resolver()
@@ -18,7 +21,7 @@ export class ScheduledEventQuery {
   @Query(() => [ScheduledEvent])
   scheduledEvents(
     @Ctx() ctx: ResolverContext,
-    @Arg('filter', () => ScheduledEventFilter, { nullable: true })
+    @Arg('filter', () => ScheduledEventFilter)
     filter: ScheduledEventFilter
   ) {
     return ctx.queries.scheduledEvent.scheduledEvents(filter);

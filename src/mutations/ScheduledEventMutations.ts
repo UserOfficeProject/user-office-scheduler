@@ -46,7 +46,7 @@ export default class ScheduledEventMutations {
     }
 
     return this.scheduledEventDataSource
-      .bulkUpsert(bulkUpsertScheduledEvents)
+      .bulkUpsert(proposalBooking.instrument.id, bulkUpsertScheduledEvents)
       .catch(error => {
         logger.logException('ScheduledEvent bulkUpsert failed', error, {
           bulkUpsertScheduledEvents,

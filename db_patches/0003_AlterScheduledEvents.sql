@@ -11,6 +11,10 @@ BEGIN
     REFERENCES "proposal_bookings" ("proposal_booking_id")
     ON DELETE CASCADE;
 
+  -- when creating maintenance or shutdown events we need this information
+  -- otherise we are able to tell by proposal booking id
+  ALTER TABLE "scheduled_events" ADD "instrument_id" int NOT NULL;
+
   END;
   END IF;
 END;

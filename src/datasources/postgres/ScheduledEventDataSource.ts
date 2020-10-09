@@ -10,10 +10,11 @@ import {
 import { ScheduledEventFilter } from '../../resolvers/queries/ScheduledEventQuery';
 import { ScheduledEventDataSource } from '../ScheduledEventDataSource';
 import database from './database';
-import { ScheduledEventRecord, createScheduledEventObject } from './records';
-
-// TODO: move to a general place
-type MetaFields = 'created_at' | 'updated_at';
+import {
+  ScheduledEventRecord,
+  createScheduledEventObject,
+  MetaFields,
+} from './records';
 
 type CreateFields = Omit<
   ScheduledEventRecord,
@@ -27,6 +28,7 @@ type BulkUpsertFields = Pick<
   | 'starts_at'
   | 'ends_at'
   | 'proposal_booking_id'
+  | 'instrument_id'
 >;
 
 export default class PostgreScheduledEventDataSource
@@ -43,6 +45,7 @@ export default class PostgreScheduledEventDataSource
         ends_at: newScheduledEvent.endsAt,
         scheduled_by: newScheduledEvent.scheduledById,
         description: newScheduledEvent.description,
+        instrument_id: newScheduledEvent.instrumentId,
       })
       .returning<ScheduledEventRecord[]>(['*']);
 
@@ -52,6 +55,7 @@ export default class PostgreScheduledEventDataSource
   // technically we don't update anything
   // we only delete and (re)create
   bulkUpsert(
+    instrumentId: number,
     bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput
   ): Promise<ScheduledEvent[]> {
     return database.transaction(async trx => {
@@ -82,6 +86,7 @@ export default class PostgreScheduledEventDataSource
             scheduled_by: scheduledById,
             starts_at: newObj.startsAt,
             ends_at: newObj.endsAt,
+            instrument_id: instrumentId,
           }))
         )
         .returning<ScheduledEventRecord[]>(['*']);
@@ -105,15 +110,21 @@ export default class PostgreScheduledEventDataSource
   }
 
   async scheduledEvents(
-    filter?: ScheduledEventFilter
+    filter: ScheduledEventFilter
   ): Promise<ScheduledEvent[]> {
-    const qb = database<ScheduledEventRecord>(this.tableName).select();
+    if (filter.instrumentId === null) {
+      return [];
+    }
 
-    if (filter?.startsAt) {
+    const qb = database<ScheduledEventRecord>(this.tableName)
+      .select()
+      .where('instrument_id', '=', filter.instrumentId);
+
+    if (filter.startsAt) {
       qb.where('starts_at', '>=', filter.startsAt);
     }
 
-    if (filter?.endsAt) {
+    if (filter.endsAt) {
       qb.where('ends_at', '<=', filter.endsAt);
     }
 

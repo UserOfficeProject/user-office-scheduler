@@ -9,7 +9,7 @@ export default class ScheduledEventQueries {
     return this.scheduledEventDataSource.scheduledEvent(id);
   }
 
-  scheduledEvents(filter?: ScheduledEventFilter): Promise<ScheduledEvent[]> {
+  scheduledEvents(filter: ScheduledEventFilter): Promise<ScheduledEvent[]> {
     return this.scheduledEventDataSource.scheduledEvents(filter);
   }
 

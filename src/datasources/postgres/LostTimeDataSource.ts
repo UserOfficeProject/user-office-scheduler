@@ -3,10 +3,7 @@ import { LostTime } from '../../models/LostTime';
 import { BulkUpsertLostTimesInput } from '../../resolvers/mutations/LostTimeMutation';
 import { LostTimeDataSource } from '../LostTimeDataSource';
 import database from './database';
-import { createLostTimeObject, LostTimeRecord } from './records';
-
-// TODO: move to a general place
-type MetaFields = 'created_at' | 'updated_at';
+import { createLostTimeObject, LostTimeRecord, MetaFields } from './records';
 
 type BulkUpsertFields = Omit<LostTimeRecord, 'lost_time_id' | MetaFields>;
 

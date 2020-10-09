@@ -36,6 +36,9 @@ export class NewScheduledEventInput implements Partial<ScheduledEventBase> {
 
   @Field(() => String, { nullable: true })
   description: string | null;
+
+  @Field(() => ID)
+  instrumentId: number;
 }
 
 @InputType()

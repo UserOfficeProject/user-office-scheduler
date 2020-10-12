@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 import { ScheduledEvent } from 'generated/sdk';
-import { useUnauthorizedApi } from 'hooks/common/useDataApi';
+import { useDataApi } from 'hooks/common/useDataApi';
 
 export type ProposalBookingScheduledEvent = Pick<
   ScheduledEvent,
@@ -16,7 +16,7 @@ export default function useProposalBookingScheduledEvents(
     ProposalBookingScheduledEvent[]
   >([]);
 
-  const unauthorizedApi = useUnauthorizedApi();
+  const unauthorizedApi = useDataApi();
 
   useEffect(() => {
     let unmount = false;

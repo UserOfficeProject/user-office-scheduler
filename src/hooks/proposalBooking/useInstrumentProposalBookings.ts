@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 import { Call, Proposal, ProposalBooking } from 'generated/sdk';
-import { useUnauthorizedApi } from 'hooks/common/useDataApi';
+import { useDataApi } from 'hooks/common/useDataApi';
 
 export type InstrumentProposalBooking = Pick<
   ProposalBooking,
@@ -21,7 +21,7 @@ export default function useInstrumentProposalBookings(instrumentId: string) {
     InstrumentProposalBooking[]
   >([]);
 
-  const unauthorizedApi = useUnauthorizedApi();
+  const unauthorizedApi = useDataApi();
 
   useEffect(() => {
     let unmount = false;

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
 import { ScheduledEvent, ScheduledEventFilter } from 'generated/sdk';
-import { useUnauthorizedApi } from 'hooks/common/useDataApi';
+import { useDataApi } from 'hooks/common/useDataApi';
 
 export default function useScheduledEvents(filter: ScheduledEventFilter) {
   const [loading, setLoading] = useState(true);
@@ -12,7 +12,7 @@ export default function useScheduledEvents(filter: ScheduledEventFilter) {
     >[]
   >([]);
 
-  const unauthorizedApi = useUnauthorizedApi();
+  const unauthorizedApi = useDataApi();
 
   const refresh = useCallback(() => {
     setLoading(true);

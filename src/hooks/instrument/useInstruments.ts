@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
 import { Instrument } from 'generated/sdk';
-import { useUnauthorizedApi } from 'hooks/common/useDataApi';
+import { useDataApi } from 'hooks/common/useDataApi';
 
 export default function useInstruments() {
   const [loading, setLoading] = useState(true);
@@ -9,7 +9,7 @@ export default function useInstruments() {
     Pick<Instrument, 'id' | 'name'>[]
   >([]);
 
-  const unauthorizedApi = useUnauthorizedApi();
+  const unauthorizedApi = useDataApi();
 
   const refresh = useCallback(() => {
     setLoading(true);

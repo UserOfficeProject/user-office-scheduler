@@ -1,12 +1,10 @@
 import { GraphQLClient } from 'graphql-request';
 import { Variables } from 'graphql-request/dist/types';
+import { decode } from 'jsonwebtoken';
 import { useSnackbar, WithSnackbarProps } from 'notistack';
-import { useCallback } from 'react';
+import { useCallback, useContext } from 'react';
 
-// import { decode } from 'jsonwebtoken';
-// import { useCallback, useContext } from 'react';
-// import { UserContext } from 'context/UserContextProvider';
-
+import { UserContext } from 'context/UserContext';
 import { getSdk } from 'generated/sdk';
 
 const BACKEND_ENDPOINT = process.env.REACT_APP_API_URL || '';
@@ -24,13 +22,33 @@ const notificationWithClientLog = async (
   });
 
   if (error) {
+    let stringifiedError: string;
+
+    if (error instanceof Error) {
+      const { message, stack, ...rest } = error;
+      stringifiedError = JSON.stringify({
+        message: message,
+        stack: stack,
+        additionalFields: rest,
+      });
+    } else if (typeof error === 'object') {
+      stringifiedError = JSON.stringify({
+        message: 'Client error',
+        stack: new Error().stack,
+        additionalFields: error,
+      });
+    } else {
+      stringifiedError = String(error);
+    }
+
     try {
-      // await getSdk(
-      //   // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      //   new UnauthorizedGraphQLClient(endpoint, enqueueSnackbar)
-      // ).addClientLog({ error });
-    } catch {
+      await getSdk(
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        new UnauthorizedGraphQLClient(endpoint, enqueueSnackbar)
+      ).addClientLog({ error: stringifiedError });
+    } catch (e) {
       // if this fails we can't do anything
+      console.error('Failed to log client error', e);
     }
   }
 };
@@ -68,89 +86,94 @@ class UnauthorizedGraphQLClient extends GraphQLClient {
   }
 }
 
-// class AuthorizedGraphQLClient extends GraphQLClient {
-//   private renewalDate: number;
+class AuthorizedGraphQLClient extends GraphQLClient {
+  private renewalDate: number;
 
-//   constructor(
-//     private endpoint: string,
-//     private token: string,
-//     private enqueueSnackbar: WithSnackbarProps['enqueueSnackbar'],
-//     private error?: (reason: string) => void,
-//     private tokenRenewed?: (newToken: string) => void
-//   ) {
-//     super(endpoint);
-//     token && this.setHeader('authorization', `Bearer ${token}`);
-//     this.renewalDate = this.getRenewalDate(token);
-//   }
+  constructor(
+    private endpoint: string,
+    private token: string,
+    private enqueueSnackbar: WithSnackbarProps['enqueueSnackbar'],
+    private error?: (reason: string) => void,
+    private tokenRenewed?: (newToken: string) => void
+  ) {
+    super(endpoint);
+    token && this.setHeader('authorization', `Bearer ${token}`);
+    this.renewalDate = this.getRenewalDate(token);
+  }
 
-//   async request<T extends any>(
-//     query: string,
-//     variables?: Variables
-//   ): Promise<T> {
-//     const nowTimestampSeconds = Date.now() / 1000;
-//     if (this.renewalDate < nowTimestampSeconds) {
-//       const data = await getSdk(new GraphQLClient(this.endpoint)).getToken({
-//         token: this.token,
-//       });
-//       if (data.token.error) {
-//         this.error && this.error(data.token.error);
-//       } else {
-//         const newToken = data.token.token;
-//         this.setHeader('authorization', `Bearer ${newToken}`);
-//         this.tokenRenewed && this.tokenRenewed(newToken as string);
-//       }
-//     }
+  async request<T extends any>(
+    query: string,
+    variables?: Variables
+  ): Promise<T> {
+    const nowTimestampSeconds = Date.now() / 1000;
 
-//     return super.request(query, variables).catch((error) => {
-//       if (
-//         error.response.error &&
-//         error.response.error.includes('ECONNREFUSED')
-//       ) {
-//         notificationWithClientLog(this.enqueueSnackbar, 'Connection problem!');
-//       } else {
-//         notificationWithClientLog(
-//           this.enqueueSnackbar,
-//           'Something went wrong!',
-//           error.response.errors[0].message
-//         );
-//       }
+    if (this.renewalDate < nowTimestampSeconds) {
+      const data = await getSdk(
+        new GraphQLClient(this.endpoint)
+      ).getRefreshedToken({
+        token: this.token,
+      });
 
-//       this.error && this.error(error);
+      if (data.token.error) {
+        this.error && this.error(data.token.error);
+      } else {
+        const newToken = data.token.token;
+        this.setHeader('authorization', `Bearer ${newToken}`);
+        this.tokenRenewed && this.tokenRenewed(newToken as string);
+      }
+    }
 
-//       return error;
-//     }) as T;
-//   }
+    return super.request(query, variables).catch(error => {
+      // if the connection fails the `error` exists
+      // otherwise it won't, so this `includes` would fail
+      if (error.response.error?.includes('ECONNREFUSED')) {
+        notificationWithClientLog(this.enqueueSnackbar, 'Connection problem!');
+      } else {
+        notificationWithClientLog(
+          this.enqueueSnackbar,
+          'Something went wrong!',
+          // Server error's should have `errors`
+          // everything else `error`
+          error.response.error ?? error.response.errors
+        );
+      }
 
-//   private getRenewalDate(token: string): number {
-//     const oneHour = 3600;
+      this.error && this.error(error);
 
-//     return (decode(token) as any).iat + oneHour;
-//   }
-// }
+      return error;
+    }) as T;
+  }
 
-// export function useDataApi() {
-//   const { token, handleNewToken, handleLogout } = useContext(UserContext);
-//   const { enqueueSnackbar } = useSnackbar();
+  private getRenewalDate(token: string): number {
+    const oneHour = 3600;
 
-//   return useCallback(
-//     () =>
-//       getSdk(
-//         token
-//           ? new AuthorizedGraphQLClient(
-//               endpoint,
-//               token,
-//               enqueueSnackbar,
-//               (reason) => {
-//                 console.log(reason);
-//                 handleLogout();
-//               },
-//               handleNewToken
-//             )
-//           : new GraphQLClient(endpoint)
-//       ),
-//     [token, handleNewToken, handleLogout, enqueueSnackbar]
-//   );
-// }
+    return (decode(token) as any).iat + oneHour;
+  }
+}
+
+export function useDataApi() {
+  const { token, handleNewToken, handleLogout } = useContext(UserContext);
+  const { enqueueSnackbar } = useSnackbar();
+
+  return useCallback(
+    () =>
+      getSdk(
+        token
+          ? new AuthorizedGraphQLClient(
+              endpoint,
+              token,
+              enqueueSnackbar,
+              reason => {
+                console.log(reason);
+                handleLogout();
+              },
+              handleNewToken
+            )
+          : new GraphQLClient(endpoint)
+      ),
+    [token, handleNewToken, handleLogout, enqueueSnackbar]
+  );
+}
 
 export function useUnauthorizedApi() {
   const { enqueueSnackbar } = useSnackbar();

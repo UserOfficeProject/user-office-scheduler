@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 import { Call, Proposal, ProposalBooking } from 'generated/sdk';
-import { useUnauthorizedApi } from 'hooks/common/useDataApi';
+import { useDataApi } from 'hooks/common/useDataApi';
 
 export type DetailedProposalBooking = Pick<
   ProposalBooking,
@@ -22,7 +22,7 @@ export default function useProposalBooking(id: string) {
     setProposalBooking,
   ] = useState<DetailedProposalBooking | null>(null);
 
-  const unauthorizedApi = useUnauthorizedApi();
+  const unauthorizedApi = useDataApi();
 
   useEffect(() => {
     let unmount = false;

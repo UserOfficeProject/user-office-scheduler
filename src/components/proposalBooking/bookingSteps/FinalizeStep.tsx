@@ -16,7 +16,7 @@ import Loader from 'components/common/Loader';
 import SplitButton from 'components/common/SplitButton';
 import { AppContext } from 'context/AppContext';
 import { ProposalBookingFinalizeAction } from 'generated/sdk';
-import { useUnauthorizedApi } from 'hooks/common/useDataApi';
+import { useDataApi } from 'hooks/common/useDataApi';
 import useProposalBookingLostTimes from 'hooks/lostTime/useProposalBookingLostTimes';
 import { DetailedProposalBooking } from 'hooks/proposalBooking/useProposalBooking';
 import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
@@ -58,7 +58,7 @@ export default function FinalizeStep({
 
   const { showConfirmation } = useContext(AppContext);
   const { enqueueSnackbar } = useSnackbar();
-  const api = useUnauthorizedApi();
+  const api = useDataApi();
   const [warningAccepted, setWarningAccepted] = useState(false);
   const [rows, setRows] = useState<TimeTableRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -118,7 +118,14 @@ export default function FinalizeStep({
           variant: 'error',
         });
       } else {
-        console.log({ lostTime });
+        lostTime &&
+          setRows(
+            lostTimes.map(({ startsAt, endsAt, ...rest }) => ({
+              ...rest,
+              startsAt: parseTzLessDateTime(startsAt),
+              endsAt: parseTzLessDateTime(endsAt),
+            }))
+          );
       }
 
       handleSetDirty(false);

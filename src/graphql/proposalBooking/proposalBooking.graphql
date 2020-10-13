@@ -1,0 +1,21 @@
+query proposalBooking($id: ID!) {
+  proposalBooking(id: $id) {
+    id
+    call {
+      id
+      shortCode
+      startCycle
+      endCycle
+      cycleComment
+    }
+    proposal {
+      id
+      title
+      shortCode
+    }
+    createdAt
+    updatedAt
+    status
+    allocatedTime
+  }
+}

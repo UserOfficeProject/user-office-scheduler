@@ -1,0 +1,21 @@
+query instrumentProposalBookings($instrumentId: ID!) {
+  instrumentProposalBookings(instrumentId: $instrumentId) {
+    id
+    call {
+      id
+      shortCode
+      startCycle
+      endCycle
+      cycleComment
+    }
+    proposal {
+      id
+      title
+      shortCode
+    }
+    createdAt
+    updatedAt
+    status
+    allocatedTime
+  }
+}

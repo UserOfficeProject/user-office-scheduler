@@ -1,0 +1,10 @@
+mutation bulkUpsertScheduledEvents($input: BulkUpsertScheduledEventsInput!) {
+  bulkUpsertScheduledEvents(bulkUpsertScheduledEvents: $input) {
+    error
+    scheduledEvent {
+      id
+      startsAt
+      endsAt
+    }
+  }
+}

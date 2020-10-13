@@ -58,11 +58,18 @@ export default function ScheduledEventForm() {
         fullWidth
         data-cy="bookingType"
       >
-        {Object.entries(BookingTypesMap).map(([key, value]) => (
-          <MenuItem key={key} value={key}>
-            {value}
-          </MenuItem>
-        ))}
+        <MenuItem value={ScheduledEventBookingType.MAINTENANCE}>
+          {BookingTypesMap[ScheduledEventBookingType.MAINTENANCE]}
+        </MenuItem>
+        <MenuItem value={ScheduledEventBookingType.SHUTDOWN}>
+          {BookingTypesMap[ScheduledEventBookingType.SHUTDOWN]}
+        </MenuItem>
+        <MenuItem value={ScheduledEventBookingType.COMMISSIONING} disabled>
+          {BookingTypesMap[ScheduledEventBookingType.COMMISSIONING]}
+        </MenuItem>
+        <MenuItem value={ScheduledEventBookingType.USER_OPERATIONS} disabled>
+          {BookingTypesMap[ScheduledEventBookingType.USER_OPERATIONS]}
+        </MenuItem>
       </Field>
       <Field
         component={TextField}

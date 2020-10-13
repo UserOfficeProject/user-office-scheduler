@@ -1,0 +1,5 @@
+mutation activateProposalBooking($id: ID!) {
+  activateProposalBooking(id: $id) {
+    error
+  }
+}

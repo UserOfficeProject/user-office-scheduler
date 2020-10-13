@@ -1,0 +1,9 @@
+query instruments {
+  instruments {
+    totalCount
+    instruments {
+      id
+      name
+    }
+  }
+}

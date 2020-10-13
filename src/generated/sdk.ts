@@ -13,8 +13,17 @@ export type Scalars = {
   /** The javascript `Date` as string. Type represents date and time as the ISO Date string. */
   DateTime: any;
   IntStringDateBoolArray: any;
-  /** DateTime without timezone in `yyyy-MM-dd HH:mm:ss` format */
+  /** DateTime without timezone in 'yyyy-MM-dd HH:mm:ss' format */
   TzLessDateTime: string;
+};
+
+export type AddProposalWorkflowStatusInput = {
+  proposalWorkflowId: Scalars['Int'];
+  sortOrder: Scalars['Int'];
+  proposalStatusId: Scalars['Int'];
+  nextProposalStatusId?: Maybe<Scalars['Int']>;
+  prevProposalStatusId?: Maybe<Scalars['Int']>;
+  nextStatusEventType: Scalars['String'];
 };
 
 export type AddSepMembersRole = {
@@ -153,6 +162,11 @@ export type DateConfig = {
 };
 
 
+export type DeleteProposalWorkflowStatusInput = {
+  proposalStatusId: Scalars['Int'];
+  proposalWorkflowId: Scalars['Int'];
+};
+
 export type EmailVerificationResponseWrap = {
   __typename?: 'EmailVerificationResponseWrap';
   error: Maybe<Scalars['String']>;
@@ -289,6 +303,12 @@ export type InstrumentWithAvailabilityTime = {
   submitted: Maybe<Scalars['Boolean']>;
 };
 
+
+export type MoveProposalWorkflowStatusInput = {
+  from: Scalars['Int'];
+  to: Scalars['Int'];
+  proposalWorkflowId: Scalars['Int'];
+};
 
 export type OrcIdInformation = {
   __typename?: 'OrcIDInformation';
@@ -444,6 +464,25 @@ export type ProposalWorkflow = {
   id: Scalars['Int'];
   name: Scalars['String'];
   description: Scalars['String'];
+  proposalWorkflowConnections: Array<ProposalWorkflowConnection>;
+};
+
+export type ProposalWorkflowConnection = {
+  __typename?: 'ProposalWorkflowConnection';
+  id: Scalars['Int'];
+  sortOrder: Scalars['Int'];
+  proposalWorkflowId: Scalars['Int'];
+  proposalStatusId: Scalars['Int'];
+  proposalStatus: ProposalStatus;
+  nextProposalStatusId: Maybe<Scalars['Int']>;
+  prevProposalStatusId: Maybe<Scalars['Int']>;
+  nextStatusEventType: Scalars['String'];
+};
+
+export type ProposalWorkflowConnectionResponseWrap = {
+  __typename?: 'ProposalWorkflowConnectionResponseWrap';
+  error: Maybe<Scalars['String']>;
+  proposalWorkflowConnection: Maybe<ProposalWorkflowConnection>;
 };
 
 export type ProposalWorkflowResponseWrap = {
@@ -826,10 +865,37 @@ export enum UserRole {
   SAMPLE_SAFETY_REVIEWER = 'SAMPLE_SAFETY_REVIEWER'
 }
 
+export type BulkUpsertLostTimesInput = {
+  proposalBookingId: Scalars['ID'];
+  lostTimes: Array<SimpleLostTime>;
+};
+
+export type BulkUpsertScheduledEventsInput = {
+  scheduledById: Scalars['ID'];
+  proposalBookingId: Scalars['ID'];
+  scheduledEvents: Array<SimpleScheduledEvent>;
+};
+
 export type DbStat = {
   __typename?: 'DbStat';
   total: Scalars['Float'];
   state: Maybe<Scalars['String']>;
+};
+
+export type LostTime = {
+  __typename?: 'LostTime';
+  id: Scalars['ID'];
+  proposalBookingId: Scalars['ID'];
+  createdAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime'];
+  startsAt: Scalars['TzLessDateTime'];
+  endsAt: Scalars['TzLessDateTime'];
+};
+
+export type LostTimesResponseWrap = {
+  __typename?: 'LostTimesResponseWrap';
+  error: Maybe<Scalars['String']>;
+  lostTime: Maybe<Array<LostTime>>;
 };
 
 export type NewScheduledEventInput = {
@@ -838,7 +904,37 @@ export type NewScheduledEventInput = {
   endsAt: Scalars['TzLessDateTime'];
   scheduledById: Scalars['ID'];
   description?: Maybe<Scalars['String']>;
+  instrumentId: Scalars['ID'];
 };
+
+export type ProposalBooking = {
+  __typename?: 'ProposalBooking';
+  id: Scalars['ID'];
+  call: Call;
+  proposal: Proposal;
+  createdAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime'];
+  status: ProposalBookingStatus;
+  allocatedTime: Scalars['Int'];
+  instrument: Instrument;
+};
+
+export enum ProposalBookingFinalizeAction {
+  CLOSE = 'CLOSE',
+  RESTART = 'RESTART'
+}
+
+export type ProposalBookingResponseWrap = {
+  __typename?: 'ProposalBookingResponseWrap';
+  error: Maybe<Scalars['String']>;
+  proposalBooking: Maybe<ProposalBooking>;
+};
+
+export enum ProposalBookingStatus {
+  DRAFT = 'DRAFT',
+  BOOKED = 'BOOKED',
+  CLOSED = 'CLOSED'
+}
 
 export type ScheduledEvent = {
   __typename?: 'ScheduledEvent';
@@ -850,6 +946,7 @@ export type ScheduledEvent = {
   endsAt: Scalars['TzLessDateTime'];
   scheduledBy: User;
   description: Maybe<Scalars['String']>;
+  instrument: Instrument;
 };
 
 export enum ScheduledEventBookingType {
@@ -862,12 +959,31 @@ export enum ScheduledEventBookingType {
 export type ScheduledEventFilter = {
   startsAt?: Maybe<Scalars['TzLessDateTime']>;
   endsAt?: Maybe<Scalars['TzLessDateTime']>;
+  instrumentId?: Maybe<Scalars['ID']>;
 };
 
 export type ScheduledEventResponseWrap = {
   __typename?: 'ScheduledEventResponseWrap';
   error: Maybe<Scalars['String']>;
   scheduledEvent: Maybe<ScheduledEvent>;
+};
+
+export type ScheduledEventsResponseWrap = {
+  __typename?: 'ScheduledEventsResponseWrap';
+  error: Maybe<Scalars['String']>;
+  scheduledEvent: Maybe<Array<ScheduledEvent>>;
+};
+
+export type SimpleLostTime = {
+  id: Scalars['ID'];
+  startsAt: Scalars['TzLessDateTime'];
+  endsAt: Scalars['TzLessDateTime'];
+};
+
+export type SimpleScheduledEvent = {
+  id: Scalars['ID'];
+  startsAt: Scalars['TzLessDateTime'];
+  endsAt: Scalars['TzLessDateTime'];
 };
 
 export type System = {
@@ -922,8 +1038,12 @@ export type Query = {
   user: Maybe<User>;
   me: Maybe<User>;
   users: Maybe<UserQueryResult>;
-  scheduledEvent: Maybe<ScheduledEvent>;
+  proposalBookingLostTimes: Array<LostTime>;
+  instrumentProposalBookings: Array<ProposalBooking>;
+  proposalBooking: Maybe<ProposalBooking>;
   scheduledEvents: Array<ScheduledEvent>;
+  scheduledEvent: Maybe<ScheduledEvent>;
+  proposalBookingScheduledEvents: Array<ScheduledEvent>;
   healthCheck: System;
 };
 
@@ -1124,13 +1244,33 @@ export type QueryUsersArgs = {
 };
 
 
-export type QueryScheduledEventArgs = {
+export type QueryProposalBookingLostTimesArgs = {
+  proposalBookingId: Scalars['ID'];
+};
+
+
+export type QueryInstrumentProposalBookingsArgs = {
+  instrumentId: Scalars['ID'];
+};
+
+
+export type QueryProposalBookingArgs = {
   id: Scalars['ID'];
 };
 
 
 export type QueryScheduledEventsArgs = {
-  filter?: Maybe<ScheduledEventFilter>;
+  filter: ScheduledEventFilter;
+};
+
+
+export type QueryScheduledEventArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryProposalBookingScheduledEventsArgs = {
+  proposalBookingId: Scalars['ID'];
 };
 
 export type Mutation = {
@@ -1151,8 +1291,11 @@ export type Mutation = {
   submitInstrument: SuccessResponseWrap;
   administrationProposal: ProposalResponseWrap;
   updateProposal: ProposalResponseWrap;
+  addProposalWorkflowStatus: ProposalWorkflowConnectionResponseWrap;
   createProposalStatus: ProposalStatusResponseWrap;
   createProposalWorkflow: ProposalWorkflowResponseWrap;
+  deleteProposalWorkflowStatus: SuccessResponseWrap;
+  moveProposalWorkflowStatus: ProposalWorkflowConnectionResponseWrap;
   updateProposalStatus: ProposalStatusResponseWrap;
   updateProposalWorkflow: ProposalWorkflowResponseWrap;
   answerTopic: QuestionaryStepResponseWrap;
@@ -1189,6 +1332,7 @@ export type Mutation = {
   addClientLog: SuccessResponseWrap;
   applyPatches: PrepareDbResponseWrap;
   assignQuestionsToTopic: AssignQuestionsToTopicResponseWrap;
+  cloneSample: SampleResponseWrap;
   cloneTemplate: TemplateResponseWrap;
   createAnswerQuestionaryRelations: AnswerBasicResponseWrap;
   createProposal: ProposalResponseWrap;
@@ -1218,7 +1362,11 @@ export type Mutation = {
   updateSampleSafetyReview: SampleResponseWrap;
   updateSampleTitle: SampleResponseWrap;
   updateTopicOrder: UpdateTopicOrderResponseWrap;
+  bulkUpsertLostTimes: LostTimesResponseWrap;
+  finalizeProposalBooking: ProposalBookingResponseWrap;
+  activateProposalBooking: ProposalBookingResponseWrap;
   createScheduledEvent: ScheduledEventResponseWrap;
+  bulkUpsertScheduledEvents: ScheduledEventsResponseWrap;
 };
 
 
@@ -1352,6 +1500,11 @@ export type MutationUpdateProposalArgs = {
 };
 
 
+export type MutationAddProposalWorkflowStatusArgs = {
+  newProposalWorkflowStatusInput: AddProposalWorkflowStatusInput;
+};
+
+
 export type MutationCreateProposalStatusArgs = {
   newProposalStatusInput: CreateProposalStatusInput;
 };
@@ -1359,6 +1512,16 @@ export type MutationCreateProposalStatusArgs = {
 
 export type MutationCreateProposalWorkflowArgs = {
   newProposalWorkflowInput: CreateProposalWorkflowInput;
+};
+
+
+export type MutationDeleteProposalWorkflowStatusArgs = {
+  deleteProposalWorkflowStatusInput: DeleteProposalWorkflowStatusInput;
+};
+
+
+export type MutationMoveProposalWorkflowStatusArgs = {
+  moveProposalWorkflowStatusInput: MoveProposalWorkflowStatusInput;
 };
 
 
@@ -1633,6 +1796,11 @@ export type MutationAssignQuestionsToTopicArgs = {
 };
 
 
+export type MutationCloneSampleArgs = {
+  sampleId: Scalars['Int'];
+};
+
+
 export type MutationCloneTemplateArgs = {
   templateId: Scalars['Int'];
 };
@@ -1782,8 +1950,29 @@ export type MutationUpdateTopicOrderArgs = {
 };
 
 
+export type MutationBulkUpsertLostTimesArgs = {
+  bulkUpsertLostTimes: BulkUpsertLostTimesInput;
+};
+
+
+export type MutationFinalizeProposalBookingArgs = {
+  id: Scalars['ID'];
+  action: ProposalBookingFinalizeAction;
+};
+
+
+export type MutationActivateProposalBookingArgs = {
+  id: Scalars['ID'];
+};
+
+
 export type MutationCreateScheduledEventArgs = {
   newScheduledEvent: NewScheduledEventInput;
+};
+
+
+export type MutationBulkUpsertScheduledEventsArgs = {
+  bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput;
 };
 
 export type ServerHealthCheckQueryVariables = Exact<{ [key: string]: never; }>;
@@ -1798,6 +1987,135 @@ export type ServerHealthCheckQuery = (
       { __typename?: 'DbStat' }
       & Pick<DbStat, 'total' | 'state'>
     )> }
+  ) }
+);
+
+export type InstrumentsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type InstrumentsQuery = (
+  { __typename?: 'Query' }
+  & { instruments: Maybe<(
+    { __typename?: 'InstrumentsQueryResult' }
+    & Pick<InstrumentsQueryResult, 'totalCount'>
+    & { instruments: Array<(
+      { __typename?: 'Instrument' }
+      & Pick<Instrument, 'id' | 'name'>
+    )> }
+  )> }
+);
+
+export type BulkUpsertLostTimesMutationVariables = Exact<{
+  input: BulkUpsertLostTimesInput;
+}>;
+
+
+export type BulkUpsertLostTimesMutation = (
+  { __typename?: 'Mutation' }
+  & { bulkUpsertLostTimes: (
+    { __typename?: 'LostTimesResponseWrap' }
+    & Pick<LostTimesResponseWrap, 'error'>
+    & { lostTime: Maybe<Array<(
+      { __typename?: 'LostTime' }
+      & Pick<LostTime, 'id' | 'startsAt' | 'endsAt'>
+    )>> }
+  ) }
+);
+
+export type ProposalBookingLostTimesQueryVariables = Exact<{
+  proposalBookingId: Scalars['ID'];
+}>;
+
+
+export type ProposalBookingLostTimesQuery = (
+  { __typename?: 'Query' }
+  & { proposalBookingLostTimes: Array<(
+    { __typename?: 'LostTime' }
+    & Pick<LostTime, 'id' | 'startsAt' | 'endsAt'>
+  )> }
+);
+
+export type ActivateProposalBookingMutationVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type ActivateProposalBookingMutation = (
+  { __typename?: 'Mutation' }
+  & { activateProposalBooking: (
+    { __typename?: 'ProposalBookingResponseWrap' }
+    & Pick<ProposalBookingResponseWrap, 'error'>
+  ) }
+);
+
+export type FinalizeProposalBookingMutationVariables = Exact<{
+  action: ProposalBookingFinalizeAction;
+  id: Scalars['ID'];
+}>;
+
+
+export type FinalizeProposalBookingMutation = (
+  { __typename?: 'Mutation' }
+  & { finalizeProposalBooking: (
+    { __typename?: 'ProposalBookingResponseWrap' }
+    & Pick<ProposalBookingResponseWrap, 'error'>
+  ) }
+);
+
+export type InstrumentProposalBookingsQueryVariables = Exact<{
+  instrumentId: Scalars['ID'];
+}>;
+
+
+export type InstrumentProposalBookingsQuery = (
+  { __typename?: 'Query' }
+  & { instrumentProposalBookings: Array<(
+    { __typename?: 'ProposalBooking' }
+    & Pick<ProposalBooking, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'allocatedTime'>
+    & { call: (
+      { __typename?: 'Call' }
+      & Pick<Call, 'id' | 'shortCode' | 'startCycle' | 'endCycle' | 'cycleComment'>
+    ), proposal: (
+      { __typename?: 'Proposal' }
+      & Pick<Proposal, 'id' | 'title' | 'shortCode'>
+    ) }
+  )> }
+);
+
+export type ProposalBookingQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type ProposalBookingQuery = (
+  { __typename?: 'Query' }
+  & { proposalBooking: Maybe<(
+    { __typename?: 'ProposalBooking' }
+    & Pick<ProposalBooking, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'allocatedTime'>
+    & { call: (
+      { __typename?: 'Call' }
+      & Pick<Call, 'id' | 'shortCode' | 'startCycle' | 'endCycle' | 'cycleComment'>
+    ), proposal: (
+      { __typename?: 'Proposal' }
+      & Pick<Proposal, 'id' | 'title' | 'shortCode'>
+    ) }
+  )> }
+);
+
+export type BulkUpsertScheduledEventsMutationVariables = Exact<{
+  input: BulkUpsertScheduledEventsInput;
+}>;
+
+
+export type BulkUpsertScheduledEventsMutation = (
+  { __typename?: 'Mutation' }
+  & { bulkUpsertScheduledEvents: (
+    { __typename?: 'ScheduledEventsResponseWrap' }
+    & Pick<ScheduledEventsResponseWrap, 'error'>
+    & { scheduledEvent: Maybe<Array<(
+      { __typename?: 'ScheduledEvent' }
+      & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
+    )>> }
   ) }
 );
 
@@ -1818,8 +2136,21 @@ export type CreateScheduledEventMutation = (
   ) }
 );
 
+export type ProposalBookingScheduledEventsQueryVariables = Exact<{
+  proposalBookingId: Scalars['ID'];
+}>;
+
+
+export type ProposalBookingScheduledEventsQuery = (
+  { __typename?: 'Query' }
+  & { proposalBookingScheduledEvents: Array<(
+    { __typename?: 'ScheduledEvent' }
+    & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
+  )> }
+);
+
 export type ScheduledEventsQueryVariables = Exact<{
-  filter?: Maybe<ScheduledEventFilter>;
+  filter: ScheduledEventFilter;
 }>;
 
 
@@ -1844,6 +2175,110 @@ export const ServerHealthCheckDocument = gql`
   }
 }
     `;
+export const InstrumentsDocument = gql`
+    query instruments {
+  instruments {
+    totalCount
+    instruments {
+      id
+      name
+    }
+  }
+}
+    `;
+export const BulkUpsertLostTimesDocument = gql`
+    mutation bulkUpsertLostTimes($input: BulkUpsertLostTimesInput!) {
+  bulkUpsertLostTimes(bulkUpsertLostTimes: $input) {
+    error
+    lostTime {
+      id
+      startsAt
+      endsAt
+    }
+  }
+}
+    `;
+export const ProposalBookingLostTimesDocument = gql`
+    query proposalBookingLostTimes($proposalBookingId: ID!) {
+  proposalBookingLostTimes(proposalBookingId: $proposalBookingId) {
+    id
+    startsAt
+    endsAt
+  }
+}
+    `;
+export const ActivateProposalBookingDocument = gql`
+    mutation activateProposalBooking($id: ID!) {
+  activateProposalBooking(id: $id) {
+    error
+  }
+}
+    `;
+export const FinalizeProposalBookingDocument = gql`
+    mutation finalizeProposalBooking($action: ProposalBookingFinalizeAction!, $id: ID!) {
+  finalizeProposalBooking(action: $action, id: $id) {
+    error
+  }
+}
+    `;
+export const InstrumentProposalBookingsDocument = gql`
+    query instrumentProposalBookings($instrumentId: ID!) {
+  instrumentProposalBookings(instrumentId: $instrumentId) {
+    id
+    call {
+      id
+      shortCode
+      startCycle
+      endCycle
+      cycleComment
+    }
+    proposal {
+      id
+      title
+      shortCode
+    }
+    createdAt
+    updatedAt
+    status
+    allocatedTime
+  }
+}
+    `;
+export const ProposalBookingDocument = gql`
+    query proposalBooking($id: ID!) {
+  proposalBooking(id: $id) {
+    id
+    call {
+      id
+      shortCode
+      startCycle
+      endCycle
+      cycleComment
+    }
+    proposal {
+      id
+      title
+      shortCode
+    }
+    createdAt
+    updatedAt
+    status
+    allocatedTime
+  }
+}
+    `;
+export const BulkUpsertScheduledEventsDocument = gql`
+    mutation bulkUpsertScheduledEvents($input: BulkUpsertScheduledEventsInput!) {
+  bulkUpsertScheduledEvents(bulkUpsertScheduledEvents: $input) {
+    error
+    scheduledEvent {
+      id
+      startsAt
+      endsAt
+    }
+  }
+}
+    `;
 export const CreateScheduledEventDocument = gql`
     mutation createScheduledEvent($input: NewScheduledEventInput!) {
   createScheduledEvent(newScheduledEvent: $input) {
@@ -1858,8 +2293,17 @@ export const CreateScheduledEventDocument = gql`
   }
 }
     `;
+export const ProposalBookingScheduledEventsDocument = gql`
+    query proposalBookingScheduledEvents($proposalBookingId: ID!) {
+  proposalBookingScheduledEvents(proposalBookingId: $proposalBookingId) {
+    id
+    startsAt
+    endsAt
+  }
+}
+    `;
 export const ScheduledEventsDocument = gql`
-    query scheduledEvents($filter: ScheduledEventFilter) {
+    query scheduledEvents($filter: ScheduledEventFilter!) {
   scheduledEvents(filter: $filter) {
     id
     bookingType
@@ -1879,10 +2323,37 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     serverHealthCheck(variables?: ServerHealthCheckQueryVariables): Promise<ServerHealthCheckQuery> {
       return withWrapper(() => client.request<ServerHealthCheckQuery>(print(ServerHealthCheckDocument), variables));
     },
+    instruments(variables?: InstrumentsQueryVariables): Promise<InstrumentsQuery> {
+      return withWrapper(() => client.request<InstrumentsQuery>(print(InstrumentsDocument), variables));
+    },
+    bulkUpsertLostTimes(variables: BulkUpsertLostTimesMutationVariables): Promise<BulkUpsertLostTimesMutation> {
+      return withWrapper(() => client.request<BulkUpsertLostTimesMutation>(print(BulkUpsertLostTimesDocument), variables));
+    },
+    proposalBookingLostTimes(variables: ProposalBookingLostTimesQueryVariables): Promise<ProposalBookingLostTimesQuery> {
+      return withWrapper(() => client.request<ProposalBookingLostTimesQuery>(print(ProposalBookingLostTimesDocument), variables));
+    },
+    activateProposalBooking(variables: ActivateProposalBookingMutationVariables): Promise<ActivateProposalBookingMutation> {
+      return withWrapper(() => client.request<ActivateProposalBookingMutation>(print(ActivateProposalBookingDocument), variables));
+    },
+    finalizeProposalBooking(variables: FinalizeProposalBookingMutationVariables): Promise<FinalizeProposalBookingMutation> {
+      return withWrapper(() => client.request<FinalizeProposalBookingMutation>(print(FinalizeProposalBookingDocument), variables));
+    },
+    instrumentProposalBookings(variables: InstrumentProposalBookingsQueryVariables): Promise<InstrumentProposalBookingsQuery> {
+      return withWrapper(() => client.request<InstrumentProposalBookingsQuery>(print(InstrumentProposalBookingsDocument), variables));
+    },
+    proposalBooking(variables: ProposalBookingQueryVariables): Promise<ProposalBookingQuery> {
+      return withWrapper(() => client.request<ProposalBookingQuery>(print(ProposalBookingDocument), variables));
+    },
+    bulkUpsertScheduledEvents(variables: BulkUpsertScheduledEventsMutationVariables): Promise<BulkUpsertScheduledEventsMutation> {
+      return withWrapper(() => client.request<BulkUpsertScheduledEventsMutation>(print(BulkUpsertScheduledEventsDocument), variables));
+    },
     createScheduledEvent(variables: CreateScheduledEventMutationVariables): Promise<CreateScheduledEventMutation> {
       return withWrapper(() => client.request<CreateScheduledEventMutation>(print(CreateScheduledEventDocument), variables));
     },
-    scheduledEvents(variables?: ScheduledEventsQueryVariables): Promise<ScheduledEventsQuery> {
+    proposalBookingScheduledEvents(variables: ProposalBookingScheduledEventsQueryVariables): Promise<ProposalBookingScheduledEventsQuery> {
+      return withWrapper(() => client.request<ProposalBookingScheduledEventsQuery>(print(ProposalBookingScheduledEventsDocument), variables));
+    },
+    scheduledEvents(variables: ScheduledEventsQueryVariables): Promise<ScheduledEventsQuery> {
       return withWrapper(() => client.request<ScheduledEventsQuery>(print(ScheduledEventsDocument), variables));
     }
   };

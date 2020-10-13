@@ -22,13 +22,13 @@ export default function useProposalBooking(id: string) {
     setProposalBooking,
   ] = useState<DetailedProposalBooking | null>(null);
 
-  const unauthorizedApi = useDataApi();
+  const api = useDataApi();
 
   useEffect(() => {
     let unmount = false;
 
     setLoading(true);
-    unauthorizedApi()
+    api()
       .proposalBooking({ id })
       .then(data => {
         if (unmount) {
@@ -46,7 +46,7 @@ export default function useProposalBooking(id: string) {
     return () => {
       unmount = true;
     };
-  }, [id, unauthorizedApi]);
+  }, [id, api]);
 
   return { loading, proposalBooking } as const;
 }

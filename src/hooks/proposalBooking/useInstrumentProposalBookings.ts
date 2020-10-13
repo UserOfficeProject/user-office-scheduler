@@ -21,13 +21,13 @@ export default function useInstrumentProposalBookings(instrumentId: string) {
     InstrumentProposalBooking[]
   >([]);
 
-  const unauthorizedApi = useDataApi();
+  const api = useDataApi();
 
   useEffect(() => {
     let unmount = false;
 
     setLoading(true);
-    unauthorizedApi()
+    api()
       .instrumentProposalBookings({ instrumentId })
       .then(data => {
         if (unmount) {
@@ -45,7 +45,7 @@ export default function useInstrumentProposalBookings(instrumentId: string) {
     return () => {
       unmount = true;
     };
-  }, [instrumentId, unauthorizedApi]);
+  }, [instrumentId, api]);
 
   return { loading, proposalBookings } as const;
 }

@@ -44,7 +44,7 @@ const notificationWithClientLog = async (
     try {
       await getSdk(
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        new UnauthorizedGraphQLClient(endpoint, enqueueSnackbar)
+        new UnauthorizedGraphQLClient(endpoint, enqueueSnackbar, true)
       ).addClientLog({ error: stringifiedError });
     } catch (e) {
       // if this fails we can't do anything
@@ -56,7 +56,8 @@ const notificationWithClientLog = async (
 class UnauthorizedGraphQLClient extends GraphQLClient {
   constructor(
     private endpoint: string,
-    private enqueueSnackbar: WithSnackbarProps['enqueueSnackbar']
+    private enqueueSnackbar: WithSnackbarProps['enqueueSnackbar'],
+    private skipErrorReport?: boolean
   ) {
     super(endpoint);
   }
@@ -67,6 +68,13 @@ class UnauthorizedGraphQLClient extends GraphQLClient {
     variables?: Variables
   ): Promise<T> {
     return super.request(query, variables).catch(error => {
+      // if the `notificationWithClientLog` fails
+      // and it fails while reporting an error, it can
+      // easily cause an infinite loop
+      if (this.skipErrorReport) {
+        throw error;
+      }
+
       // if the connection fails the `error` exists
       // otherwise it won't, so this `includes` would fail
       if (error.response.error?.includes('ECONNREFUSED')) {
@@ -129,13 +137,17 @@ class AuthorizedGraphQLClient extends GraphQLClient {
       if (error.response.error?.includes('ECONNREFUSED')) {
         notificationWithClientLog(this.enqueueSnackbar, 'Connection problem!');
       } else {
-        notificationWithClientLog(
-          this.enqueueSnackbar,
-          'Something went wrong!',
-          // Server error's should have `errors`
-          // everything else `error`
-          error.response.error ?? error.response.errors
-        );
+        const unnamedErrors = this.checkNamedErrors(error.response);
+
+        if (unnamedErrors) {
+          notificationWithClientLog(
+            this.enqueueSnackbar,
+            'Something went wrong!',
+            // Server error's should have `errors`
+            // everything else `error`
+            unnamedErrors
+          );
+        }
       }
 
       this.error && this.error(error);
@@ -148,6 +160,32 @@ class AuthorizedGraphQLClient extends GraphQLClient {
     const oneHour = 3600;
 
     return (decode(token) as any).iat + oneHour;
+  }
+
+  private checkNamedErrors(errObj: any) {
+    // it is a graphql error
+    if (Array.isArray(errObj.errors)) {
+      const rest = errObj.errors.filter((err: any) => {
+        if (err.extensions.code === 'UNAUTHENTICATED') {
+          this.enqueueSnackbar('Token expired or bad token', {
+            variant: 'error',
+            preventDuplicate: true,
+          });
+
+          return false;
+        }
+
+        return true;
+      });
+
+      return rest.length > 0 ? rest : null;
+    }
+
+    if ('error' in errObj) {
+      return errObj.error;
+    }
+
+    return errObj;
   }
 }
 

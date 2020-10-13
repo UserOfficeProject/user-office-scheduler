@@ -8,25 +8,39 @@ export default function useInstruments() {
   const [instruments, setInstruments] = useState<
     Pick<Instrument, 'id' | 'name'>[]
   >([]);
+  // may look stupid, but basically lets us provide a refresh option
+  // and we won't get a warning when the component gets unmounted while
+  // the promise still pending
+  const [counter, setCounter] = useState<number>(0);
 
-  const unauthorizedApi = useDataApi();
+  const api = useDataApi();
 
   const refresh = useCallback(() => {
+    setCounter(Date.now());
+  }, [setCounter]);
+
+  useEffect(() => {
+    let unmount = false;
+
     setLoading(true);
-    unauthorizedApi()
+    api()
       .instruments()
       .then(data => {
+        if (unmount) {
+          return;
+        }
+
         if (data.instruments?.instruments) {
           setInstruments(data.instruments.instruments);
         }
 
         setLoading(false);
       });
-  }, [unauthorizedApi]);
 
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
+    return () => {
+      unmount = true;
+    };
+  }, [counter, api]);
 
   return { loading, instruments, refresh } as const;
 }

@@ -14,6 +14,7 @@ export class ScheduledEvent {
     public startsAt: Date,
     public endsAt: Date,
     public scheduledBy: { id: number },
-    public description: string | null
+    public description: string | null,
+    public instrument: { id: number }
   ) {}
 }

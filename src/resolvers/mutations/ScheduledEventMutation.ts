@@ -14,7 +14,10 @@ import {
   ScheduledEventBookingType,
 } from '../../models/ScheduledEvent';
 import { TzLessDateTime } from '../CustomScalars';
-import { ScheduledEventResponseWrap } from '../types/wrappers';
+import {
+  ScheduledEventResponseWrap,
+  ScheduledEventsResponseWrap,
+} from '../types/wrappers';
 import { wrapResponse } from '../wrapResponse';
 
 @InputType()
@@ -33,10 +36,37 @@ export class NewScheduledEventInput implements Partial<ScheduledEventBase> {
 
   @Field(() => String, { nullable: true })
   description: string | null;
+
+  @Field(() => ID)
+  instrumentId: number;
+}
+
+@InputType()
+export class SimpleScheduledEvent {
+  @Field(() => ID)
+  id: number;
+
+  @Field(() => TzLessDateTime)
+  startsAt: Date;
+
+  @Field(() => TzLessDateTime)
+  endsAt: Date;
+}
+
+@InputType()
+export class BulkUpsertScheduledEventsInput {
+  @Field(() => ID)
+  scheduledById: number;
+
+  @Field(() => ID)
+  proposalBookingId: number;
+
+  @Field(() => [SimpleScheduledEvent])
+  scheduledEvents: SimpleScheduledEvent[];
 }
 
 @Resolver()
-export class CreateScheduledEventMutation {
+export class ScheduledEventMutation {
   @Mutation(() => ScheduledEventResponseWrap)
   createScheduledEvent(
     @Ctx() ctx: ResolverContext,
@@ -45,6 +75,18 @@ export class CreateScheduledEventMutation {
   ) {
     return wrapResponse(
       ctx.mutations.scheduledEvent.create(newScheduledEvent),
+      ScheduledEventResponseWrap
+    );
+  }
+
+  @Mutation(() => ScheduledEventsResponseWrap)
+  bulkUpsertScheduledEvents(
+    @Ctx() ctx: ResolverContext,
+    @Arg('bulkUpsertScheduledEvents', () => BulkUpsertScheduledEventsInput)
+    bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput
+  ) {
+    return wrapResponse(
+      ctx.mutations.scheduledEvent.bulkUpsert(bulkUpsertScheduledEvents),
       ScheduledEventResponseWrap
     );
   }

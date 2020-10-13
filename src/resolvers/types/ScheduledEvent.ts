@@ -6,33 +6,39 @@ import {
   ScheduledEventBookingType,
 } from '../../models/ScheduledEvent';
 import { TzLessDateTime } from '../CustomScalars';
+import { Instrument } from './Instrument';
 import { User } from './User';
 
 @ObjectType()
 export class ScheduledEvent implements Partial<ScheduledEventBase> {
   @Field(() => ID)
-  public id: number;
+  id: number;
 
   @Field(() => Date)
-  public createdAt: Date;
+  createdAt: Date;
 
   @Field(() => Date)
-  public updatedAt: Date;
+  updatedAt: Date;
 
   @Field(() => ScheduledEventBookingType)
-  public bookingType: ScheduledEventBookingType;
+  bookingType: ScheduledEventBookingType;
 
   @Field(() => TzLessDateTime)
-  public startsAt: Date;
+  startsAt: Date;
 
   @Field(() => TzLessDateTime)
-  public endsAt: Date;
+  endsAt: Date;
 
   // external type
   @Type(() => User)
   @Field()
-  public scheduledBy: User;
+  scheduledBy: User;
 
   @Field(() => String, { nullable: true })
-  public description: string;
+  description: string;
+
+  // external type
+  @Type(() => User)
+  @Field()
+  instrument: Instrument;
 }

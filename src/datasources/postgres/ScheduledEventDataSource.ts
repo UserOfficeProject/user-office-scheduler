@@ -1,21 +1,34 @@
 /* eslint-disable @typescript-eslint/camelcase */
-import { ScheduledEvent } from '../../models/ScheduledEvent';
-import { NewScheduledEventInput } from '../../resolvers/mutations/CreateScheduledEventMutation';
-import { ScheduledEventFilter } from '../../resolvers/queries/ScheduledEventsQuery';
 import {
-  ScheduledEventDataSource,
-  ScheduledEventDataSourceErrorTypes,
-  ScheduledEventDataSourceError,
-} from '../ScheduledEventDataSource';
+  ScheduledEvent,
+  ScheduledEventBookingType,
+} from '../../models/ScheduledEvent';
+import {
+  BulkUpsertScheduledEventsInput,
+  NewScheduledEventInput,
+} from '../../resolvers/mutations/ScheduledEventMutation';
+import { ScheduledEventFilter } from '../../resolvers/queries/ScheduledEventQuery';
+import { ScheduledEventDataSource } from '../ScheduledEventDataSource';
 import database from './database';
-import { ScheduledEventRecord, createScheduledEventObject } from './records';
-
-// TODO: move to a general place
-type MetaFields = 'created_at' | 'updated_at';
+import {
+  ScheduledEventRecord,
+  createScheduledEventObject,
+  MetaFields,
+} from './records';
 
 type CreateFields = Omit<
   ScheduledEventRecord,
   'scheduled_event_id' | MetaFields
+>;
+
+type BulkUpsertFields = Pick<
+  ScheduledEventRecord,
+  | 'booking_type'
+  | 'scheduled_by'
+  | 'starts_at'
+  | 'ends_at'
+  | 'proposal_booking_id'
+  | 'instrument_id'
 >;
 
 export default class PostgreScheduledEventDataSource
@@ -25,39 +38,60 @@ export default class PostgreScheduledEventDataSource
   async create(
     newScheduledEvent: NewScheduledEventInput
   ): Promise<ScheduledEvent> {
+    const [scheduledEvent] = await database<CreateFields>(this.tableName)
+      .insert({
+        booking_type: newScheduledEvent.bookingType,
+        starts_at: newScheduledEvent.startsAt,
+        ends_at: newScheduledEvent.endsAt,
+        scheduled_by: newScheduledEvent.scheduledById,
+        description: newScheduledEvent.description,
+        instrument_id: newScheduledEvent.instrumentId,
+      })
+      .returning<ScheduledEventRecord[]>(['*']);
+
+    return createScheduledEventObject(scheduledEvent);
+  }
+
+  // technically we don't update anything
+  // we only delete and (re)create
+  bulkUpsert(
+    instrumentId: number,
+    bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput
+  ): Promise<ScheduledEvent[]> {
     return database.transaction(async trx => {
-      // I don't know how strict we want to be about scheduled events
-      // supposedly this should prevent other writes to happen while allows reads
-      await trx.raw(`LOCK TABLE ${this.tableName} IN EXCLUSIVE MODE`, []);
+      const {
+        proposalBookingId,
+        scheduledById,
+        scheduledEvents,
+      } = bulkUpsertScheduledEvents;
 
-      const { count } = await trx<ScheduledEventRecord>(this.tableName)
-        .count('*')
-        //
-        .where('starts_at', '>=', newScheduledEvent.startsAt)
-        .andWhere('ends_at', '<=', newScheduledEvent.endsAt)
-        //
-        .orWhere('starts_at', '<', newScheduledEvent.endsAt)
-        .andWhere('ends_at', '>', newScheduledEvent.startsAt)
-        .first<{ count: string }>();
+      // delete existing related events
+      await trx<Pick<ScheduledEventRecord, 'proposal_booking_id'>>(
+        this.tableName
+      )
+        .where('proposal_booking_id', '=', proposalBookingId)
+        .delete();
 
-      if (+count > 0) {
-        throw new ScheduledEventDataSourceError(
-          ScheduledEventDataSourceErrorTypes.SCHEDULED_EVENT_OVERLAP
-        );
+      // when the insert has empty array as param it
+      // returns an object instead of an empty record array
+      if (scheduledEvents.length === 0) {
+        return [];
       }
 
-      const [scheduledEvent] = await trx
-        .insert<CreateFields>({
-          booking_type: newScheduledEvent.bookingType,
-          starts_at: newScheduledEvent.startsAt,
-          ends_at: newScheduledEvent.endsAt,
-          scheduled_by: newScheduledEvent.scheduledById,
-          description: newScheduledEvent.description,
-        })
-        .into(this.tableName)
+      const newlyCreatedRecords = await trx<BulkUpsertFields>(this.tableName)
+        .insert(
+          scheduledEvents.map(newObj => ({
+            proposal_booking_id: proposalBookingId,
+            booking_type: ScheduledEventBookingType.USER_OPERATIONS,
+            scheduled_by: scheduledById,
+            starts_at: newObj.startsAt,
+            ends_at: newObj.endsAt,
+            instrument_id: instrumentId,
+          }))
+        )
         .returning<ScheduledEventRecord[]>(['*']);
 
-      return createScheduledEventObject(scheduledEvent);
+      return newlyCreatedRecords.map(createScheduledEventObject);
     });
   }
 
@@ -76,20 +110,38 @@ export default class PostgreScheduledEventDataSource
   }
 
   async scheduledEvents(
-    filter?: ScheduledEventFilter
+    filter: ScheduledEventFilter
   ): Promise<ScheduledEvent[]> {
-    const qb = database<ScheduledEventRecord>(this.tableName).select();
+    if (!filter.instrumentId) {
+      return [];
+    }
 
-    if (filter?.startsAt) {
+    const qb = database<ScheduledEventRecord>(this.tableName)
+      .select()
+      .where('instrument_id', '=', filter.instrumentId);
+
+    if (filter.startsAt) {
       qb.where('starts_at', '>=', filter.startsAt);
     }
 
-    if (filter?.endsAt) {
+    if (filter.endsAt) {
       qb.where('ends_at', '<=', filter.endsAt);
     }
 
-    const scheduledEvents = await qb;
+    const scheduledEventRecords = await qb;
 
-    return scheduledEvents.map(createScheduledEventObject);
+    return scheduledEventRecords.map(createScheduledEventObject);
+  }
+
+  async proposalBookingScheduledEvents(
+    proposalBookingId: number
+  ): Promise<ScheduledEvent[]> {
+    const scheduledEventRecords = await database<ScheduledEventRecord>(
+      this.tableName
+    )
+      .select()
+      .where('proposal_booking_id', '=', proposalBookingId);
+
+    return scheduledEventRecords.map(createScheduledEventObject);
   }
 }

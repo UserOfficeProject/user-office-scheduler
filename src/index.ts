@@ -6,6 +6,9 @@ import cookieParser from 'cookie-parser';
 import 'reflect-metadata';
 import express from 'express';
 
+// register event handlers
+import './events';
+
 import exceptionHandler from './middlewares/exceptionHandler';
 import apolloServer, { PATH } from './middlewares/graphql';
 

@@ -1,14 +1,22 @@
+import LostTimeMutations from '../mutations/LostTimeMutations';
+import ProposalBookingMutations from '../mutations/ProposalBookingMutations';
 import ScheduledEventMutations from '../mutations/ScheduledEventMutations';
 import SystemMutations from '../mutations/SystemMutations';
+import LostTimeQueries from '../queries/LostTimeQueries';
+import ProposalBookingQueries from '../queries/ProposalBookingQueries';
 import ScheduledEventQueries from '../queries/ScheduledEventQueries';
 import SystemQueries from '../queries/SystemQueries';
 
 interface ResolverContextMutations {
+  lostTime: LostTimeMutations;
+  proposalBooking: ProposalBookingMutations;
   scheduledEvent: ScheduledEventMutations;
   system: SystemMutations;
 }
 
 interface ResolverContextQueries {
+  lostTime: LostTimeQueries;
+  proposalBooking: ProposalBookingQueries;
   scheduledEvent: ScheduledEventQueries;
   system: SystemQueries;
 }

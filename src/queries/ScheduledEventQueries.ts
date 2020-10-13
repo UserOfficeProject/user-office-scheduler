@@ -1,6 +1,6 @@
 import { ScheduledEventDataSource } from '../datasources/ScheduledEventDataSource';
 import { ScheduledEvent } from '../models/ScheduledEvent';
-import { ScheduledEventFilter } from '../resolvers/queries/ScheduledEventsQuery';
+import { ScheduledEventFilter } from '../resolvers/queries/ScheduledEventQuery';
 
 export default class ScheduledEventQueries {
   constructor(private scheduledEventDataSource: ScheduledEventDataSource) {}
@@ -9,7 +9,11 @@ export default class ScheduledEventQueries {
     return this.scheduledEventDataSource.scheduledEvent(id);
   }
 
-  scheduledEvents(filter?: ScheduledEventFilter): Promise<ScheduledEvent[]> {
+  scheduledEvents(filter: ScheduledEventFilter): Promise<ScheduledEvent[]> {
     return this.scheduledEventDataSource.scheduledEvents(filter);
+  }
+
+  proposalBookingScheduledEvents(id: number): Promise<ScheduledEvent[]> {
+    return this.scheduledEventDataSource.proposalBookingScheduledEvents(id);
   }
 }

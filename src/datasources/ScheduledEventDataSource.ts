@@ -1,19 +1,20 @@
 import { ScheduledEvent } from '../models/ScheduledEvent';
-import { NewScheduledEventInput } from '../resolvers/mutations/CreateScheduledEventMutation';
-import { ScheduledEventFilter } from '../resolvers/queries/ScheduledEventsQuery';
-
-export enum ScheduledEventDataSourceErrorTypes {
-  SCHEDULED_EVENT_OVERLAP = 'SCHEDULED_EVENT_OVERLAP',
-}
-
-export class ScheduledEventDataSourceError {
-  constructor(public readonly errorCode: ScheduledEventDataSourceErrorTypes) {}
-}
+import {
+  BulkUpsertScheduledEventsInput,
+  NewScheduledEventInput,
+} from '../resolvers/mutations/ScheduledEventMutation';
+import { ScheduledEventFilter } from '../resolvers/queries/ScheduledEventQuery';
 
 export interface ScheduledEventDataSource {
   create(newScheduledEvent: NewScheduledEventInput): Promise<ScheduledEvent>;
+  bulkUpsert(
+    instrumentId: number,
+    bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput
+  ): Promise<ScheduledEvent[]>;
   delete(): Promise<null>;
-
   scheduledEvent(id: number): Promise<ScheduledEvent | null>;
-  scheduledEvents(filter?: ScheduledEventFilter): Promise<ScheduledEvent[]>;
+  scheduledEvents(filter: ScheduledEventFilter): Promise<ScheduledEvent[]>;
+  proposalBookingScheduledEvents(
+    proposalBookingId: number
+  ): Promise<ScheduledEvent[]>;
 }

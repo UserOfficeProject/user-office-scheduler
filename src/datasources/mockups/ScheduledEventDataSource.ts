@@ -4,8 +4,11 @@ import {
   ScheduledEvent,
   ScheduledEventBookingType,
 } from '../../models/ScheduledEvent';
-import { NewScheduledEventInput } from '../../resolvers/mutations/CreateScheduledEventMutation';
-import { ScheduledEventFilter } from '../../resolvers/queries/ScheduledEventsQuery';
+import {
+  BulkUpsertScheduledEventsInput,
+  NewScheduledEventInput,
+} from '../../resolvers/mutations/ScheduledEventMutation';
+import { ScheduledEventFilter } from '../../resolvers/queries/ScheduledEventQuery';
 import { ScheduledEventDataSource } from '../ScheduledEventDataSource';
 
 export const dummyScheduledEvents: ScheduledEvent[] = [
@@ -17,7 +20,8 @@ export const dummyScheduledEvents: ScheduledEvent[] = [
     new Date(),
     new Date(),
     { id: 0 },
-    null
+    null,
+    { id: 0 }
   ),
   new ScheduledEvent(
     321,
@@ -27,7 +31,8 @@ export const dummyScheduledEvents: ScheduledEvent[] = [
     new Date(),
     new Date(),
     { id: 0 },
-    'dummy'
+    'dummy',
+    { id: 0 }
   ),
 ];
 
@@ -44,8 +49,16 @@ export default class MockupScheduledEventDataSource
       newScheduledEvent.startsAt,
       newScheduledEvent.endsAt,
       { id: newScheduledEvent.scheduledById },
-      newScheduledEvent.description
+      newScheduledEvent.description,
+      { id: newScheduledEvent.instrumentId }
     );
+  }
+
+  bulkUpsert(
+    instrumentId: 0,
+    bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput
+  ): Promise<ScheduledEvent[]> {
+    throw new Error('Method not implemented.');
   }
 
   async delete(): Promise<null> {
@@ -60,5 +73,11 @@ export default class MockupScheduledEventDataSource
     filter?: ScheduledEventFilter
   ): Promise<ScheduledEvent[]> {
     return dummyScheduledEvents;
+  }
+
+  proposalBookingScheduledEvents(
+    proposalBookingId: number
+  ): Promise<ScheduledEvent[]> {
+    throw new Error('Method not implemented.');
   }
 }

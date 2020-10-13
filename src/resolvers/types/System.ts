@@ -11,10 +11,10 @@ import {
 @ObjectType()
 export class DbStat implements DbStatBase {
   @Field(() => Number)
-  public total: number;
+  total: number;
 
   @Field(() => String, { nullable: true })
-  public state: string | null;
+  state: string | null;
 }
 
 @ObjectType()
@@ -22,13 +22,13 @@ export class DbStat implements DbStatBase {
 @Directive('@key(fields: "id")')
 export class System implements Partial<SystemBase> {
   @Field(() => ID)
-  public id: string;
+  id: string;
 
   @Field(() => String)
-  public message: string;
+  message: string;
 
   @Field(() => [DbStat])
-  public dbStats: DbStat[];
+  dbStats: DbStat[];
 }
 
 // example

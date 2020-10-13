@@ -16,7 +16,7 @@ export default function useInstruments() {
   const api = useDataApi();
 
   const refresh = useCallback(() => {
-    setCounter(Date.now());
+    setCounter(prev => prev + 1);
   }, [setCounter]);
 
   useEffect(() => {

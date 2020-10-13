@@ -43,7 +43,11 @@ export default function NotAuthenticated() {
       <Typography variant="h4" component="h1" className={classes.message}>
         You are not authenticated!
       </Typography>
-      <Button onClick={handleClick} variant="outlined">
+      <Button
+        onClick={handleClick}
+        variant="outlined"
+        data-cy="btn-authenticate"
+      >
         Click here to authenticate using your User Office account
       </Button>
     </div>

@@ -87,6 +87,7 @@ jobs:
           export USER_OFFICE_SCHEDULER_BACKEND=http://scheduler-backend:4000/graphql
           export USER_OFFICE_SCHEDULER_FRONTEND_DIR=$REPO_DIR_NAME
           export RABBITMQ_URL=amqp://rabbitmq
+          export INCLUDE_SEEDS=1
 
           docker-compose -f docker-compose.all.yml \
             -f user-office-scheduler-backend/docker-compose.e2e.yml \
@@ -122,6 +123,6 @@ jobs:
         id: docker_build
         uses: docker/build-push-action@v2
         with:
-          build-args: PUBLIC_URL=/scheduler
+          #build-args: REACT_APP_AUTH_REDIRECT=/shared-auth
           push: true
           tags: dmsc/duo-scheduler-frontend:${{ github.head_ref }}

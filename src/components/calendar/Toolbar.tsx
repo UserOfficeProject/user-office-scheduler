@@ -205,6 +205,9 @@ export default function Toolbar({
             className={classes.instrumentSelect}
             options={instruments}
             getOptionLabel={instrument => instrument.name}
+            data-cy="input-instrument-select"
+            id="input-instrument-select"
+            // open={true}
             renderInput={params => (
               <TextField
                 {...params}

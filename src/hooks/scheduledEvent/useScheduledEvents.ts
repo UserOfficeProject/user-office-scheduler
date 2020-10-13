@@ -14,12 +14,12 @@ export default function useScheduledEvents(filter: ScheduledEventFilter) {
   // may look stupid, but basically lets us provide a refresh option
   // and we won't get a warning when the component gets unmounted while
   // the promise still pending
-  const [counter, setCounter] = useState<number>(Date.now());
+  const [counter, setCounter] = useState<number>(0);
 
   const api = useDataApi();
 
   const refresh = useCallback(() => {
-    setCounter(Date.now());
+    setCounter(prev => prev + 1);
   }, [setCounter]);
 
   useEffect(() => {

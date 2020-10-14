@@ -1,6 +1,7 @@
 /// <reference types="Cypress" />
 
 beforeEach(() => {
+  cy.clearCookies();
   cy.visit({
     url: '/calendar',
     timeout: 15000,

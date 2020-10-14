@@ -19,3 +19,5 @@ services:
       ["./wait-for-frontend.sh", "scheduler-frontend:80", "npm run cy:run"]
     depends_on:
       - scheduler-frontend
+    volumes:
+      - "./${USER_OFFICE_SCHEDULER_FRONTEND_DIR}/cypress/screenshots:/tmp/screenshots/"

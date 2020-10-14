@@ -32,6 +32,7 @@ export default function AlertDialog({
       onClose={onClose}
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
+      id="alert-dialog"
     >
       <DialogTitle id="alert-dialog-title">{title ?? 'Warning'}</DialogTitle>
       <DialogContent>
@@ -40,7 +41,7 @@ export default function AlertDialog({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="primary" autoFocus>
+        <Button onClick={onClose} color="primary" autoFocus data-cy="btn-back">
           {buttonText ?? 'Back'}
         </Button>
       </DialogActions>

@@ -18,12 +18,14 @@ type SplitButtonOption<T> = {
 
 type SplitButtonProps<T> = {
   options: SplitButtonOption<T>[];
+  label: string;
   disabled?: boolean;
   onClick?: (selectedKey: T) => void;
 };
 
 export default function SplitButton<T extends string>({
   options,
+  label,
   disabled,
   onClick,
 }: SplitButtonProps<T>) {
@@ -73,7 +75,7 @@ export default function SplitButton<T extends string>({
           size="small"
           aria-controls={open ? 'split-button-menu' : undefined}
           aria-expanded={open ? 'true' : undefined}
-          aria-label="select merge strategy"
+          aria-label={label}
           aria-haspopup="menu"
           onClick={handleToggle}
         >

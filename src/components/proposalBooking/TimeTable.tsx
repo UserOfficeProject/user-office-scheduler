@@ -74,10 +74,10 @@ function InlineTimeEdit({
     <>
       <MuiPickersUtilsProvider utils={MomentUtils}>
         <TableCell component="th" scope="row" padding="none">
-          <IconButton onClick={handleOnSave}>
+          <IconButton onClick={handleOnSave} data-cy="btn-time-table-save-row">
             <CheckIcon />
           </IconButton>
-          <IconButton onClick={onDiscard}>
+          <IconButton onClick={onDiscard} data-cy="btn-time-table-reset-row">
             <ClearIcon />
           </IconButton>
         </TableCell>
@@ -207,7 +207,10 @@ export default function TimeTable<T extends TimeTableRow>({
             {!disableSelect && (
               <TableCell component="th" scope="row" padding="none">
                 {editable && !editing && (
-                  <IconButton onClick={handleEditing(row.id)}>
+                  <IconButton
+                    onClick={handleEditing(row.id)}
+                    data-cy="btn-time-table-edit-row"
+                  >
                     <EditIcon />
                   </IconButton>
                 )}

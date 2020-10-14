@@ -101,7 +101,7 @@ export default function FinalizeStep({
       setIsLoading(true);
 
       const {
-        bulkUpsertLostTimes: { error, lostTime },
+        bulkUpsertLostTimes: { error, lostTime: updatedLostTime },
       } = await api().bulkUpsertLostTimes({
         input: {
           proposalBookingId: proposalBooking.id,
@@ -118,9 +118,9 @@ export default function FinalizeStep({
           variant: 'error',
         });
       } else {
-        lostTime &&
+        updatedLostTime &&
           setRows(
-            lostTimes.map(({ startsAt, endsAt, ...rest }) => ({
+            updatedLostTime.map(({ startsAt, endsAt, ...rest }) => ({
               ...rest,
               startsAt: parseTzLessDateTime(startsAt),
               endsAt: parseTzLessDateTime(endsAt),
@@ -216,6 +216,7 @@ export default function FinalizeStep({
                 startIcon={<AddIcon />}
                 className={classes.spacingLeft}
                 onClick={handleAdd}
+                data-cy="btn-add-lost-time"
               >
                 Add
               </Button>
@@ -223,7 +224,12 @@ export default function FinalizeStep({
           }
         />
         <div>
-          <Button variant="contained" color="primary" onClick={handleSave}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSave}
+            data-cy="btn-save"
+          >
             Save
           </Button>
         </div>
@@ -240,6 +246,7 @@ export default function FinalizeStep({
             label="I wish to proceed"
           />
           <SplitButton
+            label="proposal-booking-finalization-strategy"
             options={[
               {
                 key: ProposalBookingFinalizeAction.CLOSE,

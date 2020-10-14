@@ -59,6 +59,7 @@ export default function CalendarTodoBox({
         color="primary"
         className={classes.bottomSpacing}
         onClick={onNewSimpleEvent}
+        data-cy="btn-new-event"
       >
         New event
       </Button>

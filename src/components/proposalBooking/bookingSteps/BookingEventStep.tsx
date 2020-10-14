@@ -327,6 +327,7 @@ export default function BookingEventStep({
                 startIcon={<AddIcon />}
                 className={classes.spacingLeft}
                 onClick={handleAdd}
+                data-cy="btn-add-time-slot"
               >
                 Add
               </Button>
@@ -336,10 +337,20 @@ export default function BookingEventStep({
       </DialogContent>
 
       <DialogActions>
-        <Button variant="contained" color="primary" onClick={handleSaveDraft}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSaveDraft}
+          data-cy="btn-save"
+        >
           Save draft
         </Button>
-        <Button variant="contained" color="primary" onClick={handleNextStep}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleNextStep}
+          data-cy="btn-next"
+        >
           Next
         </Button>
       </DialogActions>

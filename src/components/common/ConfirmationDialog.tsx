@@ -32,24 +32,30 @@ export default function ConfirmationDialog({
     <Dialog
       open={open}
       onClose={() => onClose(false)}
-      aria-labelledby="alert-dialog-title"
-      aria-describedby="alert-dialog-description"
+      aria-labelledby="confirmation-dialog-title"
+      aria-describedby="confirmation-dialog-description"
       maxWidth="sm"
       fullWidth
+      id="confirmation-dialog"
     >
-      <DialogTitle id="alert-dialog-title">
+      <DialogTitle id="confirmation-dialog-title">
         {title ?? 'Confirmation'}
       </DialogTitle>
       <DialogContent>
-        <DialogContentText id="alert-dialog-description">
+        <DialogContentText id="confirmation-dialog-description">
           {message}
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => onClose(false)} color="primary" autoFocus>
+        <Button
+          onClick={() => onClose(false)}
+          color="primary"
+          autoFocus
+          data-cy="btn-cancel"
+        >
           {cancelButtonText ?? 'Cancel'}
         </Button>
-        <Button onClick={() => onClose(true)} color="primary">
+        <Button onClick={() => onClose(true)} color="primary" data-cy="btn-ok">
           {confirmButtonText ?? 'Ok'}
         </Button>
       </DialogActions>

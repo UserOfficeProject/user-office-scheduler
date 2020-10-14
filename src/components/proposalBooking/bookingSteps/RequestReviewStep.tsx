@@ -26,10 +26,20 @@ export default function RequestReviewStep({
         </Typography>
       </DialogContent>
       <DialogActions>
-        <Button variant="contained" color="primary" onClick={handleBack}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleBack}
+          data-cy="btn-back"
+        >
           Back
         </Button>
-        <Button variant="contained" color="primary" onClick={handleNext}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleNext}
+          data-cy="btn-next"
+        >
           Next
         </Button>
       </DialogActions>

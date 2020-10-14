@@ -220,7 +220,11 @@ const EnhancedTableToolbar = ({
       )}
       {numSelected > 0 && (
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={onDelete}>
+          <IconButton
+            aria-label="delete"
+            onClick={onDelete}
+            data-cy="btn-delete"
+          >
             <DeleteIcon />
           </IconButton>
         </Tooltip>
@@ -366,8 +370,9 @@ export default function Table<T extends { [k: string]: any }>({
             )}
             {stableSort(rows, getComparator(order, orderBy))
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map(row => {
+              .map((row, index) => {
                 const isItemSelected = isSelected(extractKey(row));
+                const labelId = `enhanced-table-checkbox-${index}`;
 
                 return (
                   <TableRow
@@ -383,6 +388,7 @@ export default function Table<T extends { [k: string]: any }>({
                         <Checkbox
                           checked={isItemSelected}
                           onClick={event => handleClick(event, extractKey(row))}
+                          inputProps={{ 'data-cy': labelId } as any}
                         />
                       </TableCell>
                     )}

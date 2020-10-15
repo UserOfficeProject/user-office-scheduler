@@ -20,7 +20,7 @@ import {
 } from '@material-ui/core';
 import { Delete as DeleteIcon } from '@material-ui/icons';
 import clsx from 'clsx';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -245,6 +245,7 @@ type TableProps<T extends object> = {
   renderRow: (row: T) => JSX.Element;
   extractKey: (obj: T) => string;
   onDelete?: (ids: string[]) => void;
+  onPageChange?: (page: number) => void;
 };
 
 const defaultRowsPerPageOptions = [5, 10, 25, { value: -1, label: 'All' }];
@@ -260,6 +261,7 @@ export default function Table<T extends { [k: string]: any }>({
   renderRow,
   extractKey,
   onDelete,
+  onPageChange,
 }: TableProps<T>) {
   const classes = useStyles();
   const [order, setOrder] = useState<Order>('asc');
@@ -267,6 +269,10 @@ export default function Table<T extends { [k: string]: any }>({
   const [selected, setSelected] = useState<string[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(5);
+
+  useEffect(() => {
+    onPageChange?.(page);
+  }, [page, onPageChange]);
 
   const handleRequestSort = (
     _: React.MouseEvent<unknown>,

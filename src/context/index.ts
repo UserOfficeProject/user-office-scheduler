@@ -6,6 +6,7 @@ import LostTimeQueries from '../queries/LostTimeQueries';
 import ProposalBookingQueries from '../queries/ProposalBookingQueries';
 import ScheduledEventQueries from '../queries/ScheduledEventQueries';
 import SystemQueries from '../queries/SystemQueries';
+import { User, Role } from '../types/shared';
 
 interface ResolverContextMutations {
   lostTime: LostTimeMutations;
@@ -24,6 +25,8 @@ interface ResolverContextQueries {
 export interface BasicResolverContext {
   queries: ResolverContextQueries;
   mutations: ResolverContextMutations;
+  user?: User;
+  roles?: Role[];
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface

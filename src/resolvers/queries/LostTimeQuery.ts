@@ -10,6 +10,9 @@ export class LostTimeQuery {
     @Ctx() ctx: ResolverContext,
     @Arg('proposalBookingId', () => ID) proposalBookingId: number
   ) {
-    return ctx.queries.lostTime.proposalBookingLostTimes(proposalBookingId);
+    return ctx.queries.lostTime.proposalBookingLostTimes(
+      ctx,
+      proposalBookingId
+    );
   }
 }

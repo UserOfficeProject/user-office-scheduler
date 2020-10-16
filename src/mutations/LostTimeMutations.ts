@@ -1,7 +1,9 @@
 import { logger } from '@esss-swap/duo-logger';
 
+import { ResolverContext } from '../context';
 import { LostTimeDataSource } from '../datasources/LostTimeDataSource';
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
+import Authorized from '../decorators/Authorized';
 import { LostTime } from '../models/LostTime';
 import { ProposalBookingStatus } from '../models/ProposalBooking';
 import { rejection, Rejection } from '../rejection';
@@ -13,7 +15,9 @@ export default class LostTimeMutations {
     private proposalBookingDataSource: ProposalBookingDataSource
   ) {}
 
+  @Authorized([])
   async bulkUpsert(
+    ctx: ResolverContext,
     bulkUpsertLostTimes: BulkUpsertLostTimesInput
   ): Promise<LostTime[] | Rejection> {
     const proposalBooking = await this.proposalBookingDataSource.get(

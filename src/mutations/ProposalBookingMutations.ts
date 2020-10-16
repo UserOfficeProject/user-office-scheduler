@@ -1,6 +1,8 @@
 import { logger } from '@esss-swap/duo-logger';
 
+import { ResolverContext } from '../context';
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
+import Authorized from '../decorators/Authorized';
 import {
   ProposalBooking,
   ProposalBookingFinalizeAction,
@@ -10,7 +12,9 @@ import { Rejection, rejection } from '../rejection';
 export default class ProposalBookingMutations {
   constructor(private proposalBookingDataSource: ProposalBookingDataSource) {}
 
+  @Authorized([])
   finalize(
+    ctx: ResolverContext,
     action: ProposalBookingFinalizeAction,
     id: number
   ): Promise<ProposalBooking | Rejection> {
@@ -23,7 +27,11 @@ export default class ProposalBookingMutations {
       });
   }
 
-  activate(id: number): Promise<ProposalBooking | Rejection> {
+  @Authorized([])
+  activate(
+    ctx: ResolverContext,
+    id: number
+  ): Promise<ProposalBooking | Rejection> {
     return this.proposalBookingDataSource.activate(id).catch((error: Error) => {
       logger.logException('ProposalBooking activate failed', error);
 

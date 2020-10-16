@@ -1,12 +1,14 @@
+import { logger } from '@esss-swap/duo-logger';
 import { ApolloServerPluginInlineTraceDisabled } from 'apollo-server-core';
 import { ApolloServer } from 'apollo-server-express';
 import { Express, Request as ExpressRequest } from 'express';
-
 import 'reflect-metadata';
+
 import baseContext from '../buildContext';
 import { ResolverContext } from '../context';
 import federationSources from '../resolvers/federationSources';
 import { registerEnums } from '../resolvers/registerEnums';
+import { AuthJwtPayload } from '../types/shared';
 import { buildFederatedSchema } from '../utils/buildFederatedSchema';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -45,20 +47,23 @@ const apolloServer = async (app: Express) => {
     },
     plugins: [ApolloServerPluginInlineTraceDisabled()],
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     context: async ({ req }: { req: Request }) => {
-      // let user = null;
-      // const userId = req.user?.user?.id as number;
+      const context: ResolverContext = { ...baseContext };
 
-      // if (req.user) {
-      //   user = {
-      //     ...(await baseContext.queries.user.getAgent(userId)),
-      //     currentRole:
-      //       req.user.currentRole || (req.user.roles ? req.user.roles[0] : null),
-      //   } as UserWithRole;
-      // }
+      try {
+        const authJwtPayloadString = req.header('x-auth-jwt-payload');
+        if (authJwtPayloadString) {
+          const authJwtPayload = JSON.parse(
+            authJwtPayloadString
+          ) as AuthJwtPayload;
 
-      const context: ResolverContext = { ...baseContext /*, user*/ };
+          context.user = authJwtPayload?.user;
+          context.roles = authJwtPayload?.roles;
+        }
+      } catch (error) {
+        logger.logException('failed to parse x-auth-jwt-payload', error);
+        throw error; // TODO
+      }
 
       return context;
     },

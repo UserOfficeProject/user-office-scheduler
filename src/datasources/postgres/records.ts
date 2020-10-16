@@ -7,18 +7,8 @@ import {
   ScheduledEvent,
   ScheduledEventBookingType,
 } from '../../models/ScheduledEvent';
-import { System, DbStat } from '../../models/System';
 
 export type MetaFields = 'created_at' | 'updated_at';
-
-export interface SystemRecord {
-  readonly id: string;
-  readonly message: string;
-  readonly dbStats: DbStat[];
-}
-
-export const createSystemObject = (system: SystemRecord) =>
-  new System(system.id, system.message, system.dbStats);
 
 export interface ScheduledEventRecord {
   readonly scheduled_event_id: number;

@@ -10,7 +10,10 @@ export class ProposalBookingQuery {
     @Ctx() ctx: ResolverContext,
     @Arg('instrumentId', () => ID) instrumentId: number
   ) {
-    return ctx.queries.proposalBooking.instrumentProposalBookings(instrumentId);
+    return ctx.queries.proposalBooking.instrumentProposalBookings(
+      ctx,
+      instrumentId
+    );
   }
 
   @Query(() => ProposalBooking, { nullable: true })
@@ -18,6 +21,6 @@ export class ProposalBookingQuery {
     @Ctx() ctx: ResolverContext,
     @Arg('id', () => ID) id: number
   ) {
-    return ctx.queries.proposalBooking.get(id);
+    return ctx.queries.proposalBooking.get(ctx, id);
   }
 }

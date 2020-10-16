@@ -24,16 +24,16 @@ export class ScheduledEventQuery {
     @Arg('filter', () => ScheduledEventFilter)
     filter: ScheduledEventFilter
   ) {
-    return ctx.queries.scheduledEvent.scheduledEvents(filter);
+    return ctx.queries.scheduledEvent.scheduledEvents(ctx, filter);
   }
 
   @Query(() => ScheduledEvent, { nullable: true })
   scheduledEvent(
-    @Ctx() context: ResolverContext,
+    @Ctx() ctx: ResolverContext,
     @Arg('id', () => ID)
     id: number
   ) {
-    return context.queries.scheduledEvent.scheduledEvent(id);
+    return ctx.queries.scheduledEvent.scheduledEvent(ctx, id);
   }
 
   @Query(() => [ScheduledEvent])
@@ -42,6 +42,7 @@ export class ScheduledEventQuery {
     @Arg('proposalBookingId', () => ID) proposalBookingId: number
   ) {
     return ctx.queries.scheduledEvent.proposalBookingScheduledEvents(
+      ctx,
       proposalBookingId
     );
   }

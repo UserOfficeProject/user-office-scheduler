@@ -13,7 +13,7 @@ import { getTheme } from 'theme';
 
 import { AppContextProvider } from 'context/AppContext';
 import { UserContextProvider, UserContext } from 'context/UserContext';
-import { useUnauthorizedApi } from 'hooks/common/useDataApi';
+// import { useUnauthorizedApi } from 'hooks/common/useDataApi';
 
 import Dashboard from './Dashboard';
 import NotAuthenticated from './NotAuthenticated';
@@ -46,10 +46,15 @@ const PrivateRoute: React.FC<RouteProps> = ({
 };
 
 class App extends React.Component {
-  componentDidCatch(error: any): void {
-    const api = useUnauthorizedApi();
+  static getDerivedStateFromError(error: any) {
+    console.error('getDerivedStateFromError', error);
+  }
 
-    api().addClientLog(error);
+  componentDidCatch(error: any): void {
+    console.log('componentDidCatch', error);
+
+    // const api = useUnauthorizedApi();
+    // api().addClientLog(error);
   }
 
   render() {

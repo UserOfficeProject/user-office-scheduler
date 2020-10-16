@@ -1,5 +1,3 @@
-/// <reference types="Cypress" />
-
 beforeEach(() => {
   cy.initializeSession();
 

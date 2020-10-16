@@ -1,3 +1,4 @@
+import { getTranslation } from '@esss-swap/duo-localisation';
 import { GraphQLClient } from 'graphql-request';
 import { Variables } from 'graphql-request/dist/types';
 import { decode } from 'jsonwebtoken';
@@ -10,6 +11,17 @@ import { getSdk } from 'generated/sdk';
 const BACKEND_ENDPOINT = process.env.REACT_APP_API_URL || '';
 
 const endpoint = BACKEND_ENDPOINT + '/gateway';
+
+const getErrorMessage = (code: string | undefined): string | void => {
+  switch (code) {
+    case 'UNAUTHENTICATED':
+      return 'Token expired or bad token';
+    case 'INSUFFICIENT_PERMISSIONS':
+      return getTranslation('INSUFFICIENT_PERMISSIONS');
+    default:
+      return;
+  }
+};
 
 const notificationWithClientLog = async (
   enqueueSnackbar: WithSnackbarProps['enqueueSnackbar'],
@@ -166,16 +178,15 @@ class AuthorizedGraphQLClient extends GraphQLClient {
     // it is a graphql error
     if (Array.isArray(errObj.errors)) {
       const rest = errObj.errors.filter((err: any) => {
-        if (err.extensions.code === 'UNAUTHENTICATED') {
-          this.enqueueSnackbar('Token expired or bad token', {
+        const errorMessage = getErrorMessage(err?.extensions?.code);
+        if (errorMessage) {
+          this.enqueueSnackbar(errorMessage, {
             variant: 'error',
             preventDuplicate: true,
           });
-
-          return false;
         }
 
-        return true;
+        return !errorMessage;
       });
 
       return rest.length > 0 ? rest : null;

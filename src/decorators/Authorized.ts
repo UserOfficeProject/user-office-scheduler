@@ -24,8 +24,6 @@ const Authorized = (roles: Role[] = []) => {
 
       const hasAccessRights = hasRole(roles, ctx.roles);
 
-      console.log({ hasAccessRights, roles, cr: ctx.roles });
-
       if (hasAccessRights) {
         return await originalMethod?.apply(this, args);
       } else {

@@ -55,6 +55,8 @@ export class SystemQuery {
 
     schedulerConfig.authRedirect = SCHEDULER_CONFIG_AUTH_REDIRECT;
 
+    console.log('schedulerConfig', schedulerConfig);
+
     return schedulerConfig;
   }
 }

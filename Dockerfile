@@ -1,7 +1,6 @@
 FROM node:12-alpine as build-stage
 
 ARG PUBLIC_URL
-ARG REACT_APP_AUTH_REDIRECT
 
 WORKDIR /app
 COPY package*.json /app/

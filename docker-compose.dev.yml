@@ -5,3 +5,5 @@ services:
     image: "dmsc/duo-scheduler-frontend:${USER_OFFICE_SCHEDULER_FRONTEND_TAG}"
     ports:
       - 8090:80
+    environment:
+      - GATEWAY_HOST=gateway:4100

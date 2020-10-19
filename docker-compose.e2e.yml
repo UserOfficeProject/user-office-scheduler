@@ -6,6 +6,8 @@ services:
       context: "./${USER_OFFICE_SCHEDULER_FRONTEND_DIR}"
     ports:
       - 80
+    environment:
+      - GATEWAY_HOST=gateway:4100
     depends_on:
       - gateway
 

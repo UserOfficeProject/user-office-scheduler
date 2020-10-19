@@ -24,7 +24,10 @@ export default function createHandler({
 
         return;
       default:
-        console.warn('Unknown type');
+        console.warn('Listener', Queue.PROPOSAL, 'Unknown type', {
+          type,
+          message,
+        });
     }
   });
 

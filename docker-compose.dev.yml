@@ -13,9 +13,8 @@ services:
       - DATABASE_DATABASE=scheduler
     depends_on:
       - scheduler-db
-    labels:
-      - "traefik.frontend.rule=PathPrefix:/scheduler-backend; PathPrefixStrip:/scheduler-backend"
-      - "traefik.port=4000"
+    ports:
+      - 4000
 
   scheduler-db:
     image: postgres:11-alpine

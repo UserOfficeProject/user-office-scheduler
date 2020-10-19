@@ -10,7 +10,13 @@ import {
   KeyboardDateTimePicker,
 } from '@material-ui/pickers';
 import { Moment } from 'moment';
-import React, { useContext, useMemo, useState } from 'react';
+import React, {
+  useContext,
+  useMemo,
+  useState,
+  useEffect,
+  useCallback,
+} from 'react';
 
 import Table, { HeadCell } from 'components/common/Table';
 import { AppContext } from 'context/AppContext';
@@ -74,10 +80,10 @@ function InlineTimeEdit({
     <>
       <MuiPickersUtilsProvider utils={MomentUtils}>
         <TableCell component="th" scope="row" padding="none">
-          <IconButton onClick={handleOnSave}>
+          <IconButton onClick={handleOnSave} data-cy="btn-time-table-save-row">
             <CheckIcon />
           </IconButton>
-          <IconButton onClick={onDiscard}>
+          <IconButton onClick={onDiscard} data-cy="btn-time-table-reset-row">
             <ClearIcon />
           </IconButton>
         </TableCell>
@@ -141,6 +147,11 @@ export default function TimeTable<T extends TimeTableRow>({
 }: TimeTableProps<T>) {
   const [editing, setEditing] = useState<string | false>(false);
 
+  // when the original list of rows change reset the current edit
+  useEffect(() => {
+    setEditing(false);
+  }, [rows]);
+
   const handleOnSave = (id: string, startsAt: Moment, endsAt: Moment) => {
     setEditing(false);
     handleRowsChange?.(rows =>
@@ -167,6 +178,8 @@ export default function TimeTable<T extends TimeTableRow>({
     setEditing(id);
   };
 
+  const handleOnPageChange = useCallback(() => setEditing(false), []);
+
   const headCells = useMemo(() => {
     const copy = [...defaultHeadCells];
     if (!disableSelect) {
@@ -191,6 +204,7 @@ export default function TimeTable<T extends TimeTableRow>({
       rows={rows}
       extractKey={el => el.id}
       onDelete={handleDelete}
+      onPageChange={handleOnPageChange}
       renderRow={row => {
         if (editing && row.id === editing) {
           return (
@@ -207,7 +221,10 @@ export default function TimeTable<T extends TimeTableRow>({
             {!disableSelect && (
               <TableCell component="th" scope="row" padding="none">
                 {editable && !editing && (
-                  <IconButton onClick={handleEditing(row.id)}>
+                  <IconButton
+                    onClick={handleEditing(row.id)}
+                    data-cy="btn-time-table-edit-row"
+                  >
                     <EditIcon />
                   </IconButton>
                 )}

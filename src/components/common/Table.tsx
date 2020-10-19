@@ -20,7 +20,7 @@ import {
 } from '@material-ui/core';
 import { Delete as DeleteIcon } from '@material-ui/icons';
 import clsx from 'clsx';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -220,7 +220,11 @@ const EnhancedTableToolbar = ({
       )}
       {numSelected > 0 && (
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={onDelete}>
+          <IconButton
+            aria-label="delete"
+            onClick={onDelete}
+            data-cy="btn-delete"
+          >
             <DeleteIcon />
           </IconButton>
         </Tooltip>
@@ -241,6 +245,7 @@ type TableProps<T extends object> = {
   renderRow: (row: T) => JSX.Element;
   extractKey: (obj: T) => string;
   onDelete?: (ids: string[]) => void;
+  onPageChange?: (page: number) => void;
 };
 
 const defaultRowsPerPageOptions = [5, 10, 25, { value: -1, label: 'All' }];
@@ -256,6 +261,7 @@ export default function Table<T extends { [k: string]: any }>({
   renderRow,
   extractKey,
   onDelete,
+  onPageChange,
 }: TableProps<T>) {
   const classes = useStyles();
   const [order, setOrder] = useState<Order>('asc');
@@ -263,6 +269,10 @@ export default function Table<T extends { [k: string]: any }>({
   const [selected, setSelected] = useState<string[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(5);
+
+  useEffect(() => {
+    onPageChange?.(page);
+  }, [page, onPageChange]);
 
   const handleRequestSort = (
     _: React.MouseEvent<unknown>,
@@ -366,8 +376,9 @@ export default function Table<T extends { [k: string]: any }>({
             )}
             {stableSort(rows, getComparator(order, orderBy))
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map(row => {
+              .map((row, index) => {
                 const isItemSelected = isSelected(extractKey(row));
+                const labelId = `enhanced-table-checkbox-${index}`;
 
                 return (
                   <TableRow
@@ -383,6 +394,7 @@ export default function Table<T extends { [k: string]: any }>({
                         <Checkbox
                           checked={isItemSelected}
                           onClick={event => handleClick(event, extractKey(row))}
+                          inputProps={{ 'data-cy': labelId } as any}
                         />
                       </TableCell>
                     )}

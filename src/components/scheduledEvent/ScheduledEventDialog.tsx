@@ -11,10 +11,11 @@ import {
 import { Formik, Form } from 'formik';
 import moment from 'moment';
 import { useSnackbar } from 'notistack';
-import React from 'react';
+import React, { useContext } from 'react';
 
+import { UserContext } from 'context/UserContext';
 import { ScheduledEventBookingType, ScheduledEvent } from 'generated/sdk';
-import { useUnauthorizedApi } from 'hooks/common/useDataApi';
+import { useDataApi } from 'hooks/common/useDataApi';
 import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
 
 import ScheduledEventForm, { BookingTypesMap } from './ScheduledEventForm';
@@ -50,7 +51,8 @@ export default function ScheduledEventDialog({
   closeDialog,
 }: ScheduledEventDialogProps) {
   const { enqueueSnackbar } = useSnackbar();
-  const api = useUnauthorizedApi();
+  const api = useDataApi();
+  const { user } = useContext(UserContext);
 
   const isEdit = selectedEvent && 'id' in selectedEvent;
 
@@ -84,8 +86,8 @@ export default function ScheduledEventDialog({
               bookingType: values.bookingType as ScheduledEventBookingType,
               endsAt: toTzLessDateTime(values.endsAt),
               startsAt: toTzLessDateTime(values.startsAt),
-              scheduledById: '0', // FIXME: fix after auth is added
-              description: values.description,
+              scheduledById: `${user?.id!}`,
+              description: values.description || null,
             },
           });
 

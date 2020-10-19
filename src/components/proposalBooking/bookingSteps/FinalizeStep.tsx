@@ -16,7 +16,7 @@ import Loader from 'components/common/Loader';
 import SplitButton from 'components/common/SplitButton';
 import { AppContext } from 'context/AppContext';
 import { ProposalBookingFinalizeAction } from 'generated/sdk';
-import { useUnauthorizedApi } from 'hooks/common/useDataApi';
+import { useDataApi } from 'hooks/common/useDataApi';
 import useProposalBookingLostTimes from 'hooks/lostTime/useProposalBookingLostTimes';
 import { DetailedProposalBooking } from 'hooks/proposalBooking/useProposalBooking';
 import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
@@ -58,7 +58,7 @@ export default function FinalizeStep({
 
   const { showConfirmation } = useContext(AppContext);
   const { enqueueSnackbar } = useSnackbar();
-  const api = useUnauthorizedApi();
+  const api = useDataApi();
   const [warningAccepted, setWarningAccepted] = useState(false);
   const [rows, setRows] = useState<TimeTableRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -101,7 +101,7 @@ export default function FinalizeStep({
       setIsLoading(true);
 
       const {
-        bulkUpsertLostTimes: { error, lostTime },
+        bulkUpsertLostTimes: { error, lostTime: updatedLostTime },
       } = await api().bulkUpsertLostTimes({
         input: {
           proposalBookingId: proposalBooking.id,
@@ -118,7 +118,14 @@ export default function FinalizeStep({
           variant: 'error',
         });
       } else {
-        console.log({ lostTime });
+        updatedLostTime &&
+          setRows(
+            updatedLostTime.map(({ startsAt, endsAt, ...rest }) => ({
+              ...rest,
+              startsAt: parseTzLessDateTime(startsAt),
+              endsAt: parseTzLessDateTime(endsAt),
+            }))
+          );
       }
 
       handleSetDirty(false);
@@ -209,6 +216,7 @@ export default function FinalizeStep({
                 startIcon={<AddIcon />}
                 className={classes.spacingLeft}
                 onClick={handleAdd}
+                data-cy="btn-add-lost-time"
               >
                 Add
               </Button>
@@ -216,7 +224,12 @@ export default function FinalizeStep({
           }
         />
         <div>
-          <Button variant="contained" color="primary" onClick={handleSave}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSave}
+            data-cy="btn-save"
+          >
             Save
           </Button>
         </div>
@@ -233,6 +246,7 @@ export default function FinalizeStep({
             label="I wish to proceed"
           />
           <SplitButton
+            label="proposal-booking-finalization-strategy"
             options={[
               {
                 key: ProposalBookingFinalizeAction.CLOSE,

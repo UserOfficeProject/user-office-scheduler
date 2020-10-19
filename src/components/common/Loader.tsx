@@ -2,7 +2,7 @@ import { CircularProgress, makeStyles } from '@material-ui/core';
 import React from 'react';
 
 const useStyles = makeStyles(theme => ({
-  loader: {
+  root: {
     position: 'absolute',
     top: 0,
     left: 0,
@@ -13,15 +13,23 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    flexDirection: 'column',
+  },
+  message: {
+    margin: theme.spacing(2),
+    color: theme.palette.grey[700],
   },
 }));
 
-export default function Loader() {
+type LoaderProps = { message?: string | JSX.Element };
+
+export default function Loader({ message }: LoaderProps) {
   const classes = useStyles();
 
   return (
-    <div className={classes.loader}>
+    <div className={classes.root}>
       <CircularProgress />
+      {message && <div className={classes.message}>{message}</div>}
     </div>
   );
 }

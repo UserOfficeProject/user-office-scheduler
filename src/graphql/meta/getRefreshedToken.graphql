@@ -1,0 +1,6 @@
+mutation getRefreshedToken($token: String!) {
+  token(token: $token) {
+    token
+    error
+  }
+}

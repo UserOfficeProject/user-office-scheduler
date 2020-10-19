@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 import { Call, Proposal, ProposalBooking } from 'generated/sdk';
-import { useUnauthorizedApi } from 'hooks/common/useDataApi';
+import { useDataApi } from 'hooks/common/useDataApi';
 
 export type DetailedProposalBooking = Pick<
   ProposalBooking,
@@ -22,13 +22,13 @@ export default function useProposalBooking(id: string) {
     setProposalBooking,
   ] = useState<DetailedProposalBooking | null>(null);
 
-  const unauthorizedApi = useUnauthorizedApi();
+  const api = useDataApi();
 
   useEffect(() => {
     let unmount = false;
 
     setLoading(true);
-    unauthorizedApi()
+    api()
       .proposalBooking({ id })
       .then(data => {
         if (unmount) {
@@ -46,7 +46,7 @@ export default function useProposalBooking(id: string) {
     return () => {
       unmount = true;
     };
-  }, [id, unauthorizedApi]);
+  }, [id, api]);
 
   return { loading, proposalBooking } as const;
 }

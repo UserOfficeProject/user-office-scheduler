@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 import { ScheduledEvent } from 'generated/sdk';
-import { useUnauthorizedApi } from 'hooks/common/useDataApi';
+import { useDataApi } from 'hooks/common/useDataApi';
 
 export type ProposalBookingScheduledEvent = Pick<
   ScheduledEvent,
@@ -16,13 +16,13 @@ export default function useProposalBookingScheduledEvents(
     ProposalBookingScheduledEvent[]
   >([]);
 
-  const unauthorizedApi = useUnauthorizedApi();
+  const api = useDataApi();
 
   useEffect(() => {
     let unmount = false;
 
     setLoading(true);
-    unauthorizedApi()
+    api()
       .proposalBookingScheduledEvents({ proposalBookingId })
       .then(data => {
         if (unmount) {
@@ -40,7 +40,7 @@ export default function useProposalBookingScheduledEvents(
     return () => {
       unmount = true;
     };
-  }, [proposalBookingId, unauthorizedApi]);
+  }, [proposalBookingId, api]);
 
   return { loading, scheduledEvents } as const;
 }

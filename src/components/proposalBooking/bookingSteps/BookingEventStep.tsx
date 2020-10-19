@@ -27,7 +27,8 @@ import React, { useContext, useEffect, useMemo, useState } from 'react';
 
 import Loader from 'components/common/Loader';
 import { AppContext } from 'context/AppContext';
-import { useUnauthorizedApi } from 'hooks/common/useDataApi';
+import { UserContext } from 'context/UserContext';
+import { useDataApi } from 'hooks/common/useDataApi';
 import { DetailedProposalBooking } from 'hooks/proposalBooking/useProposalBooking';
 import useProposalBookingScheduledEvents from 'hooks/scheduledEvent/useProposalBookingScheduledEvents';
 import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
@@ -95,9 +96,10 @@ export default function BookingEventStep({
     proposalBooking.id
   );
 
+  const { user } = useContext(UserContext);
   const { showConfirmation } = useContext(AppContext);
   const { enqueueSnackbar } = useSnackbar();
-  const api = useUnauthorizedApi();
+  const api = useDataApi();
   const [rows, setRows] = useState<TimeTableRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -157,7 +159,7 @@ export default function BookingEventStep({
         },
       } = await api().bulkUpsertScheduledEvents({
         input: {
-          scheduledById: '0',
+          scheduledById: `${user?.id!}`,
           proposalBookingId: proposalBooking.id,
           scheduledEvents: rows.map(({ id, startsAt, endsAt }) => ({
             id,
@@ -325,6 +327,7 @@ export default function BookingEventStep({
                 startIcon={<AddIcon />}
                 className={classes.spacingLeft}
                 onClick={handleAdd}
+                data-cy="btn-add-time-slot"
               >
                 Add
               </Button>
@@ -334,10 +337,20 @@ export default function BookingEventStep({
       </DialogContent>
 
       <DialogActions>
-        <Button variant="contained" color="primary" onClick={handleSaveDraft}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSaveDraft}
+          data-cy="btn-save"
+        >
           Save draft
         </Button>
-        <Button variant="contained" color="primary" onClick={handleNextStep}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleNextStep}
+          data-cy="btn-next"
+        >
           Next
         </Button>
       </DialogActions>

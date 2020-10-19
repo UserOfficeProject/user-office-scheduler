@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 
-export function clickOnEventSlot(slot: string) {
+function clickOnEventSlot(slot: string) {
   cy.get(`[data-cy='event-slot-${slot}']`).then($el => {
     const el = $el[0] as HTMLDivElement;
     const elRect = el.getBoundingClientRect();
@@ -17,9 +17,8 @@ export function clickOnEventSlot(slot: string) {
 }
 
 beforeEach(() => {
-  const now = new Date(Date.UTC(2020, 8, 21, 12, 0, 0)).getTime();
+  cy.initializeSession();
 
-  cy.clock(now);
   cy.visit({
     url: '/calendar',
     timeout: 15000,
@@ -178,9 +177,25 @@ describe('Calendar navigation', () => {
   });
 });
 
-describe.skip('Creating new event', () => {
-  it('should create a new event with right input', () => {
+describe('Creating new event', () => {
+  it('should show warning when no instrument selected', () => {
     //
+    const slot = new Date(2020, 8, 25, 14, 0, 0).toISOString();
+    cy.get(`[data-cy='event-slot-${slot}']`).scrollIntoView();
+
+    clickOnEventSlot(slot);
+
+    cy.contains(/Warning/i);
+    cy.contains(/You have to select an instrument/i);
+  });
+
+  it('should create a new event with right input', () => {
+    cy.get('[data-cy=input-instrument-select]').click();
+
+    cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
+      .first()
+      .click();
+
     const slot = new Date(2020, 8, 25, 14, 0, 0).toISOString();
     cy.get(`[data-cy='event-slot-${slot}']`).scrollIntoView();
 
@@ -211,9 +226,14 @@ describe.skip('Creating new event', () => {
   });
 });
 
-describe.skip('Viewing existing event', () => {
+describe('Viewing existing event', () => {
   it('should display a disabled form', () => {
-    //
+    cy.get('[data-cy=input-instrument-select]').click();
+
+    cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
+      .first()
+      .click();
+
     const slot = new Date(2020, 8, 25, 14, 0, 0).toISOString();
     cy.get(`[data-cy='event-slot-${slot}']`).scrollIntoView();
 

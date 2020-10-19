@@ -14,7 +14,7 @@ import { useSnackbar } from 'notistack';
 import React, { useState } from 'react';
 
 import Loader from 'components/common/Loader';
-import { useUnauthorizedApi } from 'hooks/common/useDataApi';
+import { useDataApi } from 'hooks/common/useDataApi';
 import { DetailedProposalBooking } from 'hooks/proposalBooking/useProposalBooking';
 
 const useStyles = makeStyles(theme => ({
@@ -45,7 +45,7 @@ export default function ReviewFeedbackStep({
 }: ReviewFeedbackStepProps) {
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
-  const api = useUnauthorizedApi();
+  const api = useDataApi();
 
   const [isLoading, setIsLoading] = useState(false);
   const [warningAccepted, setWarningAccepted] = useState(false);

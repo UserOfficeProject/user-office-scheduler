@@ -2035,6 +2035,32 @@ export type ProposalBookingLostTimesQuery = (
   )> }
 );
 
+export type AddClientLogMutationVariables = Exact<{
+  error: Scalars['String'];
+}>;
+
+
+export type AddClientLogMutation = (
+  { __typename?: 'Mutation' }
+  & { addClientLog: (
+    { __typename?: 'SuccessResponseWrap' }
+    & Pick<SuccessResponseWrap, 'isSuccess' | 'error'>
+  ) }
+);
+
+export type GetRefreshedTokenMutationVariables = Exact<{
+  token: Scalars['String'];
+}>;
+
+
+export type GetRefreshedTokenMutation = (
+  { __typename?: 'Mutation' }
+  & { token: (
+    { __typename?: 'TokenResponseWrap' }
+    & Pick<TokenResponseWrap, 'token' | 'error'>
+  ) }
+);
+
 export type ActivateProposalBookingMutationVariables = Exact<{
   id: Scalars['ID'];
 }>;
@@ -2207,6 +2233,22 @@ export const ProposalBookingLostTimesDocument = gql`
   }
 }
     `;
+export const AddClientLogDocument = gql`
+    mutation addClientLog($error: String!) {
+  addClientLog(error: $error) {
+    isSuccess
+    error
+  }
+}
+    `;
+export const GetRefreshedTokenDocument = gql`
+    mutation getRefreshedToken($token: String!) {
+  token(token: $token) {
+    token
+    error
+  }
+}
+    `;
 export const ActivateProposalBookingDocument = gql`
     mutation activateProposalBooking($id: ID!) {
   activateProposalBooking(id: $id) {
@@ -2331,6 +2373,12 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     proposalBookingLostTimes(variables: ProposalBookingLostTimesQueryVariables): Promise<ProposalBookingLostTimesQuery> {
       return withWrapper(() => client.request<ProposalBookingLostTimesQuery>(print(ProposalBookingLostTimesDocument), variables));
+    },
+    addClientLog(variables: AddClientLogMutationVariables): Promise<AddClientLogMutation> {
+      return withWrapper(() => client.request<AddClientLogMutation>(print(AddClientLogDocument), variables));
+    },
+    getRefreshedToken(variables: GetRefreshedTokenMutationVariables): Promise<GetRefreshedTokenMutation> {
+      return withWrapper(() => client.request<GetRefreshedTokenMutation>(print(GetRefreshedTokenDocument), variables));
     },
     activateProposalBooking(variables: ActivateProposalBookingMutationVariables): Promise<ActivateProposalBookingMutation> {
       return withWrapper(() => client.request<ActivateProposalBookingMutation>(print(ActivateProposalBookingDocument), variables));

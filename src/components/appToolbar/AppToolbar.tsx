@@ -4,10 +4,21 @@ import {
   makeStyles,
   Toolbar,
   Typography,
+  Badge,
+  Popper,
+  Card,
+  ClickAwayListener,
+  CardHeader,
+  Avatar,
 } from '@material-ui/core';
-import { Menu } from '@material-ui/icons';
+import {
+  Menu as MenuIcon,
+  AccountCircle as AccountCircleIcon,
+} from '@material-ui/icons';
 import clsx from 'clsx';
-import React from 'react';
+import React, { useState, useContext } from 'react';
+
+import { UserContext } from 'context/UserContext';
 
 export const drawerWidth = 240;
 
@@ -39,6 +50,9 @@ const useStyles = makeStyles(theme => ({
   title: {
     flexGrow: 1,
   },
+  profilePopper: {
+    zIndex: theme.zIndex.drawer + 2,
+  },
 }));
 
 type AppToolbarProps = {
@@ -51,6 +65,15 @@ export default function AppToolbar({
   handleDrawerOpen,
 }: AppToolbarProps) {
   const classes = useStyles();
+
+  const { user } = useContext(UserContext);
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const [profileOpen, setProfileOpen] = useState<boolean>(false);
+
+  const handleProfileOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+    setProfileOpen(prev => !prev);
+  };
 
   return (
     <AppBar
@@ -65,7 +88,7 @@ export default function AppToolbar({
           onClick={handleDrawerOpen}
           className={clsx(classes.menuButton, open && classes.menuButtonHidden)}
         >
-          <Menu />
+          <MenuIcon />
         </IconButton>
         <Typography
           component="h1"
@@ -76,6 +99,33 @@ export default function AppToolbar({
         >
           User Office Scheduler
         </Typography>
+        <IconButton
+          color="inherit"
+          aria-controls="simple-menu"
+          aria-haspopup="true"
+          data-cy="profile-page-btn"
+          onClick={handleProfileOpen}
+        >
+          <Badge color="secondary">
+            <AccountCircleIcon />
+          </Badge>
+        </IconButton>
+        <Popper
+          open={profileOpen}
+          anchorEl={anchorEl}
+          placement="bottom-end"
+          className={classes.profilePopper}
+        >
+          <ClickAwayListener onClickAway={() => setProfileOpen(false)}>
+            <Card>
+              <CardHeader
+                avatar={<Avatar />}
+                title={`${user?.firstname} ${user?.lastname}`}
+                subheader={user?.email}
+              />
+            </Card>
+          </ClickAwayListener>
+        </Popper>
       </Toolbar>
     </AppBar>
   );

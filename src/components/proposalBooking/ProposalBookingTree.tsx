@@ -137,6 +137,7 @@ export default function ProposalBookingTree({
       <TreeView
         defaultCollapseIcon={<ExpandMoreIcon />}
         defaultExpandIcon={<ChevronRightIcon />}
+        id="instrument-calls-tree-view"
       >
         {groupedByCall.map(renderTree)}
       </TreeView>

@@ -222,7 +222,11 @@ export default function ProposalBookingDialog({
           })
         ))}
       <DialogActions>
-        <Button color="primary" onClick={handleCloseDialog}>
+        <Button
+          color="primary"
+          onClick={handleCloseDialog}
+          data-cy="btn-close-dialog"
+        >
           Cancel
         </Button>
       </DialogActions>

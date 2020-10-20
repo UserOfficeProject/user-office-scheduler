@@ -4,6 +4,7 @@ import {
   Typography,
   CircularProgress,
 } from '@material-ui/core';
+import { Alert } from '@material-ui/lab';
 import React, { useContext } from 'react';
 import { Redirect } from 'react-router';
 
@@ -23,15 +24,18 @@ const useStyles = makeStyles(theme => ({
     flexDirection: 'column',
   },
   message: {
-    marginBottom: theme.spacing(2),
+    margin: theme.spacing(2),
     color: theme.palette.grey[700],
+  },
+  space: {
+    margin: theme.spacing(2),
   },
 }));
 
 export default function NotAuthenticated() {
   const classes = useStyles();
   const { user } = useContext(UserContext);
-  const { config, loading } = useSchedulerConfig();
+  const { config, loading, failed } = useSchedulerConfig();
 
   if (user) {
     return <Redirect to="/" />;
@@ -58,7 +62,7 @@ export default function NotAuthenticated() {
         onClick={handleClick}
         variant="outlined"
         data-cy="btn-authenticate"
-        disabled={loading}
+        disabled={loading || failed}
       >
         {loading ? (
           <CircularProgress size={14} />
@@ -66,6 +70,11 @@ export default function NotAuthenticated() {
           'Click here to authenticate using your User Office account'
         )}
       </Button>
+      {failed && (
+        <Alert severity="error" className={classes.space}>
+          Communication failed!
+        </Alert>
+      )}
     </div>
   );
 }

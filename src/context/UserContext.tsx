@@ -1,5 +1,10 @@
 import { decode } from 'jsonwebtoken';
-import React, { createContext, useEffect, useReducer } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useEffect,
+  useReducer,
+} from 'react';
 import { useCookies } from 'react-cookie';
 
 import Loader from 'components/common/Loader';
@@ -74,35 +79,40 @@ type UserContextProviderProps = { children: React.ReactNode };
 
 export function UserContextProvider({ children }: UserContextProviderProps) {
   const [userState, dispatch] = useReducer(reducer, initialState);
-  const [cookies, setCookie, removeCookie] = useCookies();
+  const [cookies] = useCookies();
+
+  const handleNewToken = useCallback(
+    (token: string) => {
+      let decodedToken = null;
+      if (token) {
+        try {
+          decodedToken = decode(token);
+        } catch (error) {
+          // malformed token?
+          console.error(error);
+        }
+      }
+
+      if (decodedToken) {
+        dispatch({
+          type: UserActionType.SET_USER_FROM_TOKEN,
+          payload: { token, decodedToken },
+        });
+      } else {
+        dispatch({ type: UserActionType.SET_NOT_AUTHENTICATED, payload: null });
+      }
+    },
+    [dispatch]
+  );
+
+  const handleLogout = () =>
+    dispatch({ type: UserActionType.SET_NOT_AUTHENTICATED, payload: null });
 
   useEffect(() => {
     const { token } = cookies;
 
-    let decodedToken = null;
-    if (token) {
-      try {
-        decodedToken = decode(token);
-      } catch (error) {
-        // malformed token?
-        console.error(error);
-      }
-    }
-
-    if (decodedToken) {
-      dispatch({
-        type: UserActionType.SET_USER_FROM_TOKEN,
-        payload: { token, decodedToken },
-      });
-    } else {
-      dispatch({ type: UserActionType.SET_NOT_AUTHENTICATED, payload: null });
-    }
-  }, [cookies]);
-
-  const handleNewToken = (token: string) =>
-    setCookie('token', token, { path: '/', secure: false });
-
-  const handleLogout = () => removeCookie('token');
+    handleNewToken(token);
+  }, [cookies, handleNewToken]);
 
   return (
     <UserContext.Provider

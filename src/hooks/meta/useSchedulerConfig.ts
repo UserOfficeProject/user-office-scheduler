@@ -8,6 +8,8 @@ let cachedConfig: SchedulerConfig | null = null;
 export default function useSchedulerConfig() {
   const [config, setConfig] = useState<SchedulerConfig | null>(cachedConfig);
   const [loading, setIsLoading] = useState<boolean>(cachedConfig === null);
+  const [failed, setFailed] = useState<boolean>(false);
+
   const unauthorizedApi = useUnauthorizedApi();
 
   useEffect(() => {
@@ -20,13 +22,16 @@ export default function useSchedulerConfig() {
     unauthorizedApi()
       .getSchedulerConfig()
       .then(conf => {
-        cachedConfig = conf.schedulerConfig;
-
         if (unmount) {
           return;
         }
 
-        setConfig(conf.schedulerConfig);
+        if (conf instanceof Error) {
+          setFailed(true);
+        } else {
+          cachedConfig = conf.schedulerConfig;
+          setConfig(conf.schedulerConfig);
+        }
         setIsLoading(false);
       });
 
@@ -35,5 +40,5 @@ export default function useSchedulerConfig() {
     };
   }, [config, unauthorizedApi]);
 
-  return { config, loading } as const;
+  return { config, loading, failed } as const;
 }

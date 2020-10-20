@@ -82,6 +82,13 @@ export type AssignQuestionsToTopicResponseWrap = {
   result: Maybe<Array<Scalars['String']>>;
 };
 
+export type AuthJwtPayload = {
+  __typename?: 'AuthJwtPayload';
+  user: User;
+  currentRole: Role;
+  roles: Array<Role>;
+};
+
 export type BasicUserDetails = {
   __typename?: 'BasicUserDetails';
   id: Scalars['Int'];
@@ -819,6 +826,7 @@ export type TokenResponseWrap = {
 export type TokenResult = {
   __typename?: 'TokenResult';
   isValid: Scalars['Boolean'];
+  payload: Maybe<AuthJwtPayload>;
 };
 
 export type Topic = {
@@ -1108,12 +1116,12 @@ export type Query = {
   user: Maybe<User>;
   me: Maybe<User>;
   users: Maybe<UserQueryResult>;
-  proposalBookingLostTimes: Array<LostTime>;
-  instrumentProposalBookings: Array<ProposalBooking>;
-  proposalBooking: Maybe<ProposalBooking>;
   scheduledEvents: Array<ScheduledEvent>;
   scheduledEvent: Maybe<ScheduledEvent>;
   proposalBookingScheduledEvents: Array<ScheduledEvent>;
+  proposalBookingLostTimes: Array<LostTime>;
+  instrumentProposalBookings: Array<ProposalBooking>;
+  proposalBooking: Maybe<ProposalBooking>;
   healthCheck: HealthStats;
   schedulerConfig: SchedulerConfig;
 };
@@ -1320,21 +1328,6 @@ export type QueryUsersArgs = {
 };
 
 
-export type QueryProposalBookingLostTimesArgs = {
-  proposalBookingId: Scalars['ID'];
-};
-
-
-export type QueryInstrumentProposalBookingsArgs = {
-  instrumentId: Scalars['ID'];
-};
-
-
-export type QueryProposalBookingArgs = {
-  id: Scalars['ID'];
-};
-
-
 export type QueryScheduledEventsArgs = {
   filter: ScheduledEventFilter;
 };
@@ -1347,6 +1340,21 @@ export type QueryScheduledEventArgs = {
 
 export type QueryProposalBookingScheduledEventsArgs = {
   proposalBookingId: Scalars['ID'];
+};
+
+
+export type QueryProposalBookingLostTimesArgs = {
+  proposalBookingId: Scalars['ID'];
+};
+
+
+export type QueryInstrumentProposalBookingsArgs = {
+  instrumentId: Scalars['ID'];
+};
+
+
+export type QueryProposalBookingArgs = {
+  id: Scalars['ID'];
 };
 
 export type Mutation = {
@@ -1439,10 +1447,10 @@ export type Mutation = {
   updateSampleTitle: SampleResponseWrap;
   updateTopicOrder: UpdateTopicOrderResponseWrap;
   bulkUpsertLostTimes: LostTimesResponseWrap;
-  finalizeProposalBooking: ProposalBookingResponseWrap;
-  activateProposalBooking: ProposalBookingResponseWrap;
   createScheduledEvent: ScheduledEventResponseWrap;
   bulkUpsertScheduledEvents: ScheduledEventsResponseWrap;
+  finalizeProposalBooking: ProposalBookingResponseWrap;
+  activateProposalBooking: ProposalBookingResponseWrap;
 };
 
 
@@ -2006,6 +2014,16 @@ export type MutationBulkUpsertLostTimesArgs = {
 };
 
 
+export type MutationCreateScheduledEventArgs = {
+  newScheduledEvent: NewScheduledEventInput;
+};
+
+
+export type MutationBulkUpsertScheduledEventsArgs = {
+  bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput;
+};
+
+
 export type MutationFinalizeProposalBookingArgs = {
   id: Scalars['ID'];
   action: ProposalBookingFinalizeAction;
@@ -2014,16 +2032,6 @@ export type MutationFinalizeProposalBookingArgs = {
 
 export type MutationActivateProposalBookingArgs = {
   id: Scalars['ID'];
-};
-
-
-export type MutationCreateScheduledEventArgs = {
-  newScheduledEvent: NewScheduledEventInput;
-};
-
-
-export type MutationBulkUpsertScheduledEventsArgs = {
-  bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput;
 };
 
 export type InstrumentsQueryVariables = Exact<{ [key: string]: never; }>;

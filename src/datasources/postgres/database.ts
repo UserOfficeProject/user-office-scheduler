@@ -36,9 +36,7 @@ function initDb() {
     .count('*', { as: 'total' })
     .select('state')
     .groupBy(2)
-    .then(async r => {
-      console.log('finished', r);
-
+    .then(async () => {
       const log = [`Upgrade started: ${Date.now()}`];
       const directoryPath = './db_patches';
       fs.readdir(directoryPath, async function(err, files) {

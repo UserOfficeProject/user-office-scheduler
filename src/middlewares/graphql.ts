@@ -54,7 +54,7 @@ const apolloServer = async (app: Express) => {
         const authJwtPayloadString = req.header('x-auth-jwt-payload');
         if (authJwtPayloadString) {
           const authJwtPayload = JSON.parse(
-            authJwtPayloadString
+            Buffer.from(authJwtPayloadString, 'base64').toString()
           ) as AuthJwtPayload;
 
           context.user = authJwtPayload?.user;

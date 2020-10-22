@@ -1,6 +1,5 @@
 query serverHealthCheck {
   healthCheck {
-    id
     message
     dbStats {
       total

@@ -1,5 +1,3 @@
-/// <reference types="Cypress" />
-
 function clickOnEventSlot(slot: string) {
   cy.get(`[data-cy='event-slot-${slot}']`).then($el => {
     const el = $el[0] as HTMLDivElement;

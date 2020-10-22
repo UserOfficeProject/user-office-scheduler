@@ -20,6 +20,8 @@ export type Scalars = {
 export type AddProposalWorkflowStatusInput = {
   proposalWorkflowId: Scalars['Int'];
   sortOrder: Scalars['Int'];
+  droppableGroupId: Scalars['String'];
+  parentDroppableGroupId?: Maybe<Scalars['String']>;
   proposalStatusId: Scalars['Int'];
   nextProposalStatusId?: Maybe<Scalars['Int']>;
   prevProposalStatusId?: Maybe<Scalars['Int']>;
@@ -69,10 +71,22 @@ export type AnswerInput = {
   value?: Maybe<Scalars['String']>;
 };
 
+export type AssignInstrumentsToCallInput = {
+  instrumentIds: Array<Scalars['Int']>;
+  callId: Scalars['Int'];
+};
+
 export type AssignQuestionsToTopicResponseWrap = {
   __typename?: 'AssignQuestionsToTopicResponseWrap';
   error: Maybe<Scalars['String']>;
   result: Maybe<Array<Scalars['String']>>;
+};
+
+export type AuthJwtPayload = {
+  __typename?: 'AuthJwtPayload';
+  user: User;
+  currentRole: Role;
+  roles: Array<Role>;
 };
 
 export type BasicUserDetails = {
@@ -113,8 +127,10 @@ export type Call = {
   endCycle: Scalars['DateTime'];
   cycleComment: Scalars['String'];
   surveyComment: Scalars['String'];
+  proposalWorkflowId: Maybe<Scalars['Int']>;
   templateId: Maybe<Scalars['Int']>;
   instruments: Array<InstrumentWithAvailabilityTime>;
+  proposalWorkflow: Maybe<ProposalWorkflow>;
 };
 
 export type CallResponseWrap = {
@@ -126,6 +142,22 @@ export type CallResponseWrap = {
 export type CallsFilter = {
   templateIds?: Maybe<Array<Scalars['Int']>>;
   isActive?: Maybe<Scalars['Boolean']>;
+};
+
+export type CreateCallInput = {
+  shortCode: Scalars['String'];
+  startCall: Scalars['DateTime'];
+  endCall: Scalars['DateTime'];
+  startReview: Scalars['DateTime'];
+  endReview: Scalars['DateTime'];
+  startNotify: Scalars['DateTime'];
+  endNotify: Scalars['DateTime'];
+  startCycle: Scalars['DateTime'];
+  endCycle: Scalars['DateTime'];
+  cycleComment: Scalars['String'];
+  surveyComment: Scalars['String'];
+  proposalWorkflowId?: Maybe<Scalars['Int']>;
+  templateId?: Maybe<Scalars['Int']>;
 };
 
 export type CreateProposalStatusInput = {
@@ -254,6 +286,11 @@ export type FileUploadConfig = {
   max_files: Scalars['Int'];
 };
 
+export type IndexWithGroupId = {
+  index: Scalars['Int'];
+  droppableId: Scalars['String'];
+};
+
 export type Institution = {
   __typename?: 'Institution';
   id: Scalars['Int'];
@@ -305,8 +342,8 @@ export type InstrumentWithAvailabilityTime = {
 
 
 export type MoveProposalWorkflowStatusInput = {
-  from: Scalars['Int'];
-  to: Scalars['Int'];
+  from: IndexWithGroupId;
+  to: IndexWithGroupId;
   proposalWorkflowId: Scalars['Int'];
 };
 
@@ -464,7 +501,7 @@ export type ProposalWorkflow = {
   id: Scalars['Int'];
   name: Scalars['String'];
   description: Scalars['String'];
-  proposalWorkflowConnections: Array<ProposalWorkflowConnection>;
+  proposalWorkflowConnectionGroups: Array<ProposalWorkflowConnectionGroup>;
 };
 
 export type ProposalWorkflowConnection = {
@@ -477,6 +514,14 @@ export type ProposalWorkflowConnection = {
   nextProposalStatusId: Maybe<Scalars['Int']>;
   prevProposalStatusId: Maybe<Scalars['Int']>;
   nextStatusEventType: Scalars['String'];
+  droppableGroupId: Scalars['String'];
+};
+
+export type ProposalWorkflowConnectionGroup = {
+  __typename?: 'ProposalWorkflowConnectionGroup';
+  groupId: Scalars['String'];
+  parentGroupId: Maybe<Scalars['String']>;
+  connections: Array<ProposalWorkflowConnection>;
 };
 
 export type ProposalWorkflowConnectionResponseWrap = {
@@ -541,6 +586,11 @@ export type QuestionTemplateRelation = {
   topicId: Scalars['Int'];
   config: FieldConfig;
   dependency: Maybe<FieldDependency>;
+};
+
+export type RemoveAssignedInstrumentFromCallInput = {
+  instrumentId: Scalars['Int'];
+  callId: Scalars['Int'];
 };
 
 export type ResetPasswordEmailResponseWrap = {
@@ -773,6 +823,12 @@ export type TokenResponseWrap = {
   token: Maybe<Scalars['String']>;
 };
 
+export type TokenResult = {
+  __typename?: 'TokenResult';
+  isValid: Scalars['Boolean'];
+  payload: Maybe<AuthJwtPayload>;
+};
+
 export type Topic = {
   __typename?: 'Topic';
   id: Scalars['Int'];
@@ -791,6 +847,23 @@ export type UpdateAnswerResponseWrap = {
   __typename?: 'UpdateAnswerResponseWrap';
   error: Maybe<Scalars['String']>;
   questionId: Maybe<Scalars['String']>;
+};
+
+export type UpdateCallInput = {
+  id: Scalars['Int'];
+  shortCode: Scalars['String'];
+  startCall: Scalars['DateTime'];
+  endCall: Scalars['DateTime'];
+  startReview: Scalars['DateTime'];
+  endReview: Scalars['DateTime'];
+  startNotify: Scalars['DateTime'];
+  endNotify: Scalars['DateTime'];
+  startCycle: Scalars['DateTime'];
+  endCycle: Scalars['DateTime'];
+  cycleComment: Scalars['String'];
+  surveyComment: Scalars['String'];
+  proposalWorkflowId?: Maybe<Scalars['Int']>;
+  templateId?: Maybe<Scalars['Int']>;
 };
 
 export type UpdateProposalStatusInput = {
@@ -880,6 +953,12 @@ export type DbStat = {
   __typename?: 'DbStat';
   total: Scalars['Float'];
   state: Maybe<Scalars['String']>;
+};
+
+export type HealthStats = {
+  __typename?: 'HealthStats';
+  message: Scalars['String'];
+  dbStats: Array<DbStat>;
 };
 
 export type LostTime = {
@@ -974,6 +1053,11 @@ export type ScheduledEventsResponseWrap = {
   scheduledEvent: Maybe<Array<ScheduledEvent>>;
 };
 
+export type SchedulerConfig = {
+  __typename?: 'SchedulerConfig';
+  authRedirect: Scalars['String'];
+};
+
 export type SimpleLostTime = {
   id: Scalars['ID'];
   startsAt: Scalars['TzLessDateTime'];
@@ -984,13 +1068,6 @@ export type SimpleScheduledEvent = {
   id: Scalars['ID'];
   startsAt: Scalars['TzLessDateTime'];
   endsAt: Scalars['TzLessDateTime'];
-};
-
-export type System = {
-  __typename?: 'System';
-  id: Scalars['ID'];
-  message: Scalars['String'];
-  dbStats: Array<DbStat>;
 };
 
 
@@ -1035,16 +1112,18 @@ export type Query = {
   seps: Maybe<SePsQueryResult>;
   templateCategories: Maybe<Array<TemplateCategory>>;
   template: Maybe<Template>;
+  checkToken: TokenResult;
   user: Maybe<User>;
   me: Maybe<User>;
   users: Maybe<UserQueryResult>;
-  proposalBookingLostTimes: Array<LostTime>;
-  instrumentProposalBookings: Array<ProposalBooking>;
-  proposalBooking: Maybe<ProposalBooking>;
   scheduledEvents: Array<ScheduledEvent>;
   scheduledEvent: Maybe<ScheduledEvent>;
   proposalBookingScheduledEvents: Array<ScheduledEvent>;
-  healthCheck: System;
+  proposalBookingLostTimes: Array<LostTime>;
+  instrumentProposalBookings: Array<ProposalBooking>;
+  proposalBooking: Maybe<ProposalBooking>;
+  healthCheck: HealthStats;
+  schedulerConfig: SchedulerConfig;
 };
 
 
@@ -1230,6 +1309,11 @@ export type QueryTemplateArgs = {
 };
 
 
+export type QueryCheckTokenArgs = {
+  token: Scalars['String'];
+};
+
+
 export type QueryUserArgs = {
   id: Scalars['Int'];
 };
@@ -1241,21 +1325,6 @@ export type QueryUsersArgs = {
   offset?: Maybe<Scalars['Int']>;
   userRole?: Maybe<UserRole>;
   subtractUsers?: Maybe<Array<Maybe<Scalars['Int']>>>;
-};
-
-
-export type QueryProposalBookingLostTimesArgs = {
-  proposalBookingId: Scalars['ID'];
-};
-
-
-export type QueryInstrumentProposalBookingsArgs = {
-  instrumentId: Scalars['ID'];
-};
-
-
-export type QueryProposalBookingArgs = {
-  id: Scalars['ID'];
 };
 
 
@@ -1273,14 +1342,29 @@ export type QueryProposalBookingScheduledEventsArgs = {
   proposalBookingId: Scalars['ID'];
 };
 
+
+export type QueryProposalBookingLostTimesArgs = {
+  proposalBookingId: Scalars['ID'];
+};
+
+
+export type QueryInstrumentProposalBookingsArgs = {
+  instrumentId: Scalars['ID'];
+};
+
+
+export type QueryProposalBookingArgs = {
+  id: Scalars['ID'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createInstitution: InstitutionResponseWrap;
   updateInstitution: InstitutionResponseWrap;
   createCall: CallResponseWrap;
   updateCall: CallResponseWrap;
-  assignInstrumentToCall: CallResponseWrap;
-  removeAssignedInstrumentFromcall: CallResponseWrap;
+  assignInstrumentsToCall: CallResponseWrap;
+  removeAssignedInstrumentFromCall: CallResponseWrap;
   assignProposalsToInstrument: SuccessResponseWrap;
   removeProposalFromInstrument: SuccessResponseWrap;
   assignScientistsToInstrument: SuccessResponseWrap;
@@ -1363,10 +1447,10 @@ export type Mutation = {
   updateSampleTitle: SampleResponseWrap;
   updateTopicOrder: UpdateTopicOrderResponseWrap;
   bulkUpsertLostTimes: LostTimesResponseWrap;
-  finalizeProposalBooking: ProposalBookingResponseWrap;
-  activateProposalBooking: ProposalBookingResponseWrap;
   createScheduledEvent: ScheduledEventResponseWrap;
   bulkUpsertScheduledEvents: ScheduledEventsResponseWrap;
+  finalizeProposalBooking: ProposalBookingResponseWrap;
+  activateProposalBooking: ProposalBookingResponseWrap;
 };
 
 
@@ -1384,47 +1468,22 @@ export type MutationUpdateInstitutionArgs = {
 
 
 export type MutationCreateCallArgs = {
-  shortCode: Scalars['String'];
-  startCall: Scalars['DateTime'];
-  endCall: Scalars['DateTime'];
-  startReview: Scalars['DateTime'];
-  endReview: Scalars['DateTime'];
-  startNotify: Scalars['DateTime'];
-  endNotify: Scalars['DateTime'];
-  startCycle: Scalars['DateTime'];
-  endCycle: Scalars['DateTime'];
-  cycleComment: Scalars['String'];
-  surveyComment: Scalars['String'];
-  templateId?: Maybe<Scalars['Int']>;
+  createCallInput: CreateCallInput;
 };
 
 
 export type MutationUpdateCallArgs = {
-  id: Scalars['Int'];
-  shortCode: Scalars['String'];
-  startCall: Scalars['DateTime'];
-  endCall: Scalars['DateTime'];
-  startReview: Scalars['DateTime'];
-  endReview: Scalars['DateTime'];
-  startNotify: Scalars['DateTime'];
-  endNotify: Scalars['DateTime'];
-  startCycle: Scalars['DateTime'];
-  endCycle: Scalars['DateTime'];
-  cycleComment: Scalars['String'];
-  surveyComment: Scalars['String'];
-  templateId?: Maybe<Scalars['Int']>;
+  updateCallInput: UpdateCallInput;
 };
 
 
-export type MutationAssignInstrumentToCallArgs = {
-  instrumentIds: Array<Scalars['Int']>;
-  callId: Scalars['Int'];
+export type MutationAssignInstrumentsToCallArgs = {
+  assignInstrumentsToCallInput: AssignInstrumentsToCallInput;
 };
 
 
-export type MutationRemoveAssignedInstrumentFromcallArgs = {
-  instrumentId: Scalars['Int'];
-  callId: Scalars['Int'];
+export type MutationRemoveAssignedInstrumentFromCallArgs = {
+  removeAssignedInstrumentFromCallInput: RemoveAssignedInstrumentFromCallInput;
 };
 
 
@@ -1955,17 +2014,6 @@ export type MutationBulkUpsertLostTimesArgs = {
 };
 
 
-export type MutationFinalizeProposalBookingArgs = {
-  id: Scalars['ID'];
-  action: ProposalBookingFinalizeAction;
-};
-
-
-export type MutationActivateProposalBookingArgs = {
-  id: Scalars['ID'];
-};
-
-
 export type MutationCreateScheduledEventArgs = {
   newScheduledEvent: NewScheduledEventInput;
 };
@@ -1975,20 +2023,16 @@ export type MutationBulkUpsertScheduledEventsArgs = {
   bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput;
 };
 
-export type ServerHealthCheckQueryVariables = Exact<{ [key: string]: never; }>;
+
+export type MutationFinalizeProposalBookingArgs = {
+  id: Scalars['ID'];
+  action: ProposalBookingFinalizeAction;
+};
 
 
-export type ServerHealthCheckQuery = (
-  { __typename?: 'Query' }
-  & { healthCheck: (
-    { __typename?: 'System' }
-    & Pick<System, 'id' | 'message'>
-    & { dbStats: Array<(
-      { __typename?: 'DbStat' }
-      & Pick<DbStat, 'total' | 'state'>
-    )> }
-  ) }
-);
+export type MutationActivateProposalBookingArgs = {
+  id: Scalars['ID'];
+};
 
 export type InstrumentsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2058,6 +2102,32 @@ export type GetRefreshedTokenMutation = (
   & { token: (
     { __typename?: 'TokenResponseWrap' }
     & Pick<TokenResponseWrap, 'token' | 'error'>
+  ) }
+);
+
+export type GetSchedulerConfigQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetSchedulerConfigQuery = (
+  { __typename?: 'Query' }
+  & { schedulerConfig: (
+    { __typename?: 'SchedulerConfig' }
+    & Pick<SchedulerConfig, 'authRedirect'>
+  ) }
+);
+
+export type ServerHealthCheckQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ServerHealthCheckQuery = (
+  { __typename?: 'Query' }
+  & { healthCheck: (
+    { __typename?: 'HealthStats' }
+    & Pick<HealthStats, 'message'>
+    & { dbStats: Array<(
+      { __typename?: 'DbStat' }
+      & Pick<DbStat, 'total' | 'state'>
+    )> }
   ) }
 );
 
@@ -2189,18 +2259,6 @@ export type ScheduledEventsQuery = (
 );
 
 
-export const ServerHealthCheckDocument = gql`
-    query serverHealthCheck {
-  healthCheck {
-    id
-    message
-    dbStats {
-      total
-      state
-    }
-  }
-}
-    `;
 export const InstrumentsDocument = gql`
     query instruments {
   instruments {
@@ -2246,6 +2304,24 @@ export const GetRefreshedTokenDocument = gql`
   token(token: $token) {
     token
     error
+  }
+}
+    `;
+export const GetSchedulerConfigDocument = gql`
+    query getSchedulerConfig {
+  schedulerConfig {
+    authRedirect
+  }
+}
+    `;
+export const ServerHealthCheckDocument = gql`
+    query serverHealthCheck {
+  healthCheck {
+    message
+    dbStats {
+      total
+      state
+    }
   }
 }
     `;
@@ -2362,9 +2438,6 @@ export type SdkFunctionWrapper = <T>(action: () => Promise<T>) => Promise<T>;
 const defaultWrapper: SdkFunctionWrapper = sdkFunction => sdkFunction();
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
-    serverHealthCheck(variables?: ServerHealthCheckQueryVariables): Promise<ServerHealthCheckQuery> {
-      return withWrapper(() => client.request<ServerHealthCheckQuery>(print(ServerHealthCheckDocument), variables));
-    },
     instruments(variables?: InstrumentsQueryVariables): Promise<InstrumentsQuery> {
       return withWrapper(() => client.request<InstrumentsQuery>(print(InstrumentsDocument), variables));
     },
@@ -2379,6 +2452,12 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     getRefreshedToken(variables: GetRefreshedTokenMutationVariables): Promise<GetRefreshedTokenMutation> {
       return withWrapper(() => client.request<GetRefreshedTokenMutation>(print(GetRefreshedTokenDocument), variables));
+    },
+    getSchedulerConfig(variables?: GetSchedulerConfigQueryVariables): Promise<GetSchedulerConfigQuery> {
+      return withWrapper(() => client.request<GetSchedulerConfigQuery>(print(GetSchedulerConfigDocument), variables));
+    },
+    serverHealthCheck(variables?: ServerHealthCheckQueryVariables): Promise<ServerHealthCheckQuery> {
+      return withWrapper(() => client.request<ServerHealthCheckQuery>(print(ServerHealthCheckDocument), variables));
     },
     activateProposalBooking(variables: ActivateProposalBookingMutationVariables): Promise<ActivateProposalBookingMutation> {
       return withWrapper(() => client.request<ActivateProposalBookingMutation>(print(ActivateProposalBookingDocument), variables));

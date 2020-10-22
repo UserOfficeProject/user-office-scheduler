@@ -4,10 +4,10 @@ services:
   scheduler-frontend:
     build:
       context: "./${USER_OFFICE_SCHEDULER_FRONTEND_DIR}"
-      args:
-        - REACT_APP_AUTH_REDIRECT=/not-authenticated#USER_OFFICE/shared-auth
     ports:
       - 80
+    environment:
+      - GATEWAY_HOST=gateway:4100
     depends_on:
       - gateway
 

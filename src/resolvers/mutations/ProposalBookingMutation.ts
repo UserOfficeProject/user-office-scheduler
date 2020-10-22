@@ -15,7 +15,7 @@ export class ProposalBookingMutation {
     @Arg('id', () => ID) id: number
   ) {
     return wrapResponse(
-      ctx.mutations.proposalBooking.finalize(action, id),
+      ctx.mutations.proposalBooking.finalize(ctx, action, id),
       ProposalBookingResponseWrap
     );
   }
@@ -26,7 +26,7 @@ export class ProposalBookingMutation {
     @Arg('id', () => ID) id: number
   ) {
     return wrapResponse(
-      ctx.mutations.proposalBooking.activate(id),
+      ctx.mutations.proposalBooking.activate(ctx, id),
       ProposalBookingResponseWrap
     );
   }

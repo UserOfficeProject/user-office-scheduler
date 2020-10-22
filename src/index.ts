@@ -11,12 +11,15 @@ import './events';
 
 import exceptionHandler from './middlewares/exceptionHandler';
 import apolloServer, { PATH } from './middlewares/graphql';
+import healthCheck from './middlewares/healthCheck';
 
 async function bootstrap() {
   const PORT = process.env.PORT || 4000;
   const app = express();
 
   app.use(cookieParser()).use(exceptionHandler());
+
+  app.use('/health-check', healthCheck());
 
   await apolloServer(app);
 

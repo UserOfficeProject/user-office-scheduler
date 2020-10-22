@@ -1,10 +1,10 @@
 import { SystemDataSource } from '../datasources/SystemDataSource';
-import { System } from '../models/System';
+import { HealthStats } from '../resolvers/queries/SystemQuery';
 
 export default class SystemQueries {
   constructor(private systemDataSource: SystemDataSource) {}
 
-  async healthCheck(): Promise<System> {
+  async healthCheck(): Promise<HealthStats> {
     return this.systemDataSource.healthCheck();
   }
 }

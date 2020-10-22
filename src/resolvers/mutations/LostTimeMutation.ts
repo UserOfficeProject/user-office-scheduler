@@ -43,7 +43,7 @@ export class LostTimeMutation {
     bulkUpsertLostTimes: BulkUpsertLostTimesInput
   ) {
     return wrapResponse(
-      ctx.mutations.lostTime.bulkUpsert(bulkUpsertLostTimes),
+      ctx.mutations.lostTime.bulkUpsert(ctx, bulkUpsertLostTimes),
       LostTimesResponseWrap
     );
   }

@@ -74,7 +74,7 @@ export class ScheduledEventMutation {
     newScheduledEvent: NewScheduledEventInput
   ) {
     return wrapResponse(
-      ctx.mutations.scheduledEvent.create(newScheduledEvent),
+      ctx.mutations.scheduledEvent.create(ctx, newScheduledEvent),
       ScheduledEventResponseWrap
     );
   }
@@ -86,7 +86,7 @@ export class ScheduledEventMutation {
     bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput
   ) {
     return wrapResponse(
-      ctx.mutations.scheduledEvent.bulkUpsert(bulkUpsertScheduledEvents),
+      ctx.mutations.scheduledEvent.bulkUpsert(ctx, bulkUpsertScheduledEvents),
       ScheduledEventResponseWrap
     );
   }

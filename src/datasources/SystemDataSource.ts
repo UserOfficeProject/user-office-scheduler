@@ -1,5 +1,13 @@
-import { System } from '../models/System';
+export interface DbStat {
+  total: number;
+  state: null | string;
+}
+
+export interface HealthStats {
+  message: string;
+  dbStats: DbStat[];
+}
 
 export interface SystemDataSource {
-  healthCheck(): Promise<System>;
+  healthCheck(): Promise<HealthStats>;
 }

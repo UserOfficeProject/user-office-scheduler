@@ -1,7 +1,9 @@
 import { logger } from '@esss-swap/duo-logger';
 
+import { ResolverContext } from '../context';
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
 import { ScheduledEventDataSource } from '../datasources/ScheduledEventDataSource';
+import Authorized from '../decorators/Authorized';
 import { ProposalBookingStatus } from '../models/ProposalBooking';
 import { ScheduledEvent } from '../models/ScheduledEvent';
 import { rejection, Rejection } from '../rejection';
@@ -17,7 +19,10 @@ export default class ScheduledEventMutations {
   ) {}
 
   // TODO: validate input fields
+
+  @Authorized([])
   create(
+    ctx: ResolverContext,
     newScheduledEvent: NewScheduledEventInput
   ): Promise<ScheduledEvent | Rejection> {
     return this.scheduledEventDataSource
@@ -31,7 +36,9 @@ export default class ScheduledEventMutations {
       });
   }
 
+  @Authorized([])
   async bulkUpsert(
+    ctx: ResolverContext,
     bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput
   ): Promise<ScheduledEvent[] | Rejection> {
     const proposalBooking = await this.proposalBookingDataSource.get(

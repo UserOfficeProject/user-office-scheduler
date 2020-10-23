@@ -49,7 +49,7 @@ const createDevelopTheme = (): Theme =>
 
 const developHosts: Record<string, boolean> = {
   localhost: true,
-  // 'useroffice-test.esss.lu.se': true,
+  'scheduler.useroffice-test.esss.lu.se': true,
 };
 
 const isDevelop = (): boolean => {

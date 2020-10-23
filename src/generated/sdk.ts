@@ -656,9 +656,10 @@ export type SamplesFilter = {
 };
 
 export enum SampleStatus {
-  NONE = 'NONE',
-  SAFE = 'SAFE',
-  UNSAFE = 'UNSAFE'
+  PENDING_EVALUTATION = 'PENDING_EVALUTATION',
+  LOW_RISK = 'LOW_RISK',
+  ELEVATED_RISK = 'ELEVATED_RISK',
+  HIGH_RISK = 'HIGH_RISK'
 }
 
 export type SelectionFromOptionsConfig = {
@@ -1090,6 +1091,7 @@ export type Query = {
   instrument: Maybe<Instrument>;
   instruments: Maybe<InstrumentsQueryResult>;
   instrumentsBySep: Maybe<Array<InstrumentWithAvailabilityTime>>;
+  userInstruments: Maybe<InstrumentsQueryResult>;
   isNaturalKeyPresent: Maybe<Scalars['Boolean']>;
   proposal: Maybe<Proposal>;
   proposalStatus: Maybe<ProposalStatus>;
@@ -2034,12 +2036,12 @@ export type MutationActivateProposalBookingArgs = {
   id: Scalars['ID'];
 };
 
-export type InstrumentsQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetUserInstrumentsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type InstrumentsQuery = (
+export type GetUserInstrumentsQuery = (
   { __typename?: 'Query' }
-  & { instruments: Maybe<(
+  & { userInstruments: Maybe<(
     { __typename?: 'InstrumentsQueryResult' }
     & Pick<InstrumentsQueryResult, 'totalCount'>
     & { instruments: Array<(
@@ -2259,9 +2261,9 @@ export type ScheduledEventsQuery = (
 );
 
 
-export const InstrumentsDocument = gql`
-    query instruments {
-  instruments {
+export const GetUserInstrumentsDocument = gql`
+    query getUserInstruments {
+  userInstruments {
     totalCount
     instruments {
       id
@@ -2438,8 +2440,8 @@ export type SdkFunctionWrapper = <T>(action: () => Promise<T>) => Promise<T>;
 const defaultWrapper: SdkFunctionWrapper = sdkFunction => sdkFunction();
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
-    instruments(variables?: InstrumentsQueryVariables): Promise<InstrumentsQuery> {
-      return withWrapper(() => client.request<InstrumentsQuery>(print(InstrumentsDocument), variables));
+    getUserInstruments(variables?: GetUserInstrumentsQueryVariables): Promise<GetUserInstrumentsQuery> {
+      return withWrapper(() => client.request<GetUserInstrumentsQuery>(print(GetUserInstrumentsDocument), variables));
     },
     bulkUpsertLostTimes(variables: BulkUpsertLostTimesMutationVariables): Promise<BulkUpsertLostTimesMutation> {
       return withWrapper(() => client.request<BulkUpsertLostTimesMutation>(print(BulkUpsertLostTimesDocument), variables));

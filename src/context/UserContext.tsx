@@ -1,14 +1,11 @@
+import { getTranslation } from '@esss-swap/duo-localisation';
 import { decode } from 'jsonwebtoken';
-import React, {
-  createContext,
-  useCallback,
-  useEffect,
-  useReducer,
-} from 'react';
+import { useSnackbar } from 'notistack';
+import React, { createContext, useEffect, useReducer } from 'react';
 import { useCookies } from 'react-cookie';
 
 import Loader from 'components/common/Loader';
-import { User, Role } from 'generated/sdk';
+import { User, Role, UserRole } from 'generated/sdk';
 
 export type AuthenticatedUser = Pick<
   User,
@@ -59,7 +56,7 @@ function reducer(
         ...state,
 
         user: action.payload.decodedToken.user,
-        roles: action.payload.decodedToken.role,
+        roles: action.payload.decodedToken.roles,
         token: action.payload.token,
         stateInitialized: true,
       };
@@ -78,32 +75,32 @@ function reducer(
 type UserContextProviderProps = { children: React.ReactNode };
 
 export function UserContextProvider({ children }: UserContextProviderProps) {
+  const { enqueueSnackbar } = useSnackbar();
   const [userState, dispatch] = useReducer(reducer, initialState);
   const [cookies] = useCookies();
 
-  const handleNewToken = useCallback(
-    (token: string) => {
-      let decodedToken = null;
-      if (token) {
-        try {
-          decodedToken = decode(token);
-        } catch (error) {
-          // malformed token?
-          console.error(error);
-        }
-      }
+  console.log('render UserContextProvider');
 
-      if (decodedToken) {
-        dispatch({
-          type: UserActionType.SET_USER_FROM_TOKEN,
-          payload: { token, decodedToken },
-        });
-      } else {
-        dispatch({ type: UserActionType.SET_NOT_AUTHENTICATED, payload: null });
+  const handleNewToken = (token: string) => {
+    let decodedToken = null;
+    if (token) {
+      try {
+        decodedToken = decode(token);
+      } catch (error) {
+        // malformed token?
+        console.error(error);
       }
-    },
-    [dispatch]
-  );
+    }
+
+    if (decodedToken) {
+      dispatch({
+        type: UserActionType.SET_USER_FROM_TOKEN,
+        payload: { token, decodedToken },
+      });
+    } else {
+      dispatch({ type: UserActionType.SET_NOT_AUTHENTICATED, payload: null });
+    }
+  };
 
   const handleLogout = () =>
     dispatch({ type: UserActionType.SET_NOT_AUTHENTICATED, payload: null });
@@ -112,7 +109,25 @@ export function UserContextProvider({ children }: UserContextProviderProps) {
     const { token } = cookies;
 
     handleNewToken(token);
-  }, [cookies, handleNewToken]);
+  }, [cookies]);
+
+  useEffect(() => {
+    if (
+      userState.stateInitialized &&
+      userState.user &&
+      (!Array.isArray(userState.roles) ||
+        !userState.roles.find(
+          ({ shortCode }) =>
+            shortCode.toUpperCase() === UserRole.INSTRUMENT_SCIENTIST ||
+            shortCode.toUpperCase() === UserRole.USER_OFFICER
+        ))
+    ) {
+      enqueueSnackbar(getTranslation('INSUFFICIENT_PERMISSIONS'), {
+        variant: 'error',
+      });
+      handleLogout();
+    }
+  }, [userState, enqueueSnackbar]);
 
   return (
     <UserContext.Provider

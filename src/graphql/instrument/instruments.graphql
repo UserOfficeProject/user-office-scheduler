@@ -1,5 +1,5 @@
-query instruments {
-  instruments {
+query getUserInstruments {
+  userInstruments {
     totalCount
     instruments {
       id

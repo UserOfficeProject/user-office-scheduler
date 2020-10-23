@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Instrument } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 
-export default function useInstruments() {
+export default function useUserInstruments() {
   const [loading, setLoading] = useState(true);
   const [instruments, setInstruments] = useState<
     Pick<Instrument, 'id' | 'name'>[]
@@ -24,14 +24,14 @@ export default function useInstruments() {
 
     setLoading(true);
     api()
-      .instruments()
+      .getUserInstruments()
       .then(data => {
         if (unmount) {
           return;
         }
 
-        if (data.instruments?.instruments) {
-          setInstruments(data.instruments.instruments);
+        if (data.userInstruments?.instruments) {
+          setInstruments(data.userInstruments.instruments);
         }
 
         setLoading(false);

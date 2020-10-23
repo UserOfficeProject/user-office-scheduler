@@ -20,7 +20,7 @@ import { useHistory } from 'react-router';
 
 import { Instrument } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
-import useInstruments from 'hooks/instrument/useInstruments';
+import useUserInstruments from 'hooks/instrument/useUserInstruments';
 
 const useStyles = makeStyles(theme => ({
   flex: {
@@ -68,7 +68,7 @@ export default function Toolbar({
 }: ToolbarProps) {
   const classes = useStyles();
   const history = useHistory();
-  const { loading: instrumentsLoading, instruments } = useInstruments();
+  const { loading: instrumentsLoading, instruments } = useUserInstruments();
 
   const query = useQuery();
 

@@ -1,16 +1,18 @@
-import { Role } from '../types/shared';
+import { Roles, Role } from '../types/shared';
 
 export function hasRole(
-  requiredRoles: Role[],
+  requiredRoles: Roles[],
   availableRoles: Role[]
 ): boolean {
+  availableRoles = availableRoles || [];
+
   if (requiredRoles.length === 0) {
     return true;
   }
 
   return requiredRoles.some(requiredRole =>
     availableRoles.some(
-      availableRole => requiredRole.shortCode === availableRole.shortCode
+      availableRole => requiredRole === availableRole.shortCode
     )
   );
 }

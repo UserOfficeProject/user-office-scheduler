@@ -1,10 +1,10 @@
 import { AuthenticationError, ApolloError } from 'apollo-server';
 
 import { ResolverContext } from '../context';
-import { Role } from '../types/shared';
+import { Roles } from '../types/shared';
 import { hasRole } from '../utils/authorization';
 
-const Authorized = (roles: Role[] = []) => {
+const Authorized = (roles: Roles[] = []) => {
   return (
     target: object,
     name: string,

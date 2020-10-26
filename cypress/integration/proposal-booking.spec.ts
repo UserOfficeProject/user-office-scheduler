@@ -1,14 +1,12 @@
-beforeEach(() => {
-  cy.initializeSession('InstrumentScientist_1');
-
-  cy.visit({
-    url: '/calendar',
-    timeout: 15000,
-  });
-});
-
 describe('Proposal booking calls/proposals list', () => {
   it('should inform the user if the instrument has no calls', () => {
+    cy.initializeSession('InstrumentScientist_2');
+
+    cy.visit({
+      url: '/calendar',
+      timeout: 15000,
+    });
+
     cy.get('[data-cy=input-instrument-select]').click();
 
     cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
@@ -20,10 +18,17 @@ describe('Proposal booking calls/proposals list', () => {
   });
 
   it('should show the list of calls of the instrument has calls', () => {
+    cy.initializeSession('InstrumentScientist_1');
+
+    cy.visit({
+      url: '/calendar',
+      timeout: 15000,
+    });
+
     cy.get('[data-cy=input-instrument-select]').click();
 
     cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-      .eq(1)
+      .first()
       .click();
 
     cy.get('[data-cy=btn-new-event]').should('exist');
@@ -35,6 +40,13 @@ describe('Proposal booking calls/proposals list', () => {
 
 describe('Proposal booking workflow', () => {
   beforeEach(() => {
+    cy.initializeSession('InstrumentScientist_1');
+
+    cy.visit({
+      url: '/calendar',
+      timeout: 15000,
+    });
+
     cy.get('[data-cy=input-instrument-select]').click();
 
     cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')

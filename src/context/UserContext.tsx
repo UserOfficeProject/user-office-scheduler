@@ -79,8 +79,6 @@ export function UserContextProvider({ children }: UserContextProviderProps) {
   const [userState, dispatch] = useReducer(reducer, initialState);
   const [cookies] = useCookies();
 
-  console.log('render UserContextProvider');
-
   const handleNewToken = (token: string) => {
     let decodedToken = null;
     if (token) {

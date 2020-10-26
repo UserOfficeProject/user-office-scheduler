@@ -49,9 +49,10 @@ const apolloServer = async (app: Express) => {
     plugins: [ApolloServerPluginInlineTraceDisabled()],
 
     context: async ({ req }: { req: Request }) => {
-      const context: ResolverContext = { ...baseContext };
-
-      context.clients.userOffice = initGraphQLClient(req.headers.authorization);
+      const context: ResolverContext = {
+        ...baseContext,
+        clients: { userOffice: initGraphQLClient(req.headers.authorization) },
+      };
 
       try {
         const authJwtPayloadString = req.header('x-auth-jwt-payload');

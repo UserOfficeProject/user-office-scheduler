@@ -4,8 +4,6 @@ export function hasRole(
   requiredRoles: Roles[],
   availableRoles: Role[]
 ): boolean {
-  availableRoles = availableRoles || [];
-
   if (requiredRoles.length === 0) {
     return true;
   }

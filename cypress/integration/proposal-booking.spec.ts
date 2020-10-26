@@ -50,7 +50,7 @@ describe('Proposal booking workflow', () => {
     cy.get('[data-cy=input-instrument-select]').click();
 
     cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-      .eq(1)
+      .first()
       .click();
 
     cy.get('#instrument-calls-tree-view [role=treeitem]')

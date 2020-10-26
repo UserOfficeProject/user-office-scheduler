@@ -12,7 +12,7 @@ services:
       - DATABASE_PASSWORD=schedulerPassword
       - DATABASE_DATABASE=scheduler
       - SCHEDULER_CONFIG_AUTH_REDIRECT=/not-authenticated#USER_OFFICE/shared-auth
-      - USER_OFFICE_BACKEND=${USER_OFFICE_BACKEND}
+      - USER_OFFICE_ENDPOINT=${USER_OFFICE_ENDPOINT}
     depends_on:
       - scheduler-db
 

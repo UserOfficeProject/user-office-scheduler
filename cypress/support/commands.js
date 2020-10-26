@@ -12,11 +12,14 @@
 // -- This is a parent command --
 
 Cypress.Commands.add('initializeSession', token => {
+  cy.configureClock();
+  cy.configureSession(token);
+});
+
+Cypress.Commands.add('configureClock', () => {
   const now = new Date(Date.UTC(2020, 8, 21, 12, 0, 0)).getTime();
 
   cy.clock(now);
-
-  cy.configureSession(token);
 });
 
 Cypress.Commands.add('configureSession', token => {

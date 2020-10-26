@@ -27,8 +27,8 @@ export async function helperInstrumentScientistHasAccess(
     const {
       instrumentScientistHasAccess,
     } = await ctx.clients.userOffice().instrumentScientistHasAccess({
-      proposalId: proposalBooking.proposal.id,
-      instrumentId: proposalBooking.instrument.id,
+      proposalId: +proposalBooking.proposal.id,
+      instrumentId: +proposalBooking.instrument.id,
     });
 
     if (!instrumentScientistHasAccess) {
@@ -45,7 +45,7 @@ export async function helperInstrumentScientistHasInstrument(
     const {
       instrumentScientistHasInstrument,
     } = await ctx.clients.userOffice().instrumentScientistHasInstrument({
-      instrumentId,
+      instrumentId: +instrumentId,
     });
 
     if (!instrumentScientistHasInstrument) {

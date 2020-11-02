@@ -10,3 +10,5 @@ coverage/*
 /src/types/
 
 /dev-commands/*
+
+src/generated/sdk.ts

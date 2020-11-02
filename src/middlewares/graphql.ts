@@ -6,6 +6,7 @@ import 'reflect-metadata';
 
 import baseContext from '../buildContext';
 import { ResolverContext } from '../context';
+import initGraphQLClient from '../graphql/client';
 import federationSources from '../resolvers/federationSources';
 import { registerEnums } from '../resolvers/registerEnums';
 import { AuthJwtPayload } from '../types/shared';
@@ -48,7 +49,10 @@ const apolloServer = async (app: Express) => {
     plugins: [ApolloServerPluginInlineTraceDisabled()],
 
     context: async ({ req }: { req: Request }) => {
-      const context: ResolverContext = { ...baseContext };
+      const context: ResolverContext = {
+        ...baseContext,
+        clients: { userOffice: initGraphQLClient(req.headers.authorization) },
+      };
 
       try {
         const authJwtPayloadString = req.header('x-auth-jwt-payload');

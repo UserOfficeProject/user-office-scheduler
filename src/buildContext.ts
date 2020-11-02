@@ -52,6 +52,21 @@ const context: BasicResolverContext = {
     scheduledEvent: scheduledEventMutations,
     system: systemMutations,
   },
+
+  /**
+   * Unique per request
+   */
+
+  // it is initialized in graphql context for each request if we get the information
+  roles: undefined,
+  // it is initialized in graphql context for each request if we get the information
+  user: undefined,
+  clients: {
+    userOffice: () => {
+      // it is initialized in graphql context for each request
+      throw new Error('UserOffice client not initialized');
+    },
+  },
 };
 
 export default context;

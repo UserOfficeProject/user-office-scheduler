@@ -4,6 +4,10 @@ import { ResolverContext } from '../context';
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
 import { ScheduledEventDataSource } from '../datasources/ScheduledEventDataSource';
 import Authorized from '../decorators/Authorized';
+import {
+  helperInstrumentScientistHasAccess,
+  helperInstrumentScientistHasInstrument,
+} from '../helpers/instrumentHelpers';
 import { ProposalBookingStatus } from '../models/ProposalBooking';
 import { ScheduledEvent } from '../models/ScheduledEvent';
 import { rejection, Rejection } from '../rejection';
@@ -11,6 +15,7 @@ import {
   BulkUpsertScheduledEventsInput,
   NewScheduledEventInput,
 } from '../resolvers/mutations/ScheduledEventMutation';
+import { Roles } from '../types/shared';
 
 export default class ScheduledEventMutations {
   constructor(
@@ -20,11 +25,16 @@ export default class ScheduledEventMutations {
 
   // TODO: validate input fields
 
-  @Authorized([])
-  create(
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
+  async create(
     ctx: ResolverContext,
     newScheduledEvent: NewScheduledEventInput
   ): Promise<ScheduledEvent | Rejection> {
+    await helperInstrumentScientistHasInstrument(
+      ctx,
+      newScheduledEvent.instrumentId
+    );
+
     return this.scheduledEventDataSource
       .create(newScheduledEvent)
       .catch(error => {
@@ -36,7 +46,7 @@ export default class ScheduledEventMutations {
       });
   }
 
-  @Authorized([])
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
   async bulkUpsert(
     ctx: ResolverContext,
     bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput
@@ -51,6 +61,8 @@ export default class ScheduledEventMutations {
     ) {
       return rejection('NOT_FOUND');
     }
+
+    await helperInstrumentScientistHasAccess(ctx, proposalBooking);
 
     return this.scheduledEventDataSource
       .bulkUpsert(proposalBooking.instrument.id, bulkUpsertScheduledEvents)

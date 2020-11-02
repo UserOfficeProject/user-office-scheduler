@@ -4,10 +4,12 @@ import { ResolverContext } from '../context';
 import { LostTimeDataSource } from '../datasources/LostTimeDataSource';
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
 import Authorized from '../decorators/Authorized';
+import { helperInstrumentScientistHasAccess } from '../helpers/instrumentHelpers';
 import { LostTime } from '../models/LostTime';
 import { ProposalBookingStatus } from '../models/ProposalBooking';
 import { rejection, Rejection } from '../rejection';
 import { BulkUpsertLostTimesInput } from '../resolvers/mutations/LostTimeMutation';
+import { Roles } from '../types/shared';
 
 export default class LostTimeMutations {
   constructor(
@@ -15,7 +17,7 @@ export default class LostTimeMutations {
     private proposalBookingDataSource: ProposalBookingDataSource
   ) {}
 
-  @Authorized([])
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
   async bulkUpsert(
     ctx: ResolverContext,
     bulkUpsertLostTimes: BulkUpsertLostTimesInput
@@ -30,6 +32,8 @@ export default class LostTimeMutations {
     ) {
       return rejection('NOT_FOUND');
     }
+
+    await helperInstrumentScientistHasAccess(ctx, proposalBooking);
 
     return this.lostTimeDataSource
       .bulkUpsert(bulkUpsertLostTimes)

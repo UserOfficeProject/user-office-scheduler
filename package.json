@@ -12,7 +12,8 @@
     "dev:db:down": "docker-compose -f docker-compose.local.yml down -v",
     "lint": "tsc --noEmit && eslint ./src --ext .js,.ts --quiet",
     "lint:all": "tsc --noEmit && eslint ./src --ext .js,.ts",
-    "lint:fix": "tsc --noEmit && eslint ./src --ext .js,.ts --fix --quiet"
+    "lint:fix": "tsc --noEmit && eslint ./src --ext .js,.ts --fix --quiet",
+    "generate:local": "cp codegen_template.yml codegen_tmp.yml && graphql-codegen -c codegen_tmp.yml && rm ./codegen_tmp.yml"
   },
   "lint-staged": {
     "**/*.{js,ts}": "npm run lint"
@@ -30,6 +31,10 @@
     "@esss-swap/duo-logger": "^1.0.3",
     "@esss-swap/duo-message-broker": "^1.0.2",
     "@esss-swap/duo-validation": "^1.1.37",
+    "@graphql-codegen/cli": "^1.17.10",
+    "@graphql-codegen/typescript": "^1.17.10",
+    "@graphql-codegen/typescript-graphql-request": "^2.0.1",
+    "@graphql-codegen/typescript-operations": "^1.17.8",
     "@types/amqplib": "^0.5.14",
     "@types/cookie-parser": "^1.4.2",
     "@types/luxon": "^1.25.0",
@@ -47,6 +52,7 @@
     "express": "^4.17.1",
     "express-jwt": "^6.0.0",
     "graphql": "^15.3.0",
+    "graphql-request": "^3.2.0",
     "graphql-tag": "^2.11.0",
     "jsonwebtoken": "^8.5.1",
     "knex": "^0.21.6",

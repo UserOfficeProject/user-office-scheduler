@@ -2,6 +2,8 @@
 
 declare namespace Cypress {
   interface Chainable {
-    initializeSession(): void;
+    initializeSession(token: string): void;
+    configureSession(token: string): void;
+    configureClock(): void;
   }
 }

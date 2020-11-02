@@ -15,7 +15,7 @@ function clickOnEventSlot(slot: string) {
 }
 
 beforeEach(() => {
-  cy.initializeSession();
+  cy.initializeSession('InstrumentScientist_1');
 
   cy.visit({
     url: '/calendar',

@@ -88,6 +88,7 @@ jobs:
           export USER_OFFICE_SCHEDULER_FRONTEND_DIR=$REPO_DIR_NAME
           export RABBITMQ_HOSTNAME=rabbitmq
           export INCLUDE_SEEDS=1
+          export USER_OFFICE_ENDPOINT=http://backend:4000/graphql
 
           docker-compose -f docker-compose.all.yml \
             -f user-office-scheduler-backend/docker-compose.e2e.yml \

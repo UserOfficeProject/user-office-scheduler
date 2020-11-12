@@ -136,7 +136,7 @@ export default function BookingEventStep({
     handleRowsChange(rows => [
       ...rows,
       {
-        id: `tmp-${Date.now()}`,
+        id: `t-${Date.now()}`,
         newlyCreated: true,
         startsAt: moment().startOf('hour'),
         endsAt: moment()

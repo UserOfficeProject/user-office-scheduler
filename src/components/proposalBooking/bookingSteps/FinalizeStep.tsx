@@ -86,7 +86,7 @@ export default function FinalizeStep({
     handleRowsChange(rows => [
       ...rows,
       {
-        id: `tmp-${Date.now()}`,
+        id: `t-${Date.now()}`,
         newlyCreated: true,
         startsAt: moment().startOf('hour'),
         endsAt: moment()

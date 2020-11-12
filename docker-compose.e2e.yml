@@ -2,8 +2,7 @@ version: "3.1"
 
 services:
   scheduler-frontend:
-    build:
-      context: "./${USER_OFFICE_SCHEDULER_FRONTEND_DIR}"
+    image: "duo-scheduler-frontend:${BUILD_TAG}"
     ports:
       - 80
     environment:
@@ -12,12 +11,15 @@ services:
       - gateway
 
   cypress:
-    build:
-      context: "./${USER_OFFICE_SCHEDULER_FRONTEND_DIR}/cypress"
-    ipc: host
+    image: e2e-cypress:latest
+    ipc: host # see https://github.com/cypress-io/cypress/issues/350
     entrypoint:
-      ["./wait-for-frontend.sh", "scheduler-frontend:80", "npm run cy:run"]
+      ["/wait-for-frontend.sh", "scheduler-frontend:80", "npm run cy:run"]
     depends_on:
       - scheduler-frontend
     volumes:
-      - "./${USER_OFFICE_SCHEDULER_FRONTEND_DIR}/cypress/screenshots:/tmp/screenshots/"
+      - "./${USER_OFFICE_SCHEDULER_FRONTEND_DIR}/cypress/screenshots:/tmp/screenshots"
+      - "./${USER_OFFICE_SCHEDULER_FRONTEND_DIR}/cypress/fixtures:/e2e/cypress/fixtures"
+      - "./${USER_OFFICE_SCHEDULER_FRONTEND_DIR}/cypress/integration:/e2e/cypress/integration"
+      - "./${USER_OFFICE_SCHEDULER_FRONTEND_DIR}/cypress/plugins:/e2e/cypress/plugins"
+      - "./${USER_OFFICE_SCHEDULER_FRONTEND_DIR}/cypress/support:/e2e/cypress/support"

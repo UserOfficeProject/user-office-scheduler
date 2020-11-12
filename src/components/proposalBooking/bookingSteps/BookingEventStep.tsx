@@ -27,7 +27,6 @@ import React, { useContext, useEffect, useMemo, useState } from 'react';
 
 import Loader from 'components/common/Loader';
 import { AppContext } from 'context/AppContext';
-import { UserContext } from 'context/UserContext';
 import { useDataApi } from 'hooks/common/useDataApi';
 import { DetailedProposalBooking } from 'hooks/proposalBooking/useProposalBooking';
 import useProposalBookingScheduledEvents from 'hooks/scheduledEvent/useProposalBookingScheduledEvents';
@@ -96,7 +95,6 @@ export default function BookingEventStep({
     proposalBooking.id
   );
 
-  const { user } = useContext(UserContext);
   const { showConfirmation } = useContext(AppContext);
   const { enqueueSnackbar } = useSnackbar();
   const api = useDataApi();
@@ -159,7 +157,6 @@ export default function BookingEventStep({
         },
       } = await api().bulkUpsertScheduledEvents({
         input: {
-          scheduledById: `${user?.id!}`,
           proposalBookingId: proposalBooking.id,
           scheduledEvents: rows.map(({ id, startsAt, endsAt }) => ({
             id,

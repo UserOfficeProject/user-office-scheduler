@@ -18,7 +18,9 @@ import { ScheduledEventBookingType, ScheduledEvent } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
 
-import ScheduledEventForm, { BookingTypesMap } from './ScheduledEventForm';
+import ScheduledEventForm, {
+  CalendarExplicitBookableTypes,
+} from './ScheduledEventForm';
 
 export type SlotInfo = {
   start: Date | string;
@@ -28,7 +30,7 @@ export type SlotInfo = {
 };
 
 const createValidationSchema = createScheduledEventValidationSchema(
-  BookingTypesMap
+  CalendarExplicitBookableTypes
 );
 
 type ScheduledEventDialogProps = {

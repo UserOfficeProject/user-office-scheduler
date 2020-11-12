@@ -13,5 +13,8 @@ RUN npm run build
 FROM nginx:1.18-alpine
 COPY --from=build-stage --chown=nginx:nginx /app/build /usr/share/nginx/html/scheduler
 
+ARG BUILD_VERSION=<unknown>
+RUN echo $BUILD_VERSION > /usr/share/nginx/html/scheduler/build-version.txt
+
 RUN mkdir -p /etc/nginx/templates
 COPY ./default.conf.template /etc/nginx/templates

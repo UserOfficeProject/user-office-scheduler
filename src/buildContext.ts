@@ -40,6 +40,7 @@ const lostTimeMutations = new LostTimeMutations(
 );
 
 const context: BasicResolverContext = {
+  isContext: true,
   queries: {
     lostTime: lostTimeQueries,
     proposalBooking: proposalBookingQueries,

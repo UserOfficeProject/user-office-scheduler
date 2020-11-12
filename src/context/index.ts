@@ -25,6 +25,7 @@ interface ResolverContextQueries {
 }
 
 export interface BasicResolverContext {
+  isContext: true;
   queries: ResolverContextQueries;
   mutations: ResolverContextMutations;
   user?: User;

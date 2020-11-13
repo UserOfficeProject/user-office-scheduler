@@ -20,7 +20,7 @@
   "dependencies": {
     "@date-io/moment": "^1.3.13",
     "@esss-swap/duo-localisation": "^1.1.15",
-    "@esss-swap/duo-validation": "^1.1.37",
+    "@esss-swap/duo-validation": "^1.1.39",
     "@graphql-codegen/cli": "^1.19.0",
     "@graphql-codegen/typescript": "^1.17.11",
     "@graphql-codegen/typescript-graphql-request": "^2.0.2",

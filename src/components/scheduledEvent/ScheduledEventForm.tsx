@@ -9,14 +9,21 @@ import React from 'react';
 import { ScheduledEventBookingType } from 'generated/sdk';
 import { TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
 
-export const BookingTypesMap: Record<
-  keyof typeof ScheduledEventBookingType,
-  string
-> = {
+export type BookingTypes = typeof ScheduledEventBookingType;
+
+export const BookingTypesMap: Record<keyof BookingTypes, string> = {
   COMMISSIONING: 'Commissioning',
   MAINTENANCE: 'Maintenance',
   SHUTDOWN: 'Shutdown',
   USER_OPERATIONS: 'User operations',
+};
+
+export const CalendarExplicitBookableTypes: Record<
+  keyof Pick<BookingTypes, 'SHUTDOWN' | 'MAINTENANCE'>,
+  string
+> = {
+  MAINTENANCE: 'Maintenance',
+  SHUTDOWN: 'Shutdown',
 };
 
 export default function ScheduledEventForm() {

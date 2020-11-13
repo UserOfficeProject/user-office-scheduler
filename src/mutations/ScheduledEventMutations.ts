@@ -1,21 +1,27 @@
 import { logger } from '@esss-swap/duo-logger';
+import { createScheduledEventValidationSchema } from '@esss-swap/duo-validation';
 
 import { ResolverContext } from '../context';
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
 import { ScheduledEventDataSource } from '../datasources/ScheduledEventDataSource';
 import Authorized from '../decorators/Authorized';
+import ValidateArgs from '../decorators/ValidateArgs';
 import {
   helperInstrumentScientistHasAccess,
   helperInstrumentScientistHasInstrument,
 } from '../helpers/instrumentHelpers';
 import { ProposalBookingStatus } from '../models/ProposalBooking';
-import { ScheduledEvent } from '../models/ScheduledEvent';
+import {
+  ScheduledEvent,
+  CalendarExplicitBookableTypes,
+} from '../models/ScheduledEvent';
 import { rejection, Rejection } from '../rejection';
 import {
   BulkUpsertScheduledEventsInput,
   NewScheduledEventInput,
 } from '../resolvers/mutations/ScheduledEventMutation';
 import { Roles } from '../types/shared';
+import { bulkUpsertScheduledEventsValidationSchema } from '../validation/scheduledEvent';
 
 export default class ScheduledEventMutations {
   constructor(
@@ -23,8 +29,9 @@ export default class ScheduledEventMutations {
     private proposalBookingDataSource: ProposalBookingDataSource
   ) {}
 
-  // TODO: validate input fields
-
+  @ValidateArgs(
+    createScheduledEventValidationSchema(CalendarExplicitBookableTypes)
+  )
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
   async create(
     ctx: ResolverContext,
@@ -46,6 +53,7 @@ export default class ScheduledEventMutations {
       });
   }
 
+  @ValidateArgs(bulkUpsertScheduledEventsValidationSchema)
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
   async bulkUpsert(
     ctx: ResolverContext,
@@ -65,7 +73,11 @@ export default class ScheduledEventMutations {
     await helperInstrumentScientistHasAccess(ctx, proposalBooking);
 
     return this.scheduledEventDataSource
-      .bulkUpsert(proposalBooking.instrument.id, bulkUpsertScheduledEvents)
+      .bulkUpsert(
+        +ctx.user?.id!,
+        proposalBooking.instrument.id,
+        bulkUpsertScheduledEvents
+      )
       .catch(error => {
         logger.logException('ScheduledEvent bulkUpsert failed', error, {
           bulkUpsertScheduledEvents,

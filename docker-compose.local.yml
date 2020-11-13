@@ -9,6 +9,7 @@ services:
       POSTGRES_DB: scheduler
       POSTGRES_USER: schedulerUser
       POSTGRES_PASSWORD: schedulerPassword
+      INCLUDE_SEEDS: ${INCLUDE_SEEDS}
     ports:
       # to avoid collision with other running dbs like dou
       - 54320:5432

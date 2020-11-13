@@ -55,6 +55,7 @@ export default class MockupScheduledEventDataSource
   }
 
   bulkUpsert(
+    scheduledById: number,
     instrumentId: 0,
     bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput
   ): Promise<ScheduledEvent[]> {

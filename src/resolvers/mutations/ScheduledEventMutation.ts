@@ -56,9 +56,6 @@ export class SimpleScheduledEvent {
 @InputType()
 export class BulkUpsertScheduledEventsInput {
   @Field(() => ID)
-  scheduledById: number;
-
-  @Field(() => ID)
   proposalBookingId: number;
 
   @Field(() => [SimpleScheduledEvent])

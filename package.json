@@ -35,7 +35,7 @@
     "@esss-swap/duo-localisation": "^1.1.15",
     "@esss-swap/duo-logger": "^1.0.3",
     "@esss-swap/duo-message-broker": "^1.0.2",
-    "@esss-swap/duo-validation": "^1.1.37",
+    "@esss-swap/duo-validation": "^1.1.39",
     "apollo-graphql": "^0.6.0",
     "apollo-server": "^2.19.0",
     "apollo-server-core": "^2.19.0",
@@ -53,7 +53,7 @@
     "jsonwebtoken": "^8.5.1",
     "knex": "^0.21.12",
     "luxon": "^1.25.0",
-    "pg": "^8.4.2",
+    "pg": "^8.5.0",
     "reflect-metadata": "^0.1.13",
     "type-graphql": "^1.1.1",
     "yup": "^0.29.3"

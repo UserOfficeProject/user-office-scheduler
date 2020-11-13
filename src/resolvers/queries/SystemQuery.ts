@@ -1,11 +1,8 @@
-import {
-  Resolver,
-  Query,
-  Ctx,
-  ObjectType,
-  Field,
-  Directive,
-} from 'type-graphql';
+import { promises } from 'fs';
+import { join } from 'path';
+
+import { logger } from '@esss-swap/duo-logger';
+import { Resolver, Query, Ctx, ObjectType, Field } from 'type-graphql';
 
 import { ResolverContext } from '../../context';
 import { HealthStats as HealthStatsBase } from '../../datasources/SystemDataSource';
@@ -42,6 +39,8 @@ export class SchedulerConfig {
   authRedirect: string;
 }
 
+let cachedVersion: string;
+
 @Resolver()
 export class SystemQuery {
   @Query(() => HealthStats)
@@ -56,5 +55,31 @@ export class SystemQuery {
     schedulerConfig.authRedirect = SCHEDULER_CONFIG_AUTH_REDIRECT;
 
     return schedulerConfig;
+  }
+
+  @Query(() => String)
+  async schedulerVersion() {
+    if (cachedVersion) {
+      return cachedVersion;
+    }
+
+    try {
+      const content = await promises.readFile(
+        join(process.cwd(), 'build-version.txt')
+      );
+
+      cachedVersion = content.toString().trim();
+
+      return cachedVersion;
+    } catch (err) {
+      if (err.code !== 'ENOENT') {
+        logger.logException(
+          'Unknown error while reading build-version.txt',
+          err
+        );
+      }
+
+      return '<unknown>';
+    }
   }
 }

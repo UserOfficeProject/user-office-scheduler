@@ -17,9 +17,10 @@ async function bootstrap() {
   const PORT = process.env.PORT || 4000;
   const app = express();
 
-  app.use(cookieParser()).use(exceptionHandler());
-
-  app.use('/health-check', healthCheck());
+  app
+    .use(cookieParser())
+    .use(exceptionHandler())
+    .use(healthCheck());
 
   await apolloServer(app);
 

@@ -22,10 +22,14 @@ RUN mkdir -p /home/node/app
 
 WORKDIR /home/node/app
 
+COPY --from=build-stage --chown=node:node /home/node/app/db_patches ./db_patches
 COPY --from=build-stage --chown=node:node /home/node/app/build ./build
 COPY --from=build-stage --chown=node:node /home/node/app/package*.json ./
 
 RUN npm ci --only=production --loglevel error --no-fund
+
+ARG BUILD_VERSION=<unknown>
+RUN echo $BUILD_VERSION > build-version.txt
 
 EXPOSE 4000
 

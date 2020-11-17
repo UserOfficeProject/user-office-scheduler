@@ -5,6 +5,16 @@ export enum ScheduledEventBookingType {
   COMMISSIONING = 'COMMISSIONING',
 }
 
+export type BookingTypes = typeof ScheduledEventBookingType;
+
+export const CalendarExplicitBookableTypes: Record<
+  keyof Pick<BookingTypes, 'SHUTDOWN' | 'MAINTENANCE'>,
+  string
+> = {
+  MAINTENANCE: 'Maintenance',
+  SHUTDOWN: 'Shutdown',
+};
+
 export class ScheduledEvent {
   constructor(
     public id: number,

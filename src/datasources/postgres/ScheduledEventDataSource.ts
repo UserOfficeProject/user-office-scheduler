@@ -55,15 +55,12 @@ export default class PostgreScheduledEventDataSource
   // technically we don't update anything
   // we only delete and (re)create
   bulkUpsert(
+    scheduledById: number,
     instrumentId: number,
     bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput
   ): Promise<ScheduledEvent[]> {
     return database.transaction(async trx => {
-      const {
-        proposalBookingId,
-        scheduledById,
-        scheduledEvents,
-      } = bulkUpsertScheduledEvents;
+      const { proposalBookingId, scheduledEvents } = bulkUpsertScheduledEvents;
 
       // delete existing related events
       await trx<Pick<ScheduledEventRecord, 'proposal_booking_id'>>(

@@ -201,6 +201,8 @@ jobs:
 
           export USER_OFFICE_GATEWAY_TAG=${{ steps.resolve_rep.outputs.GATEWAY_TAG }}
 
+          export USER_OFFICE_FACTORY_ENDPOINT=noop
+
           export INCLUDE_SEEDS=1
           export BUILD_TAG=${{ github.sha }}
 

@@ -1,5 +1,6 @@
 import { registerEnumType } from 'type-graphql';
 
+import { EquipmentAssignmentStatus } from '../models/Equipment';
 import {
   ProposalBookingStatus,
   ProposalBookingFinalizeAction,
@@ -14,5 +15,9 @@ export const registerEnums = () => {
   registerEnumType(ProposalBookingStatus, { name: 'ProposalBookingStatus' });
   registerEnumType(ProposalBookingFinalizeAction, {
     name: 'ProposalBookingFinalizeAction',
+  });
+
+  registerEnumType(EquipmentAssignmentStatus, {
+    name: 'EquipmentAssignmentStatus',
   });
 };

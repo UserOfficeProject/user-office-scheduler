@@ -31,9 +31,6 @@ export class NewScheduledEventInput implements Partial<ScheduledEventBase> {
   @Field(() => TzLessDateTime)
   endsAt: Date;
 
-  @Field(() => ID)
-  scheduledById: number;
-
   @Field(() => String, { nullable: true })
   description: string | null;
 
@@ -42,7 +39,7 @@ export class NewScheduledEventInput implements Partial<ScheduledEventBase> {
 }
 
 @InputType()
-export class SimpleScheduledEvent {
+export class SimpleScheduledEventInput {
   @Field(() => ID)
   id: number;
 
@@ -51,6 +48,9 @@ export class SimpleScheduledEvent {
 
   @Field(() => TzLessDateTime)
   endsAt: Date;
+
+  @Field(() => Boolean, { nullable: true })
+  newlyCreated?: boolean;
 }
 
 @InputType()
@@ -58,8 +58,8 @@ export class BulkUpsertScheduledEventsInput {
   @Field(() => ID)
   proposalBookingId: number;
 
-  @Field(() => [SimpleScheduledEvent])
-  scheduledEvents: SimpleScheduledEvent[];
+  @Field(() => [SimpleScheduledEventInput])
+  scheduledEvents: SimpleScheduledEventInput[];
 }
 
 @Resolver()

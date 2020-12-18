@@ -5,7 +5,7 @@ import {
   ProposalBookingStatus,
 } from '../../models/ProposalBooking';
 import { ProposalBookingDataSource } from '../ProposalBookingDataSource';
-import database from './database';
+import database, { UNIQUE_CONSTRAINT_VIOLATION } from './database';
 import { createProposalBookingObject, ProposalBookingRecord } from './records';
 
 type CreateFields = Pick<
@@ -35,7 +35,7 @@ export default class PostgresProposalBookingDataSource
         .returning<ProposalBookingRecord>(['*']);
     } catch (e) {
       // ignore duplicate entry error
-      if ('code' in e && e.code === '23505') {
+      if ('code' in e && e.code === UNIQUE_CONSTRAINT_VIOLATION) {
         return;
       }
 

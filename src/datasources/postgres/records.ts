@@ -1,3 +1,4 @@
+import { Equipment } from '../../models/Equipment';
 import { LostTime } from '../../models/LostTime';
 import {
   ProposalBooking,
@@ -9,6 +10,8 @@ import {
 } from '../../models/ScheduledEvent';
 
 export type MetaFields = 'created_at' | 'updated_at';
+
+export type PaginatedRecord<T extends unknown> = T & { _total: number };
 
 export interface ScheduledEventRecord {
   readonly scheduled_event_id: number;
@@ -81,3 +84,32 @@ export const createLostTimeObject = (lostTime: LostTimeRecord) =>
     lostTime.starts_at,
     lostTime.ends_at
   );
+
+export interface EquipmentRecord {
+  readonly equipment_id: number;
+  readonly owner_id: number;
+  readonly created_at: Date;
+  readonly updated_at: Date;
+  readonly name: string;
+  readonly maintenance_starts_at: Date;
+  readonly maintenance_ends_at: Date;
+  readonly auto_accept: boolean;
+}
+
+export const createEquipmentObject = (equipment: EquipmentRecord) =>
+  new Equipment(
+    equipment.equipment_id,
+    { id: equipment.owner_id },
+    equipment.created_at,
+    equipment.updated_at,
+    equipment.name,
+    equipment.maintenance_starts_at,
+    equipment.maintenance_ends_at,
+    equipment.auto_accept
+  );
+
+export interface EquipmentsScheduledEventsRecord {
+  readonly equipment_id: number;
+  readonly scheduled_event_id: number;
+  readonly status: string;
+}

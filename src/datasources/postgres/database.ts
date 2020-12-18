@@ -3,6 +3,8 @@ import fs from 'fs';
 import { logger } from '@esss-swap/duo-logger';
 import Knex from 'knex';
 
+export const UNIQUE_CONSTRAINT_VIOLATION = '23505';
+
 const db = Knex({
   client: 'postgresql',
   connection: {

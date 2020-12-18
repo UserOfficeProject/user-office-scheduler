@@ -13,4 +13,3 @@ INSERT INTO public.scheduled_events(
 END;
 $DO$
 LANGUAGE plpgsql;
-

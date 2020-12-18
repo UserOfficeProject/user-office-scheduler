@@ -66,7 +66,7 @@ const apolloServer = async (app: Express) => {
         }
       } catch (error) {
         logger.logException('failed to parse x-auth-jwt-payload', error);
-        throw error; // TODO
+        throw error;
       }
 
       return context;

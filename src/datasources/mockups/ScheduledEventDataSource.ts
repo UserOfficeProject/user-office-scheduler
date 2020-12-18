@@ -39,6 +39,7 @@ export const dummyScheduledEvents: ScheduledEvent[] = [
 export default class MockupScheduledEventDataSource
   implements ScheduledEventDataSource {
   async create(
+    scheduledById: number,
     newScheduledEvent: NewScheduledEventInput
   ): Promise<ScheduledEvent> {
     return new ScheduledEvent(
@@ -48,7 +49,7 @@ export default class MockupScheduledEventDataSource
       newScheduledEvent.bookingType,
       newScheduledEvent.startsAt,
       newScheduledEvent.endsAt,
-      { id: newScheduledEvent.scheduledById },
+      { id: scheduledById },
       newScheduledEvent.description,
       { id: newScheduledEvent.instrumentId }
     );
@@ -66,19 +67,27 @@ export default class MockupScheduledEventDataSource
     throw new Error('Method not implemented.');
   }
 
-  async scheduledEvent(id: number): Promise<ScheduledEvent | null> {
+  async get(id: number): Promise<ScheduledEvent | null> {
     return dummyScheduledEvents.find(se => se.id === id) ?? null;
   }
 
-  async scheduledEvents(
-    filter?: ScheduledEventFilter
-  ): Promise<ScheduledEvent[]> {
+  async getAll(filter?: ScheduledEventFilter): Promise<ScheduledEvent[]> {
     return dummyScheduledEvents;
   }
 
   proposalBookingScheduledEvents(
     proposalBookingId: number
   ): Promise<ScheduledEvent[]> {
+    throw new Error('Method not implemented.');
+  }
+
+  proposalBookingScheduledEvent(
+    proposalBookingId: number,
+    scheduledEventId: number
+  ): Promise<ScheduledEvent | null> {
+    throw new Error('Method not implemented.');
+  }
+  equipmentScheduledEvents(equipmentId: number): Promise<ScheduledEvent[]> {
     throw new Error('Method not implemented.');
   }
 }

@@ -32,7 +32,7 @@ export class ScheduledEventQuery {
     @Ctx() ctx: ResolverContext,
     @Arg('id', () => ID)
     id: number
-  ) {
+  ): Promise<ScheduledEvent | null> {
     return ctx.queries.scheduledEvent.scheduledEvent(ctx, id);
   }
 
@@ -40,10 +40,34 @@ export class ScheduledEventQuery {
   proposalBookingScheduledEvents(
     @Ctx() ctx: ResolverContext,
     @Arg('proposalBookingId', () => ID) proposalBookingId: number
-  ) {
+  ): Promise<ScheduledEvent[]> {
     return ctx.queries.scheduledEvent.proposalBookingScheduledEvents(
       ctx,
       proposalBookingId
+    );
+  }
+
+  @Query(() => ScheduledEvent, { nullable: true })
+  proposalBookingScheduledEvent(
+    @Ctx() ctx: ResolverContext,
+    @Arg('proposalBookingId', () => ID) proposalBookingId: number,
+    @Arg('scheduledEventId', () => ID) scheduledEventId: number
+  ): Promise<ScheduledEvent | null> {
+    return ctx.queries.scheduledEvent.proposalBookingScheduledEvent(
+      ctx,
+      proposalBookingId,
+      scheduledEventId
+    );
+  }
+
+  @Query(() => [ScheduledEvent])
+  equipmentScheduledEvents(
+    @Ctx() ctx: ResolverContext,
+    @Arg('equipmentId', () => ID) equipmentId: number
+  ): Promise<ScheduledEvent[]> {
+    return ctx.queries.scheduledEvent.equipmentScheduledEvents(
+      ctx,
+      equipmentId
     );
   }
 }

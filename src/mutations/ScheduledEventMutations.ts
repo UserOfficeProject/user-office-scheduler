@@ -43,7 +43,7 @@ export default class ScheduledEventMutations {
     );
 
     return this.scheduledEventDataSource
-      .create(newScheduledEvent)
+      .create(+ctx.user?.id!, newScheduledEvent)
       .catch(error => {
         logger.logException('Could not create scheduled event', error, {
           newScheduledEvent,

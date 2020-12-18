@@ -1,15 +1,18 @@
 import { BasicResolverContext } from './context';
 // Site specific imports (only ESS atm)
 import {
+  equipmentDataSource,
   lostTimeDataSource,
   proposalBookingDataSource,
   scheduledEventDataSource,
   systemDataSource,
 } from './datasources';
+import EquipmentMutations from './mutations/EquipmentMutations';
 import LostTimeMutations from './mutations/LostTimeMutations';
 import ProposalBookingMutations from './mutations/ProposalBookingMutations';
 import ScheduledEventMutations from './mutations/ScheduledEventMutations';
 import SystemMutations from './mutations/SystemMutations';
+import EquipmentQueries from './queries/EquipmentQueries';
 import LostTimeQueries from './queries/LostTimeQueries';
 import ProposalBookingQueries from './queries/ProposalBookingQueries';
 import ScheduledEventQueries from './queries/ScheduledEventQueries';
@@ -39,15 +42,23 @@ const lostTimeMutations = new LostTimeMutations(
   proposalBookingDataSource
 );
 
+const equipmentQueries = new EquipmentQueries(
+  equipmentDataSource,
+  scheduledEventDataSource
+);
+const equipmentMutations = new EquipmentMutations(equipmentDataSource);
+
 const context: BasicResolverContext = {
   isContext: true,
   queries: {
+    equipment: equipmentQueries,
     lostTime: lostTimeQueries,
     proposalBooking: proposalBookingQueries,
     scheduledEvent: scheduledEventQueries,
     system: systemQueries,
   },
   mutations: {
+    equipment: equipmentMutations,
     lostTime: lostTimeMutations,
     proposalBooking: proposalBookingMutations,
     scheduledEvent: scheduledEventMutations,

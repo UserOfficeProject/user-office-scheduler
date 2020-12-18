@@ -6,16 +6,24 @@ import {
 import { ScheduledEventFilter } from '../resolvers/queries/ScheduledEventQuery';
 
 export interface ScheduledEventDataSource {
-  create(newScheduledEvent: NewScheduledEventInput): Promise<ScheduledEvent>;
+  create(
+    scheduledById: number,
+    newScheduledEvent: NewScheduledEventInput
+  ): Promise<ScheduledEvent>;
   bulkUpsert(
     scheduledById: number,
     instrumentId: number,
     bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput
   ): Promise<ScheduledEvent[]>;
   delete(): Promise<null>;
-  scheduledEvent(id: number): Promise<ScheduledEvent | null>;
-  scheduledEvents(filter: ScheduledEventFilter): Promise<ScheduledEvent[]>;
+  get(id: number): Promise<ScheduledEvent | null>;
+  getAll(filter: ScheduledEventFilter): Promise<ScheduledEvent[]>;
   proposalBookingScheduledEvents(
     proposalBookingId: number
   ): Promise<ScheduledEvent[]>;
+  proposalBookingScheduledEvent(
+    proposalBookingId: number,
+    scheduledEventId: number
+  ): Promise<ScheduledEvent | null>;
+  equipmentScheduledEvents(equipmentId: number): Promise<ScheduledEvent[]>;
 }

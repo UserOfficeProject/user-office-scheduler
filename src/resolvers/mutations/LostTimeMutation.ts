@@ -14,7 +14,7 @@ import { LostTimesResponseWrap } from '../types/wrappers';
 import { wrapResponse } from '../wrapResponse';
 
 @InputType()
-export class SimpleLostTime {
+export class SimpleLostTimeInput {
   @Field(() => ID)
   id: number;
 
@@ -23,6 +23,9 @@ export class SimpleLostTime {
 
   @Field(() => TzLessDateTime)
   endsAt: Date;
+
+  @Field(() => Boolean, { nullable: true })
+  newlyCreated?: boolean;
 }
 
 @InputType()
@@ -30,8 +33,8 @@ export class BulkUpsertLostTimesInput {
   @Field(() => ID)
   proposalBookingId: number;
 
-  @Field(() => [SimpleLostTime])
-  lostTimes: SimpleLostTime[];
+  @Field(() => [SimpleLostTimeInput])
+  lostTimes: SimpleLostTimeInput[];
 }
 
 @Resolver()

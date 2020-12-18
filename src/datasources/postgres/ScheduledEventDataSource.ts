@@ -9,7 +9,7 @@ import {
 } from '../../resolvers/mutations/ScheduledEventMutation';
 import { ScheduledEventFilter } from '../../resolvers/queries/ScheduledEventQuery';
 import { ScheduledEventDataSource } from '../ScheduledEventDataSource';
-import database from './database';
+import database, { UNIQUE_CONSTRAINT_VIOLATION } from './database';
 import {
   ScheduledEventRecord,
   createScheduledEventObject,
@@ -21,21 +21,15 @@ type CreateFields = Omit<
   'scheduled_event_id' | MetaFields
 >;
 
-type BulkUpsertFields = Pick<
-  ScheduledEventRecord,
-  | 'booking_type'
-  | 'scheduled_by'
-  | 'starts_at'
-  | 'ends_at'
-  | 'proposal_booking_id'
-  | 'instrument_id'
->;
-
 export default class PostgreScheduledEventDataSource
   implements ScheduledEventDataSource {
   readonly tableName = 'scheduled_events';
+  readonly equipSchdEvTableName = 'scheduled_events_equipments';
+  // eslint-disable-next-line quotes
+  readonly nextId = database.raw("nextval('equipments_equipment_id_seq')");
 
   async create(
+    scheduledById: number,
     newScheduledEvent: NewScheduledEventInput
   ): Promise<ScheduledEvent> {
     const [scheduledEvent] = await database<CreateFields>(this.tableName)
@@ -43,7 +37,7 @@ export default class PostgreScheduledEventDataSource
         booking_type: newScheduledEvent.bookingType,
         starts_at: newScheduledEvent.startsAt,
         ends_at: newScheduledEvent.endsAt,
-        scheduled_by: newScheduledEvent.scheduledById,
+        scheduled_by: scheduledById,
         description: newScheduledEvent.description,
         instrument_id: newScheduledEvent.instrumentId,
       })
@@ -62,11 +56,15 @@ export default class PostgreScheduledEventDataSource
     return database.transaction(async trx => {
       const { proposalBookingId, scheduledEvents } = bulkUpsertScheduledEvents;
 
-      // delete existing related events
-      await trx<Pick<ScheduledEventRecord, 'proposal_booking_id'>>(
-        this.tableName
-      )
-        .where('proposal_booking_id', '=', proposalBookingId)
+      // delete existing events that weren't included in the upsert
+      await trx<ScheduledEventRecord>(this.tableName)
+        .where('proposal_booking_id', proposalBookingId)
+        .whereNotIn(
+          'scheduled_event_id',
+          scheduledEvents
+            .filter(({ newlyCreated }) => !newlyCreated)
+            .map(({ id }) => id)
+        )
         .delete();
 
       // when the insert has empty array as param it
@@ -75,9 +73,12 @@ export default class PostgreScheduledEventDataSource
         return [];
       }
 
-      const newlyCreatedRecords = await trx<BulkUpsertFields>(this.tableName)
+      const newlyCreatedRecords = await trx<ScheduledEventRecord>(
+        this.tableName
+      )
         .insert(
           scheduledEvents.map(newObj => ({
+            scheduled_event_id: newObj.newlyCreated ? this.nextId : newObj.id,
             proposal_booking_id: proposalBookingId,
             booking_type: ScheduledEventBookingType.USER_OPERATIONS,
             scheduled_by: scheduledById,
@@ -86,6 +87,8 @@ export default class PostgreScheduledEventDataSource
             instrument_id: instrumentId,
           }))
         )
+        .onConflict('scheduled_event_id')
+        .merge()
         .returning<ScheduledEventRecord[]>(['*']);
 
       return newlyCreatedRecords.map(createScheduledEventObject);
@@ -97,7 +100,7 @@ export default class PostgreScheduledEventDataSource
     throw new Error('not implemented yet');
   }
 
-  async scheduledEvent(id: number): Promise<ScheduledEvent | null> {
+  async get(id: number): Promise<ScheduledEvent | null> {
     const scheduledEvent = await database<ScheduledEventRecord>(this.tableName)
       .select()
       .where('scheduled_event_id', id)
@@ -106,16 +109,14 @@ export default class PostgreScheduledEventDataSource
     return scheduledEvent ? createScheduledEventObject(scheduledEvent) : null;
   }
 
-  async scheduledEvents(
-    filter: ScheduledEventFilter
-  ): Promise<ScheduledEvent[]> {
+  async getAll(filter: ScheduledEventFilter): Promise<ScheduledEvent[]> {
     if (!filter.instrumentId) {
       return [];
     }
 
     const qb = database<ScheduledEventRecord>(this.tableName)
       .select()
-      .where('instrument_id', '=', filter.instrumentId);
+      .where('instrument_id', filter.instrumentId);
 
     if (filter.startsAt) {
       qb.where('starts_at', '>=', filter.startsAt);
@@ -137,7 +138,41 @@ export default class PostgreScheduledEventDataSource
       this.tableName
     )
       .select()
-      .where('proposal_booking_id', '=', proposalBookingId);
+      .where('proposal_booking_id', proposalBookingId);
+
+    return scheduledEventRecords.map(createScheduledEventObject);
+  }
+
+  async proposalBookingScheduledEvent(
+    proposalBookingId: number,
+    scheduledEventId: number
+  ): Promise<ScheduledEvent | null> {
+    const scheduledEventRecord = await database<ScheduledEventRecord>(
+      this.tableName
+    )
+      .select()
+      .where('scheduled_event_id', scheduledEventId)
+      .andWhere('proposal_booking_id', proposalBookingId)
+      .first();
+
+    return scheduledEventRecord
+      ? createScheduledEventObject(scheduledEventRecord)
+      : null;
+  }
+
+  async equipmentScheduledEvents(
+    equipmentId: number
+  ): Promise<ScheduledEvent[]> {
+    const scheduledEventRecords = await database<ScheduledEventRecord>(
+      this.tableName
+    )
+      .select<ScheduledEventRecord[]>(`${this.tableName}.*`)
+      .join(
+        this.equipSchdEvTableName,
+        `${this.tableName}.scheduled_event_id`,
+        `${this.equipSchdEvTableName}.scheduled_event_id`
+      )
+      .where(`${this.equipSchdEvTableName}.equipment_id`, equipmentId);
 
     return scheduledEventRecords.map(createScheduledEventObject);
   }

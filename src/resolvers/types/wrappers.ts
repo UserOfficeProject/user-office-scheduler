@@ -1,6 +1,7 @@
 import { Field, ObjectType } from 'type-graphql';
 
 import { Response } from '../Decorators';
+import { Equipment } from './Equipment';
 import { LostTime } from './LostTime';
 import { ProposalBooking } from './ProposalBooking';
 import { ScheduledEvent } from './ScheduledEvent';
@@ -43,4 +44,11 @@ export class ProposalBookingResponseWrap extends ResponseWrapBase<
   @Response()
   @Field(() => ProposalBooking, { nullable: true })
   proposalBooking: ProposalBooking;
+}
+
+@ObjectType()
+export class EquipmentResponseWrap extends ResponseWrapBase<Equipment> {
+  @Response()
+  @Field(() => Equipment, { nullable: true })
+  equipment: Equipment;
 }

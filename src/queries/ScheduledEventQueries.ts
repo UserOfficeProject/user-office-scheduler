@@ -17,7 +17,7 @@ export default class ScheduledEventQueries {
     ctx: ResolverContext,
     id: number
   ): Promise<ScheduledEvent | null> {
-    return this.scheduledEventDataSource.scheduledEvent(id);
+    return this.scheduledEventDataSource.get(id);
   }
 
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
@@ -31,7 +31,7 @@ export default class ScheduledEventQueries {
 
     await helperInstrumentScientistHasInstrument(ctx, filter.instrumentId);
 
-    return this.scheduledEventDataSource.scheduledEvents(filter);
+    return this.scheduledEventDataSource.getAll(filter);
   }
 
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
@@ -44,5 +44,24 @@ export default class ScheduledEventQueries {
     return this.scheduledEventDataSource.proposalBookingScheduledEvents(
       proposalBookingId
     );
+  }
+
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
+  async proposalBookingScheduledEvent(
+    ctx: ResolverContext,
+    proposalBookingId: number,
+    scheduledEventId: number
+  ): Promise<ScheduledEvent | null> {
+    await helperInstrumentScientistHasAccess(ctx, proposalBookingId);
+
+    return this.scheduledEventDataSource.proposalBookingScheduledEvent(
+      proposalBookingId,
+      scheduledEventId
+    );
+  }
+
+  @Authorized()
+  async equipmentScheduledEvents(ctx: ResolverContext, equipmentId: number) {
+    return this.scheduledEventDataSource.equipmentScheduledEvents(equipmentId);
   }
 }

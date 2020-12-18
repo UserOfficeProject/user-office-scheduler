@@ -1,5 +1,5 @@
-query instrumentProposalBookings($instrumentId: ID!) {
-  instrumentProposalBookings(instrumentId: $instrumentId) {
+query getProposalBooking($id: ID!) {
+  proposalBooking(id: $id) {
     id
     call {
       id

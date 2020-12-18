@@ -1,0 +1,15 @@
+query getEquipment($id: ID!) {
+  equipment(id: $id) {
+    id
+    createdAt
+    updatedAt
+    name
+    maintenanceStartsAt
+    maintenanceEndsAt
+    autoAccept
+    owner {
+      firstname
+      lastname
+    }
+  }
+}

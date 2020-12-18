@@ -29,7 +29,7 @@ export default function useProposalBooking(id: string) {
 
     setLoading(true);
     api()
-      .proposalBooking({ id })
+      .getProposalBooking({ id })
       .then(data => {
         if (unmount) {
           return;

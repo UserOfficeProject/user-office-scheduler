@@ -6,7 +6,7 @@ import {
   FormControlLabel,
   makeStyles,
 } from '@material-ui/core';
-import { Add as AddIcon } from '@material-ui/icons';
+import { Add as AddIcon, Save as SaveIcon } from '@material-ui/icons';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import moment from 'moment';
 import { useSnackbar } from 'notistack';
@@ -105,8 +105,8 @@ export default function FinalizeStep({
       } = await api().bulkUpsertLostTimes({
         input: {
           proposalBookingId: proposalBooking.id,
-          lostTimes: rows.map(({ id, startsAt, endsAt }) => ({
-            id,
+          lostTimes: rows.map(({ startsAt, endsAt, ...rest }) => ({
+            ...rest,
             startsAt: toTzLessDateTime(startsAt),
             endsAt: toTzLessDateTime(endsAt),
           })),
@@ -203,6 +203,7 @@ export default function FinalizeStep({
 
       <DialogContent>
         <TimeTable
+          selectable
           editable
           maxHeight={380}
           rows={rows}
@@ -227,6 +228,7 @@ export default function FinalizeStep({
           <Button
             variant="contained"
             color="primary"
+            startIcon={<SaveIcon />}
             onClick={handleSave}
             data-cy="btn-save"
           >

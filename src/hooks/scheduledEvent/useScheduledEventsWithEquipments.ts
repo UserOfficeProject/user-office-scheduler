@@ -1,15 +1,26 @@
 import { useState, useEffect, useCallback } from 'react';
 
-import { ScheduledEvent, ScheduledEventFilter } from 'generated/sdk';
+import { ScheduledEvent, EquipmentWithAssignmentStatus } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 
-export default function useScheduledEvents(filter: ScheduledEventFilter) {
+export type ScheduledEventEquipment = Pick<
+  EquipmentWithAssignmentStatus,
+  'id' | 'name' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'status'
+>;
+
+export type ScheduledEventWithEquipments = Pick<
+  ScheduledEvent,
+  'id' | 'startsAt' | 'endsAt'
+> & {
+  equipments: ScheduledEventEquipment[];
+};
+
+export default function useScheduledEventsWithEquipments(
+  proposalBookingId: string
+) {
   const [loading, setLoading] = useState(true);
   const [scheduledEvents, setScheduledEvents] = useState<
-    Pick<
-      ScheduledEvent,
-      'id' | 'bookingType' | 'startsAt' | 'endsAt' | 'description'
-    >[]
+    ScheduledEventWithEquipments[]
   >([]);
   // may look stupid, but basically lets us provide a refresh option
   // and we won't get a warning when the component gets unmounted while
@@ -27,23 +38,28 @@ export default function useScheduledEvents(filter: ScheduledEventFilter) {
 
     setLoading(true);
     api()
-      .getScheduledEvents({ filter })
+      .getScheduledEventsWithEquipments({ proposalBookingId })
       .then(data => {
         if (unmount) {
           return;
         }
 
-        if (data.scheduledEvents) {
-          setScheduledEvents(data.scheduledEvents);
+        if (data.proposalBookingScheduledEvents) {
+          setScheduledEvents(
+            data.proposalBookingScheduledEvents.filter(
+              ({ equipments }) => equipments.length > 0
+            )
+          );
         }
 
         setLoading(false);
-      });
+      })
+      .catch(console.error);
 
     return () => {
       unmount = true;
     };
-  }, [counter, filter, api]);
+  }, [counter, proposalBookingId, api]);
 
   return { loading, scheduledEvents, refresh } as const;
 }

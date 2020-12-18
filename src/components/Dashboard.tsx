@@ -13,8 +13,18 @@ import { Switch, Route, Redirect } from 'react-router-dom';
 
 import AppToolbar, { drawerWidth } from './appToolbar/AppToolbar';
 import Calendar from './calendar/Calendar';
+import CreateEditEquipment from './equipment/CreateEditEquipment';
+import Equipments from './equipment/Equipments';
+import ViewEquipment from './equipment/ViewEquipment';
 import MenuItems from './MenuItems';
-import { PATH_CALENDAR, PATH_ROOT } from './paths';
+import {
+  PATH_CALENDAR,
+  PATH_ROOT,
+  PATH_EQUIPMENTS,
+  PATH_VIEW_EQUIPMENT,
+  PATH_CREATE_EQUIPMENT,
+  PATH_EDIT_EQUIPMENT,
+} from './paths';
 
 const useStyles = makeStyles(theme => ({
   root: { display: 'flex' },
@@ -59,12 +69,16 @@ const useStyles = makeStyles(theme => ({
 
 export default function Dashboard() {
   const classes = useStyles();
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = React.useState(
+    localStorage.drawerOpen ? localStorage.drawerOpen === '1' : true
+  );
 
   const handleDrawerOpen = () => {
+    localStorage.setItem('drawerOpen', '1');
     setOpen(true);
   };
   const handleDrawerClose = () => {
+    localStorage.setItem('drawerOpen', '0');
     setOpen(false);
   };
 
@@ -100,6 +114,18 @@ export default function Dashboard() {
       <main className={classes.content}>
         <Switch>
           <Route path={PATH_CALENDAR} component={Calendar} />
+          <Route path={PATH_EQUIPMENTS} component={Equipments} exact />
+          <Route
+            path={PATH_CREATE_EQUIPMENT}
+            component={CreateEditEquipment}
+            exact
+          />
+          <Route
+            path={PATH_EDIT_EQUIPMENT}
+            component={CreateEditEquipment}
+            exact
+          />
+          <Route path={PATH_VIEW_EQUIPMENT} component={ViewEquipment} exact />
           <Route path={PATH_ROOT}>
             <Redirect to={PATH_CALENDAR} />
           </Route>

@@ -54,7 +54,6 @@ export default function ClosedStep({ proposalBooking }: ClosedStepStepProps) {
       </DialogContent>
       <DialogContent>
         <TimeTable
-          disableSelect
           maxHeight={530}
           rows={rows}
           titleComponent="Logged lost time"

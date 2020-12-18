@@ -1,9 +1,7 @@
-const PUBLIC_URL = process.env.PUBLIC_URL
-  ? process.env.PUBLIC_URL === '/'
-    ? ''
-    : process.env.PUBLIC_URL
-  : '';
-
-export const PATH_ROOT = PUBLIC_URL + '/';
-export const PATH_CALENDAR = PUBLIC_URL + '/calendar';
-export const PATH_NOT_AUTHENTICATED = PUBLIC_URL + '/not-authenticated';
+export const PATH_ROOT = '/';
+export const PATH_CALENDAR = '/calendar';
+export const PATH_NOT_AUTHENTICATED = '/not-authenticated';
+export const PATH_EQUIPMENTS = '/equipments';
+export const PATH_CREATE_EQUIPMENT = '/equipments/create';
+export const PATH_VIEW_EQUIPMENT = '/equipments/:id';
+export const PATH_EDIT_EQUIPMENT = '/equipments/:id/edit';

@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Checkbox,
-  createStyles,
   IconButton,
   lighten,
   makeStyles,
@@ -17,8 +16,9 @@ import {
   Toolbar,
   Tooltip,
   Typography,
+  LabelDisplayedRowsArgs,
+  Padding,
 } from '@material-ui/core';
-import { Delete as DeleteIcon } from '@material-ui/icons';
 import clsx from 'clsx';
 import React, { useState, useEffect } from 'react';
 
@@ -61,8 +61,12 @@ type Order = 'asc' | 'desc';
 
 function getComparator<Key extends keyof any>(
   order: Order,
-  orderBy: Key
+  orderBy: Key | null
 ): (a: { [key in Key]: any }, b: { [key in Key]: any }) => number {
+  if (orderBy === null) {
+    return () => 0;
+  }
+
   return order === 'desc'
     ? (a, b) => descendingComparator(a, b, orderBy)
     : (a, b) => -descendingComparator(a, b, orderBy);
@@ -81,10 +85,10 @@ function stableSort<T>(array: T[], comparator: (a: T, b: T) => number) {
 }
 
 export interface HeadCell<T> {
-  disablePadding: boolean;
   id: keyof T;
   label: string;
-  numeric: boolean;
+  padding?: Padding;
+  numeric?: boolean;
 }
 
 interface EnhancedTableProps<T> {
@@ -92,9 +96,10 @@ interface EnhancedTableProps<T> {
   classes: ReturnType<typeof useStyles>;
   numSelected: number;
   order: Order;
-  orderBy: keyof T;
+  orderBy: keyof T | null;
   rowCount: number;
-  disableSelect?: boolean;
+  hasActions: boolean;
+  selectable?: boolean;
   onRequestSort: (event: React.MouseEvent<unknown>, property: keyof T) => void;
   onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
@@ -107,7 +112,8 @@ function EnhancedTableHead<T>(props: EnhancedTableProps<T>) {
     orderBy,
     numSelected,
     rowCount,
-    disableSelect,
+    hasActions,
+    selectable,
     onRequestSort,
     onSelectAllClick,
   } = props;
@@ -117,10 +123,22 @@ function EnhancedTableHead<T>(props: EnhancedTableProps<T>) {
     onRequestSort(event, property);
   };
 
+  const columns: HeadCell<T>[] = hasActions
+    ? [
+        {
+          id: 'id' as any, // TODO: use generic solution
+          numeric: false,
+          label: 'Actions',
+          padding: 'default',
+        },
+        ...headCells,
+      ]
+    : headCells;
+
   return (
     <TableHead>
       <TableRow>
-        {!disableSelect && (
+        {selectable && (
           <TableCell padding="checkbox">
             <Checkbox
               indeterminate={numSelected > 0 && numSelected < rowCount}
@@ -130,11 +148,11 @@ function EnhancedTableHead<T>(props: EnhancedTableProps<T>) {
             />
           </TableCell>
         )}
-        {headCells.map(headCell => (
+        {columns.map(headCell => (
           <TableCell
             key={`${headCell.id}`}
             align={headCell.numeric ? 'right' : 'left'}
-            padding={headCell.disablePadding ? 'none' : 'default'}
+            padding={headCell.padding ? headCell.padding : 'default'}
             sortDirection={orderBy === headCell.id ? order : false}
           >
             <TableSortLabel
@@ -156,40 +174,49 @@ function EnhancedTableHead<T>(props: EnhancedTableProps<T>) {
   );
 }
 
-const useToolbarStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      paddingLeft: theme.spacing(2),
-      paddingRight: theme.spacing(1),
-    },
-    highlight:
-      theme.palette.type === 'light'
-        ? {
-            color: theme.palette.secondary.main,
-            backgroundColor: lighten(theme.palette.secondary.light, 0.9),
-          }
-        : {
-            color: theme.palette.text.primary,
-            backgroundColor: theme.palette.secondary.dark,
-          },
-    title: {
-      flex: '1 1 100%',
-      alignItems: 'center',
-      display: 'flex',
-    },
-  })
-);
+const useToolbarStyles = makeStyles((theme: Theme) => ({
+  root: {
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(1),
+  },
+  highlight:
+    theme.palette.type === 'light'
+      ? {
+          color: theme.palette.secondary.main,
+          backgroundColor: lighten(theme.palette.secondary.light, 0.9),
+        }
+      : {
+          color: theme.palette.text.primary,
+          backgroundColor: theme.palette.secondary.dark,
+        },
+  title: {
+    flex: '1 1 100%',
+    alignItems: 'center',
+    display: 'flex',
+  },
+}));
+
+export type TooltipAction = {
+  tooltip: string;
+  icon: JSX.Element;
+  onClick: (rowIds: string[]) => void;
+  clearSelect?: boolean;
+};
+
+type RowActions<T> = React.FC<{ row: T }>;
 
 interface EnhancedTableToolbarProps {
   numSelected: number;
   title: string | JSX.Element;
-  onDelete: () => void;
+  tooltipActions?: Array<
+    Omit<TooltipAction, 'onClick'> & { onClick: () => void }
+  >;
 }
 
 const EnhancedTableToolbar = ({
   numSelected,
   title,
-  onDelete,
+  tooltipActions,
 }: EnhancedTableToolbarProps) => {
   const classes = useToolbarStyles();
 
@@ -218,30 +245,32 @@ const EnhancedTableToolbar = ({
           {title}
         </Typography>
       )}
-      {numSelected > 0 && (
-        <Tooltip title="Delete">
-          <IconButton
-            aria-label="delete"
-            onClick={onDelete}
-            data-cy="btn-delete"
-          >
-            <DeleteIcon />
-          </IconButton>
-        </Tooltip>
-      )}
+      {numSelected > 0 &&
+        tooltipActions &&
+        tooltipActions.map(({ tooltip, icon, onClick }) => {
+          return (
+            <Tooltip title={tooltip} key={tooltip}>
+              <IconButton aria-label={tooltip} onClick={onClick}>
+                {icon}
+              </IconButton>
+            </Tooltip>
+          );
+        })}
     </Toolbar>
   );
 };
 
-type TableProps<T extends object> = {
+export type TableProps<T extends object> = {
   headCells: HeadCell<T>[];
   rows: T[];
   tableTitle: string | JSX.Element;
-  defaultOrderBy: keyof T;
+  defaultOrderBy?: keyof T | null;
   rowsPerPageOptions?: Array<number | { value: number; label: string }>;
   showEmptyRows?: boolean;
   tableContainerMaxHeight?: number;
-  disableSelect?: boolean;
+  selectable?: boolean;
+  tooltipActions?: TooltipAction[];
+  rowActions?: RowActions<T>;
   renderRow: (row: T) => JSX.Element;
   extractKey: (obj: T) => string;
   onDelete?: (ids: string[]) => void;
@@ -250,6 +279,14 @@ type TableProps<T extends object> = {
 
 const defaultRowsPerPageOptions = [5, 10, 25, { value: -1, label: 'All' }];
 
+const labelDisplayedRows = ({ from, to, count }: LabelDisplayedRowsArgs) => {
+  // 1-5 of 11
+  const range = to === -1 ? 'All ' : `${from}-${to}`;
+  const of = count !== -1 ? count : `more than ${to}`;
+
+  return `${range} of ${of}`;
+};
+
 export default function Table<T extends { [k: string]: any }>({
   headCells,
   rows,
@@ -257,15 +294,18 @@ export default function Table<T extends { [k: string]: any }>({
   defaultOrderBy,
   showEmptyRows,
   tableContainerMaxHeight,
-  disableSelect,
+  selectable,
+  tooltipActions,
+  rowActions,
   renderRow,
   extractKey,
-  onDelete,
   onPageChange,
 }: TableProps<T>) {
   const classes = useStyles();
   const [order, setOrder] = useState<Order>('asc');
-  const [orderBy, setOrderBy] = useState<keyof T>(defaultOrderBy);
+  const [orderBy, setOrderBy] = useState<keyof T | null>(
+    defaultOrderBy ?? null
+  );
   const [selected, setSelected] = useState<string[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(5);
@@ -293,7 +333,7 @@ export default function Table<T extends { [k: string]: any }>({
     setSelected([]);
   };
 
-  const handleClick = (event: React.MouseEvent<unknown>, key: string) => {
+  const handleClick = (_: React.MouseEvent<unknown>, key: string) => {
     const selectedIndex = selected.indexOf(key);
     let newSelected: string[] = [];
 
@@ -313,7 +353,7 @@ export default function Table<T extends { [k: string]: any }>({
     setSelected(newSelected);
   };
 
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
   };
 
@@ -324,22 +364,37 @@ export default function Table<T extends { [k: string]: any }>({
     setPage(0);
   };
 
-  const handleDelete = () => {
-    onDelete?.(selected);
-    setSelected([]);
-  };
-
   const isSelected = (key: string) => selected.indexOf(key) !== -1;
 
   const emptyRows =
     rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+
+  let computedRows = stableSort(rows, getComparator(order, orderBy));
+  if (rowsPerPage > 0) {
+    computedRows = computedRows.slice(
+      page * rowsPerPage,
+      page * rowsPerPage + rowsPerPage
+    );
+  }
+
+  const RowActions = rowActions;
 
   return (
     <>
       <EnhancedTableToolbar
         title={tableTitle}
         numSelected={selected.length}
-        onDelete={handleDelete}
+        tooltipActions={tooltipActions?.map(action => {
+          const onClick = () => {
+            action.onClick(selected);
+            action.clearSelect && setSelected([]);
+          };
+
+          return {
+            ...action,
+            onClick,
+          };
+        })}
       />
       <TableContainer
         style={{ maxHeight: tableContainerMaxHeight }}
@@ -360,7 +415,8 @@ export default function Table<T extends { [k: string]: any }>({
             orderBy={orderBy}
             onSelectAllClick={handleSelectAllClick}
             onRequestSort={handleRequestSort}
-            disableSelect={disableSelect}
+            selectable={selectable}
+            hasActions={!!rowActions}
             rowCount={rows.length}
           />
           <TableBody>
@@ -374,34 +430,46 @@ export default function Table<T extends { [k: string]: any }>({
                 </TableCell>
               </TableRow>
             )}
-            {stableSort(rows, getComparator(order, orderBy))
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row, index) => {
-                const isItemSelected = isSelected(extractKey(row));
-                const labelId = `enhanced-table-checkbox-${index}`;
+            {computedRows.map((row, index) => {
+              const isItemSelected = isSelected(extractKey(row));
+              const labelId = `enhanced-table-checkbox-${index}`;
 
-                return (
-                  <TableRow
-                    key={extractKey(row)}
-                    hover
-                    role="checkbox"
-                    aria-checked={isItemSelected}
-                    tabIndex={-1}
-                    selected={isItemSelected}
-                  >
-                    {!disableSelect && (
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          checked={isItemSelected}
-                          onClick={event => handleClick(event, extractKey(row))}
-                          inputProps={{ 'data-cy': labelId } as any}
-                        />
-                      </TableCell>
-                    )}
-                    {renderRow(row)}
-                  </TableRow>
-                );
-              })}
+              return (
+                <TableRow
+                  key={extractKey(row)}
+                  hover
+                  role="row"
+                  tabIndex={-1}
+                  selected={isItemSelected}
+                >
+                  {selectable && (
+                    <TableCell
+                      padding="checkbox"
+                      role="checkbox"
+                      scope="row"
+                      aria-checked={isItemSelected}
+                    >
+                      <Checkbox
+                        checked={isItemSelected}
+                        onClick={event => handleClick(event, extractKey(row))}
+                        inputProps={{ 'data-cy': labelId } as any}
+                      />
+                    </TableCell>
+                  )}
+
+                  {RowActions && (
+                    <TableCell
+                      component="th"
+                      scope="row"
+                      padding={selectable ? 'none' : 'checkbox'}
+                    >
+                      <RowActions row={row} />
+                    </TableCell>
+                  )}
+                  {renderRow(row)}
+                </TableRow>
+              );
+            })}
             {showEmptyRows && emptyRows > 0 && (
               <TableRow style={{ height: 53 * emptyRows }}>
                 <TableCell colSpan={6} />
@@ -412,6 +480,7 @@ export default function Table<T extends { [k: string]: any }>({
       </TableContainer>
       <TablePagination
         rowsPerPageOptions={defaultRowsPerPageOptions}
+        labelDisplayedRows={labelDisplayedRows}
         component="div"
         count={rows.length}
         rowsPerPage={rowsPerPage}

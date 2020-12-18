@@ -4,6 +4,7 @@ import {
   Check as CheckIcon,
   Clear as ClearIcon,
   Edit as EditIcon,
+  Delete as DeleteIcon,
 } from '@material-ui/icons';
 import {
   MuiPickersUtilsProvider,
@@ -18,7 +19,7 @@ import React, {
   useCallback,
 } from 'react';
 
-import Table, { HeadCell } from 'components/common/Table';
+import Table, { HeadCell, TableProps } from 'components/common/Table';
 import { AppContext } from 'context/AppContext';
 import {
   toTzLessDateTime,
@@ -29,11 +30,12 @@ export type TimeTableRow = {
   id: string;
   startsAt: Moment;
   endsAt: Moment;
+  newlyCreated?: boolean;
 };
 
-const defaultHeadCells: HeadCell<TimeTableRow>[] = [
-  { id: 'startsAt', numeric: false, disablePadding: false, label: 'Starts at' },
-  { id: 'endsAt', numeric: false, disablePadding: false, label: 'Ends at' },
+export const defaultHeadCells: HeadCell<TimeTableRow>[] = [
+  { id: 'startsAt', label: 'Starts at' },
+  { id: 'endsAt', label: 'Ends at' },
 ];
 
 const useStyles = makeStyles(() => ({
@@ -128,22 +130,23 @@ function InlineTimeEdit({
   );
 }
 
-type TimeTableProps<T> = {
+type TimeTableProps<T extends object> = {
   rows: T[];
   titleComponent: string | JSX.Element;
   editable?: boolean;
   maxHeight?: number;
-  disableSelect?: boolean;
+  selectable?: boolean;
   handleRowsChange?: (cb: React.SetStateAction<TimeTableRow[]>) => void;
-};
+} & Partial<TableProps<T>>;
 
 export default function TimeTable<T extends TimeTableRow>({
   rows,
   titleComponent,
   editable,
   maxHeight,
-  disableSelect,
+  selectable,
   handleRowsChange,
+  ...props
 }: TimeTableProps<T>) {
   const [editing, setEditing] = useState<string | false>(false);
 
@@ -182,25 +185,48 @@ export default function TimeTable<T extends TimeTableRow>({
 
   const headCells = useMemo(() => {
     const copy = [...defaultHeadCells];
-    if (!disableSelect) {
+    if (editing) {
       copy.unshift({
         id: 'id',
-        numeric: false,
-        disablePadding: true,
         label: 'Actions',
       });
     }
 
     return copy;
-  }, [disableSelect]);
+  }, [editing]);
+
+  const tooltipActions = [
+    {
+      tooltip: 'Delete',
+      icon: <DeleteIcon data-cy="btn-delete" />,
+      onClick: handleDelete,
+      clearSelect: true,
+    },
+  ];
+
+  const RowActions = ({ row }: { row: TimeTableRow }) => {
+    return (
+      <IconButton
+        onClick={handleEditing(row.id)}
+        data-cy="btn-time-table-edit-row"
+      >
+        <EditIcon />
+      </IconButton>
+    );
+  };
+
+  const rowActions =
+    selectable && editable && !editing ? RowActions : undefined;
 
   return (
     <Table
-      disableSelect={disableSelect}
+      selectable={selectable}
       tableContainerMaxHeight={maxHeight}
-      defaultOrderBy="id"
+      defaultOrderBy="startsAt"
       tableTitle={titleComponent}
       headCells={headCells}
+      tooltipActions={tooltipActions}
+      rowActions={rowActions}
       rows={rows}
       extractKey={el => el.id}
       onDelete={handleDelete}
@@ -218,23 +244,13 @@ export default function TimeTable<T extends TimeTableRow>({
 
         return (
           <>
-            {!disableSelect && (
-              <TableCell component="th" scope="row" padding="none">
-                {editable && !editing && (
-                  <IconButton
-                    onClick={handleEditing(row.id)}
-                    data-cy="btn-time-table-edit-row"
-                  >
-                    <EditIcon />
-                  </IconButton>
-                )}
-              </TableCell>
-            )}
+            {editing && <TableCell />}
             <TableCell align="left">{toTzLessDateTime(row.startsAt)}</TableCell>
             <TableCell align="left">{toTzLessDateTime(row.endsAt)}</TableCell>
           </>
         );
       }}
+      {...props}
     />
   );
 }

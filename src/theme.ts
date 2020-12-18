@@ -49,6 +49,7 @@ const createDevelopTheme = (): Theme =>
 
 const developHosts: Record<string, boolean> = {
   localhost: true,
+  '127.0.0.1': true,
   'scheduler.useroffice-test.esss.lu.se': true,
 };
 

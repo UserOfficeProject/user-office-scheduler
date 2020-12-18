@@ -144,6 +144,8 @@ class AuthorizedGraphQLClient extends GraphQLClient {
     }
 
     return super.request(query, variables).catch(error => {
+      console.error({ error });
+
       // if the connection fails the `error` exists
       // otherwise it won't, so this `includes` would fail
       if (error.response.error?.includes('ECONNREFUSED')) {
@@ -169,9 +171,9 @@ class AuthorizedGraphQLClient extends GraphQLClient {
   }
 
   private getRenewalDate(token: string): number {
-    const oneHour = 3600;
+    const after = 8 * 3600;
 
-    return (decode(token) as any).iat + oneHour;
+    return (decode(token) as any).iat + after;
   }
 
   private checkNamedErrors(errObj: any) {

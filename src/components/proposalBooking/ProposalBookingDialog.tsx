@@ -19,6 +19,7 @@ import useProposalBooking from 'hooks/proposalBooking/useProposalBooking';
 
 import BookingEventStep from './bookingSteps/BookingEventStep';
 import ClosedStep from './bookingSteps/ClosedStep';
+import EquipmentBookingStep from './bookingSteps/EquipmentBookingStep';
 import FinalizeStep from './bookingSteps/FinalizeStep';
 import RequestReviewStep from './bookingSteps/RequestReviewStep';
 import ReviewFeedbackStep from './bookingSteps/ReviewFeedbackStep';
@@ -29,7 +30,14 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const steps = ['Book events', 'Request review', 'Review feedbacks', 'Finalize'];
+const steps = [
+  /* 0*/ 'Book events',
+  /* 1*/ 'Equipment booking',
+  /* 2*/ 'Request review',
+  /* 3*/ 'Review feedbacks',
+  /* 4*/ 'Finalize',
+  /* 5 - Closed (not visible as a step) */
+];
 const maxSteps = steps.length;
 
 function getActiveStep({
@@ -63,6 +71,18 @@ function getActiveStep({
       );
     case 1:
       return (
+        <EquipmentBookingStep
+          {...{
+            proposalBooking,
+            isDirty,
+            handleSetDirty,
+            handleNext,
+            handleBack,
+          }}
+        />
+      );
+    case 2:
+      return (
         <RequestReviewStep
           {...{
             proposalBooking,
@@ -71,7 +91,7 @@ function getActiveStep({
           }}
         />
       );
-    case 2:
+    case 3:
       return (
         <ReviewFeedbackStep
           {...{
@@ -81,7 +101,7 @@ function getActiveStep({
           }}
         />
       );
-    case 3:
+    case 4:
       return (
         <FinalizeStep
           {...{
@@ -104,9 +124,9 @@ const getActiveStepByStatus = (status: ProposalBookingStatus): number => {
     case ProposalBookingStatus.DRAFT:
       return 0;
     case ProposalBookingStatus.BOOKED:
-      return 3;
-    case ProposalBookingStatus.CLOSED:
       return 4;
+    case ProposalBookingStatus.CLOSED:
+      return 5;
 
     default:
       return -1;
@@ -227,7 +247,7 @@ export default function ProposalBookingDialog({
           onClick={handleCloseDialog}
           data-cy="btn-close-dialog"
         >
-          Cancel
+          Close
         </Button>
       </DialogActions>
     </Dialog>

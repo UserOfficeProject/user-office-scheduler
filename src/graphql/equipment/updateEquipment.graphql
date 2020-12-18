@@ -1,0 +1,12 @@
+mutation updateEquipment($id: ID!, $updateEquipmentInput: EquipmentInput!) {
+  updateEquipment(id: $id, updateEquipmentInput: $updateEquipmentInput) {
+    error
+    equipment {
+      id
+      name
+      maintenanceStartsAt
+      maintenanceEndsAt
+      autoAccept
+    }
+  }
+}

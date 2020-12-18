@@ -28,7 +28,7 @@ export default function useInstrumentProposalBookings(instrumentId: string) {
 
     setLoading(true);
     api()
-      .instrumentProposalBookings({ instrumentId })
+      .getInstrumentProposalBookings({ instrumentId })
       .then(data => {
         if (unmount) {
           return;

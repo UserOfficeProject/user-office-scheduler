@@ -10,7 +10,9 @@ const getSpacing = (
   return getTheme().spacing.apply(getTheme(), userValue || defaultValue);
 };
 
-export const StyledPaper = styled(({ ...other }) => <Paper {...other} />)({
+export const StyledPaper = styled(({ style, ...other }) => (
+  <Paper {...other} style={{ position: 'relative', ...style }} />
+))({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   margin: (props: any) => getSpacing(props.margin, [3, 0]),
   padding: props => getSpacing(props.padding, [2]),

@@ -1,0 +1,7 @@
+mutation assignEquipmentToScheduledEvent(
+  $assignEquipmentsToScheduledEventInput: AssignEquipmentsToScheduledEventInput!
+) {
+  assignToScheduledEvents(
+    assignEquipmentsToScheduledEventInput: $assignEquipmentsToScheduledEventInput
+  )
+}

@@ -3,17 +3,15 @@ import { useState, useEffect } from 'react';
 import { ScheduledEvent } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 
-export type ProposalBookingScheduledEvent = Pick<
+export type EquipmentScheduledEvent = Pick<
   ScheduledEvent,
-  'id' | 'startsAt' | 'endsAt'
+  'id' | 'startsAt' | 'endsAt' | 'equipmentAssignmentStatus'
 >;
 
-export default function useProposalBookingScheduledEvents(
-  proposalBookingId: string
-) {
+export default function useEquipmentScheduledEvents(equipmentId: string) {
   const [loading, setLoading] = useState(true);
   const [scheduledEvents, setScheduledEvents] = useState<
-    ProposalBookingScheduledEvent[]
+    EquipmentScheduledEvent[]
   >([]);
 
   const api = useDataApi();
@@ -23,14 +21,14 @@ export default function useProposalBookingScheduledEvents(
 
     setLoading(true);
     api()
-      .getProposalBookingScheduledEvents({ proposalBookingId })
+      .getEquipmentScheduledEvents({ equipmentId })
       .then(data => {
         if (unmount) {
           return;
         }
 
-        if (data.proposalBookingScheduledEvents) {
-          setScheduledEvents(data.proposalBookingScheduledEvents);
+        if (data.equipmentScheduledEvents) {
+          setScheduledEvents(data.equipmentScheduledEvents);
         }
 
         setLoading(false);
@@ -40,7 +38,7 @@ export default function useProposalBookingScheduledEvents(
     return () => {
       unmount = true;
     };
-  }, [proposalBookingId, api]);
+  }, [equipmentId, api]);
 
   return { loading, scheduledEvents } as const;
 }

@@ -1,0 +1,11 @@
+query getAvailableEquipments($scheduledEventId: ID!) {
+  availableEquipments(scheduledEventId: $scheduledEventId) {
+    id
+    createdAt
+    updatedAt
+    name
+    maintenanceStartsAt
+    maintenanceEndsAt
+    autoAccept
+  }
+}

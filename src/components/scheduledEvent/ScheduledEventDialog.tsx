@@ -11,9 +11,8 @@ import {
 import { Formik, Form } from 'formik';
 import moment from 'moment';
 import { useSnackbar } from 'notistack';
-import React, { useContext } from 'react';
+import React from 'react';
 
-import { UserContext } from 'context/UserContext';
 import { ScheduledEventBookingType, ScheduledEvent } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
@@ -54,7 +53,6 @@ export default function ScheduledEventDialog({
 }: ScheduledEventDialogProps) {
   const { enqueueSnackbar } = useSnackbar();
   const api = useDataApi();
-  const { user } = useContext(UserContext);
 
   const isEdit = selectedEvent && 'id' in selectedEvent;
 
@@ -78,7 +76,7 @@ export default function ScheduledEventDialog({
       <Formik
         initialValues={initialValues}
         validationSchema={createValidationSchema}
-        onSubmit={async values => {
+        onSubmit={async (values): Promise<void> => {
           const {
             createScheduledEvent: { error },
           } = await api().createScheduledEvent({
@@ -88,7 +86,6 @@ export default function ScheduledEventDialog({
               bookingType: values.bookingType as ScheduledEventBookingType,
               endsAt: toTzLessDateTime(values.endsAt),
               startsAt: toTzLessDateTime(values.startsAt),
-              scheduledById: `${user?.id!}`,
               description: values.description || null,
             },
           });

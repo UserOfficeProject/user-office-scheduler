@@ -19,6 +19,9 @@ const useStyles = makeStyles(theme => ({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  textCenter: {
+    textAlign: 'center',
+  },
   bottomSpacing: {
     marginBottom: theme.spacing(2),
   },
@@ -43,7 +46,14 @@ export default function CalendarTodoBox({
 
   if (!queryInstrument) {
     return (
-      <div className={clsx(classes.root, classes.centered, classes.gray)}>
+      <div
+        className={clsx(
+          classes.root,
+          classes.centered,
+          classes.textCenter,
+          classes.gray
+        )}
+      >
         <InfoIcon className={classes.bottomSpacing} fontSize="large" />
         Please select an instrument
       </div>

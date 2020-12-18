@@ -6,6 +6,7 @@ import AlertDialog, {
 import ConfirmationDialog, {
   ConfirmationOptionalOptions,
 } from 'components/common/ConfirmationDialog';
+import Loader from 'components/common/Loader';
 
 type DialogMessage = React.ReactNode | string;
 
@@ -21,11 +22,13 @@ type AlertParams = {
 export type AppContextProps = {
   showConfirmation: (params: ConfirmationParams) => void;
   showAlert: (params: AlertParams) => void;
+  showLoader: (show: boolean) => void;
 };
 
 export const AppContext = createContext<AppContextProps>({
   showConfirmation: () => {},
   showAlert: () => {},
+  showLoader: () => {},
 });
 
 type AppContextProviderProps = {
@@ -37,8 +40,8 @@ export function AppContextProvider({ children }: AppContextProviderProps) {
     activeConfirmation,
     setActiveConfirmation,
   ] = useState<ConfirmationParams | null>(null);
-
   const [activeAlert, setActiveAlert] = useState<AlertParams | null>(null);
+  const [showLoader, setShowLoader] = useState<boolean>(false);
 
   const handleShowConfirmation = (params: ConfirmationParams) => {
     setActiveConfirmation({ ...params });
@@ -58,11 +61,16 @@ export function AppContextProvider({ children }: AppContextProviderProps) {
 
   const handleAlertClose = () => setActiveAlert(null);
 
+  const handleShowLoader = (showLoader: boolean) => {
+    setShowLoader(showLoader);
+  };
+
   return (
     <AppContext.Provider
       value={{
         showConfirmation: handleShowConfirmation,
         showAlert: handleShowAlert,
+        showLoader: handleShowLoader,
       }}
     >
       <ConfirmationDialog
@@ -81,6 +89,7 @@ export function AppContextProvider({ children }: AppContextProviderProps) {
           onClose: handleAlertClose,
         }}
       />
+      {showLoader && <Loader />}
       {children}
     </AppContext.Provider>
   );

@@ -67,7 +67,7 @@ class App extends React.Component {
           <CookiesProvider>
             <AppContextProvider>
               <UserContextProvider>
-                <Router>
+                <Router basename={process.env.PUBLIC_URL}>
                   <div className="App">
                     <Switch>
                       <Route

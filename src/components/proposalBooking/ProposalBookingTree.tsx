@@ -72,9 +72,7 @@ export default function ProposalBookingTree({
           children: proposalBookings.map(proposalBooking => ({
             id: `proposal-${proposalBooking.proposal.id}`, // avoid numerical ID collision
             name: `Proposal: ${proposalBooking.proposal.title}`,
-            onClick: () => {
-              setSelectedProposalBooking(proposalBooking);
-            },
+            onClick: () => setSelectedProposalBooking(proposalBooking),
           })),
         }))
         .value(),

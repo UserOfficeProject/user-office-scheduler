@@ -1,0 +1,14 @@
+mutation createEquipment($newEquipmentInput: EquipmentInput!) {
+  createEquipment(newEquipmentInput: $newEquipmentInput) {
+    error
+    equipment {
+      id
+      createdAt
+      updatedAt
+      name
+      maintenanceStartsAt
+      maintenanceEndsAt
+      autoAccept
+    }
+  }
+}

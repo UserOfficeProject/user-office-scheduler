@@ -1,4 +1,4 @@
-query scheduledEvents($filter: ScheduledEventFilter!) {
+query getScheduledEvents($filter: ScheduledEventFilter!) {
   scheduledEvents(filter: $filter) {
     id
     bookingType

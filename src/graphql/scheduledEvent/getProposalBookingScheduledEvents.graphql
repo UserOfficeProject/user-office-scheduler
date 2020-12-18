@@ -1,4 +1,4 @@
-query proposalBookingScheduledEvents($proposalBookingId: ID!) {
+query getProposalBookingScheduledEvents($proposalBookingId: ID!) {
   proposalBookingScheduledEvents(proposalBookingId: $proposalBookingId) {
     id
     startsAt

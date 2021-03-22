@@ -1,5 +1,5 @@
 {
   "video": false,
-  "baseUrl": "http://scheduler-frontend:80",
+  "baseUrl": "http://scheduler-proxy:80",
   "screenshotsFolder": "/tmp/screenshots"
 }

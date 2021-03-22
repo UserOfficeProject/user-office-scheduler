@@ -10,6 +10,7 @@
 //
 //
 // -- This is a parent command --
+import { GraphQLClient } from 'graphql-request';
 
 Cypress.Commands.add('initializeSession', token => {
   cy.configureClock();
@@ -32,6 +33,34 @@ Cypress.Commands.add('configureSession', token => {
     });
   });
 });
+
+Cypress.Commands.add('resetDB', () => {
+  const query = `mutation {
+    prepareDB(includeSeeds: true) {
+      log
+      error
+    }
+  }`;
+  const authHeader = `Bearer ${Cypress.env('SVC_ACC_TOKEN')}`;
+  const request = new GraphQLClient('/gateway', {
+    headers: { authorization: authHeader },
+  }).rawRequest(query, null);
+
+  cy.wrap(request);
+});
+
+Cypress.Commands.add('resetSchedulerDB', () => {
+  const query = `mutation {
+    resetSchedulerDb(includeSeeds: true)
+  }`;
+  const authHeader = `Bearer ${Cypress.env('SVC_ACC_TOKEN')}`;
+  const request = new GraphQLClient('/gateway', {
+    headers: { authorization: authHeader },
+  }).rawRequest(query, null);
+
+  cy.wrap(request);
+});
+
 //
 //
 // -- This is a child command --

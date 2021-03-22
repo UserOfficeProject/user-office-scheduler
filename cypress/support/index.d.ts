@@ -5,5 +5,7 @@ declare namespace Cypress {
     initializeSession(token: string): void;
     configureSession(token: string): void;
     configureClock(): void;
+    resetDB(): void;
+    resetSchedulerDB(): void;
   }
 }

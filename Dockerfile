@@ -3,7 +3,7 @@ FROM node:12-alpine AS build-stage
 WORKDIR /app
 COPY package*.json /app/
 
-RUN npm ci --only=production --loglevel error --no-fund
+RUN CYPRESS_INSTALL_BINARY=0 npm ci --loglevel error --no-fund
 
 COPY ./ ./
 

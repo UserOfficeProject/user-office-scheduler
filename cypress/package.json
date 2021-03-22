@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "typescript": "^3.9.7"
+    "dotenv": "^8.2.0",
+    "graphql": "^15.5.0",
+    "graphql-request": "^3.4.0",
+    "typescript": "^3.9.9"
   },
   "scripts": {
     "cypress:open": "cypress open",

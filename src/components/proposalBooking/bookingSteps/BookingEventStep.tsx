@@ -205,18 +205,23 @@ export default function BookingEventStep({
       : handleSubmit();
   };
 
-  const handleNextStep = () => {
-    isDirty
+  const saveAndContinue = async () => {
+    await handleSubmit();
+    handleNext();
+  };
+
+  const handleSaveAndContinue = () => {
+    hasOverlappingEvents(rows)
       ? showConfirmation({
           message: (
             <>
-              You have <strong>unsaved work</strong>, are you sure you want to
-              continue?
+              You have <strong>overlapping bookings</strong>, are you sure you
+              want to continue?
             </>
           ),
-          cb: handleNext,
+          cb: saveAndContinue,
         })
-      : handleNext();
+      : saveAndContinue();
   };
 
   return (
@@ -348,10 +353,10 @@ export default function BookingEventStep({
         <Button
           variant="contained"
           color="primary"
-          onClick={handleNextStep}
+          onClick={handleSaveAndContinue}
           data-cy="btn-next"
         >
-          Next
+          Save and continue
         </Button>
       </DialogActions>
     </>

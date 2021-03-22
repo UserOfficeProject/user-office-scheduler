@@ -4,6 +4,7 @@ import {
   ProposalBookingFinalizeAction,
   ProposalBookingStatus,
 } from '../../models/ProposalBooking';
+import { ProposalProposalBookingFilter } from '../../resolvers/types/Proposal';
 import { ProposalBookingDataSource } from '../ProposalBookingDataSource';
 import database, { UNIQUE_CONSTRAINT_VIOLATION } from './database';
 import { createProposalBookingObject, ProposalBookingRecord } from './records';
@@ -48,7 +49,28 @@ export default class PostgresProposalBookingDataSource
       this.tableName
     )
       .select()
-      .where('proposal_booking_id', '=', id)
+      .where('proposal_booking_id', id)
+      .first();
+
+    return proposalBooking
+      ? createProposalBookingObject(proposalBooking)
+      : null;
+  }
+
+  async getByProposalId(
+    proposalId: number,
+    filter?: ProposalProposalBookingFilter
+  ): Promise<ProposalBooking | null> {
+    const proposalBooking = await database<ProposalBookingRecord>(
+      this.tableName
+    )
+      .select()
+      .where('proposal_id', proposalId)
+      .modify(qb => {
+        if (filter?.status) {
+          qb.where('status', filter.status);
+        }
+      })
       .first();
 
     return proposalBooking
@@ -63,7 +85,7 @@ export default class PostgresProposalBookingDataSource
       this.tableName
     )
       .select()
-      .where('instrument_id', '=', instrumentId)
+      .where('instrument_id', instrumentId)
       .orderBy('created_at', 'asc');
 
     return proposalBookings.map(createProposalBookingObject);
@@ -82,8 +104,8 @@ export default class PostgresProposalBookingDataSource
           ? ProposalBookingStatus.CLOSED
           : ProposalBookingStatus.DRAFT
       )
-      .where('proposal_booking_id', '=', id)
-      .where('status', '=', ProposalBookingStatus.BOOKED)
+      .where('proposal_booking_id', id)
+      .where('status', ProposalBookingStatus.BOOKED)
       .returning<ProposalBookingRecord[]>(['*']);
 
     if (!updatedRecord) {
@@ -98,8 +120,8 @@ export default class PostgresProposalBookingDataSource
       this.tableName
     )
       .update('status', ProposalBookingStatus.BOOKED)
-      .where('proposal_booking_id', '=', id)
-      .where('status', '=', ProposalBookingStatus.DRAFT)
+      .where('proposal_booking_id', id)
+      .where('status', ProposalBookingStatus.DRAFT)
       .returning<ProposalBookingRecord[]>(['*']);
 
     if (!updatedRecord) {

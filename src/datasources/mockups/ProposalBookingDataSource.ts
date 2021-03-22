@@ -6,6 +6,14 @@ import { ProposalBookingDataSource } from '../ProposalBookingDataSource';
 
 export default class MockupProposalBookingDataSource
   implements ProposalBookingDataSource {
+  getByProposalId(
+    proposalId: number,
+    filter?:
+      | import('../../resolvers/types/Proposal').ProposalProposalBookingFilter
+      | undefined
+  ): Promise<ProposalBooking | null> {
+    throw new Error('Method not implemented.');
+  }
   create(event: any): Promise<void> {
     throw new Error('Method not implemented.');
   }

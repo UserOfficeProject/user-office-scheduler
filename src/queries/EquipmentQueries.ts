@@ -3,6 +3,7 @@ import { EquipmentDataSource } from '../datasources/EquipmentDataSource';
 import { ScheduledEventDataSource } from '../datasources/ScheduledEventDataSource';
 import Authorized from '../decorators/Authorized';
 import { Equipment, EquipmentAssignmentStatus } from '../models/Equipment';
+import { Roles } from '../types/shared';
 
 export default class EquipmentQueries {
   constructor(
@@ -10,7 +11,7 @@ export default class EquipmentQueries {
     private scheduledEventDataSource: ScheduledEventDataSource
   ) {}
 
-  @Authorized() // TODO: use right roles
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
   async getEquipment(
     ctx: ResolverContext,
     id: number
@@ -18,12 +19,12 @@ export default class EquipmentQueries {
     return this.equipmentDataSource.get(id);
   }
 
-  @Authorized() // TODO: use right roles
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
   async getEquipments(ctx: ResolverContext): Promise<Equipment[]> {
     return this.equipmentDataSource.getAll();
   }
 
-  @Authorized()
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
   async availableEquipments(
     ctx: ResolverContext,
     scheduledEventId: number
@@ -39,7 +40,7 @@ export default class EquipmentQueries {
     return this.equipmentDataSource.availableEquipments(scheduledEvent);
   }
 
-  @Authorized()
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
   scheduledEventEquipments(
     ctx: ResolverContext,
     scheduledEventId: number
@@ -47,7 +48,7 @@ export default class EquipmentQueries {
     return this.equipmentDataSource.scheduledEventEquipments(scheduledEventId);
   }
 
-  @Authorized()
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
   equipmentAssignmentStatus(
     ctx: ResolverContext,
     scheduledEventId: number,

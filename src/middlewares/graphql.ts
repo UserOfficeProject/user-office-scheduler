@@ -9,7 +9,7 @@ import { ResolverContext } from '../context';
 import initGraphQLClient from '../graphql/client';
 import federationSources from '../resolvers/federationSources';
 import { registerEnums } from '../resolvers/registerEnums';
-import { AuthJwtPayload } from '../types/shared';
+import { AuthJwtPayload, AuthJwtApiTokenPayload } from '../types/shared';
 import { buildFederatedSchema } from '../utils/buildFederatedSchema';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -59,7 +59,13 @@ const apolloServer = async (app: Express) => {
         if (authJwtPayloadString) {
           const authJwtPayload = JSON.parse(
             Buffer.from(authJwtPayloadString, 'base64').toString()
-          ) as AuthJwtPayload;
+          ) as AuthJwtPayload | AuthJwtApiTokenPayload;
+
+          if (authJwtPayload && 'accessTokenId' in authJwtPayload) {
+            throw new Error(
+              'Accessing the Scheduler with API token is not supported yet'
+            );
+          }
 
           context.user = authJwtPayload?.user;
           context.roles = authJwtPayload?.roles;

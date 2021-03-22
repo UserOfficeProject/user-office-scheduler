@@ -1,0 +1,3 @@
+query userHasAccess($proposalId: Int!) {
+  userHasAccessToProposal(proposalId: $proposalId)
+}

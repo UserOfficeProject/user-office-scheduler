@@ -8,8 +8,9 @@ import {
   NewScheduledEventInput,
 } from '../../resolvers/mutations/ScheduledEventMutation';
 import { ScheduledEventFilter } from '../../resolvers/queries/ScheduledEventQuery';
+import { ProposalBookingScheduledEventFilter } from '../../resolvers/types/ProposalBooking';
 import { ScheduledEventDataSource } from '../ScheduledEventDataSource';
-import database, { UNIQUE_CONSTRAINT_VIOLATION } from './database';
+import database from './database';
 import {
   ScheduledEventRecord,
   createScheduledEventObject,
@@ -132,13 +133,28 @@ export default class PostgreScheduledEventDataSource
   }
 
   async proposalBookingScheduledEvents(
-    proposalBookingId: number
+    proposalBookingId: number,
+    filter?: ProposalBookingScheduledEventFilter
   ): Promise<ScheduledEvent[]> {
     const scheduledEventRecords = await database<ScheduledEventRecord>(
       this.tableName
     )
       .select()
-      .where('proposal_booking_id', proposalBookingId);
+      .where('proposal_booking_id', proposalBookingId)
+      .orderBy('starts_at', 'asc')
+      .modify(qb => {
+        if (filter?.bookingType) {
+          qb.where('booking_type', filter.bookingType);
+        }
+
+        if (filter?.endsAfter !== undefined && filter?.endsAfter !== null) {
+          qb.where('ends_at', '>=', filter.endsAfter);
+        }
+
+        if (filter?.endsBefore !== undefined && filter.endsBefore !== null) {
+          qb.where('ends_at', '<=', filter.endsBefore);
+        }
+      });
 
     return scheduledEventRecords.map(createScheduledEventObject);
   }

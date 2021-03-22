@@ -4,6 +4,7 @@ import {
   NewScheduledEventInput,
 } from '../resolvers/mutations/ScheduledEventMutation';
 import { ScheduledEventFilter } from '../resolvers/queries/ScheduledEventQuery';
+import { ProposalBookingScheduledEventFilter } from '../resolvers/types/ProposalBooking';
 
 export interface ScheduledEventDataSource {
   create(
@@ -19,7 +20,8 @@ export interface ScheduledEventDataSource {
   get(id: number): Promise<ScheduledEvent | null>;
   getAll(filter: ScheduledEventFilter): Promise<ScheduledEvent[]>;
   proposalBookingScheduledEvents(
-    proposalBookingId: number
+    proposalBookingId: number,
+    filter?: ProposalBookingScheduledEventFilter
   ): Promise<ScheduledEvent[]>;
   proposalBookingScheduledEvent(
     proposalBookingId: number,

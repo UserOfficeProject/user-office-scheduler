@@ -9,11 +9,12 @@ import {
   DeleteEquipmentAssignmentInput,
   ConfirmEquipmentAssignmentInput,
 } from '../resolvers/mutations/EquipmentMutation';
+import { Roles } from '../types/shared';
 
 export default class EquipmentMutations {
   constructor(private equipmentDataSource: EquipmentDataSource) {}
 
-  @Authorized() // TODO
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
   create(
     ctx: ResolverContext,
     newEquipmentInput: EquipmentInput
@@ -21,7 +22,7 @@ export default class EquipmentMutations {
     return this.equipmentDataSource.create(+ctx.user?.id!, newEquipmentInput);
   }
 
-  @Authorized() // TODO
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
   async update(
     ctx: ResolverContext,
     id: number,
@@ -39,7 +40,7 @@ export default class EquipmentMutations {
     return updated;
   }
 
-  @Authorized()
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
   assign(
     ctx: ResolverContext,
     assignEquipmentsToScheduledEventInput: AssignEquipmentsToScheduledEventInput
@@ -52,7 +53,7 @@ export default class EquipmentMutations {
     );
   }
 
-  @Authorized()
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
   deleteAssignment(
     ctx: ResolverContext,
     deleteEquipmentAssignmentInput: DeleteEquipmentAssignmentInput
@@ -65,7 +66,7 @@ export default class EquipmentMutations {
     );
   }
 
-  @Authorized()
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
   confirmAssignment(
     ctx: ResolverContext,
     confirmEquipmentAssignmentInput: ConfirmEquipmentAssignmentInput

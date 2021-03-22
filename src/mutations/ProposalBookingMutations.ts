@@ -6,7 +6,7 @@ import { ResolverContext } from '../context';
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
 import Authorized from '../decorators/Authorized';
 import ValidateArgs from '../decorators/ValidateArgs';
-import { helperInstrumentScientistHasAccess } from '../helpers/instrumentHelpers';
+import { instrumentScientistHasAccess } from '../helpers/permissionHelpers';
 import {
   ProposalBooking,
   ProposalBookingFinalizeAction,
@@ -31,7 +31,9 @@ export default class ProposalBookingMutations {
       return rejection('NOT_FOUND');
     }
 
-    await helperInstrumentScientistHasAccess(ctx, proposalBooking);
+    if (!(await instrumentScientistHasAccess(ctx, proposalBooking))) {
+      return rejection('NOT_ALLOWED');
+    }
 
     return this.proposalBookingDataSource
       .finalize(action, id)
@@ -54,7 +56,9 @@ export default class ProposalBookingMutations {
       return rejection('NOT_FOUND');
     }
 
-    await helperInstrumentScientistHasAccess(ctx, proposalBooking);
+    if (!(await instrumentScientistHasAccess(ctx, proposalBooking))) {
+      return rejection('NOT_ALLOWED');
+    }
 
     return this.proposalBookingDataSource.activate(id).catch((error: Error) => {
       logger.logException('ProposalBooking activate failed', error);

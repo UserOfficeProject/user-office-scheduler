@@ -6,10 +6,8 @@ import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSou
 import { ScheduledEventDataSource } from '../datasources/ScheduledEventDataSource';
 import Authorized from '../decorators/Authorized';
 import ValidateArgs from '../decorators/ValidateArgs';
-import {
-  helperInstrumentScientistHasAccess,
-  helperInstrumentScientistHasInstrument,
-} from '../helpers/instrumentHelpers';
+import { instrumentScientistHasInstrument } from '../helpers/instrumentHelpers';
+import { instrumentScientistHasAccess } from '../helpers/permissionHelpers';
 import { ProposalBookingStatus } from '../models/ProposalBooking';
 import {
   ScheduledEvent,
@@ -37,10 +35,13 @@ export default class ScheduledEventMutations {
     ctx: ResolverContext,
     newScheduledEvent: NewScheduledEventInput
   ): Promise<ScheduledEvent | Rejection> {
-    await helperInstrumentScientistHasInstrument(
+    const hasInstrument = await instrumentScientistHasInstrument(
       ctx,
       newScheduledEvent.instrumentId
     );
+    if (!hasInstrument) {
+      return rejection('NOT_ALLOWED');
+    }
 
     return this.scheduledEventDataSource
       .create(+ctx.user?.id!, newScheduledEvent)
@@ -70,7 +71,9 @@ export default class ScheduledEventMutations {
       return rejection('NOT_FOUND');
     }
 
-    await helperInstrumentScientistHasAccess(ctx, proposalBooking);
+    if (!(await instrumentScientistHasAccess(ctx, proposalBooking))) {
+      return rejection('NOT_ALLOWED');
+    }
 
     return this.scheduledEventDataSource
       .bulkUpsert(

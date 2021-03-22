@@ -5,15 +5,16 @@ services:
   scheduler-backend:
     image: "dmsc/duo-scheduler-backend:${USER_OFFICE_SCHEDULER_BACKEND_TAG}"
     environment:
-      - NODE_ENV=production
-      - DATABASE_HOSTNAME=scheduler-db
-      - DATABASE_PORT=5432
-      - DATABASE_USER=schedulerUser
-      - DATABASE_PASSWORD=schedulerPassword
-      - DATABASE_DATABASE=scheduler
-      - SCHEDULER_CONFIG_AUTH_REDIRECT=/not-authenticated#USER_OFFICE/shared-auth
-      - USER_OFFICE_ENDPOINT=${USER_OFFICE_ENDPOINT}
-      - UO_FEATURE_DISABLE_MESSAGE_BROKER=1
+      NODE_ENV: development
+      DATABASE_HOSTNAME: scheduler-db
+      DATABASE_PORT: 5432
+      DATABASE_USER: schedulerUser
+      DATABASE_PASSWORD: schedulerPassword
+      DATABASE_DATABASE: scheduler
+      SCHEDULER_CONFIG_AUTH_REDIRECT: /not-authenticated#USER_OFFICE/shared-auth
+      USER_OFFICE_ENDPOINT: ${USER_OFFICE_ENDPOINT}
+      UO_FEATURE_DISABLE_MESSAGE_BROKER: 1
+      SKIP_DB_INIT: 1
     depends_on:
       - scheduler-db
 
@@ -24,7 +25,6 @@ services:
       POSTGRES_DB: scheduler
       POSTGRES_USER: schedulerUser
       POSTGRES_PASSWORD: schedulerPassword
-      INCLUDE_SEEDS: 1
     ports:
       - 5432
     volumes:

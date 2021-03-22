@@ -5,7 +5,7 @@ import { LostTimeDataSource } from '../datasources/LostTimeDataSource';
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
 import Authorized from '../decorators/Authorized';
 import ValidateArgs from '../decorators/ValidateArgs';
-import { helperInstrumentScientistHasAccess } from '../helpers/instrumentHelpers';
+import { instrumentScientistHasAccess } from '../helpers/permissionHelpers';
 import { LostTime } from '../models/LostTime';
 import { ProposalBookingStatus } from '../models/ProposalBooking';
 import { rejection, Rejection } from '../rejection';
@@ -36,7 +36,9 @@ export default class LostTimeMutations {
       return rejection('NOT_FOUND');
     }
 
-    await helperInstrumentScientistHasAccess(ctx, proposalBooking);
+    if (!(await instrumentScientistHasAccess(ctx, proposalBooking))) {
+      return rejection('NOT_ALLOWED');
+    }
 
     return this.lostTimeDataSource
       .bulkUpsert(bulkUpsertLostTimes)

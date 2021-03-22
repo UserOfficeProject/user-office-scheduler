@@ -1,7 +1,7 @@
 import { ResolverContext } from '../context';
 import { LostTimeDataSource } from '../datasources/LostTimeDataSource';
 import Authorized from '../decorators/Authorized';
-import { helperInstrumentScientistHasAccess } from '../helpers/instrumentHelpers';
+import { instrumentScientistHasAccess } from '../helpers/permissionHelpers';
 import { LostTime } from '../models/LostTime';
 import { Roles } from '../types/shared';
 
@@ -13,7 +13,9 @@ export default class LostTimeQueries {
     ctx: ResolverContext,
     proposalBookingId: number
   ): Promise<LostTime[]> {
-    await helperInstrumentScientistHasAccess(ctx, proposalBookingId);
+    if (!(await instrumentScientistHasAccess(ctx, proposalBookingId))) {
+      return [];
+    }
 
     return this.lostTimeDataSource.proposalBookingLostTimes(proposalBookingId);
   }

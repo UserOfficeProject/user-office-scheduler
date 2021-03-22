@@ -1,4 +1,19 @@
-import { Directive, Field, Int, ObjectType } from 'type-graphql';
+import {
+  Directive,
+  Field,
+  Int,
+  ObjectType,
+  FieldResolver,
+  Resolver,
+  Ctx,
+  Root,
+  InputType,
+  Arg,
+} from 'type-graphql';
+
+import { ResolverContext } from '../../context';
+import { ProposalBookingStatus } from '../../models/ProposalBooking';
+import { ProposalBooking } from './ProposalBooking';
 
 @ObjectType()
 @Directive('@extends')
@@ -7,4 +22,29 @@ export class Proposal {
   @Directive('@external')
   @Field(() => Int)
   id: number;
+}
+
+@InputType()
+export class ProposalProposalBookingFilter {
+  @Field(() => ProposalBookingStatus, { nullable: true })
+  status?: ProposalBookingStatus | null;
+}
+
+@Resolver(() => Proposal)
+export class ProposalResolvers {
+  @FieldResolver(() => ProposalBooking, { nullable: true })
+  proposalBooking(
+    @Ctx() ctx: ResolverContext,
+    @Root() proposal: Proposal,
+    @Arg('filter', () => ProposalProposalBookingFilter, {
+      defaultValue: { status: ProposalBookingStatus.BOOKED },
+    })
+    filter: ProposalProposalBookingFilter
+  ) {
+    return ctx.queries.proposalBooking.getByProposalId(
+      ctx,
+      proposal.id,
+      filter
+    );
+  }
 }

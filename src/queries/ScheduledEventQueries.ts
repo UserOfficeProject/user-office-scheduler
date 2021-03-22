@@ -1,12 +1,14 @@
 import { ResolverContext } from '../context';
 import { ScheduledEventDataSource } from '../datasources/ScheduledEventDataSource';
 import Authorized from '../decorators/Authorized';
+import { instrumentScientistHasInstrument } from '../helpers/instrumentHelpers';
 import {
-  helperInstrumentScientistHasAccess,
-  helperInstrumentScientistHasInstrument,
-} from '../helpers/instrumentHelpers';
+  instrumentScientistHasAccess,
+  userHacAccess,
+} from '../helpers/permissionHelpers';
 import { ScheduledEvent } from '../models/ScheduledEvent';
 import { ScheduledEventFilter } from '../resolvers/queries/ScheduledEventQuery';
+import { ProposalBookingScheduledEventFilter } from '../resolvers/types/ProposalBooking';
 import { Roles } from '../types/shared';
 
 export default class ScheduledEventQueries {
@@ -29,20 +31,29 @@ export default class ScheduledEventQueries {
       return [];
     }
 
-    await helperInstrumentScientistHasInstrument(ctx, filter.instrumentId);
+    if (!(await instrumentScientistHasInstrument(ctx, filter.instrumentId))) {
+      return [];
+    }
 
     return this.scheduledEventDataSource.getAll(filter);
   }
 
-  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST, Roles.USER])
   async proposalBookingScheduledEvents(
     ctx: ResolverContext,
-    proposalBookingId: number
+    proposalBookingId: number,
+    filter?: ProposalBookingScheduledEventFilter
   ): Promise<ScheduledEvent[]> {
-    await helperInstrumentScientistHasAccess(ctx, proposalBookingId);
+    if (
+      !(await instrumentScientistHasAccess(ctx, proposalBookingId)) &&
+      !(await userHacAccess(ctx, proposalBookingId))
+    ) {
+      return [];
+    }
 
     return this.scheduledEventDataSource.proposalBookingScheduledEvents(
-      proposalBookingId
+      proposalBookingId,
+      filter
     );
   }
 
@@ -52,7 +63,9 @@ export default class ScheduledEventQueries {
     proposalBookingId: number,
     scheduledEventId: number
   ): Promise<ScheduledEvent | null> {
-    await helperInstrumentScientistHasAccess(ctx, proposalBookingId);
+    if (!(await instrumentScientistHasAccess(ctx, proposalBookingId))) {
+      return null;
+    }
 
     return this.scheduledEventDataSource.proposalBookingScheduledEvent(
       proposalBookingId,
@@ -60,7 +73,7 @@ export default class ScheduledEventQueries {
     );
   }
 
-  @Authorized()
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
   async equipmentScheduledEvents(ctx: ResolverContext, equipmentId: number) {
     return this.scheduledEventDataSource.equipmentScheduledEvents(equipmentId);
   }

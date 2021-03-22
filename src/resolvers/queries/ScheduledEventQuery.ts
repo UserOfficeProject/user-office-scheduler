@@ -7,13 +7,13 @@ import { ScheduledEvent } from '../types/ScheduledEvent';
 @InputType()
 export class ScheduledEventFilter {
   @Field(() => TzLessDateTime, { nullable: true })
-  startsAt: Date | null;
+  startsAt?: Date | null;
 
   @Field(() => TzLessDateTime, { nullable: true })
-  endsAt: Date | null;
+  endsAt?: Date | null;
 
   @Field(() => ID, { nullable: true })
-  instrumentId: number | null;
+  instrumentId?: number | null;
 }
 
 @Resolver()

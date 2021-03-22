@@ -1,13 +1,28 @@
 import { Type } from 'class-transformer';
-import { Field, ID, Int, ObjectType } from 'type-graphql';
+import {
+  Field,
+  ID,
+  Int,
+  ObjectType,
+  Resolver,
+  FieldResolver,
+  Root,
+  Ctx,
+  Arg,
+  InputType,
+} from 'type-graphql';
 
+import { ResolverContext } from '../../context';
 import {
   ProposalBooking as ProposalBookingBase,
   ProposalBookingStatus,
 } from '../../models/ProposalBooking';
+import { ScheduledEventBookingType } from '../../models/ScheduledEvent';
+import { TzLessDateTime } from '../CustomScalars';
 import { Call } from './Call';
 import { Instrument } from './Instrument';
 import { Proposal } from './Proposal';
+import { ScheduledEvent } from './ScheduledEvent';
 
 @ObjectType()
 export class ProposalBooking implements Partial<ProposalBookingBase> {
@@ -37,4 +52,36 @@ export class ProposalBooking implements Partial<ProposalBookingBase> {
   @Type(() => Instrument)
   @Field()
   instrument: Instrument;
+}
+
+@InputType()
+export class ProposalBookingScheduledEventFilter {
+  @Field(() => ScheduledEventBookingType, { nullable: true })
+  bookingType?: ScheduledEventBookingType | null;
+
+  @Field(() => TzLessDateTime, { nullable: true })
+  endsAfter?: Date;
+
+  @Field(() => TzLessDateTime, { nullable: true })
+  endsBefore?: Date;
+}
+
+@Resolver(() => ProposalBooking)
+export class ProposalBookingResolvers {
+  @FieldResolver(() => [ScheduledEvent])
+  scheduledEvents(
+    @Ctx() ctx: ResolverContext,
+    @Root() proposalBooking: ProposalBooking,
+    @Arg('filter') filter: ProposalBookingScheduledEventFilter
+  ): Promise<ScheduledEvent[]> {
+    return ctx.queries.scheduledEvent.proposalBookingScheduledEvents(
+      ctx,
+      proposalBooking.id,
+      {
+        ...filter,
+        bookingType:
+          filter.bookingType ?? ScheduledEventBookingType.USER_OPERATIONS,
+      }
+    );
+  }
 }

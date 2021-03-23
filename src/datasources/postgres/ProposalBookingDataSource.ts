@@ -68,7 +68,7 @@ export default class PostgresProposalBookingDataSource
       .where('proposal_id', proposalId)
       .modify(qb => {
         if (filter?.status) {
-          qb.where('status', filter.status);
+          qb.whereIn('status', filter.status);
         }
       })
       .first();

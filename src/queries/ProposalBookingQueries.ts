@@ -6,9 +6,13 @@ import {
   instrumentScientistHasAccess,
   userHacAccess,
 } from '../helpers/permissionHelpers';
-import { ProposalBooking } from '../models/ProposalBooking';
+import {
+  ProposalBooking,
+  ProposalBookingStatus,
+} from '../models/ProposalBooking';
 import { ProposalProposalBookingFilter } from '../resolvers/types/Proposal';
 import { Roles } from '../types/shared';
+import { hasRole } from '../utils/authorization';
 
 export default class ProposalBookingQueries {
   constructor(private proposalBookingDataSource: ProposalBookingDataSource) {}
@@ -51,6 +55,15 @@ export default class ProposalBookingQueries {
     proposalId: number,
     filter?: ProposalProposalBookingFilter
   ): Promise<ProposalBooking | null> {
+    // don't show proposal bookings is draft state for users
+    if (
+      !hasRole([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST], ctx.roles!)
+    ) {
+      filter = {
+        status: [ProposalBookingStatus.BOOKED, ProposalBookingStatus.CLOSED],
+      };
+    }
+
     const proposalBooking = await this.proposalBookingDataSource.getByProposalId(
       proposalId,
       filter

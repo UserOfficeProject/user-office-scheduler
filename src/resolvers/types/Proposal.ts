@@ -26,8 +26,8 @@ export class Proposal {
 
 @InputType()
 export class ProposalProposalBookingFilter {
-  @Field(() => ProposalBookingStatus, { nullable: true })
-  status?: ProposalBookingStatus | null;
+  @Field(() => [ProposalBookingStatus], { nullable: true })
+  status?: ProposalBookingStatus[] | null;
 }
 
 @Resolver(() => Proposal)
@@ -37,9 +37,11 @@ export class ProposalResolvers {
     @Ctx() ctx: ResolverContext,
     @Root() proposal: Proposal,
     @Arg('filter', () => ProposalProposalBookingFilter, {
-      defaultValue: { status: ProposalBookingStatus.BOOKED },
+      defaultValue: {
+        status: [ProposalBookingStatus.BOOKED, ProposalBookingStatus.CLOSED],
+      },
     })
-    filter: ProposalProposalBookingFilter
+    filter?: ProposalProposalBookingFilter
   ) {
     return ctx.queries.proposalBooking.getByProposalId(
       ctx,

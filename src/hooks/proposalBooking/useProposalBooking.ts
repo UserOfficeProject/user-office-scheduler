@@ -35,8 +35,12 @@ export default function useProposalBooking(id: string) {
           return;
         }
 
-        if (data.proposalBooking) {
-          setProposalBooking(data.proposalBooking);
+        if (
+          data.proposalBooking &&
+          data.proposalBooking.proposal &&
+          data.proposalBooking.call
+        ) {
+          setProposalBooking(data.proposalBooking as DetailedProposalBooking);
         }
 
         setLoading(false);

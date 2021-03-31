@@ -35,7 +35,11 @@ export default function useInstrumentProposalBookings(instrumentId: string) {
         }
 
         if (data.instrumentProposalBookings) {
-          setProposalBookings(data.instrumentProposalBookings);
+          const filtered = data.instrumentProposalBookings.filter(
+            ({ call, proposal }) => call && proposal
+          ) as InstrumentProposalBooking[];
+
+          setProposalBookings(filtered);
         }
 
         setLoading(false);

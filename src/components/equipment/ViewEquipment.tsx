@@ -239,7 +239,9 @@ export default function ViewEquipment() {
                     </ListItemAvatar>
                     <ListItemText
                       primary="Owner"
-                      secondary={`${equipment?.owner.firstname} ${equipment?.owner.lastname}`}
+                      secondary={`${equipment?.owner?.firstname ?? 'Unknown'} ${
+                        equipment?.owner?.lastname
+                      }`}
                     />
                   </ListItem>
                 </List>

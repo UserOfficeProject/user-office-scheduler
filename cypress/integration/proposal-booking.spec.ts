@@ -42,6 +42,24 @@ context('Proposal booking tests ', () => {
 
       cy.contains(/call: call 1/i);
     });
+
+    it('should not crash if the referenced proposal was deleted', () => {
+      cy.initializeSession('UserOfficer');
+
+      cy.visit({
+        url: '/calendar',
+        timeout: 15000,
+      });
+
+      cy.get('[data-cy=input-instrument-select]').click();
+
+      cy.get('[aria-labelledby=input-instrument-select-label]')
+        .contains('Instrument 3')
+        .click();
+
+      cy.get('[data-cy=btn-new-event]').should('exist');
+      cy.contains(/instrument has no calls/i);
+    });
   });
 
   describe('Proposal booking workflow', () => {

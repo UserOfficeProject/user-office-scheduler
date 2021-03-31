@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-import { Equipment, User } from 'generated/sdk';
+import { Equipment, User, Maybe } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 
 export type DetailedEquipment = Pick<
@@ -12,7 +12,7 @@ export type DetailedEquipment = Pick<
   | 'maintenanceStartsAt'
   | 'maintenanceEndsAt'
   | 'autoAccept'
-> & { owner: Pick<User, 'firstname' | 'lastname'> };
+> & { owner: Maybe<Pick<User, 'firstname' | 'lastname'>> };
 
 export default function useEquipment(id: string) {
   const [loading, setLoading] = useState(true);

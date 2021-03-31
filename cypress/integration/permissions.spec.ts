@@ -41,13 +41,16 @@ context('Permission tests', () => {
 
       cy.get('@instruments')
         .children()
-        .should('have.length', 2);
+        .should('have.length', 3);
       cy.get('@instruments')
         .children()
         .contains(/instrument 1/i);
       cy.get('@instruments')
         .children()
         .contains(/instrument 2/i);
+      cy.get('@instruments')
+        .children()
+        .contains(/instrument 3/i);
     });
 
     it('should show only assigned instruments for user with `Instrument scientist` role', () => {

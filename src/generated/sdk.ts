@@ -19,11 +19,6 @@ export type Scalars = {
   TzLessDateTime: string;
 };
 
-export type AddNextStatusEventsToConnectionInput = {
-  proposalWorkflowConnectionId: Scalars['Int'];
-  nextStatusEvents: Array<Scalars['String']>;
-};
-
 export type AddProposalWorkflowStatusInput = {
   proposalWorkflowId: Scalars['Int'];
   sortOrder: Scalars['Int'];
@@ -32,6 +27,11 @@ export type AddProposalWorkflowStatusInput = {
   proposalStatusId: Scalars['Int'];
   nextProposalStatusId?: Maybe<Scalars['Int']>;
   prevProposalStatusId?: Maybe<Scalars['Int']>;
+};
+
+export type AddStatusChangingEventsToConnectionInput = {
+  proposalWorkflowConnectionId: Scalars['Int'];
+  statusChangingEvents: Array<Scalars['String']>;
 };
 
 export type AddTechnicalReviewInput = {
@@ -156,6 +156,11 @@ export type CallsFilter = {
   isSEPReviewEnded?: Maybe<Scalars['Boolean']>;
 };
 
+export type ChangeProposalsStatusInput = {
+  statusId: Scalars['Int'];
+  proposals: Array<ProposalIdWithCallId>;
+};
+
 export type CheckExternalTokenWrap = {
   __typename?: 'CheckExternalTokenWrap';
   error: Maybe<Scalars['String']>;
@@ -277,6 +282,7 @@ export enum Event {
   PROPOSAL_UPDATED = 'PROPOSAL_UPDATED',
   PROPOSAL_SUBMITTED = 'PROPOSAL_SUBMITTED',
   PROPOSAL_FEASIBLE = 'PROPOSAL_FEASIBLE',
+  PROPOSAL_UNFEASIBLE = 'PROPOSAL_UNFEASIBLE',
   PROPOSAL_SEP_SELECTED = 'PROPOSAL_SEP_SELECTED',
   PROPOSAL_INSTRUMENT_SELECTED = 'PROPOSAL_INSTRUMENT_SELECTED',
   PROPOSAL_FEASIBILITY_REVIEW_UPDATED = 'PROPOSAL_FEASIBILITY_REVIEW_UPDATED',
@@ -293,6 +299,7 @@ export enum Event {
   PROPOSAL_INSTRUMENT_SUBMITTED = 'PROPOSAL_INSTRUMENT_SUBMITTED',
   PROPOSAL_ACCEPTED = 'PROPOSAL_ACCEPTED',
   PROPOSAL_REJECTED = 'PROPOSAL_REJECTED',
+  PROPOSAL_STATUS_UPDATED = 'PROPOSAL_STATUS_UPDATED',
   CALL_ENDED = 'CALL_ENDED',
   CALL_REVIEW_ENDED = 'CALL_REVIEW_ENDED',
   CALL_SEP_REVIEW_ENDED = 'CALL_SEP_REVIEW_ENDED',
@@ -469,13 +476,6 @@ export type NextProposalStatusResponseWrap = {
   nextProposalStatus: Maybe<NextProposalStatus>;
 };
 
-export type NextStatusEvent = {
-  __typename?: 'NextStatusEvent';
-  nextStatusEventId: Scalars['Int'];
-  proposalWorkflowConnectionId: Scalars['Int'];
-  nextStatusEvent: Scalars['String'];
-};
-
 export type NumberInputConfig = {
   __typename?: 'NumberInputConfig';
   small_label: Scalars['String'];
@@ -590,10 +590,9 @@ export type ProposalEvent = {
   description: Maybe<Scalars['String']>;
 };
 
-export type ProposalNextStatusEventResponseWrap = {
-  __typename?: 'ProposalNextStatusEventResponseWrap';
-  error: Maybe<Scalars['String']>;
-  nextStatusEvents: Maybe<Array<NextStatusEvent>>;
+export type ProposalIdWithCallId = {
+  id: Scalars['Int'];
+  callId: Scalars['Int'];
 };
 
 export enum ProposalPublicStatus {
@@ -636,15 +635,16 @@ export type ProposalStatus = {
   isDefault: Scalars['Boolean'];
 };
 
+export type ProposalStatusChangingEventResponseWrap = {
+  __typename?: 'ProposalStatusChangingEventResponseWrap';
+  error: Maybe<Scalars['String']>;
+  statusChangingEvents: Maybe<Array<StatusChangingEvent>>;
+};
+
 export type ProposalStatusResponseWrap = {
   __typename?: 'ProposalStatusResponseWrap';
   error: Maybe<Scalars['String']>;
   proposalStatus: Maybe<ProposalStatus>;
-};
-
-export type ProposalsToInstrumentArgs = {
-  id: Scalars['Int'];
-  callId: Scalars['Int'];
 };
 
 export type ProposalTemplate = {
@@ -705,7 +705,7 @@ export type ProposalWorkflowConnection = {
   nextProposalStatusId: Maybe<Scalars['Int']>;
   prevProposalStatusId: Maybe<Scalars['Int']>;
   droppableGroupId: Scalars['String'];
-  nextStatusEvents: Array<NextStatusEvent>;
+  statusChangingEvents: Array<StatusChangingEvent>;
 };
 
 export type ProposalWorkflowConnectionGroup = {
@@ -1026,6 +1026,13 @@ export enum ShipmentStatus {
   SUBMITTED = 'SUBMITTED'
 }
 
+export type StatusChangingEvent = {
+  __typename?: 'StatusChangingEvent';
+  statusChangingEventId: Scalars['Int'];
+  proposalWorkflowConnectionId: Scalars['Int'];
+  statusChangingEvent: Scalars['String'];
+};
+
 export type SubmitTechnicalReviewInput = {
   proposalID: Scalars['Int'];
   comment?: Maybe<Scalars['String']>;
@@ -1311,7 +1318,7 @@ export type DeleteEquipmentAssignmentInput = {
 export type Equipment = {
   __typename?: 'Equipment';
   id: Scalars['ID'];
-  owner: User;
+  owner: Maybe<User>;
   createdAt: Scalars['DateTime'];
   updatedAt: Scalars['DateTime'];
   name: Scalars['String'];
@@ -1342,7 +1349,7 @@ export type EquipmentResponseWrap = {
 export type EquipmentWithAssignmentStatus = {
   __typename?: 'EquipmentWithAssignmentStatus';
   id: Scalars['ID'];
-  owner: User;
+  owner: Maybe<User>;
   createdAt: Scalars['DateTime'];
   updatedAt: Scalars['DateTime'];
   name: Scalars['String'];
@@ -1385,13 +1392,13 @@ export type NewScheduledEventInput = {
 export type ProposalBooking = {
   __typename?: 'ProposalBooking';
   id: Scalars['ID'];
-  call: Call;
-  proposal: Proposal;
+  call: Maybe<Call>;
+  proposal: Maybe<Proposal>;
   createdAt: Scalars['DateTime'];
   updatedAt: Scalars['DateTime'];
   status: ProposalBookingStatus;
   allocatedTime: Scalars['Int'];
-  instrument: Instrument;
+  instrument: Maybe<Instrument>;
   scheduledEvents: Array<ScheduledEvent>;
 };
 
@@ -1424,7 +1431,7 @@ export enum ProposalBookingStatus {
 }
 
 export type ProposalProposalBookingFilter = {
-  status?: Maybe<ProposalBookingStatus>;
+  status?: Maybe<Array<ProposalBookingStatus>>;
 };
 
 export type ScheduledEvent = {
@@ -1435,9 +1442,9 @@ export type ScheduledEvent = {
   bookingType: ScheduledEventBookingType;
   startsAt: Scalars['TzLessDateTime'];
   endsAt: Scalars['TzLessDateTime'];
-  scheduledBy: User;
+  scheduledBy: Maybe<User>;
   description: Maybe<Scalars['String']>;
-  instrument: Instrument;
+  instrument: Maybe<Instrument>;
   equipments: Array<EquipmentWithAssignmentStatus>;
   equipmentAssignmentStatus: Maybe<EquipmentAssignmentStatus>;
 };
@@ -1888,6 +1895,7 @@ export type Mutation = {
   updateCall: CallResponseWrap;
   assignInstrumentsToCall: CallResponseWrap;
   removeAssignedInstrumentFromCall: CallResponseWrap;
+  changeProposalsStatus: SuccessResponseWrap;
   assignProposalsToInstrument: SuccessResponseWrap;
   removeProposalFromInstrument: SuccessResponseWrap;
   assignScientistsToInstrument: SuccessResponseWrap;
@@ -1899,8 +1907,8 @@ export type Mutation = {
   administrationProposal: ProposalResponseWrap;
   cloneProposal: ProposalResponseWrap;
   updateProposal: ProposalResponseWrap;
-  addNextStatusEventsToConnection: ProposalNextStatusEventResponseWrap;
   addProposalWorkflowStatus: ProposalWorkflowConnectionResponseWrap;
+  addStatusChangingEventsToConnection: ProposalStatusChangingEventResponseWrap;
   createProposalStatus: ProposalStatusResponseWrap;
   createProposalWorkflow: ProposalWorkflowResponseWrap;
   deleteProposalWorkflowStatus: SuccessResponseWrap;
@@ -2048,8 +2056,13 @@ export type MutationRemoveAssignedInstrumentFromCallArgs = {
 };
 
 
+export type MutationChangeProposalsStatusArgs = {
+  changeProposalsStatusInput: ChangeProposalsStatusInput;
+};
+
+
 export type MutationAssignProposalsToInstrumentArgs = {
-  proposals: Array<ProposalsToInstrumentArgs>;
+  proposals: Array<ProposalIdWithCallId>;
   instrumentId: Scalars['Int'];
 };
 
@@ -2127,13 +2140,13 @@ export type MutationUpdateProposalArgs = {
 };
 
 
-export type MutationAddNextStatusEventsToConnectionArgs = {
-  addNextStatusEventsToConnectionInput: AddNextStatusEventsToConnectionInput;
+export type MutationAddProposalWorkflowStatusArgs = {
+  newProposalWorkflowStatusInput: AddProposalWorkflowStatusInput;
 };
 
 
-export type MutationAddProposalWorkflowStatusArgs = {
-  newProposalWorkflowStatusInput: AddProposalWorkflowStatusInput;
+export type MutationAddStatusChangingEventsToConnectionArgs = {
+  addStatusChangingEventsToConnectionInput: AddStatusChangingEventsToConnectionInput;
 };
 
 
@@ -2774,10 +2787,10 @@ export type GetEquipmentQuery = (
   & { equipment: Maybe<(
     { __typename?: 'Equipment' }
     & Pick<Equipment, 'id' | 'createdAt' | 'updatedAt' | 'name' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'>
-    & { owner: (
+    & { owner: Maybe<(
       { __typename?: 'User' }
       & Pick<User, 'firstname' | 'lastname'>
-    ) }
+    )> }
   )> }
 );
 
@@ -2944,13 +2957,13 @@ export type GetInstrumentProposalBookingsQuery = (
   & { instrumentProposalBookings: Array<(
     { __typename?: 'ProposalBooking' }
     & Pick<ProposalBooking, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'allocatedTime'>
-    & { call: (
+    & { call: Maybe<(
       { __typename?: 'Call' }
       & Pick<Call, 'id' | 'shortCode' | 'startCycle' | 'endCycle' | 'cycleComment'>
-    ), proposal: (
+    )>, proposal: Maybe<(
       { __typename?: 'Proposal' }
       & Pick<Proposal, 'id' | 'title' | 'shortCode'>
-    ) }
+    )> }
   )> }
 );
 
@@ -2964,13 +2977,13 @@ export type GetProposalBookingQuery = (
   & { proposalBooking: Maybe<(
     { __typename?: 'ProposalBooking' }
     & Pick<ProposalBooking, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'allocatedTime'>
-    & { call: (
+    & { call: Maybe<(
       { __typename?: 'Call' }
       & Pick<Call, 'id' | 'shortCode' | 'startCycle' | 'endCycle' | 'cycleComment'>
-    ), proposal: (
+    )>, proposal: Maybe<(
       { __typename?: 'Proposal' }
       & Pick<Proposal, 'id' | 'title' | 'shortCode'>
-    ) }
+    )> }
   )> }
 );
 

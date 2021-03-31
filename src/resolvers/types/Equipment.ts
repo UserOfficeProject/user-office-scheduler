@@ -15,8 +15,8 @@ export class Equipment implements Partial<EquipmentBase> {
 
   // external type
   @Type(() => User)
-  @Field()
-  owner: User;
+  @Field({ nullable: true })
+  owner?: User;
 
   @Field(() => Date)
   createdAt: Date;

@@ -18,7 +18,7 @@
     "lint": "tsc --noEmit && eslint ./src --ext .js,.ts --quiet",
     "lint:all": "tsc --noEmit && eslint ./src --ext .js,.ts",
     "lint:fix": "tsc --noEmit && eslint ./src --ext .js,.ts --fix --quiet",
-    "generate:local": "cp codegen_template.yml codegen_tmp.yml && graphql-codegen -c codegen_tmp.yml && rm ./codegen_tmp.yml"
+    "generate:local": "node scripts/generate-graphql-sdk.js"
   },
   "lint-staged": {
     "**/*.{js,ts}": "npm run lint"

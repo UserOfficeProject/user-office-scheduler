@@ -30,12 +30,12 @@ export class ProposalBooking implements Partial<ProposalBookingBase> {
   id: number;
 
   @Type(() => Call)
-  @Field()
-  call: Call;
+  @Field({ nullable: true })
+  call?: Call;
 
   @Type(() => Proposal)
-  @Field()
-  proposal: Proposal;
+  @Field({ nullable: true })
+  proposal?: Proposal;
 
   @Field(() => Date)
   createdAt: Date;
@@ -50,8 +50,8 @@ export class ProposalBooking implements Partial<ProposalBookingBase> {
   allocatedTime: number;
 
   @Type(() => Instrument)
-  @Field()
-  instrument: Instrument;
+  @Field({ nullable: true })
+  instrument?: Instrument;
 }
 
 @InputType()

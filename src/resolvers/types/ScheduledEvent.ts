@@ -43,16 +43,16 @@ export class ScheduledEvent implements Partial<ScheduledEventBase> {
 
   // external type
   @Type(() => User)
-  @Field()
-  scheduledBy: User;
+  @Field({ nullable: true })
+  scheduledBy?: User;
 
   @Field(() => String, { nullable: true })
   description?: string | null;
 
   // external type
-  @Type(() => User)
-  @Field()
-  instrument: Instrument;
+  @Type(() => Instrument)
+  @Field({ nullable: true })
+  instrument?: Instrument;
 }
 
 @Resolver(() => ScheduledEvent)

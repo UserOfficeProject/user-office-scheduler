@@ -1,6 +1,6 @@
 overwrite: true
-schema: "${SCHEMA_URL:http://localhost:4000/graphql}"
-documents: "src/graphql/**/*.graphql"
+schema: '${SCHEMA_URL}'
+documents: 'src/graphql/**/*.graphql'
 generates:
   src/generated/sdk.ts:
     config:
@@ -17,4 +17,4 @@ generates:
       - typescript-graphql-request
 config:
   scalars:
-    TzLessDateTime: "string"
+    TzLessDateTime: 'string'

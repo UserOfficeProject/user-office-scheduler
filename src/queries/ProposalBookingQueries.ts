@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { ResolverContext } from '../context';
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
 import Authorized from '../decorators/Authorized';

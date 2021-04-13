@@ -15,6 +15,7 @@
     "dev": "ts-node-dev --rs --respawn ./src/index.ts",
     "dev:db:up": "docker-compose -f docker-compose.local.yml up -d",
     "dev:db:down": "docker-compose -f docker-compose.local.yml down -v",
+    "dev:docker": "npm install && ts-node-dev --rs --respawn ./src/index.ts",
     "lint": "tsc --noEmit && eslint ./src --ext .js,.ts --quiet",
     "lint:all": "tsc --noEmit && eslint ./src --ext .js,.ts",
     "lint:fix": "tsc --noEmit && eslint ./src --ext .js,.ts --fix --quiet",

@@ -1,8 +1,9 @@
+import { logger } from '@esss-swap/duo-logger';
 import { Queue, RabbitMQMessageBroker } from '@esss-swap/duo-message-broker';
 
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
 import { ApplicationEvent } from '../events/applicationEvents';
-import { Event } from '../events/event.enum';
+import { Event } from '../generated/sdk';
 
 export default function createHandler({
   proposalBookingDataSource,
@@ -29,15 +30,19 @@ export default function createHandler({
 
   rabbitMQ.listenOn(Queue.PROPOSAL, async (type, message) => {
     switch (type) {
-      case Event.PROPOSAL_NOTIFIED:
-        await proposalBookingDataSource.create(message);
-
-        return;
-      default:
-        console.warn('Listener', Queue.PROPOSAL, 'Unknown type', {
+      case Event.PROPOSAL_STATUS_CHANGED_BY_WORKFLOW:
+      case Event.PROPOSAL_STATUS_CHANGED_BY_USER:
+        logger.logDebug(`Listener on ${Queue.PROPOSAL}: Received event`, {
           type,
           message,
         });
+        await proposalBookingDataSource.upsert(message);
+
+        return;
+      default:
+        // captured and logged by duo-message-broker
+        // message forwarded to dead-letter queue (DL__PROPOSALS)
+        throw 'Received unknown event';
     }
   });
 

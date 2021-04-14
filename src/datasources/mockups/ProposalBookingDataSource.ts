@@ -14,7 +14,7 @@ export default class MockupProposalBookingDataSource
   ): Promise<ProposalBooking | null> {
     throw new Error('Method not implemented.');
   }
-  create(event: any): Promise<void> {
+  upsert(event: any): Promise<void> {
     throw new Error('Method not implemented.');
   }
   get(id: number): Promise<ProposalBooking | null> {

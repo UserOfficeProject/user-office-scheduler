@@ -5,8 +5,8 @@ import {
 import { ProposalProposalBookingFilter } from '../resolvers/types/Proposal';
 
 export interface ProposalBookingDataSource {
-  // TODO
-  create(event: any): Promise<void>;
+  // TODO(asztalos): validate input
+  upsert(event: any): Promise<void>;
   get(id: number): Promise<ProposalBooking | null>;
   getByProposalId(
     proposalId: number,

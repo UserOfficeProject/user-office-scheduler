@@ -15,7 +15,8 @@ import React, { useState } from 'react';
 
 import Loader from 'components/common/Loader';
 import { useDataApi } from 'hooks/common/useDataApi';
-import { DetailedProposalBooking } from 'hooks/proposalBooking/useProposalBooking';
+
+import { ProposalBookingDialogStepProps } from '../ProposalBookingDialog';
 
 const useStyles = makeStyles(theme => ({
   root: { display: 'flex', flexDirection: 'column' },
@@ -32,17 +33,11 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-type ReviewFeedbackStepProps = {
-  proposalBooking: DetailedProposalBooking;
-  handleBack: () => void;
-  handleNext: () => void;
-};
-
 export default function ReviewFeedbackStep({
   proposalBooking,
   handleBack,
   handleNext,
-}: ReviewFeedbackStepProps) {
+}: ProposalBookingDialogStepProps) {
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
   const api = useDataApi();

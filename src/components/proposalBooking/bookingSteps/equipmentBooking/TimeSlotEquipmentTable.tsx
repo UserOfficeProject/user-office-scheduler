@@ -34,9 +34,11 @@ const useRowStyles = makeStyles({
 
 function Row({
   row,
+  readOnly,
   onDeleteAssignment,
 }: {
   row: ScheduledEventWithEquipments;
+  readOnly?: boolean;
   onDeleteAssignment: (equipmentId: string, scheduledEventId: string) => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -84,6 +86,7 @@ function Row({
                         <IconButton
                           size="small"
                           data-cy="btn-delete-assignment"
+                          disabled={readOnly}
                           onClick={() =>
                             onDeleteAssignment(equipment.id, row.id)
                           }
@@ -114,9 +117,11 @@ function Row({
 
 export default function TimeSlotEquipmentTable({
   rows,
+  readOnly,
   onDeleteAssignment,
 }: {
   rows: ScheduledEventWithEquipments[];
+  readOnly?: boolean;
   onDeleteAssignment: (equipmentId: string, scheduledEventId: string) => void;
 }) {
   return (
@@ -134,6 +139,7 @@ export default function TimeSlotEquipmentTable({
             <Row
               key={row.id}
               row={row}
+              readOnly={readOnly}
               onDeleteAssignment={onDeleteAssignment}
             />
           ))}

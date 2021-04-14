@@ -4,9 +4,9 @@ import React, { useEffect, useState } from 'react';
 
 import Loader from 'components/common/Loader';
 import useProposalBookingLostTimes from 'hooks/lostTime/useProposalBookingLostTimes';
-import { DetailedProposalBooking } from 'hooks/proposalBooking/useProposalBooking';
 import { parseTzLessDateTime } from 'utils/date';
 
+import { ProposalBookingDialogStepProps } from '../ProposalBookingDialog';
 import TimeTable, { TimeTableRow } from '../TimeTable';
 
 const useStyles = makeStyles(() => ({
@@ -16,11 +16,9 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-type ClosedStepStepProps = {
-  proposalBooking: DetailedProposalBooking;
-};
-
-export default function ClosedStep({ proposalBooking }: ClosedStepStepProps) {
+export default function ClosedStep({
+  proposalBooking,
+}: ProposalBookingDialogStepProps) {
   const classes = useStyles();
 
   const { loading, lostTimes } = useProposalBookingLostTimes(

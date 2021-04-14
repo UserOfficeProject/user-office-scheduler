@@ -6,18 +6,12 @@ import {
 } from '@material-ui/core';
 import React from 'react';
 
-import { DetailedProposalBooking } from 'hooks/proposalBooking/useProposalBooking';
-
-type RequestReviewStepProps = {
-  proposalBooking: DetailedProposalBooking;
-  handleBack: () => void;
-  handleNext: () => void;
-};
+import { ProposalBookingDialogStepProps } from '../ProposalBookingDialog';
 
 export default function RequestReviewStep({
   handleBack,
   handleNext,
-}: RequestReviewStepProps) {
+}: ProposalBookingDialogStepProps) {
   return (
     <>
       <DialogContent>

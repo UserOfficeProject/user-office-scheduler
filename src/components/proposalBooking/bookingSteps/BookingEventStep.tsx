@@ -28,12 +28,13 @@ import React, { useContext, useEffect, useMemo, useState } from 'react';
 
 import Loader from 'components/common/Loader';
 import { AppContext } from 'context/AppContext';
+import { ProposalBookingStatus } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
-import { DetailedProposalBooking } from 'hooks/proposalBooking/useProposalBooking';
 import useProposalBookingScheduledEvents from 'hooks/scheduledEvent/useProposalBookingScheduledEvents';
 import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
 import { hasOverlappingEvents } from 'utils/scheduledEvent';
 
+import { ProposalBookingDialogStepProps } from '../ProposalBookingDialog';
 import TimeTable, { TimeTableRow } from '../TimeTable';
 
 const useStyles = makeStyles(theme => ({
@@ -72,19 +73,15 @@ const formatDuration = (durSec: number) =>
     largest: 3,
   });
 
-type BookingEventStepProps = {
-  proposalBooking: DetailedProposalBooking;
-  isDirty: boolean;
-  handleNext: () => void;
-  handleSetDirty: (isDirty: boolean) => void;
-};
-
 export default function BookingEventStep({
+  activeStatus,
   proposalBooking,
   isDirty,
   handleNext,
   handleSetDirty,
-}: BookingEventStepProps) {
+}: ProposalBookingDialogStepProps) {
+  const isStepReadOnly = activeStatus !== ProposalBookingStatus.DRAFT;
+
   const {
     call: { startCycle, endCycle, cycleComment },
     proposal: { title },
@@ -317,8 +314,8 @@ export default function BookingEventStep({
 
       <DialogContent>
         <TimeTable
-          selectable
-          editable
+          selectable={!isStepReadOnly}
+          editable={!isStepReadOnly}
           maxHeight={380}
           rows={rows}
           handleRowsChange={handleRowsChange}
@@ -332,6 +329,7 @@ export default function BookingEventStep({
                 className={classes.spacingLeft}
                 onClick={handleAdd}
                 data-cy="btn-add-time-slot"
+                disabled={isStepReadOnly}
               >
                 Add
               </Button>
@@ -347,6 +345,7 @@ export default function BookingEventStep({
           startIcon={<SaveIcon />}
           onClick={handleSaveDraft}
           data-cy="btn-save"
+          disabled={isStepReadOnly}
         >
           Save draft
         </Button>
@@ -355,6 +354,7 @@ export default function BookingEventStep({
           color="primary"
           onClick={handleSaveAndContinue}
           data-cy="btn-next"
+          disabled={isStepReadOnly}
         >
           Save and continue
         </Button>

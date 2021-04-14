@@ -1,7 +1,10 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { ResolverContext } from '../context';
 import { EquipmentDataSource } from '../datasources/EquipmentDataSource';
+import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
 import Authorized from '../decorators/Authorized';
 import { Equipment } from '../models/Equipment';
+import { ProposalBookingStatus } from '../models/ProposalBooking';
 import { Rejection, rejection } from '../rejection';
 import {
   EquipmentInput,
@@ -12,7 +15,10 @@ import {
 import { Roles } from '../types/shared';
 
 export default class EquipmentMutations {
-  constructor(private equipmentDataSource: EquipmentDataSource) {}
+  constructor(
+    private equipmentDataSource: EquipmentDataSource,
+    private proposalBookingDataSource: ProposalBookingDataSource
+  ) {}
 
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
   create(
@@ -41,10 +47,22 @@ export default class EquipmentMutations {
   }
 
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
-  assign(
+  async assign(
     ctx: ResolverContext,
     assignEquipmentsToScheduledEventInput: AssignEquipmentsToScheduledEventInput
   ) {
+    const proposalBooking = await this.proposalBookingDataSource.get(
+      assignEquipmentsToScheduledEventInput.proposalBookingId
+    );
+
+    if (
+      !proposalBooking ||
+      // if the booking is not in DRAFT state disallow assigning any equipment
+      proposalBooking.status !== ProposalBookingStatus.DRAFT
+    ) {
+      return false;
+    }
+
     // TODO: check if has permission
     //  assignEquipmentsToScheduledEventInput.proposalBookingId
 
@@ -54,10 +72,22 @@ export default class EquipmentMutations {
   }
 
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
-  deleteAssignment(
+  async deleteAssignment(
     ctx: ResolverContext,
     deleteEquipmentAssignmentInput: DeleteEquipmentAssignmentInput
   ) {
+    const proposalBooking = await this.proposalBookingDataSource.get(
+      deleteEquipmentAssignmentInput.proposalBookingId
+    );
+
+    if (
+      !proposalBooking ||
+      // if the booking is not in DRAFT state disallow delete any assigned equipment
+      proposalBooking.status !== ProposalBookingStatus.DRAFT
+    ) {
+      return false;
+    }
+
     // TODO: check if has permission
     //  assignEquipmentsToScheduledEventInput.proposalBookingId
 

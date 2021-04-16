@@ -8,6 +8,7 @@ import {
   Root,
   Ctx,
   Arg,
+  Int,
 } from 'type-graphql';
 
 import { ResolverContext } from '../../context';
@@ -19,6 +20,7 @@ import {
 import { TzLessDateTime } from '../CustomScalars';
 import { Equipment, EquipmentWithAssignmentStatus } from './Equipment';
 import { Instrument } from './Instrument';
+import { ProposalBooking } from './ProposalBooking';
 import { User } from './User';
 
 @ObjectType()
@@ -41,6 +43,9 @@ export class ScheduledEvent implements Partial<ScheduledEventBase> {
   @Field(() => TzLessDateTime)
   endsAt: Date;
 
+  @Field(() => Int, { nullable: true })
+  proposalBookingId: number | null;
+
   // external type
   @Type(() => User)
   @Field({ nullable: true })
@@ -56,7 +61,7 @@ export class ScheduledEvent implements Partial<ScheduledEventBase> {
 }
 
 @Resolver(() => ScheduledEvent)
-export class EquipmentResolver {
+export class ScheduledEventResolver {
   @FieldResolver(() => [EquipmentWithAssignmentStatus])
   equipments(
     @Root() scheduledEvent: ScheduledEvent,
@@ -78,6 +83,21 @@ export class EquipmentResolver {
       ctx,
       scheduledEvent.id,
       equipmentId
+    );
+  }
+
+  @FieldResolver(() => ProposalBooking, { nullable: true })
+  async proposalBooking(
+    @Root() scheduledEvent: ScheduledEvent,
+    @Ctx() ctx: ResolverContext
+  ): Promise<ProposalBooking | null> {
+    if (scheduledEvent.proposalBookingId === null) {
+      return null;
+    }
+
+    return ctx.queries.proposalBooking.get(
+      ctx,
+      scheduledEvent.proposalBookingId
     );
   }
 }

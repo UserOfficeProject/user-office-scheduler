@@ -21,7 +21,8 @@ export const dummyScheduledEvents: ScheduledEvent[] = [
     new Date(),
     { id: 0 },
     null,
-    { id: 0 }
+    { id: 0 },
+    1
   ),
   new ScheduledEvent(
     321,
@@ -32,7 +33,8 @@ export const dummyScheduledEvents: ScheduledEvent[] = [
     new Date(),
     { id: 0 },
     'dummy',
-    { id: 0 }
+    { id: 0 },
+    2
   ),
 ];
 
@@ -51,7 +53,8 @@ export default class MockupScheduledEventDataSource
       newScheduledEvent.endsAt,
       { id: scheduledById },
       newScheduledEvent.description,
-      { id: newScheduledEvent.instrumentId }
+      { id: newScheduledEvent.instrumentId },
+      1
     );
   }
 

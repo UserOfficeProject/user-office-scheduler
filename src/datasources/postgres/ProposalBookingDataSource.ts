@@ -6,7 +6,7 @@ import {
 } from '../../models/ProposalBooking';
 import { ProposalProposalBookingFilter } from '../../resolvers/types/Proposal';
 import { ProposalBookingDataSource } from '../ProposalBookingDataSource';
-import database, { UNIQUE_CONSTRAINT_VIOLATION } from './database';
+import database from './database';
 import { createProposalBookingObject, ProposalBookingRecord } from './records';
 
 type CreateFields = Pick<
@@ -18,30 +18,26 @@ export default class PostgresProposalBookingDataSource
   implements ProposalBookingDataSource {
   readonly tableName = 'proposal_bookings';
 
-  async create(event: {
+  async upsert(event: {
     proposalId: number;
     callId: number;
     allocatedTime: number;
     instrumentId: number;
   }): Promise<void> {
-    try {
-      await database<CreateFields>(this.tableName)
-        .insert({
-          proposal_id: event.proposalId,
-          call_id: event.callId,
-          status: ProposalBookingStatus.DRAFT,
-          allocated_time: event.allocatedTime,
-          instrument_id: event.instrumentId,
-        })
-        .returning<ProposalBookingRecord>(['*']);
-    } catch (e) {
-      // ignore duplicate entry error
-      if ('code' in e && e.code === UNIQUE_CONSTRAINT_VIOLATION) {
-        return;
-      }
-
-      throw e;
-    }
+    await database<CreateFields>(this.tableName)
+      .insert({
+        proposal_id: event.proposalId,
+        call_id: event.callId,
+        status: ProposalBookingStatus.DRAFT,
+        allocated_time: event.allocatedTime,
+        instrument_id: event.instrumentId,
+      })
+      .onConflict(['proposal_id', 'call_id'])
+      .merge({
+        allocated_time: event.allocatedTime,
+        instrument_id: event.instrumentId,
+      })
+      .returning<ProposalBookingRecord>(['*']);
   }
 
   async get(id: number): Promise<ProposalBooking | null> {

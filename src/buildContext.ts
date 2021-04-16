@@ -46,7 +46,10 @@ const equipmentQueries = new EquipmentQueries(
   equipmentDataSource,
   scheduledEventDataSource
 );
-const equipmentMutations = new EquipmentMutations(equipmentDataSource);
+const equipmentMutations = new EquipmentMutations(
+  equipmentDataSource,
+  proposalBookingDataSource
+);
 
 const context: BasicResolverContext = {
   isContext: true,

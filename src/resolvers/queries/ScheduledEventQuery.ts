@@ -1,4 +1,13 @@
-import { Arg, Ctx, Field, ID, InputType, Query, Resolver } from 'type-graphql';
+import {
+  Arg,
+  Ctx,
+  Field,
+  ID,
+  InputType,
+  Query,
+  Resolver,
+  Int,
+} from 'type-graphql';
 
 import { ResolverContext } from '../../context';
 import { TzLessDateTime } from '../CustomScalars';
@@ -63,11 +72,11 @@ export class ScheduledEventQuery {
   @Query(() => [ScheduledEvent])
   equipmentScheduledEvents(
     @Ctx() ctx: ResolverContext,
-    @Arg('equipmentId', () => ID) equipmentId: number
+    @Arg('equipmentIds', () => [Int]) equipmentIds: number[]
   ): Promise<ScheduledEvent[]> {
     return ctx.queries.scheduledEvent.equipmentScheduledEvents(
       ctx,
-      equipmentId
+      equipmentIds
     );
   }
 }

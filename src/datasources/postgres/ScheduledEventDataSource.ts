@@ -177,7 +177,7 @@ export default class PostgreScheduledEventDataSource
   }
 
   async equipmentScheduledEvents(
-    equipmentId: number
+    equipmentIds: number[]
   ): Promise<ScheduledEvent[]> {
     const scheduledEventRecords = await database<ScheduledEventRecord>(
       this.tableName
@@ -188,7 +188,7 @@ export default class PostgreScheduledEventDataSource
         `${this.tableName}.scheduled_event_id`,
         `${this.equipSchdEvTableName}.scheduled_event_id`
       )
-      .where(`${this.equipSchdEvTableName}.equipment_id`, equipmentId);
+      .whereIn(`${this.equipSchdEvTableName}.equipment_id`, equipmentIds);
 
     return scheduledEventRecords.map(createScheduledEventObject);
   }

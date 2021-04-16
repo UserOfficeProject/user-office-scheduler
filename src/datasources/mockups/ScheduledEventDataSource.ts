@@ -87,7 +87,7 @@ export default class MockupScheduledEventDataSource
   ): Promise<ScheduledEvent | null> {
     throw new Error('Method not implemented.');
   }
-  equipmentScheduledEvents(equipmentId: number): Promise<ScheduledEvent[]> {
+  equipmentScheduledEvents(equipmentIds: number[]): Promise<ScheduledEvent[]> {
     throw new Error('Method not implemented.');
   }
 }

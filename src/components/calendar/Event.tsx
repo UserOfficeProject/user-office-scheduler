@@ -2,7 +2,14 @@ import { makeStyles } from '@material-ui/core';
 import React, { CSSProperties } from 'react';
 import { EventProps } from 'react-big-calendar';
 
-import { ScheduledEvent, ScheduledEventBookingType } from 'generated/sdk';
+import ProposalBookingInfo from 'components/proposalBooking/ProposalBookingInfo';
+import {
+  GetScheduledEventsQuery,
+  ScheduledEvent,
+  ScheduledEventBookingType,
+} from 'generated/sdk';
+
+export type BasicProposalBooking = GetScheduledEventsQuery['scheduledEvents'][number]['proposalBooking'];
 
 export type CalendarScheduledEvent = Pick<
   ScheduledEvent,
@@ -11,6 +18,8 @@ export type CalendarScheduledEvent = Pick<
   start: Date;
   end: Date;
   title: string;
+} & {
+  proposalBooking: BasicProposalBooking;
 };
 
 const useStyles = makeStyles(() => ({
@@ -64,7 +73,7 @@ export function eventPropGetter(
 }
 
 export default function Event({
-  event: { description, start },
+  event: { description, start, proposalBooking },
   title,
 }: EventProps<CalendarScheduledEvent>) {
   const classes = useStyles();
@@ -76,6 +85,7 @@ export default function Event({
       {description && (
         <div className={classes.eventDescription}>{description}</div>
       )}
+      <ProposalBookingInfo booking={proposalBooking} />
     </div>
   );
 }

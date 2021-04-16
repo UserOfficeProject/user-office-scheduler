@@ -1,15 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 
-import { ScheduledEvent, ScheduledEventFilter } from 'generated/sdk';
+import { GetScheduledEventsQuery, ScheduledEventFilter } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 
 export default function useScheduledEvents(filter: ScheduledEventFilter) {
   const [loading, setLoading] = useState(true);
   const [scheduledEvents, setScheduledEvents] = useState<
-    Pick<
-      ScheduledEvent,
-      'id' | 'bookingType' | 'startsAt' | 'endsAt' | 'description'
-    >[]
+    GetScheduledEventsQuery['scheduledEvents']
   >([]);
   // may look stupid, but basically lets us provide a refresh option
   // and we won't get a warning when the component gets unmounted while

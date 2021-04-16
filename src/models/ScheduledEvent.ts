@@ -25,6 +25,7 @@ export class ScheduledEvent {
     public endsAt: Date,
     public scheduledBy: { id: number },
     public description: string | null,
-    public instrument: { id: number }
+    public instrument: { id: number },
+    public proposalBookingId: number | null
   ) {}
 }

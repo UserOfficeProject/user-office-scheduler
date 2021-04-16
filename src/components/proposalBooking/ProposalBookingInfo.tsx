@@ -40,7 +40,7 @@ function ProposalBookingInfo({ booking }: ProposalBookingInfoProps) {
       <div className={classes.shortCode}>Shortcode: {proposal.shortCode}</div>
       <div className={classes.title}>{proposal.title}</div>
       <div className={classes.proposer}>
-        {`${proposal.proposer?.firstname} ${proposal.proposer?.lastname}`}{' '}
+        {`${proposal.proposer?.firstname} ${proposal.proposer?.lastname}`}
       </div>
     </div>
   );

@@ -108,7 +108,7 @@ export default function ViewEquipment() {
   const {
     loading: scheduledEventsLoading,
     scheduledEvents,
-  } = useEquipmentScheduledEvents(id);
+  } = useEquipmentScheduledEvents([parseInt(id)]);
   const api = useDataApi();
   const [rows, setRows] = useState<TableRow[]>([]);
   const [confirmationLoading, setConfirmationLoading] = useState(false);
@@ -118,6 +118,7 @@ export default function ViewEquipment() {
       setRows(
         scheduledEvents.map(({ startsAt, endsAt, ...rest }) => ({
           ...rest,
+          equipmentAssignmentStatus: null,
           startsAt: parseTzLessDateTime(startsAt),
           endsAt: parseTzLessDateTime(endsAt),
         }))

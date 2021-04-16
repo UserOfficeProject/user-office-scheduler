@@ -16,8 +16,9 @@ import ScheduledEventDialog, {
 } from 'components/scheduledEvent/ScheduledEventDialog';
 import { BookingTypesMap } from 'components/scheduledEvent/ScheduledEventForm';
 import { AppContext } from 'context/AppContext';
-import { ScheduledEvent } from 'generated/sdk';
+import { ScheduledEvent, ScheduledEventBookingType } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
+import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
 import useScheduledEvents from 'hooks/scheduledEvent/useScheduledEvents';
 import { ContentContainer, StyledPaper } from 'styles/StyledComponents';
 import { parseTzLessDateTime } from 'utils/date';
@@ -92,6 +93,10 @@ export default function Calendar() {
 
   const query = useQuery();
   const queryInstrument = query.get('instrument');
+  const queryEquipment = query
+    .get('equipment')
+    ?.split(',')
+    .map(num => parseInt(num));
 
   const { showAlert } = useContext(AppContext);
   const [selectedEvent, setSelectedEvent] = useState<
@@ -114,13 +119,29 @@ export default function Calendar() {
 
   const { loading, scheduledEvents, refresh } = useScheduledEvents(filter);
 
+  const { scheduledEvents: eqEvents } = useEquipmentScheduledEvents(
+    queryEquipment
+  );
+
   useEffect(() => {
     setFilter(generateScheduledEventFilter(queryInstrument, startsAt, view));
   }, [queryInstrument, startsAt, view]);
 
-  const events = useMemo(() => transformEvent(scheduledEvents), [
-    scheduledEvents,
-  ]);
+  const eqEventsTransformed: Pick<
+    ScheduledEvent,
+    'id' | 'bookingType' | 'startsAt' | 'endsAt' | 'description'
+  >[] = eqEvents.map(x => {
+    return {
+      ...x,
+      bookingType: ScheduledEventBookingType.SHUTDOWN,
+      description: 'this is not good',
+    };
+  });
+
+  const events = useMemo(
+    () => transformEvent([...scheduledEvents, ...eqEventsTransformed]),
+    [scheduledEvents, eqEvents]
+  );
 
   const onNavigate = (newDate: Date, newView: View) => {
     setStartAt(newDate);

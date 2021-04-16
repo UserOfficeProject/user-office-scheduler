@@ -5,10 +5,12 @@ import { useDataApi } from 'hooks/common/useDataApi';
 
 export type EquipmentScheduledEvent = Pick<
   ScheduledEvent,
-  'id' | 'startsAt' | 'endsAt' | 'equipmentAssignmentStatus'
+  'id' | 'startsAt' | 'endsAt'
 >;
 
-export default function useEquipmentScheduledEvents(equipmentId: string) {
+export default function useEquipmentScheduledEvents(
+  equipmentIds: number[] | null | undefined
+) {
   const [loading, setLoading] = useState(true);
   const [scheduledEvents, setScheduledEvents] = useState<
     EquipmentScheduledEvent[]
@@ -18,10 +20,14 @@ export default function useEquipmentScheduledEvents(equipmentId: string) {
 
   useEffect(() => {
     let unmount = false;
+    if (!equipmentIds) {
+      setScheduledEvents([]);
 
+      return;
+    }
     setLoading(true);
     api()
-      .getEquipmentScheduledEvents({ equipmentId })
+      .getEquipmentScheduledEvents({ equipmentIds })
       .then(data => {
         if (unmount) {
           return;
@@ -38,7 +44,7 @@ export default function useEquipmentScheduledEvents(equipmentId: string) {
     return () => {
       unmount = true;
     };
-  }, [equipmentId, api]);
+  }, [equipmentIds, api]);
 
   return { loading, scheduledEvents } as const;
 }

@@ -16,7 +16,7 @@ import ScheduledEventDialog, {
 } from 'components/scheduledEvent/ScheduledEventDialog';
 import { BookingTypesMap } from 'components/scheduledEvent/ScheduledEventForm';
 import { AppContext } from 'context/AppContext';
-import { ScheduledEvent } from 'generated/sdk';
+import { GetScheduledEventsQuery, ScheduledEvent } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
 import useScheduledEvents from 'hooks/scheduledEvent/useScheduledEvents';
 import { ContentContainer, StyledPaper } from 'styles/StyledComponents';
@@ -48,10 +48,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 function transformEvent(
-  scheduledEvents: Pick<
-    ScheduledEvent,
-    'id' | 'bookingType' | 'startsAt' | 'endsAt' | 'description'
-  >[]
+  scheduledEvents: GetScheduledEventsQuery['scheduledEvents']
 ): CalendarScheduledEvent[] {
   return scheduledEvents.map(scheduledEvent => ({
     id: scheduledEvent.id,
@@ -60,6 +57,7 @@ function transformEvent(
     title: BookingTypesMap[scheduledEvent.bookingType],
     bookingType: scheduledEvent.bookingType,
     description: scheduledEvent.description,
+    proposalBooking: scheduledEvent.proposalBooking,
   }));
 }
 

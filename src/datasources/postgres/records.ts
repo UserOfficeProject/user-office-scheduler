@@ -38,7 +38,8 @@ export const createScheduledEventObject = (
     scheduledEvent.ends_at,
     { id: scheduledEvent.scheduled_by }, // federation expect `{[@key field1]: $value, [@key field2]}` format
     scheduledEvent.description,
-    { id: scheduledEvent.instrument_id }
+    { id: scheduledEvent.instrument_id },
+    scheduledEvent.proposal_booking_id
   );
 
 export interface ProposalBookingRecord {

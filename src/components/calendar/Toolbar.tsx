@@ -87,7 +87,7 @@ export default function Toolbar({
 
   const [selectedEquipment, setSelectedEquipment] = useState<
     Pick<Equipment, 'id' | 'name'>[] | undefined
-  >(undefined);
+  >([]);
 
   useEffect(() => {
     if (!instrumentsLoading && queryInstrument) {
@@ -233,8 +233,15 @@ export default function Toolbar({
               event: React.ChangeEvent<unknown>,
               newValue: Pick<Equipment, 'id' | 'name'>[] | undefined
             ) => {
+              if (newValue === undefined || newValue.length === 0) {
+                query.delete('equipment');
+              } else {
+                query.set(
+                  'equipment',
+                  `${newValue?.map(eq => eq.id).join(',')}`
+                );
+              }
               setSelectedEquipment(newValue);
-              query.set('equipment', `${newValue?.map(eq => eq.id).join(',')}`);
               history.push(`?${query}`);
             }}
           />

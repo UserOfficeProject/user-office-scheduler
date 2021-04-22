@@ -1418,6 +1418,29 @@ export type EquipmentResponseWrap = {
   equipment: Maybe<Equipment>;
 };
 
+export type EquipmentScheduledEvent = {
+  __typename?: 'EquipmentScheduledEvent';
+  id: Scalars['ID'];
+  createdAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime'];
+  bookingType: ScheduledEventBookingType;
+  startsAt: Scalars['TzLessDateTime'];
+  endsAt: Scalars['TzLessDateTime'];
+  proposalBookingId: Maybe<Scalars['Int']>;
+  scheduledBy: Maybe<User>;
+  description: Maybe<Scalars['String']>;
+  instrument: Maybe<Instrument>;
+  equipments: Array<EquipmentWithAssignmentStatus>;
+  equipmentAssignmentStatus: Maybe<EquipmentAssignmentStatus>;
+  proposalBooking: Maybe<ProposalBooking>;
+  equipmentId: Scalars['ID'];
+};
+
+
+export type EquipmentScheduledEventEquipmentAssignmentStatusArgs = {
+  equipmentId: Scalars['ID'];
+};
+
 export type EquipmentWithAssignmentStatus = {
   __typename?: 'EquipmentWithAssignmentStatus';
   id: Scalars['ID'];
@@ -1514,11 +1537,13 @@ export type ScheduledEvent = {
   bookingType: ScheduledEventBookingType;
   startsAt: Scalars['TzLessDateTime'];
   endsAt: Scalars['TzLessDateTime'];
+  proposalBookingId: Maybe<Scalars['Int']>;
   scheduledBy: Maybe<User>;
   description: Maybe<Scalars['String']>;
   instrument: Maybe<Instrument>;
   equipments: Array<EquipmentWithAssignmentStatus>;
   equipmentAssignmentStatus: Maybe<EquipmentAssignmentStatus>;
+  proposalBooking: Maybe<ProposalBooking>;
 };
 
 
@@ -1530,7 +1555,8 @@ export enum ScheduledEventBookingType {
   USER_OPERATIONS = 'USER_OPERATIONS',
   MAINTENANCE = 'MAINTENANCE',
   SHUTDOWN = 'SHUTDOWN',
-  COMMISSIONING = 'COMMISSIONING'
+  COMMISSIONING = 'COMMISSIONING',
+  EQUIPMENT = 'EQUIPMENT'
 }
 
 export type ScheduledEventFilter = {
@@ -1639,7 +1665,7 @@ export type Query = {
   scheduledEvent: Maybe<ScheduledEvent>;
   proposalBookingScheduledEvents: Array<ScheduledEvent>;
   proposalBookingScheduledEvent: Maybe<ScheduledEvent>;
-  equipmentScheduledEvents: Array<ScheduledEvent>;
+  equipmentScheduledEvents: Array<EquipmentScheduledEvent>;
   equipments: Array<Equipment>;
   availableEquipments: Array<Equipment>;
   equipment: Maybe<Equipment>;
@@ -3124,8 +3150,12 @@ export type GetEquipmentScheduledEventsQueryVariables = Exact<{
 export type GetEquipmentScheduledEventsQuery = (
   { __typename?: 'Query' }
   & { equipmentScheduledEvents: Array<(
-    { __typename?: 'ScheduledEvent' }
-    & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
+    { __typename?: 'EquipmentScheduledEvent' }
+    & Pick<EquipmentScheduledEvent, 'id' | 'startsAt' | 'endsAt' | 'equipmentId'>
+    & { equipments: Array<(
+      { __typename?: 'EquipmentWithAssignmentStatus' }
+      & Pick<EquipmentWithAssignmentStatus, 'id' | 'name'>
+    )> }
   )> }
 );
 
@@ -3170,6 +3200,18 @@ export type GetScheduledEventsQuery = (
   & { scheduledEvents: Array<(
     { __typename?: 'ScheduledEvent' }
     & Pick<ScheduledEvent, 'id' | 'bookingType' | 'startsAt' | 'endsAt' | 'description'>
+    & { proposalBooking: Maybe<(
+      { __typename?: 'ProposalBooking' }
+      & Pick<ProposalBooking, 'status'>
+      & { proposal: Maybe<(
+        { __typename?: 'Proposal' }
+        & Pick<Proposal, 'id' | 'title' | 'shortCode'>
+        & { proposer: Maybe<(
+          { __typename?: 'BasicUserDetails' }
+          & Pick<BasicUserDetails, 'firstname' | 'lastname'>
+        )> }
+      )> }
+    )> }
   )> }
 );
 
@@ -3443,6 +3485,11 @@ export const GetEquipmentScheduledEventsDocument = gql`
     id
     startsAt
     endsAt
+    equipmentId
+    equipments {
+      id
+      name
+    }
   }
 }
     `;
@@ -3482,6 +3529,18 @@ export const GetScheduledEventsDocument = gql`
     startsAt
     endsAt
     description
+    proposalBooking {
+      status
+      proposal {
+        id
+        title
+        shortCode
+        proposer {
+          firstname
+          lastname
+        }
+      }
+    }
   }
 }
     `;

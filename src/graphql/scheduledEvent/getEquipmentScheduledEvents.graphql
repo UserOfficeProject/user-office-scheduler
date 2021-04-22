@@ -3,5 +3,10 @@ query getEquipmentScheduledEvents($equipmentIds: [Int!]!) {
     id
     startsAt
     endsAt
+    equipmentId
+    equipments{
+      id
+      name
+    }
   }
 }

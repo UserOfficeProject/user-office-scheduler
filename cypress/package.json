@@ -10,6 +10,6 @@
   },
   "scripts": {
     "cypress:open": "cypress open",
-    "cy:run": "env TZ=Europe/Stockholm cypress run --headless --browser chrome"
+    "cy:run": "env TZ=Europe/Stockholm cypress run --headless --browser chrome --config defaultCommandTimeout=15000"
   }
 }

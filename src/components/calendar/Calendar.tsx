@@ -16,7 +16,11 @@ import ScheduledEventDialog, {
 } from 'components/scheduledEvent/ScheduledEventDialog';
 import { BookingTypesMap } from 'components/scheduledEvent/ScheduledEventForm';
 import { AppContext } from 'context/AppContext';
-import { ScheduledEvent, ScheduledEventBookingType } from 'generated/sdk';
+import {
+  ScheduledEvent,
+  ScheduledEventBookingType,
+  GetScheduledEventsQuery,
+} from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
 import useScheduledEvents from 'hooks/scheduledEvent/useScheduledEvents';
@@ -49,10 +53,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 function transformEvent(
-  scheduledEvents: Pick<
-    ScheduledEvent,
-    'id' | 'bookingType' | 'startsAt' | 'endsAt' | 'description'
-  >[]
+  scheduledEvents: GetScheduledEventsQuery['scheduledEvents']
 ): CalendarScheduledEvent[] {
   return scheduledEvents.map(scheduledEvent => ({
     id: scheduledEvent.id,
@@ -61,6 +62,7 @@ function transformEvent(
     title: BookingTypesMap[scheduledEvent.bookingType],
     bookingType: scheduledEvent.bookingType,
     description: scheduledEvent.description,
+    proposalBooking: scheduledEvent.proposalBooking,
   }));
 }
 
@@ -93,10 +95,11 @@ export default function Calendar() {
 
   const query = useQuery();
   const queryInstrument = query.get('instrument');
-  const queryEquipment = query
-    .get('equipment')
-    ?.split(',')
-    .map(num => parseInt(num));
+  const queryEquipment =
+    query
+      .get('equipment')
+      ?.split(',')
+      .map(num => parseInt(num)) || [];
 
   const { showAlert } = useContext(AppContext);
   const [selectedEvent, setSelectedEvent] = useState<
@@ -119,28 +122,42 @@ export default function Calendar() {
 
   const { loading, scheduledEvents, refresh } = useScheduledEvents(filter);
 
-  const { scheduledEvents: eqEvents } = useEquipmentScheduledEvents(
-    queryEquipment
-  );
+  const {
+    scheduledEvents: eqEvents,
+    selectedEquipment,
+    setSelectedEquipments,
+  } = useEquipmentScheduledEvents(queryEquipment);
 
+  if (
+    selectedEquipment.length !== queryEquipment.length ||
+    !selectedEquipment.every(eq => queryEquipment.includes(eq))
+  ) {
+    setSelectedEquipments(queryEquipment);
+  }
   useEffect(() => {
     setFilter(generateScheduledEventFilter(queryInstrument, startsAt, view));
   }, [queryInstrument, startsAt, view]);
 
   const eqEventsTransformed: Pick<
     ScheduledEvent,
-    'id' | 'bookingType' | 'startsAt' | 'endsAt' | 'description'
+    | 'id'
+    | 'bookingType'
+    | 'startsAt'
+    | 'endsAt'
+    | 'description'
+    | 'proposalBooking'
   >[] = eqEvents.map(x => {
     return {
       ...x,
-      bookingType: ScheduledEventBookingType.SHUTDOWN,
-      description: 'this is not good',
+      bookingType: ScheduledEventBookingType.EQUIPMENT,
+      description: x.equipments.find(eq => x.equipmentId === eq.id)?.name || '',
+      proposalBooking: null,
     };
   });
 
   const events = useMemo(
     () => transformEvent([...scheduledEvents, ...eqEventsTransformed]),
-    [scheduledEvents, eqEvents]
+    [scheduledEvents, eqEventsTransformed]
   );
 
   const onNavigate = (newDate: Date, newView: View) => {

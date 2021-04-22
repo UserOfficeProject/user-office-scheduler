@@ -5,5 +5,17 @@ query getScheduledEvents($filter: ScheduledEventFilter!) {
     startsAt
     endsAt
     description
+    proposalBooking {
+      status
+      proposal {
+        id
+        title
+        shortCode
+        proposer {
+          firstname
+          lastname
+        }
+      }
+    }
   }
 }

@@ -20,6 +20,7 @@ type SplitButtonProps<T> = {
   options: SplitButtonOption<T>[];
   label: string;
   disabled?: boolean;
+  dropdownDisabled?: boolean;
   onClick?: (selectedKey: T) => void;
 };
 
@@ -27,6 +28,7 @@ export default function SplitButton<T extends string>({
   options,
   label,
   disabled,
+  dropdownDisabled,
   onClick,
 }: SplitButtonProps<T>) {
   const [open, setOpen] = useState(false);
@@ -78,6 +80,7 @@ export default function SplitButton<T extends string>({
           aria-label={label}
           aria-haspopup="menu"
           onClick={handleToggle}
+          disabled={dropdownDisabled}
         >
           <ArrowDropDownIcon />
         </Button>

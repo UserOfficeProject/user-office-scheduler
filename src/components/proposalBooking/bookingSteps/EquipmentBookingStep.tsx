@@ -1,3 +1,4 @@
+import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
 import {
   DialogContent,
   Typography,
@@ -5,6 +6,8 @@ import {
   Button,
   makeStyles,
   Toolbar,
+  FormControlLabel,
+  Checkbox,
 } from '@material-ui/core';
 import { Add as AddIcon } from '@material-ui/icons';
 import { useSnackbar } from 'notistack';
@@ -12,10 +15,11 @@ import React, { useState, useContext } from 'react';
 
 import Loader from 'components/common/Loader';
 import { AppContext } from 'context/AppContext';
+import { ProposalBookingStatus } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
-import { DetailedProposalBooking } from 'hooks/proposalBooking/useProposalBooking';
 import useScheduledEventsWithEquipments from 'hooks/scheduledEvent/useScheduledEventsWithEquipments';
 
+import { ProposalBookingDialogStepProps } from '../ProposalBookingDialog';
 import SelectTimeSlotsDialog from './equipmentBooking/SelectTimeSlotsDialog';
 import TimeSlotEquipmentTable from './equipmentBooking/TimeSlotEquipmentTable';
 
@@ -40,23 +44,20 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-type EquipmentBookingStepProps = {
-  proposalBooking: DetailedProposalBooking;
-  isDirty: boolean;
-  handleNext: () => void;
-  handleBack: () => void;
-  handleSetDirty: (isDirty: boolean) => void;
-};
-
 export default function EquipmentBookingStep({
+  activeStatus,
   proposalBooking,
   handleNext,
   handleBack,
-}: EquipmentBookingStepProps) {
+  handleSetActiveStepByStatus,
+}: ProposalBookingDialogStepProps) {
+  const isStepReadOnly = activeStatus !== ProposalBookingStatus.DRAFT;
+
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState(false);
   const [equipmentDialog, setEquipmentDialog] = useState(false);
+  const [warningAccepted, setWarningAccepted] = useState(false);
   const {
     loading: scheduledEventsLoading,
     scheduledEvents,
@@ -72,6 +73,34 @@ export default function EquipmentBookingStep({
 
   const { showConfirmation } = useContext(AppContext);
   const api = useDataApi();
+
+  const handleActivateSubmit = async () => {
+    try {
+      setLoading(true);
+
+      const {
+        activateProposalBooking: { error },
+      } = await api().activateProposalBooking({
+        id: proposalBooking.id,
+      });
+
+      if (error) {
+        enqueueSnackbar(getTranslation(error as ResourceId), {
+          variant: 'error',
+        });
+
+        setLoading(false);
+      } else {
+        handleNext();
+        handleSetActiveStepByStatus(ProposalBookingStatus.BOOKED);
+      }
+    } catch (e) {
+      // TODO
+      setLoading(false);
+      console.error(e);
+    }
+  };
+
   const handleDeleteAssignment = (
     equipmentId: string,
     scheduledEventId: string
@@ -86,7 +115,9 @@ export default function EquipmentBookingStep({
       cb: async () => {
         setLoading(true);
 
-        const success = await api().deleteEquipmentAssignment({
+        const {
+          deleteEquipmentAssignment: success,
+        } = await api().deleteEquipmentAssignment({
           deleteEquipmentAssignmentInput: {
             equipmentId,
             scheduledEventId,
@@ -96,13 +127,14 @@ export default function EquipmentBookingStep({
 
         if (success) {
           refresh();
-          setLoading(false);
           enqueueSnackbar('Removed', { variant: 'success' });
         } else {
           enqueueSnackbar('Failed to remove selected assignment', {
             variant: 'error',
           });
         }
+
+        setLoading(false);
       },
     });
   };
@@ -135,6 +167,7 @@ export default function EquipmentBookingStep({
               className={classes.spacingLeft}
               onClick={() => setEquipmentDialog(true)}
               data-cy="btn-book-equipment"
+              disabled={isStepReadOnly}
             >
               Book equipment
             </Button>
@@ -143,6 +176,7 @@ export default function EquipmentBookingStep({
         <TimeSlotEquipmentTable
           rows={scheduledEvents}
           onDeleteAssignment={handleDeleteAssignment}
+          readOnly={isStepReadOnly}
         />
       </DialogContent>
 
@@ -152,16 +186,29 @@ export default function EquipmentBookingStep({
           color="primary"
           onClick={handleBack}
           data-cy="btn-back"
+          disabled={isStepReadOnly}
         >
           Back
         </Button>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={warningAccepted}
+              onChange={() => setWarningAccepted(prev => !prev)}
+              name="warningAccepted"
+              color="primary"
+              disabled={isStepReadOnly}
+            />
+          }
+          label="I wish to proceed"
+        />
         <Button
           variant="contained"
           color="primary"
-          onClick={handleNext}
-          data-cy="btn-next"
+          disabled={isStepReadOnly || !warningAccepted}
+          onClick={handleActivateSubmit}
         >
-          Next
+          Activate booking
         </Button>
       </DialogActions>
     </>

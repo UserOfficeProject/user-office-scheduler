@@ -15,13 +15,16 @@ import React, { useContext, useEffect, useState } from 'react';
 import Loader from 'components/common/Loader';
 import SplitButton from 'components/common/SplitButton';
 import { AppContext } from 'context/AppContext';
-import { ProposalBookingFinalizeAction } from 'generated/sdk';
+import {
+  ProposalBookingFinalizeAction,
+  ProposalBookingStatus,
+} from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import useProposalBookingLostTimes from 'hooks/lostTime/useProposalBookingLostTimes';
-import { DetailedProposalBooking } from 'hooks/proposalBooking/useProposalBooking';
 import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
 import { hasOverlappingEvents } from 'utils/scheduledEvent';
 
+import { ProposalBookingDialogStepProps } from '../ProposalBookingDialog';
 import TimeTable, { TimeTableRow } from '../TimeTable';
 
 const useStyles = makeStyles(theme => ({
@@ -35,21 +38,17 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-type FinalizeStepProps = {
-  proposalBooking: DetailedProposalBooking;
-  isDirty: boolean;
-  handleSetDirty: (isDirty: boolean) => void;
-  handleNext: () => void;
-  handleResetSteps: () => void;
-};
-
 export default function FinalizeStep({
+  activeStatus,
   proposalBooking,
   isDirty,
   handleSetDirty,
   handleNext,
   handleResetSteps,
-}: FinalizeStepProps) {
+  handleSetActiveStepByStatus,
+}: ProposalBookingDialogStepProps) {
+  const isStepReadOnly = activeStatus !== ProposalBookingStatus.BOOKED;
+
   const classes = useStyles();
 
   const { loading, lostTimes } = useProposalBookingLostTimes(
@@ -174,6 +173,12 @@ export default function FinalizeStep({
         selectedKey === ProposalBookingFinalizeAction.CLOSE
           ? handleNext()
           : handleResetSteps();
+
+        handleSetActiveStepByStatus(
+          selectedKey === ProposalBookingFinalizeAction.CLOSE
+            ? ProposalBookingStatus.CLOSED
+            : ProposalBookingStatus.DRAFT
+        );
       }
     } catch (e) {
       // TODO
@@ -203,8 +208,8 @@ export default function FinalizeStep({
 
       <DialogContent>
         <TimeTable
-          selectable
-          editable
+          selectable={!isStepReadOnly}
+          editable={!isStepReadOnly}
           maxHeight={380}
           rows={rows}
           handleRowsChange={handleRowsChange}
@@ -218,6 +223,7 @@ export default function FinalizeStep({
                 className={classes.spacingLeft}
                 onClick={handleAdd}
                 data-cy="btn-add-lost-time"
+                disabled={isStepReadOnly}
               >
                 Add
               </Button>
@@ -231,8 +237,9 @@ export default function FinalizeStep({
             startIcon={<SaveIcon />}
             onClick={handleSave}
             data-cy="btn-save"
+            disabled={isStepReadOnly}
           >
-            Save
+            Save lost time
           </Button>
         </div>
         <div className={classes.spacing}>
@@ -243,6 +250,7 @@ export default function FinalizeStep({
                 onChange={() => setWarningAccepted(prev => !prev)}
                 name="warningAccepted"
                 color="primary"
+                disabled={isStepReadOnly}
               />
             }
             label="I wish to proceed"
@@ -260,15 +268,18 @@ export default function FinalizeStep({
               },
             ]}
             onClick={handleFinalize}
-            disabled={!warningAccepted}
+            disabled={isStepReadOnly || !warningAccepted}
+            dropdownDisabled={isStepReadOnly}
           />
         </div>
-        <div>
-          <Alert severity="warning">
-            <AlertTitle>Warning</AlertTitle>
-            Lorem ipsum
-          </Alert>
-        </div>
+        {!isStepReadOnly && (
+          <div>
+            <Alert severity="warning">
+              <AlertTitle>Warning</AlertTitle>
+              Closing proposal booking disallows any further edit
+            </Alert>
+          </div>
+        )}
       </DialogContent>
     </>
   );

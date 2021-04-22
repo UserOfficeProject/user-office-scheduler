@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/camelcase */
+import { EquipmentScheduledEvent } from '../../models/EquipmentScheduledEvent';
 import {
   ScheduledEvent,
   ScheduledEventBookingType,
@@ -13,7 +14,9 @@ import { ScheduledEventDataSource } from '../ScheduledEventDataSource';
 import database from './database';
 import {
   ScheduledEventRecord,
+  EqScheduledEventRecord,
   createScheduledEventObject,
+  createEqScheduledEventObject,
   MetaFields,
 } from './records';
 
@@ -178,11 +181,11 @@ export default class PostgreScheduledEventDataSource
 
   async equipmentScheduledEvents(
     equipmentIds: number[]
-  ): Promise<ScheduledEvent[]> {
+  ): Promise<EquipmentScheduledEvent[]> {
     const scheduledEventRecords = await database<ScheduledEventRecord>(
       this.tableName
     )
-      .select<ScheduledEventRecord[]>(`${this.tableName}.*`)
+      .select<EqScheduledEventRecord[]>('*')
       .join(
         this.equipSchdEvTableName,
         `${this.tableName}.scheduled_event_id`,
@@ -190,6 +193,6 @@ export default class PostgreScheduledEventDataSource
       )
       .whereIn(`${this.equipSchdEvTableName}.equipment_id`, equipmentIds);
 
-    return scheduledEventRecords.map(createScheduledEventObject);
+    return scheduledEventRecords.map(createEqScheduledEventObject);
   }
 }

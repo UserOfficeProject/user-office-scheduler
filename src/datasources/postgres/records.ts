@@ -1,4 +1,5 @@
 import { Equipment } from '../../models/Equipment';
+import { EquipmentScheduledEvent } from '../../models/EquipmentScheduledEvent';
 import { LostTime } from '../../models/LostTime';
 import {
   ProposalBooking,
@@ -26,6 +27,10 @@ export interface ScheduledEventRecord {
   readonly instrument_id: number;
 }
 
+export interface EqScheduledEventRecord extends ScheduledEventRecord {
+  readonly equipment_id: number;
+}
+
 export const createScheduledEventObject = (
   scheduledEvent: ScheduledEventRecord
 ) =>
@@ -40,6 +45,23 @@ export const createScheduledEventObject = (
     scheduledEvent.description,
     { id: scheduledEvent.instrument_id },
     scheduledEvent.proposal_booking_id
+  );
+
+export const createEqScheduledEventObject = (
+  scheduledEvent: EqScheduledEventRecord
+) =>
+  new EquipmentScheduledEvent(
+    scheduledEvent.scheduled_event_id,
+    scheduledEvent.created_at,
+    scheduledEvent.updated_at,
+    scheduledEvent.booking_type,
+    scheduledEvent.starts_at,
+    scheduledEvent.ends_at,
+    { id: scheduledEvent.scheduled_by }, // federation expect `{[@key field1]: $value, [@key field2]}` format
+    scheduledEvent.description,
+    { id: scheduledEvent.instrument_id },
+    scheduledEvent.proposal_booking_id,
+    scheduledEvent.equipment_id
   );
 
 export interface ProposalBookingRecord {

@@ -3,6 +3,7 @@ export enum ScheduledEventBookingType {
   MAINTENANCE = 'MAINTENANCE',
   SHUTDOWN = 'SHUTDOWN',
   COMMISSIONING = 'COMMISSIONING',
+  EQUIPMENT = 'EQUIPMENT',
 }
 
 export type BookingTypes = typeof ScheduledEventBookingType;

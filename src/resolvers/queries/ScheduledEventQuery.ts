@@ -11,6 +11,7 @@ import {
 
 import { ResolverContext } from '../../context';
 import { TzLessDateTime } from '../CustomScalars';
+import { EquipmentScheduledEvent } from '../types/EquipmentScheduledEvent';
 import { ScheduledEvent } from '../types/ScheduledEvent';
 
 @InputType()
@@ -69,11 +70,11 @@ export class ScheduledEventQuery {
     );
   }
 
-  @Query(() => [ScheduledEvent])
+  @Query(() => [EquipmentScheduledEvent])
   equipmentScheduledEvents(
     @Ctx() ctx: ResolverContext,
     @Arg('equipmentIds', () => [Int]) equipmentIds: number[]
-  ): Promise<ScheduledEvent[]> {
+  ): Promise<EquipmentScheduledEvent[]> {
     return ctx.queries.scheduledEvent.equipmentScheduledEvents(
       ctx,
       equipmentIds

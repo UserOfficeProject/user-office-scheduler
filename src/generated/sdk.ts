@@ -1436,29 +1436,6 @@ export type EquipmentResponseWrap = {
   equipment: Maybe<Equipment>;
 };
 
-export type EquipmentScheduledEvent = {
-  __typename?: 'EquipmentScheduledEvent';
-  id: Scalars['ID'];
-  createdAt: Scalars['DateTime'];
-  updatedAt: Scalars['DateTime'];
-  bookingType: ScheduledEventBookingType;
-  startsAt: Scalars['TzLessDateTime'];
-  endsAt: Scalars['TzLessDateTime'];
-  proposalBookingId: Maybe<Scalars['Int']>;
-  scheduledBy: Maybe<User>;
-  description: Maybe<Scalars['String']>;
-  instrument: Maybe<Instrument>;
-  equipments: Array<EquipmentWithAssignmentStatus>;
-  equipmentAssignmentStatus: Maybe<EquipmentAssignmentStatus>;
-  proposalBooking: Maybe<ProposalBooking>;
-  equipmentId: Scalars['ID'];
-};
-
-
-export type EquipmentScheduledEventEquipmentAssignmentStatusArgs = {
-  equipmentId: Scalars['ID'];
-};
-
 export type EquipmentWithAssignmentStatus = {
   __typename?: 'EquipmentWithAssignmentStatus';
   id: Scalars['ID'];
@@ -1585,8 +1562,8 @@ export enum ScheduledEventBookingType {
 }
 
 export type ScheduledEventFilter = {
-  startsAt?: Maybe<Scalars['TzLessDateTime']>;
-  endsAt?: Maybe<Scalars['TzLessDateTime']>;
+  startsAt: Scalars['TzLessDateTime'];
+  endsAt: Scalars['TzLessDateTime'];
   instrumentId?: Maybe<Scalars['ID']>;
 };
 
@@ -1690,7 +1667,6 @@ export type Query = {
   scheduledEvent: Maybe<ScheduledEvent>;
   proposalBookingScheduledEvents: Array<ScheduledEvent>;
   proposalBookingScheduledEvent: Maybe<ScheduledEvent>;
-  equipmentScheduledEvents: Array<EquipmentScheduledEvent>;
   equipments: Array<Equipment>;
   availableEquipments: Array<Equipment>;
   equipment: Maybe<Equipment>;
@@ -1980,13 +1956,6 @@ export type QueryProposalBookingScheduledEventsArgs = {
 export type QueryProposalBookingScheduledEventArgs = {
   scheduledEventId: Scalars['ID'];
   proposalBookingId: Scalars['ID'];
-};
-
-
-export type QueryEquipmentScheduledEventsArgs = {
-  endsAt: Scalars['TzLessDateTime'];
-  startsAt: Scalars['TzLessDateTime'];
-  equipmentIds: Array<Scalars['Int']>;
 };
 
 

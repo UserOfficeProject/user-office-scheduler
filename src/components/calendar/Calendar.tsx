@@ -128,8 +128,8 @@ export default function Calendar() {
     setSelectedEquipments,
   } = useEquipmentScheduledEvents(
     queryEquipment,
-    filter.startsAt || '',
-    filter.endsAt || ''
+    filter.startsAt,
+    filter.endsAt
   );
 
   if (

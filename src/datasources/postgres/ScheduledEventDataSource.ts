@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/camelcase */
-import { EquipmentScheduledEvent } from '../../models/EquipmentScheduledEvent';
 import {
   ScheduledEvent,
   ScheduledEventBookingType,
@@ -16,7 +15,6 @@ import {
   ScheduledEventRecord,
   EqScheduledEventRecord,
   createScheduledEventObject,
-  createEqScheduledEventObject,
   MetaFields,
 } from './records';
 
@@ -183,7 +181,7 @@ export default class PostgreScheduledEventDataSource
     equipmentIds: number[],
     startsAt: Date,
     endsAt: Date
-  ): Promise<EquipmentScheduledEvent[]> {
+  ): Promise<ScheduledEvent[]> {
     const scheduledEventRecords = await database<ScheduledEventRecord>(
       this.tableName
     )
@@ -197,6 +195,6 @@ export default class PostgreScheduledEventDataSource
       .where('starts_at', '<=', endsAt)
       .andWhere('ends_at', '>=', startsAt);
 
-    return scheduledEventRecords.map(createEqScheduledEventObject);
+    return scheduledEventRecords.map(createScheduledEventObject);
   }
 }

@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { EquipmentScheduledEvent } from '../../models/EquipmentScheduledEvent';
 import {
   ScheduledEvent,
   ScheduledEventBookingType,
@@ -92,8 +91,10 @@ export default class MockupScheduledEventDataSource
     throw new Error('Method not implemented.');
   }
   equipmentScheduledEvents(
-    equipmentIds: number[]
-  ): Promise<EquipmentScheduledEvent[]> {
+    equipmentIds: number[],
+    startsAt: Date,
+    endsAt: Date
+  ): Promise<ScheduledEvent[]> {
     throw new Error('Method not implemented.');
   }
 }

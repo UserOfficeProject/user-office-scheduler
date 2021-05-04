@@ -108,15 +108,18 @@ export default function ViewEquipment() {
   const {
     loading: scheduledEventsLoading,
     scheduledEvents,
-  } = useEquipmentScheduledEvents([parseInt(id)]);
+  } = useEquipmentScheduledEvents(
+    [parseInt(id)],
+    toTzLessDateTime(new Date()),
+    toTzLessDateTime(moment(new Date()).add(1, 'year'))
+  );
   const api = useDataApi();
   const [rows, setRows] = useState<TableRow[]>([]);
   const [confirmationLoading, setConfirmationLoading] = useState(false);
-
   useEffect(() => {
     if (!scheduledEventsLoading) {
       setRows(
-        scheduledEvents.map(({ startsAt, endsAt, ...rest }) => ({
+        scheduledEvents[0].events.map(({ startsAt, endsAt, ...rest }) => ({
           ...rest,
           equipmentAssignmentStatus: null,
           startsAt: parseTzLessDateTime(startsAt),
@@ -286,7 +289,7 @@ export default function ViewEquipment() {
             ) : (
               <Table
                 defaultOrderBy="startsAt"
-                tableTitle="Time Slots"
+                tableTitle="Time Slots Upcoming Year"
                 headCells={defaultHeadCells}
                 rowActions={RowActions}
                 showEmptyRows

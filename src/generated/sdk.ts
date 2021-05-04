@@ -142,6 +142,8 @@ export type Call = {
   endNotify: Scalars['DateTime'];
   startCycle: Scalars['DateTime'];
   endCycle: Scalars['DateTime'];
+  referenceNumberFormat: Maybe<Scalars['String']>;
+  proposalSequence: Maybe<Scalars['Int']>;
   cycleComment: Scalars['String'];
   surveyComment: Scalars['String'];
   proposalWorkflowId: Maybe<Scalars['Int']>;
@@ -149,6 +151,7 @@ export type Call = {
   instruments: Array<InstrumentWithAvailabilityTime>;
   proposalWorkflow: Maybe<ProposalWorkflow>;
   proposalCount: Scalars['Int'];
+  isActive: Scalars['Boolean'];
 };
 
 export type CallResponseWrap = {
@@ -198,6 +201,8 @@ export type CreateCallInput = {
   endNotify: Scalars['DateTime'];
   startCycle: Scalars['DateTime'];
   endCycle: Scalars['DateTime'];
+  referenceNumberFormat?: Maybe<Scalars['String']>;
+  proposalSequence?: Maybe<Scalars['Int']>;
   cycleComment: Scalars['String'];
   surveyComment: Scalars['String'];
   proposalWorkflowId?: Maybe<Scalars['Int']>;
@@ -329,7 +334,9 @@ export enum Event {
   SEP_MEMBER_ASSIGNED_TO_PROPOSAL = 'SEP_MEMBER_ASSIGNED_TO_PROPOSAL',
   SEP_MEMBER_REMOVED_FROM_PROPOSAL = 'SEP_MEMBER_REMOVED_FROM_PROPOSAL',
   PROPOSAL_NOTIFIED = 'PROPOSAL_NOTIFIED',
-  PROPOSAL_CLONED = 'PROPOSAL_CLONED'
+  PROPOSAL_CLONED = 'PROPOSAL_CLONED',
+  PROPOSAL_STATUS_CHANGED_BY_WORKFLOW = 'PROPOSAL_STATUS_CHANGED_BY_WORKFLOW',
+  PROPOSAL_STATUS_CHANGED_BY_USER = 'PROPOSAL_STATUS_CHANGED_BY_USER'
 }
 
 export type EventLog = {
@@ -513,11 +520,6 @@ export type OrcIdInformation = {
   token: Maybe<Scalars['String']>;
 };
 
-export type OverwriteSepMeetingDecisionRankingInput = {
-  proposalId: Scalars['Int'];
-  rankOrder: Scalars['Int'];
-};
-
 export type Page = {
   __typename?: 'Page';
   id: Scalars['Int'];
@@ -581,6 +583,7 @@ export type Proposal = {
   call: Maybe<Call>;
   questionary: Maybe<Questionary>;
   sepMeetingDecision: Maybe<SepMeetingDecision>;
+  samples: Maybe<Array<Sample>>;
   proposalBooking: Maybe<ProposalBooking>;
 };
 
@@ -771,6 +774,7 @@ export type Questionary = {
   templateId: Scalars['Int'];
   created: Scalars['DateTime'];
   steps: Array<QuestionaryStep>;
+  isCompleted: Scalars['Boolean'];
 };
 
 export type QuestionaryResponseWrap = {
@@ -1270,6 +1274,8 @@ export type UpdateCallInput = {
   endNotify: Scalars['DateTime'];
   startCycle: Scalars['DateTime'];
   endCycle: Scalars['DateTime'];
+  referenceNumberFormat?: Maybe<Scalars['String']>;
+  proposalSequence?: Maybe<Scalars['Int']>;
   cycleComment: Scalars['String'];
   surveyComment: Scalars['String'];
   proposalWorkflowId?: Maybe<Scalars['Int']>;
@@ -1329,6 +1335,11 @@ export type UserReviewsArgs = {
   status?: Maybe<ReviewStatus>;
   instrumentId?: Maybe<Scalars['Int']>;
   callId?: Maybe<Scalars['Int']>;
+};
+
+
+export type UserProposalsArgs = {
+  instrumentId?: Maybe<Scalars['Int']>;
 };
 
 export type UserQueryResult = {
@@ -1397,6 +1408,13 @@ export type Equipment = {
   maintenanceStartsAt: Maybe<Scalars['TzLessDateTime']>;
   maintenanceEndsAt: Maybe<Scalars['TzLessDateTime']>;
   autoAccept: Scalars['Boolean'];
+  events: Array<ScheduledEvent>;
+};
+
+
+export type EquipmentEventsArgs = {
+  endsAt: Scalars['TzLessDateTime'];
+  startsAt: Scalars['TzLessDateTime'];
 };
 
 export enum EquipmentAssignmentStatus {
@@ -1451,7 +1469,14 @@ export type EquipmentWithAssignmentStatus = {
   maintenanceStartsAt: Maybe<Scalars['TzLessDateTime']>;
   maintenanceEndsAt: Maybe<Scalars['TzLessDateTime']>;
   autoAccept: Scalars['Boolean'];
+  events: Array<ScheduledEvent>;
   status: EquipmentAssignmentStatus;
+};
+
+
+export type EquipmentWithAssignmentStatusEventsArgs = {
+  endsAt: Scalars['TzLessDateTime'];
+  startsAt: Scalars['TzLessDateTime'];
 };
 
 export type HealthStats = {
@@ -1959,7 +1984,14 @@ export type QueryProposalBookingScheduledEventArgs = {
 
 
 export type QueryEquipmentScheduledEventsArgs = {
+  endsAt: Scalars['TzLessDateTime'];
+  startsAt: Scalars['TzLessDateTime'];
   equipmentIds: Array<Scalars['Int']>;
+};
+
+
+export type QueryEquipmentsArgs = {
+  equipmentIds?: Maybe<Array<Scalars['Int']>>;
 };
 
 
@@ -2034,7 +2066,6 @@ export type Mutation = {
   assignProposalToSEP: NextProposalStatusResponseWrap;
   removeProposalAssignment: SepResponseWrap;
   createSEP: SepResponseWrap;
-  overwriteSepMeetingDecisionRanking: SepMeetingDecisionResponseWrap;
   reorderSepMeetingDecisionProposals: SepMeetingDecisionResponseWrap;
   saveSepMeetingDecision: SepMeetingDecisionResponseWrap;
   updateSEP: SepResponseWrap;
@@ -2386,11 +2417,6 @@ export type MutationCreateSepArgs = {
   description: Scalars['String'];
   numberRatingsRequired?: Maybe<Scalars['Int']>;
   active: Scalars['Boolean'];
-};
-
-
-export type MutationOverwriteSepMeetingDecisionRankingArgs = {
-  overwriteSepMeetingDecisionRankingInput: OverwriteSepMeetingDecisionRankingInput;
 };
 
 
@@ -3144,17 +3170,19 @@ export type CreateScheduledEventMutation = (
 
 export type GetEquipmentScheduledEventsQueryVariables = Exact<{
   equipmentIds: Array<Scalars['Int']>;
+  endsAt: Scalars['TzLessDateTime'];
+  startsAt: Scalars['TzLessDateTime'];
 }>;
 
 
 export type GetEquipmentScheduledEventsQuery = (
   { __typename?: 'Query' }
-  & { equipmentScheduledEvents: Array<(
-    { __typename?: 'EquipmentScheduledEvent' }
-    & Pick<EquipmentScheduledEvent, 'id' | 'startsAt' | 'endsAt' | 'equipmentId'>
-    & { equipments: Array<(
-      { __typename?: 'EquipmentWithAssignmentStatus' }
-      & Pick<EquipmentWithAssignmentStatus, 'id' | 'name'>
+  & { equipments: Array<(
+    { __typename?: 'Equipment' }
+    & Pick<Equipment, 'id' | 'name'>
+    & { events: Array<(
+      { __typename?: 'ScheduledEvent' }
+      & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
     )> }
   )> }
 );
@@ -3480,15 +3508,14 @@ export const CreateScheduledEventDocument = gql`
 }
     `;
 export const GetEquipmentScheduledEventsDocument = gql`
-    query getEquipmentScheduledEvents($equipmentIds: [Int!]!) {
-  equipmentScheduledEvents(equipmentIds: $equipmentIds) {
+    query getEquipmentScheduledEvents($equipmentIds: [Int!]!, $endsAt: TzLessDateTime!, $startsAt: TzLessDateTime!) {
+  equipments(equipmentIds: $equipmentIds) {
     id
-    startsAt
-    endsAt
-    equipmentId
-    equipments {
+    name
+    events(startsAt: $startsAt, endsAt: $endsAt) {
       id
-      name
+      startsAt
+      endsAt
     }
   }
 }

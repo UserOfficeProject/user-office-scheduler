@@ -126,7 +126,11 @@ export default function Calendar() {
     scheduledEvents: eqEvents,
     selectedEquipment,
     setSelectedEquipments,
-  } = useEquipmentScheduledEvents(queryEquipment);
+  } = useEquipmentScheduledEvents(
+    queryEquipment,
+    filter.startsAt || '',
+    filter.endsAt || ''
+  );
 
   if (
     selectedEquipment.length !== queryEquipment.length ||
@@ -146,14 +150,18 @@ export default function Calendar() {
     | 'endsAt'
     | 'description'
     | 'proposalBooking'
-  >[] = eqEvents.map(x => {
-    return {
-      ...x,
-      bookingType: ScheduledEventBookingType.EQUIPMENT,
-      description: x.equipments.find(eq => x.equipmentId === eq.id)?.name || '',
-      proposalBooking: null,
-    };
-  });
+  >[] = eqEvents
+    .map(eq => {
+      return eq.events.map(event => {
+        return {
+          ...event,
+          bookingType: ScheduledEventBookingType.EQUIPMENT,
+          description: eq.name,
+          proposalBooking: null,
+        };
+      });
+    })
+    .flat(1);
 
   const events = useMemo(
     () => transformEvent([...scheduledEvents, ...eqEventsTransformed]),

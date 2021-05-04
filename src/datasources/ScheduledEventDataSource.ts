@@ -1,4 +1,3 @@
-import { EquipmentScheduledEvent } from '../models/EquipmentScheduledEvent';
 import { ScheduledEvent } from '../models/ScheduledEvent';
 import {
   BulkUpsertScheduledEventsInput,
@@ -29,6 +28,8 @@ export interface ScheduledEventDataSource {
     scheduledEventId: number
   ): Promise<ScheduledEvent | null>;
   equipmentScheduledEvents(
-    equipmentIds: number[]
-  ): Promise<EquipmentScheduledEvent[]>;
+    equipmentIds: number[],
+    startsAt: Date,
+    endsAt: Date
+  ): Promise<ScheduledEvent[]>;
 }

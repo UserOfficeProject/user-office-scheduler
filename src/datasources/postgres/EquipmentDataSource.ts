@@ -58,10 +58,15 @@ export default class PostgresEquipmentDataSource
     return equipmentRecord ? createEquipmentObject(equipmentRecord) : null;
   }
 
-  async getAll(): Promise<Equipment[]> {
+  async getAll(equipmentIds?: number[]): Promise<Equipment[]> {
     const equipmentRecords = await database<EquipmentRecord>(this.tableName)
       .select('*')
-      .orderBy('name', 'asc');
+      .orderBy('name', 'asc')
+      .modify(qb => {
+        if (equipmentIds) {
+          qb.whereIn('equipment_id', equipmentIds);
+        }
+      });
 
     return equipmentRecords.map(createEquipmentObject);
   }

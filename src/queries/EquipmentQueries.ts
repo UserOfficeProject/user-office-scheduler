@@ -20,8 +20,11 @@ export default class EquipmentQueries {
   }
 
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
-  async getEquipments(ctx: ResolverContext): Promise<Equipment[]> {
-    return this.equipmentDataSource.getAll();
+  async getEquipments(
+    ctx: ResolverContext,
+    equipmentIds?: number[]
+  ): Promise<Equipment[]> {
+    return this.equipmentDataSource.getAll(equipmentIds);
   }
 
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions

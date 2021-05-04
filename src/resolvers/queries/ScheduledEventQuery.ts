@@ -73,11 +73,15 @@ export class ScheduledEventQuery {
   @Query(() => [EquipmentScheduledEvent])
   equipmentScheduledEvents(
     @Ctx() ctx: ResolverContext,
-    @Arg('equipmentIds', () => [Int]) equipmentIds: number[]
-  ): Promise<EquipmentScheduledEvent[]> {
+    @Arg('equipmentIds', () => [Int]) equipmentIds: number[],
+    @Arg('startsAt', () => TzLessDateTime) startsAt: Date,
+    @Arg('endsAt', () => TzLessDateTime) endsAt: Date
+  ): Promise<ScheduledEvent[]> {
     return ctx.queries.scheduledEvent.equipmentScheduledEvents(
       ctx,
-      equipmentIds
+      equipmentIds,
+      startsAt,
+      endsAt
     );
   }
 }

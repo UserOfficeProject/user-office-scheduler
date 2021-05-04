@@ -26,10 +26,6 @@ export interface ScheduledEventRecord {
   readonly instrument_id: number;
 }
 
-export interface EqScheduledEventRecord extends ScheduledEventRecord {
-  readonly equipment_id: number;
-}
-
 export const createScheduledEventObject = (
   scheduledEvent: ScheduledEventRecord
 ) =>

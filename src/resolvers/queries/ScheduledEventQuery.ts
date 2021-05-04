@@ -1,17 +1,7 @@
-import {
-  Arg,
-  Ctx,
-  Field,
-  ID,
-  InputType,
-  Query,
-  Resolver,
-  Int,
-} from 'type-graphql';
+import { Arg, Ctx, Field, ID, InputType, Query, Resolver } from 'type-graphql';
 
 import { ResolverContext } from '../../context';
 import { TzLessDateTime } from '../CustomScalars';
-import { EquipmentScheduledEvent } from '../types/EquipmentScheduledEvent';
 import { ScheduledEvent } from '../types/ScheduledEvent';
 
 @InputType()

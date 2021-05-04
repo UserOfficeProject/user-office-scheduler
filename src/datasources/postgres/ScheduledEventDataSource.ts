@@ -13,7 +13,6 @@ import { ScheduledEventDataSource } from '../ScheduledEventDataSource';
 import database from './database';
 import {
   ScheduledEventRecord,
-  EqScheduledEventRecord,
   createScheduledEventObject,
   MetaFields,
 } from './records';
@@ -185,7 +184,7 @@ export default class PostgreScheduledEventDataSource
     const scheduledEventRecords = await database<ScheduledEventRecord>(
       this.tableName
     )
-      .select<EqScheduledEventRecord[]>('*')
+      .select<ScheduledEventRecord[]>('*')
       .join(
         this.equipSchdEvTableName,
         `${this.tableName}.scheduled_event_id`,

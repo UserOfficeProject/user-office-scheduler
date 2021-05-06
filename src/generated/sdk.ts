@@ -1543,14 +1543,10 @@ export type ScheduledEvent = {
   scheduledBy: Maybe<User>;
   description: Maybe<Scalars['String']>;
   instrument: Maybe<Instrument>;
+  equipmentId: Scalars['Int'];
   equipments: Array<EquipmentWithAssignmentStatus>;
   equipmentAssignmentStatus: Maybe<EquipmentAssignmentStatus>;
   proposalBooking: Maybe<ProposalBooking>;
-};
-
-
-export type ScheduledEventEquipmentAssignmentStatusArgs = {
-  equipmentId: Scalars['ID'];
 };
 
 export enum ScheduledEventBookingType {
@@ -3151,7 +3147,7 @@ export type GetEquipmentScheduledEventsQuery = (
     & Pick<Equipment, 'id' | 'name'>
     & { events: Array<(
       { __typename?: 'ScheduledEvent' }
-      & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
+      & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt' | 'equipmentAssignmentStatus'>
     )> }
   )> }
 );
@@ -3485,6 +3481,7 @@ export const GetEquipmentScheduledEventsDocument = gql`
       id
       startsAt
       endsAt
+      equipmentAssignmentStatus
     }
   }
 }

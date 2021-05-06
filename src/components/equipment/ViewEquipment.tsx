@@ -119,16 +119,17 @@ export default function ViewEquipment() {
   useEffect(() => {
     if (!scheduledEventsLoading) {
       setRows(
-        scheduledEvents[0].events.map(({ startsAt, endsAt, ...rest }) => ({
-          ...rest,
-          equipmentAssignmentStatus: null,
-          startsAt: parseTzLessDateTime(startsAt),
-          endsAt: parseTzLessDateTime(endsAt),
-        }))
+        scheduledEvents[0].events.map(
+          ({ startsAt, endsAt, equipmentAssignmentStatus, ...rest }) => ({
+            ...rest,
+            equipmentAssignmentStatus,
+            startsAt: parseTzLessDateTime(startsAt),
+            endsAt: parseTzLessDateTime(endsAt),
+          })
+        )
       );
     }
   }, [scheduledEventsLoading, scheduledEvents]);
-
   if (equipmentLoading) {
     return <Loader container />;
   }

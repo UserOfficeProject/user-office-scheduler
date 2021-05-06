@@ -6,6 +6,7 @@ query getEquipmentScheduledEvents($equipmentIds: [Int!]!, $endsAt: TzLessDateTim
       id
       startsAt
       endsAt
+      equipmentAssignmentStatus
     }
   }
 }

@@ -22,7 +22,6 @@ context('Calendar tests', () => {
 
   beforeEach(() => {
     cy.initializeSession('InstrumentScientist_1');
-    cy.viewport(1600, 1200);
     cy.visit({
       url: '/calendar',
       timeout: 15000,

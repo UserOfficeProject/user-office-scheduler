@@ -199,8 +199,10 @@ context('Calendar tests', () => {
     });
 
     it('should create a new event with right input', () => {
-      cy.get('[data-cy=input-instrument-select]').click();
-      cy.contains('Instrument 1').click();
+      cy.visit({
+        url: '/calendar?instrument=1',
+        timeout: 15000,
+      });
 
       const slot = new Date(2020, 8, 25, 14, 0, 0).toISOString();
       cy.get(`[data-cy='event-slot-${slot}']`).scrollIntoView();
@@ -235,6 +237,7 @@ context('Calendar tests', () => {
   describe('Viewing existing event', () => {
     it('should display a disabled form', () => {
       cy.get('[data-cy=input-instrument-select]').click();
+
       cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
         .first()
         .click();

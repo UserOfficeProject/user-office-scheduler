@@ -119,12 +119,12 @@ export default class PostgreScheduledEventDataSource
       .select()
       .where('instrument_id', filter.instrumentId);
 
-    if (filter.startsAt) {
-      qb.where('starts_at', '>=', filter.startsAt);
-    }
-
-    if (filter.endsAt) {
-      qb.where('ends_at', '<=', filter.endsAt);
+    if (filter.startsAt && filter.endsAt) {
+      qb.where('starts_at', '<=', filter.endsAt).andWhere(
+        'ends_at',
+        '>=',
+        filter.startsAt
+      );
     }
 
     const scheduledEventRecords = await qb;

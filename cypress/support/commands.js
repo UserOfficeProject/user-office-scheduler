@@ -61,6 +61,15 @@ Cypress.Commands.add('resetSchedulerDB', () => {
   cy.wrap(request);
 });
 
+const finishedLoading = () => {
+  cy.get('[role="progressbar"]').should('not.exist');
+};
+
+Cypress.Commands.add('finishedLoading', finishedLoading);
+
+
+
+
 //
 //
 // -- This is a child command --

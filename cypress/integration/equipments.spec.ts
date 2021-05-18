@@ -41,7 +41,7 @@ context('Equipment tests', () => {
       cy.get('[data-cy=autoAccept]').click();
 
       cy.get('[data-cy=btn-save-equipment]').click();
-
+      cy.finishedLoading();
       cy.get('[data-cy=autoAccept]').contains('Yes');
     });
 

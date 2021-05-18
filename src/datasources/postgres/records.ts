@@ -24,6 +24,7 @@ export interface ScheduledEventRecord {
   readonly description: string | null;
   readonly proposal_booking_id: number | null;
   readonly instrument_id: number;
+  readonly equipment_id: number;
 }
 
 export const createScheduledEventObject = (
@@ -39,7 +40,8 @@ export const createScheduledEventObject = (
     { id: scheduledEvent.scheduled_by }, // federation expect `{[@key field1]: $value, [@key field2]}` format
     scheduledEvent.description,
     { id: scheduledEvent.instrument_id },
-    scheduledEvent.proposal_booking_id
+    scheduledEvent.proposal_booking_id,
+    scheduledEvent.equipment_id
   );
 
 export interface ProposalBookingRecord {

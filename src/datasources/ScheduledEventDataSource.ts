@@ -27,5 +27,9 @@ export interface ScheduledEventDataSource {
     proposalBookingId: number,
     scheduledEventId: number
   ): Promise<ScheduledEvent | null>;
-  equipmentScheduledEvents(equipmentId: number): Promise<ScheduledEvent[]>;
+  equipmentScheduledEvents(
+    equipmentIds: number[],
+    startsAt: Date,
+    endsAt: Date
+  ): Promise<ScheduledEvent[]>;
 }

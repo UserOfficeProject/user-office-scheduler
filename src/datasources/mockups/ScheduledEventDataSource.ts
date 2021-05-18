@@ -22,7 +22,8 @@ export const dummyScheduledEvents: ScheduledEvent[] = [
     { id: 0 },
     null,
     { id: 0 },
-    1
+    1,
+    0
   ),
   new ScheduledEvent(
     321,
@@ -34,7 +35,8 @@ export const dummyScheduledEvents: ScheduledEvent[] = [
     { id: 0 },
     'dummy',
     { id: 0 },
-    2
+    2,
+    0
   ),
 ];
 
@@ -54,7 +56,8 @@ export default class MockupScheduledEventDataSource
       { id: scheduledById },
       newScheduledEvent.description,
       { id: newScheduledEvent.instrumentId },
-      1
+      1,
+      0
     );
   }
 
@@ -90,7 +93,11 @@ export default class MockupScheduledEventDataSource
   ): Promise<ScheduledEvent | null> {
     throw new Error('Method not implemented.');
   }
-  equipmentScheduledEvents(equipmentId: number): Promise<ScheduledEvent[]> {
+  equipmentScheduledEvents(
+    equipmentIds: number[],
+    startsAt: Date,
+    endsAt: Date
+  ): Promise<ScheduledEvent[]> {
     throw new Error('Method not implemented.');
   }
 }

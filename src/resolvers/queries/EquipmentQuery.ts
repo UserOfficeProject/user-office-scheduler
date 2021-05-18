@@ -1,4 +1,4 @@
-import { Resolver, Query, Ctx, Arg, ID, InputType, Field } from 'type-graphql';
+import { Resolver, Query, Ctx, Arg, ID, Int } from 'type-graphql';
 
 import { ResolverContext } from '../../context';
 import { Equipment } from '../types/Equipment';
@@ -6,8 +6,11 @@ import { Equipment } from '../types/Equipment';
 @Resolver()
 export class EquipmentQueries {
   @Query(() => [Equipment])
-  equipments(@Ctx() ctx: ResolverContext): Promise<Equipment[]> {
-    return ctx.queries.equipment.getEquipments(ctx);
+  equipments(
+    @Ctx() ctx: ResolverContext,
+    @Arg('equipmentIds', () => [Int], { nullable: true }) equipmentIds: number[]
+  ): Promise<Equipment[]> {
+    return ctx.queries.equipment.getEquipments(ctx, equipmentIds);
   }
 
   @Query(() => [Equipment])

@@ -38,7 +38,9 @@ Cypress.Commands.add('resetDB', () => {
   const query = `mutation {
     prepareDB(includeSeeds: true) {
       log
-      error
+      rejection {
+        reason
+      }
     }
   }`;
   const authHeader = `Bearer ${Cypress.env('SVC_ACC_TOKEN')}`;

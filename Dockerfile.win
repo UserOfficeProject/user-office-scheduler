@@ -1,5 +1,5 @@
 ARG WINDOWS_VERSION
-FROM dmsc/bisapps-node:12-servercore${WINDOWS_VERSION} as build-stage
+FROM dmsc/bisapps-node:12.19.0-servercore${WINDOWS_VERSION} as build-stage
 
 WORKDIR /app
 
@@ -11,7 +11,7 @@ COPY . .
 
 RUN  npx tsc
 
-FROM dmsc/bisapps-node:12-servercore${WINDOWS_VERSION}
+FROM dmsc/bisapps-node:12.19.0-servercore${WINDOWS_VERSION}
 
 WORKDIR /app
 

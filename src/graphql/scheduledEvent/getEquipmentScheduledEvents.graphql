@@ -1,8 +1,12 @@
-query getEquipmentScheduledEvents($equipmentId: ID!) {
-  equipmentScheduledEvents(equipmentId: $equipmentId) {
+query getEquipmentScheduledEvents($equipmentIds: [Int!]!, $endsAt: TzLessDateTime!, $startsAt: TzLessDateTime!) {
+  equipments(equipmentIds: $equipmentIds){
     id
-    startsAt
-    endsAt
-    equipmentAssignmentStatus(equipmentId: $equipmentId)
+    name
+    events(startsAt: $startsAt, endsAt: $endsAt){
+      id
+      startsAt
+      endsAt
+      equipmentAssignmentStatus
+    }
   }
 }

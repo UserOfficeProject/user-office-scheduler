@@ -16,6 +16,7 @@ export const BookingTypesMap: Record<keyof BookingTypes, string> = {
   MAINTENANCE: 'Maintenance',
   SHUTDOWN: 'Shutdown',
   USER_OPERATIONS: 'User operations',
+  EQUIPMENT: 'Equipment booking',
 };
 
 export const CalendarExplicitBookableTypes: Record<

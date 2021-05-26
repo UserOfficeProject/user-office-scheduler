@@ -18,8 +18,9 @@ import {
 } from 'react-big-calendar';
 import { useHistory } from 'react-router';
 
-import { Instrument } from 'generated/sdk';
+import { Instrument, Equipment } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
+import useEquipments from 'hooks/equipment/useEquipments';
 import useUserInstruments from 'hooks/instrument/useUserInstruments';
 
 const useStyles = makeStyles(theme => ({
@@ -69,6 +70,7 @@ export default function Toolbar({
   const classes = useStyles();
   const history = useHistory();
   const { loading: instrumentsLoading, instruments } = useUserInstruments();
+  const { loading: equipmentLoading, equipments } = useEquipments();
 
   const query = useQuery();
 
@@ -82,6 +84,10 @@ export default function Toolbar({
     Instrument,
     'id' | 'name'
   > | null>(null);
+
+  const [selectedEquipment, setSelectedEquipment] = useState<
+    Pick<Equipment, 'id' | 'name'>[] | undefined
+  >([]);
 
   useEffect(() => {
     if (!instrumentsLoading && queryInstrument) {
@@ -188,7 +194,61 @@ export default function Toolbar({
         </Grid>
         <Grid
           item
-          xs={5}
+          xs={3}
+          className={clsx(classes.flex, classes.centered)}
+          data-cy="content-calendar-toolbar-equipment"
+        >
+          <Autocomplete
+            multiple
+            loading={equipmentLoading}
+            disabled={equipmentLoading}
+            selectOnFocus
+            clearOnBlur
+            handleHomeEndKeys
+            className={classes.instrumentSelect}
+            options={equipments}
+            getOptionLabel={equipment => equipment.name}
+            data-cy="input-equipment-select"
+            id="input-equipment-select"
+            renderInput={params => (
+              <TextField
+                {...params}
+                placeholder="Equipment"
+                disabled={equipmentLoading}
+                InputProps={{
+                  ...params.InputProps,
+                  endAdornment: (
+                    <>
+                      {equipmentLoading ? (
+                        <CircularProgress color="inherit" size={20} />
+                      ) : null}
+                      {params.InputProps.endAdornment}
+                    </>
+                  ),
+                }}
+              />
+            )}
+            value={selectedEquipment}
+            onChange={(
+              event: React.ChangeEvent<unknown>,
+              newValue: Pick<Equipment, 'id' | 'name'>[] | undefined
+            ) => {
+              if (newValue === undefined || newValue.length === 0) {
+                query.delete('equipment');
+              } else {
+                query.set(
+                  'equipment',
+                  `${newValue?.map(eq => eq.id).join(',')}`
+                );
+              }
+              setSelectedEquipment(newValue);
+              history.push(`?${query}`);
+            }}
+          />
+        </Grid>
+        <Grid
+          item
+          xs={2}
           className={clsx(
             classes.flex,
             classes.justifyContentFlexEnd,

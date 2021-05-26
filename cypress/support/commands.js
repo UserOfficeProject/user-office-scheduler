@@ -38,7 +38,9 @@ Cypress.Commands.add('resetDB', () => {
   const query = `mutation {
     prepareDB(includeSeeds: true) {
       log
-      error
+      rejection {
+        reason
+      }
     }
   }`;
   const authHeader = `Bearer ${Cypress.env('SVC_ACC_TOKEN')}`;
@@ -60,6 +62,15 @@ Cypress.Commands.add('resetSchedulerDB', () => {
 
   cy.wrap(request);
 });
+
+const finishedLoading = () => {
+  cy.get('[role="progressbar"]').should('not.exist');
+};
+
+Cypress.Commands.add('finishedLoading', finishedLoading);
+
+
+
 
 //
 //

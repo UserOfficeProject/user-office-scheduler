@@ -1,34 +1,37 @@
 import { useState, useEffect } from 'react';
 
-import { ScheduledEvent } from 'generated/sdk';
+import { GetEquipmentScheduledEventsQuery, Scalars } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 
-export type EquipmentScheduledEvent = Pick<
-  ScheduledEvent,
-  'id' | 'startsAt' | 'endsAt' | 'equipmentAssignmentStatus'
->;
-
-export default function useEquipmentScheduledEvents(equipmentId: string) {
+export default function useEquipmentScheduledEvents(
+  equipmentIds: number[],
+  startsAt: Scalars['TzLessDateTime'],
+  endsAt: Scalars['TzLessDateTime']
+) {
   const [loading, setLoading] = useState(true);
   const [scheduledEvents, setScheduledEvents] = useState<
-    EquipmentScheduledEvent[]
+    GetEquipmentScheduledEventsQuery['equipments']
   >([]);
-
+  const [selectedEquipment, setSelectedEquipments] = useState<number[]>(
+    equipmentIds
+  );
   const api = useDataApi();
-
   useEffect(() => {
     let unmount = false;
-
     setLoading(true);
     api()
-      .getEquipmentScheduledEvents({ equipmentId })
+      .getEquipmentScheduledEvents({
+        equipmentIds: selectedEquipment,
+        startsAt,
+        endsAt,
+      })
       .then(data => {
         if (unmount) {
           return;
         }
 
-        if (data.equipmentScheduledEvents) {
-          setScheduledEvents(data.equipmentScheduledEvents);
+        if (data.equipments) {
+          setScheduledEvents(data.equipments);
         }
 
         setLoading(false);
@@ -38,7 +41,12 @@ export default function useEquipmentScheduledEvents(equipmentId: string) {
     return () => {
       unmount = true;
     };
-  }, [equipmentId, api]);
+  }, [selectedEquipment, api]);
 
-  return { loading, scheduledEvents } as const;
+  return {
+    loading,
+    scheduledEvents,
+    selectedEquipment,
+    setSelectedEquipments,
+  } as const;
 }

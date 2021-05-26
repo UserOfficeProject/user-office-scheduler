@@ -52,6 +52,11 @@ function getBookingTypeStyle(
         backgroundColor: '#9146AF',
         color: '#fff',
       };
+    case ScheduledEventBookingType.EQUIPMENT:
+      return {
+        backgroundColor: '#7CB5EC',
+        color: '#fff',
+      };
     default:
       return;
   }

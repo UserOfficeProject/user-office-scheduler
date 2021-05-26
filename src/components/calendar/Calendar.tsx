@@ -16,8 +16,13 @@ import ScheduledEventDialog, {
 } from 'components/scheduledEvent/ScheduledEventDialog';
 import { BookingTypesMap } from 'components/scheduledEvent/ScheduledEventForm';
 import { AppContext } from 'context/AppContext';
-import { GetScheduledEventsQuery, ScheduledEvent } from 'generated/sdk';
+import {
+  ScheduledEvent,
+  ScheduledEventBookingType,
+  GetScheduledEventsQuery,
+} from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
+import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
 import useScheduledEvents from 'hooks/scheduledEvent/useScheduledEvents';
 import { ContentContainer, StyledPaper } from 'styles/StyledComponents';
 import { parseTzLessDateTime } from 'utils/date';
@@ -90,6 +95,11 @@ export default function Calendar() {
 
   const query = useQuery();
   const queryInstrument = query.get('instrument');
+  const queryEquipment =
+    query
+      .get('equipment')
+      ?.split(',')
+      .map(num => parseInt(num)) || [];
 
   const { showAlert } = useContext(AppContext);
   const [selectedEvent, setSelectedEvent] = useState<
@@ -112,13 +122,51 @@ export default function Calendar() {
 
   const { loading, scheduledEvents, refresh } = useScheduledEvents(filter);
 
+  const {
+    scheduledEvents: eqEvents,
+    selectedEquipment,
+    setSelectedEquipments,
+  } = useEquipmentScheduledEvents(
+    queryEquipment,
+    filter.startsAt,
+    filter.endsAt
+  );
+
+  if (
+    selectedEquipment.length !== queryEquipment.length ||
+    !selectedEquipment.every(eq => queryEquipment.includes(eq))
+  ) {
+    setSelectedEquipments(queryEquipment);
+  }
   useEffect(() => {
     setFilter(generateScheduledEventFilter(queryInstrument, startsAt, view));
   }, [queryInstrument, startsAt, view]);
 
-  const events = useMemo(() => transformEvent(scheduledEvents), [
-    scheduledEvents,
-  ]);
+  const eqEventsTransformed: Pick<
+    ScheduledEvent,
+    | 'id'
+    | 'bookingType'
+    | 'startsAt'
+    | 'endsAt'
+    | 'description'
+    | 'proposalBooking'
+  >[] = eqEvents
+    .map(eq => {
+      return eq.events.map(event => {
+        return {
+          ...event,
+          bookingType: ScheduledEventBookingType.EQUIPMENT,
+          description: eq.name,
+          proposalBooking: null,
+        };
+      });
+    })
+    .flat(1);
+
+  const events = useMemo(
+    () => transformEvent([...scheduledEvents, ...eqEventsTransformed]),
+    [scheduledEvents, eqEventsTransformed]
+  );
 
   const onNavigate = (newDate: Date, newView: View) => {
     setStartAt(newDate);

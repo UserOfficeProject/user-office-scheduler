@@ -6,11 +6,11 @@ import { ScheduledEvent } from '../types/ScheduledEvent';
 
 @InputType()
 export class ScheduledEventFilter {
-  @Field(() => TzLessDateTime, { nullable: true })
-  startsAt?: Date | null;
+  @Field(() => TzLessDateTime)
+  startsAt: Date | null;
 
-  @Field(() => TzLessDateTime, { nullable: true })
-  endsAt?: Date | null;
+  @Field(() => TzLessDateTime)
+  endsAt: Date | null;
 
   @Field(() => ID, { nullable: true })
   instrumentId?: number | null;
@@ -57,17 +57,6 @@ export class ScheduledEventQuery {
       ctx,
       proposalBookingId,
       scheduledEventId
-    );
-  }
-
-  @Query(() => [ScheduledEvent])
-  equipmentScheduledEvents(
-    @Ctx() ctx: ResolverContext,
-    @Arg('equipmentId', () => ID) equipmentId: number
-  ): Promise<ScheduledEvent[]> {
-    return ctx.queries.scheduledEvent.equipmentScheduledEvents(
-      ctx,
-      equipmentId
     );
   }
 }

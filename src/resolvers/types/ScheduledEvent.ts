@@ -58,6 +58,9 @@ export class ScheduledEvent implements Partial<ScheduledEventBase> {
   @Type(() => Instrument)
   @Field({ nullable: true })
   instrument?: Instrument;
+
+  @Field(() => Int)
+  equipmentId: number;
 }
 
 @Resolver(() => ScheduledEvent)
@@ -76,13 +79,12 @@ export class ScheduledEventResolver {
   @FieldResolver(() => EquipmentAssignmentStatus, { nullable: true })
   equipmentAssignmentStatus(
     @Root() scheduledEvent: ScheduledEvent,
-    @Ctx() ctx: ResolverContext,
-    @Arg('equipmentId', () => ID) equipmentId: number
+    @Ctx() ctx: ResolverContext
   ): Promise<EquipmentAssignmentStatus | null> {
     return ctx.queries.equipment.equipmentAssignmentStatus(
       ctx,
       scheduledEvent.id,
-      equipmentId
+      scheduledEvent.equipmentId
     );
   }
 

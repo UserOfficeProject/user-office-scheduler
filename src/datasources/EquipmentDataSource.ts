@@ -14,7 +14,7 @@ export interface EquipmentDataSource {
     updateEquipmentInput: EquipmentInput
   ): Promise<Equipment | null>;
   get(id: number): Promise<Equipment | null>;
-  getAll(): Promise<Equipment[]>;
+  getAll(equipmentIds?: number[]): Promise<Equipment[]>;
   scheduledEventEquipments(
     scheduledEventId: number
   ): Promise<Array<Equipment & { status: EquipmentAssignmentStatus }>>;

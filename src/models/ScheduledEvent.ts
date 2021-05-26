@@ -3,6 +3,7 @@ export enum ScheduledEventBookingType {
   MAINTENANCE = 'MAINTENANCE',
   SHUTDOWN = 'SHUTDOWN',
   COMMISSIONING = 'COMMISSIONING',
+  EQUIPMENT = 'EQUIPMENT',
 }
 
 export type BookingTypes = typeof ScheduledEventBookingType;
@@ -26,6 +27,7 @@ export class ScheduledEvent {
     public scheduledBy: { id: number },
     public description: string | null,
     public instrument: { id: number },
-    public proposalBookingId: number | null
+    public proposalBookingId: number | null,
+    public equipmentId: number
   ) {}
 }

@@ -1,11 +1,22 @@
 import { Type } from 'class-transformer';
-import { Field, ID, ObjectType } from 'type-graphql';
+import {
+  Arg,
+  Ctx,
+  Field,
+  FieldResolver,
+  ID,
+  ObjectType,
+  Resolver,
+  Root,
+} from 'type-graphql';
 
+import { ResolverContext } from '../../context';
 import {
   Equipment as EquipmentBase,
   EquipmentAssignmentStatus,
 } from '../../models/Equipment';
 import { TzLessDateTime } from '../CustomScalars';
+import { ScheduledEvent } from './ScheduledEvent';
 import { User } from './User';
 
 @ObjectType()
@@ -41,4 +52,22 @@ export class Equipment implements Partial<EquipmentBase> {
 export class EquipmentWithAssignmentStatus extends Equipment {
   @Field(() => EquipmentAssignmentStatus)
   status: EquipmentAssignmentStatus;
+}
+
+@Resolver(() => Equipment)
+export class EquipmentEventResolver {
+  @FieldResolver(() => [ScheduledEvent])
+  events(
+    @Root() equipment: Equipment,
+    @Ctx() ctx: ResolverContext,
+    @Arg('startsAt', () => TzLessDateTime) startsAt: Date,
+    @Arg('endsAt', () => TzLessDateTime) endsAt: Date
+  ): Promise<ScheduledEvent[]> {
+    return ctx.queries.scheduledEvent.equipmentScheduledEvents(
+      ctx,
+      [equipment.id],
+      startsAt,
+      endsAt
+    );
+  }
 }

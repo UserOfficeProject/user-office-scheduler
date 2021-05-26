@@ -74,7 +74,16 @@ export default class ScheduledEventQueries {
   }
 
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
-  async equipmentScheduledEvents(ctx: ResolverContext, equipmentId: number) {
-    return this.scheduledEventDataSource.equipmentScheduledEvents(equipmentId);
+  async equipmentScheduledEvents(
+    ctx: ResolverContext,
+    equipmentIds: number[],
+    startsAt: Date,
+    endsAt: Date
+  ) {
+    return this.scheduledEventDataSource.equipmentScheduledEvents(
+      equipmentIds,
+      startsAt,
+      endsAt
+    );
   }
 }

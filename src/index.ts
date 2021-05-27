@@ -1,12 +1,10 @@
-// import this first, so environment variables are loaded
-import 'dotenv/config';
-
 import { logger } from '@esss-swap/duo-logger';
 import cookieParser from 'cookie-parser';
 import 'reflect-metadata';
 import express from 'express';
 
 // register event handlers
+import './env-loader.js';
 import './events';
 
 import exceptionHandler from './middlewares/exceptionHandler';

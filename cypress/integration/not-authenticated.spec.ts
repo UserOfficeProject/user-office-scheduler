@@ -23,7 +23,7 @@ context('Not-authenticated tests', () => {
       cy.wait(1000);
       cy.get('[data-cy=btn-authenticate]').click();
       cy.wait(1000);
-      cy.url().should('include', '/shared-auth');
+      cy.url().should('include', 'authRedirect');
     });
   });
 });

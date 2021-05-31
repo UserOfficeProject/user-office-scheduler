@@ -134,8 +134,8 @@ class AuthorizedGraphQLClient extends GraphQLClient {
         token: this.token,
       });
 
-      if (data.token.error) {
-        this.error && this.error(data.token.error);
+      if (data.token.rejection) {
+        this.error && this.error(data.token.rejection.reason);
       } else {
         const newToken = data.token.token;
         this.setHeader('authorization', `Bearer ${newToken}`);

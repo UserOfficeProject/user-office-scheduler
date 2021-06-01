@@ -1,7 +1,8 @@
 import { makeStyles } from '@material-ui/core';
-import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
 import humanizeDuration from 'humanize-duration';
 import React from 'react';
+
+import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
 import { parseTzLessDateTime } from 'utils/date';
 
 const useStyles = makeStyles(theme => ({
@@ -29,6 +30,7 @@ function formatTimeRemaining(seconds: number) {
   if (seconds < 0) {
     return <span style={{ color: 'red' }}>Over allocated</span>;
   }
+
   return `${humanizeDuration(seconds * 1000, { largest: 2 })} left`;
 }
 

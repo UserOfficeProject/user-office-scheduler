@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import React from 'react';
 
 import { useQuery } from 'hooks/common/useQuery';
+import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
 
 import ProposalBookingTree from '../proposalBooking/ProposalBookingTree';
 
@@ -33,11 +34,13 @@ const useStyles = makeStyles(theme => ({
 type CalendarTodoBoxProps = {
   onNewSimpleEvent: () => void;
   refreshCalendar: () => void;
+  proposalBookings: InstrumentProposalBooking[];
 };
 
 export default function CalendarTodoBox({
   onNewSimpleEvent,
   refreshCalendar,
+  proposalBookings,
 }: CalendarTodoBoxProps) {
   const classes = useStyles();
   const query = useQuery();
@@ -77,6 +80,7 @@ export default function CalendarTodoBox({
       <ProposalBookingTree
         instrument={queryInstrument}
         refreshCalendar={refreshCalendar}
+        proposalBookings={proposalBookings}
       />
     </div>
   );

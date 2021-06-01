@@ -1,4 +1,4 @@
-import { CircularProgress, makeStyles } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core';
 import {
   ChevronRight as ChevronRightIcon,
   ExpandMore as ExpandMoreIcon,
@@ -10,9 +10,7 @@ import clsx from 'clsx';
 import * as _ from 'lodash';
 import React, { ReactNode, useMemo, useState } from 'react';
 
-import useInstrumentProposalBookings, {
-  InstrumentProposalBooking,
-} from 'hooks/proposalBooking/useInstrumentProposalBookings';
+import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
 
 import ProposalBookingDialog from './ProposalBookingDialog';
 import ProposalBookingTreeTitle from './ProposalBookingTreeTitle';
@@ -48,16 +46,16 @@ const useStyles = makeStyles(theme => ({
 type ProposalBookingTreeProps = {
   instrument: string;
   refreshCalendar: () => void;
+  proposalBookings: InstrumentProposalBooking[];
 };
 
 export default function ProposalBookingTree({
   instrument,
   refreshCalendar,
+  proposalBookings,
 }: ProposalBookingTreeProps) {
   const classes = useStyles();
-  const { loading, proposalBookings } = useInstrumentProposalBookings(
-    instrument
-  );
+
   const [
     selectedProposalBooking,
     setSelectedProposalBooking,
@@ -105,14 +103,6 @@ export default function ProposalBookingTree({
       refreshCalendar();
     }
   };
-
-  if (loading) {
-    return (
-      <div className={clsx(classes.root, classes.centered)}>
-        <CircularProgress />
-      </div>
-    );
-  }
 
   if (groupedByCall.length === 0) {
     return (

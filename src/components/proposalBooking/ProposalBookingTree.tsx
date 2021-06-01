@@ -8,17 +8,18 @@ import {
 import { TreeView, TreeItem } from '@material-ui/lab';
 import clsx from 'clsx';
 import * as _ from 'lodash';
-import React, { useMemo, useState } from 'react';
+import React, { ReactNode, useMemo, useState } from 'react';
 
 import useInstrumentProposalBookings, {
   InstrumentProposalBooking,
 } from 'hooks/proposalBooking/useInstrumentProposalBookings';
 
 import ProposalBookingDialog from './ProposalBookingDialog';
+import ProposalBookingTreeTitle from './ProposalBookingTreeTitle';
 
 type RenderTree = {
   id: string;
-  name: string;
+  title: ReactNode;
   children?: RenderTree[];
   onClick?: React.MouseEventHandler;
 };
@@ -68,10 +69,12 @@ export default function ProposalBookingTree({
         .groupBy(({ call: { id } }) => id)
         .map((proposalBookings, id) => ({
           id: `call-${id}`, // avoid numerical ID collision
-          name: `Call: ${proposalBookings[0].call.shortCode}`,
+          title: `Call: ${proposalBookings[0].call.shortCode}`,
           children: proposalBookings.map(proposalBooking => ({
             id: `proposal-${proposalBooking.proposal.id}`, // avoid numerical ID collision
-            name: `Proposal: ${proposalBooking.proposal.title}`,
+            title: (
+              <ProposalBookingTreeTitle proposalBooking={proposalBooking} />
+            ),
             onClick: () => setSelectedProposalBooking(proposalBooking),
           })),
         }))
@@ -84,7 +87,7 @@ export default function ProposalBookingTree({
       <TreeItem
         key={nodes.id}
         nodeId={nodes.id}
-        label={nodes.name}
+        label={nodes.title}
         icon={nodes.onClick ? <VisibilityIcon /> : null}
         onIconClick={nodes.onClick}
       >

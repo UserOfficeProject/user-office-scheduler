@@ -63,6 +63,8 @@ function transformEvent(
     bookingType: scheduledEvent.bookingType,
     description: scheduledEvent.description,
     proposalBooking: scheduledEvent.proposalBooking,
+    instrument: scheduledEvent.instrument,
+    scheduledBy: scheduledEvent.scheduledBy,
   }));
 }
 
@@ -142,15 +144,7 @@ export default function Calendar() {
     setFilter(generateScheduledEventFilter(queryInstrument, startsAt, view));
   }, [queryInstrument, startsAt, view]);
 
-  const eqEventsTransformed: Pick<
-    ScheduledEvent,
-    | 'id'
-    | 'bookingType'
-    | 'startsAt'
-    | 'endsAt'
-    | 'description'
-    | 'proposalBooking'
-  >[] = eqEvents
+  const eqEventsTransformed: GetScheduledEventsQuery['scheduledEvents'] = eqEvents
     .map(eq => {
       return eq.events.map(event => {
         return {
@@ -158,6 +152,8 @@ export default function Calendar() {
           bookingType: ScheduledEventBookingType.EQUIPMENT,
           description: eq.name,
           proposalBooking: null,
+          instrument: event.instrument,
+          scheduledBy: event.scheduledBy,
         };
       });
     })

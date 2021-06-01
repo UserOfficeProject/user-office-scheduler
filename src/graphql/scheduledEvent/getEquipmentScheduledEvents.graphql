@@ -7,6 +7,13 @@ query getEquipmentScheduledEvents($equipmentIds: [Int!]!, $endsAt: TzLessDateTim
       startsAt
       endsAt
       equipmentAssignmentStatus
+      scheduledBy{
+        firstname
+        lastname
+      }
+      instrument{
+        name
+      }
     }
   }
 }

@@ -1,4 +1,7 @@
-query getInstrumentProposalBookings($instrumentId: ID!) {
+query getInstrumentProposalBookings(
+  $instrumentId: ID!
+  $filter: ProposalBookingScheduledEventFilter!
+) {
   instrumentProposalBookings(instrumentId: $instrumentId) {
     id
     call {
@@ -17,5 +20,10 @@ query getInstrumentProposalBookings($instrumentId: ID!) {
     updatedAt
     status
     allocatedTime
+    scheduledEvents(filter: $filter) {
+      id
+      startsAt
+      endsAt
+    }
   }
 }

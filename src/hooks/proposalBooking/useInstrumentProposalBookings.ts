@@ -5,7 +5,12 @@ import { useDataApi } from 'hooks/common/useDataApi';
 
 export type InstrumentProposalBooking = Pick<
   ProposalBooking,
-  'id' | 'createdAt' | 'updatedAt' | 'status' | 'allocatedTime'
+  | 'id'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'status'
+  | 'allocatedTime'
+  | 'scheduledEvents'
 > & {
   call: Pick<
     Call,
@@ -28,7 +33,7 @@ export default function useInstrumentProposalBookings(instrumentId: string) {
 
     setLoading(true);
     api()
-      .getInstrumentProposalBookings({ instrumentId })
+      .getInstrumentProposalBookings({ instrumentId, filter: {} })
       .then(data => {
         if (unmount) {
           return;

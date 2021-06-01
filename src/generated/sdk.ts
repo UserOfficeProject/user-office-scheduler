@@ -240,7 +240,8 @@ export enum DataType {
   INTERVAL = 'INTERVAL',
   NUMBER_INPUT = 'NUMBER_INPUT',
   SHIPMENT_BASIS = 'SHIPMENT_BASIS',
-  RICH_TEXT_INPUT = 'RICH_TEXT_INPUT'
+  RICH_TEXT_INPUT = 'RICH_TEXT_INPUT',
+  VISITATION_BASIS = 'VISITATION_BASIS'
 }
 
 export type DateConfig = {
@@ -374,7 +375,7 @@ export type FieldConditionInput = {
   params: Scalars['String'];
 };
 
-export type FieldConfig = BooleanConfig | DateConfig | EmbellishmentConfig | FileUploadConfig | SelectionFromOptionsConfig | TextInputConfig | SampleBasisConfig | SubtemplateConfig | ProposalBasisConfig | IntervalConfig | NumberInputConfig | ShipmentBasisConfig | RichTextInputConfig;
+export type FieldConfig = BooleanConfig | DateConfig | EmbellishmentConfig | FileUploadConfig | SelectionFromOptionsConfig | TextInputConfig | SampleBasisConfig | SubtemplateConfig | ProposalBasisConfig | IntervalConfig | NumberInputConfig | ShipmentBasisConfig | RichTextInputConfig | VisitationBasisConfig;
 
 export type FieldDependency = {
   __typename?: 'FieldDependency';
@@ -1094,6 +1095,7 @@ export type Shipment = {
   created: Scalars['DateTime'];
   questionary: Questionary;
   samples: Array<Sample>;
+  proposal: Proposal;
 };
 
 export type ShipmentBasisConfig = {
@@ -1209,7 +1211,8 @@ export type TemplateCategory = {
 export enum TemplateCategoryId {
   PROPOSAL_QUESTIONARY = 'PROPOSAL_QUESTIONARY',
   SAMPLE_DECLARATION = 'SAMPLE_DECLARATION',
-  SHIPMENT_DECLARATION = 'SHIPMENT_DECLARATION'
+  SHIPMENT_DECLARATION = 'SHIPMENT_DECLARATION',
+  VISITATION = 'VISITATION'
 }
 
 export type TemplateResponseWrap = {
@@ -1393,6 +1396,43 @@ export enum UserRole {
   SEP_REVIEWER = 'SEP_REVIEWER',
   INSTRUMENT_SCIENTIST = 'INSTRUMENT_SCIENTIST',
   SAMPLE_SAFETY_REVIEWER = 'SAMPLE_SAFETY_REVIEWER'
+}
+
+export type Visitation = {
+  __typename?: 'Visitation';
+  id: Scalars['Int'];
+  proposalId: Scalars['Int'];
+  status: VisitationStatus;
+  questionaryId: Scalars['Int'];
+  instrumentId: Scalars['Int'];
+  visitorId: Scalars['Int'];
+  proposal: Proposal;
+  team: Array<BasicUserDetails>;
+  questionary: Questionary;
+};
+
+export type VisitationBasisConfig = {
+  __typename?: 'VisitationBasisConfig';
+  small_label: Scalars['String'];
+  required: Scalars['Boolean'];
+  tooltip: Scalars['String'];
+};
+
+export type VisitationResponseWrap = {
+  __typename?: 'VisitationResponseWrap';
+  rejection: Maybe<Rejection>;
+  visitation: Maybe<Visitation>;
+};
+
+export type VisitationsFilter = {
+  visitorId?: Maybe<Scalars['Int']>;
+  questionaryId?: Maybe<Scalars['Int']>;
+};
+
+export enum VisitationStatus {
+  DRAFT = 'DRAFT',
+  ACCEPTED = 'ACCEPTED',
+  SUBMITTED = 'SUBMITTED'
 }
 
 export type AssignEquipmentsToScheduledEventInput = {
@@ -1632,8 +1672,11 @@ export type Query = {
   callsByInstrumentScientist: Maybe<Array<Call>>;
   proposals: Maybe<ProposalsQueryResult>;
   instrumentScientistProposals: Maybe<ProposalsQueryResult>;
+  shipments: Maybe<Array<Shipment>>;
   questions: Array<QuestionWithUsage>;
   templates: Maybe<Array<Template>>;
+  visitations: Array<Visitation>;
+  myVisitations: Array<Visitation>;
   activeTemplateId: Maybe<Scalars['Int']>;
   basicUserDetails: Maybe<BasicUserDetails>;
   blankQuestionarySteps: Maybe<Array<QuestionaryStep>>;
@@ -1656,6 +1699,7 @@ export type Query = {
   instrumentScientistHasInstrument: Maybe<Scalars['Boolean']>;
   instrumentScientistHasAccess: Maybe<Scalars['Boolean']>;
   isNaturalKeyPresent: Maybe<Scalars['Boolean']>;
+  myShipments: Maybe<Array<Shipment>>;
   proposal: Maybe<Proposal>;
   userHasAccessToProposal: Maybe<Scalars['Boolean']>;
   proposalStatus: Maybe<ProposalStatus>;
@@ -1680,7 +1724,6 @@ export type Query = {
   sepProposalsByInstrument: Maybe<Array<SepProposal>>;
   seps: Maybe<SePsQueryResult>;
   shipment: Maybe<Shipment>;
-  shipments: Maybe<Array<Shipment>>;
   version: Scalars['String'];
   factoryVersion: Scalars['String'];
   templateCategories: Maybe<Array<TemplateCategory>>;
@@ -1690,6 +1733,7 @@ export type Query = {
   user: Maybe<User>;
   me: Maybe<User>;
   users: Maybe<UserQueryResult>;
+  visitation: Maybe<Visitation>;
   scheduledEvents: Array<ScheduledEvent>;
   scheduledEvent: Maybe<ScheduledEvent>;
   proposalBookingScheduledEvents: Array<ScheduledEvent>;
@@ -1730,6 +1774,11 @@ export type QueryInstrumentScientistProposalsArgs = {
 };
 
 
+export type QueryShipmentsArgs = {
+  filter?: Maybe<ShipmentsFilter>;
+};
+
+
 export type QueryQuestionsArgs = {
   filter?: Maybe<QuestionsFilter>;
 };
@@ -1737,6 +1786,11 @@ export type QueryQuestionsArgs = {
 
 export type QueryTemplatesArgs = {
   filter?: Maybe<TemplatesFilter>;
+};
+
+
+export type QueryVisitationsArgs = {
+  filter?: Maybe<VisitationsFilter>;
 };
 
 
@@ -1936,11 +1990,6 @@ export type QueryShipmentArgs = {
 };
 
 
-export type QueryShipmentsArgs = {
-  filter?: Maybe<ShipmentsFilter>;
-};
-
-
 export type QueryTemplateArgs = {
   templateId: Scalars['Int'];
 };
@@ -1962,6 +2011,11 @@ export type QueryUsersArgs = {
   offset?: Maybe<Scalars['Int']>;
   userRole?: Maybe<UserRole>;
   subtractUsers?: Maybe<Array<Maybe<Scalars['Int']>>>;
+};
+
+
+export type QueryVisitationArgs = {
+  visitationId: Scalars['Int'];
 };
 
 
@@ -2096,6 +2150,7 @@ export type Mutation = {
   cloneSample: SampleResponseWrap;
   cloneTemplate: TemplateResponseWrap;
   createProposal: ProposalResponseWrap;
+  createVisitation: VisitationResponseWrap;
   deleteCall: CallResponseWrap;
   deleteInstitution: InstitutionResponseWrap;
   deleteInstrument: InstrumentResponseWrap;
@@ -2108,6 +2163,7 @@ export type Mutation = {
   deleteTopic: TemplateResponseWrap;
   deleteUnit: UnitResponseWrap;
   deleteUser: UserResponseWrap;
+  deleteVisitation: VisitationResponseWrap;
   emailVerification: EmailVerificationResponseWrap;
   getTokenForUser: TokenResponseWrap;
   login: TokenResponseWrap;
@@ -2125,6 +2181,7 @@ export type Mutation = {
   token: TokenResponseWrap;
   selectRole: TokenResponseWrap;
   updatePassword: BasicUserDetailsResponseWrap;
+  updateVisitation: VisitationResponseWrap;
   createEquipment: EquipmentResponseWrap;
   updateEquipment: EquipmentResponseWrap;
   assignToScheduledEvents: Scalars['Boolean'];
@@ -2668,6 +2725,12 @@ export type MutationCreateProposalArgs = {
 };
 
 
+export type MutationCreateVisitationArgs = {
+  proposalId: Scalars['Int'];
+  team?: Maybe<Array<Scalars['Int']>>;
+};
+
+
 export type MutationDeleteCallArgs = {
   id: Scalars['Int'];
 };
@@ -2725,6 +2788,11 @@ export type MutationDeleteUnitArgs = {
 
 export type MutationDeleteUserArgs = {
   id: Scalars['Int'];
+};
+
+
+export type MutationDeleteVisitationArgs = {
+  visitationId: Scalars['Int'];
 };
 
 
@@ -2816,6 +2884,14 @@ export type MutationSelectRoleArgs = {
 export type MutationUpdatePasswordArgs = {
   id: Scalars['Int'];
   password: Scalars['String'];
+};
+
+
+export type MutationUpdateVisitationArgs = {
+  visitationId: Scalars['Int'];
+  status?: Maybe<VisitationStatus>;
+  proposalId?: Maybe<Scalars['Int']>;
+  team?: Maybe<Array<Scalars['Int']>>;
 };
 
 
@@ -3115,6 +3191,7 @@ export type FinalizeProposalBookingMutation = (
 
 export type GetInstrumentProposalBookingsQueryVariables = Exact<{
   instrumentId: Scalars['ID'];
+  filter: ProposalBookingScheduledEventFilter;
 }>;
 
 
@@ -3129,12 +3206,16 @@ export type GetInstrumentProposalBookingsQuery = (
     )>, proposal: Maybe<(
       { __typename?: 'Proposal' }
       & Pick<Proposal, 'id' | 'title' | 'shortCode'>
+    )>, scheduledEvents: Array<(
+      { __typename?: 'ScheduledEvent' }
+      & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
     )> }
   )> }
 );
 
 export type GetProposalBookingQueryVariables = Exact<{
   id: Scalars['ID'];
+  filter: ProposalBookingScheduledEventFilter;
 }>;
 
 
@@ -3149,6 +3230,9 @@ export type GetProposalBookingQuery = (
     )>, proposal: Maybe<(
       { __typename?: 'Proposal' }
       & Pick<Proposal, 'id' | 'title' | 'shortCode'>
+    )>, scheduledEvents: Array<(
+      { __typename?: 'ScheduledEvent' }
+      & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
     )> }
   )> }
 );
@@ -3459,7 +3543,7 @@ export const FinalizeProposalBookingDocument = gql`
 }
     `;
 export const GetInstrumentProposalBookingsDocument = gql`
-    query getInstrumentProposalBookings($instrumentId: ID!) {
+    query getInstrumentProposalBookings($instrumentId: ID!, $filter: ProposalBookingScheduledEventFilter!) {
   instrumentProposalBookings(instrumentId: $instrumentId) {
     id
     call {
@@ -3478,11 +3562,16 @@ export const GetInstrumentProposalBookingsDocument = gql`
     updatedAt
     status
     allocatedTime
+    scheduledEvents(filter: $filter) {
+      id
+      startsAt
+      endsAt
+    }
   }
 }
     `;
 export const GetProposalBookingDocument = gql`
-    query getProposalBooking($id: ID!) {
+    query getProposalBooking($id: ID!, $filter: ProposalBookingScheduledEventFilter!) {
   proposalBooking(id: $id) {
     id
     call {
@@ -3496,6 +3585,11 @@ export const GetProposalBookingDocument = gql`
       id
       title
       shortCode
+    }
+    scheduledEvents(filter: $filter) {
+      id
+      startsAt
+      endsAt
     }
     createdAt
     updatedAt

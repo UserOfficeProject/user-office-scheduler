@@ -1,7 +1,8 @@
 import { makeStyles } from '@material-ui/core';
-import React from 'react';
-
 import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
+import humanizeDuration from 'humanize-duration';
+import React from 'react';
+import { parseTzLessDateTime } from 'utils/date';
 
 const useStyles = makeStyles(theme => ({
   heading1: {
@@ -21,6 +22,16 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
+function formatTimeRemaining(seconds: number) {
+  if (seconds === 0) {
+    return <span style={{ color: 'green' }}>Allocated</span>;
+  }
+  if (seconds < 0) {
+    return <span style={{ color: 'red' }}>Over allocated</span>;
+  }
+  return `${humanizeDuration(seconds * 1000, { largest: 2 })} left`;
+}
+
 interface ProposalBookingTreeTitleProps {
   proposalBooking: InstrumentProposalBooking;
 }
@@ -30,6 +41,14 @@ function ProposalBookingTreeTitle({
 }: ProposalBookingTreeTitleProps) {
   const classes = useStyles();
 
+  const allocated = proposalBooking.scheduledEvents.reduce(
+    (total, curr) =>
+      total + parseTzLessDateTime(curr.endsAt).diff(curr.startsAt, 'seconds'),
+    0
+  );
+
+  const allocatable = proposalBooking.allocatedTime - allocated;
+
   if (!proposalBooking.proposal) {
     return null;
   }
@@ -37,7 +56,7 @@ function ProposalBookingTreeTitle({
   return (
     <>
       <h1 className={classes.heading1}>{proposalBooking.proposal.title}</h1>
-      <h2 className={classes.heading2}>Allocated/Allocatable</h2>
+      <h2 className={classes.heading2}>{formatTimeRemaining(allocatable)}</h2>
     </>
   );
 }

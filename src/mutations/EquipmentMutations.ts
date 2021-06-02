@@ -11,6 +11,7 @@ import {
   AssignEquipmentsToScheduledEventInput,
   DeleteEquipmentAssignmentInput,
   ConfirmEquipmentAssignmentInput,
+  EquipmentResponsibleInput,
 } from '../resolvers/mutations/EquipmentMutation';
 import { Roles } from '../types/shared';
 
@@ -106,6 +107,19 @@ export default class EquipmentMutations {
 
     return this.equipmentDataSource.confirmAssignment(
       confirmEquipmentAssignmentInput
+    );
+  }
+
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
+  addEquipmentResponsible(
+    ctx: ResolverContext,
+    equipmentResponsibleInput: EquipmentResponsibleInput
+  ) {
+    // TODO: check if has permission
+    //  assignEquipmentsToScheduledEventInput.proposalBookingId
+
+    return this.equipmentDataSource.addEquipmentResponsible(
+      equipmentResponsibleInput
     );
   }
 }

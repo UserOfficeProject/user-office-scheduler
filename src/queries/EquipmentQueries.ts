@@ -2,7 +2,11 @@ import { ResolverContext } from '../context';
 import { EquipmentDataSource } from '../datasources/EquipmentDataSource';
 import { ScheduledEventDataSource } from '../datasources/ScheduledEventDataSource';
 import Authorized from '../decorators/Authorized';
-import { Equipment, EquipmentAssignmentStatus } from '../models/Equipment';
+import {
+  Equipment,
+  EquipmentAssignmentStatus,
+  EquipmentResponsible,
+} from '../models/Equipment';
 import { Roles } from '../types/shared';
 
 export default class EquipmentQueries {
@@ -61,5 +65,13 @@ export default class EquipmentQueries {
       scheduledEventId,
       equipmentId
     );
+  }
+
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
+  getEquipmentResponsible(
+    ctx: ResolverContext,
+    equipmentId: number
+  ): Promise<EquipmentResponsible[]> {
+    return this.equipmentDataSource.getEquipmentResponsible(equipmentId);
   }
 }

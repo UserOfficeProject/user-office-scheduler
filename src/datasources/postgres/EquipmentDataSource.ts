@@ -1,11 +1,16 @@
 /* eslint-disable @typescript-eslint/camelcase */
-import { Equipment, EquipmentAssignmentStatus } from '../../models/Equipment';
+import {
+  Equipment,
+  EquipmentAssignmentStatus,
+  EquipmentResponsible,
+} from '../../models/Equipment';
 import { ScheduledEvent } from '../../models/ScheduledEvent';
 import {
   EquipmentInput,
   AssignEquipmentsToScheduledEventInput,
   DeleteEquipmentAssignmentInput,
   ConfirmEquipmentAssignmentInput,
+  EquipmentResponsibleInput,
 } from '../../resolvers/mutations/EquipmentMutation';
 import { EquipmentDataSource } from '../EquipmentDataSource';
 import database, { UNIQUE_CONSTRAINT_VIOLATION } from './database';
@@ -13,6 +18,8 @@ import {
   EquipmentRecord,
   createEquipmentObject,
   EquipmentsScheduledEventsRecord,
+  EquipmentResponsibleRecord,
+  createEquipmentResponsibleObject,
 } from './records';
 
 export default class PostgresEquipmentDataSource
@@ -20,6 +27,7 @@ export default class PostgresEquipmentDataSource
   readonly tableName = 'equipments';
   readonly scheduledEventsTable = 'scheduled_events';
   readonly scheduledEventsEquipmentsTable = 'scheduled_events_equipments';
+  readonly equipmentResponsibleTable = 'equipment_responsible';
 
   async create(userId: number, input: EquipmentInput): Promise<Equipment> {
     const [equipmentRecord] = await database<EquipmentRecord>(this.tableName)
@@ -69,6 +77,18 @@ export default class PostgresEquipmentDataSource
       });
 
     return equipmentRecords.map(createEquipmentObject);
+  }
+
+  async getEquipmentResponsible(
+    equipmentId: number
+  ): Promise<EquipmentResponsible[]> {
+    const equipmentResponsibleRecords = await database<
+      EquipmentResponsibleRecord
+    >(this.equipmentResponsibleTable)
+      .select('*')
+      .where('equipment_id', equipmentId);
+
+    return equipmentResponsibleRecords.map(createEquipmentResponsibleObject);
   }
 
   async availableEquipments(
@@ -232,5 +252,21 @@ export default class PostgresEquipmentDataSource
       .returning('*');
 
     return deletedRecords.length === 1;
+  }
+  async addEquipmentResponsible(
+    input: EquipmentResponsibleInput
+  ): Promise<boolean> {
+    const dataToInsert = input.userIds.map(userId => ({
+      user_id: userId,
+      equipment_id: input.equipmentId,
+    }));
+
+    const equipmentResponsibleRecords = await database<
+      EquipmentResponsibleRecord
+    >(this.equipmentResponsibleTable)
+      .insert(dataToInsert)
+      .returning('*');
+
+    return equipmentResponsibleRecords.length === dataToInsert.length;
   }
 }

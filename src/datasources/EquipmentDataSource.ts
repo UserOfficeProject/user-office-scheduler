@@ -1,10 +1,15 @@
-import { Equipment, EquipmentAssignmentStatus } from '../models/Equipment';
+import {
+  Equipment,
+  EquipmentAssignmentStatus,
+  EquipmentResponsible,
+} from '../models/Equipment';
 import { ScheduledEvent } from '../models/ScheduledEvent';
 import {
   EquipmentInput,
   AssignEquipmentsToScheduledEventInput,
   DeleteEquipmentAssignmentInput,
   ConfirmEquipmentAssignmentInput,
+  EquipmentResponsibleInput,
 } from '../resolvers/mutations/EquipmentMutation';
 
 export interface EquipmentDataSource {
@@ -32,4 +37,8 @@ export interface EquipmentDataSource {
   confirmAssignment(
     confirmEquipmentAssignmentInput: ConfirmEquipmentAssignmentInput
   ): Promise<boolean>;
+  addEquipmentResponsible(
+    addEquipmentResponsibleInput: EquipmentResponsibleInput
+  ): Promise<boolean>;
+  getEquipmentResponsible(equipmentId: number): Promise<EquipmentResponsible[]>;
 }

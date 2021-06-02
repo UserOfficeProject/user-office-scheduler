@@ -78,7 +78,6 @@ export default function CalendarTodoBox({
       </Button>
 
       <ProposalBookingTree
-        instrument={queryInstrument}
         refreshCalendar={refreshCalendar}
         proposalBookings={proposalBookings}
       />

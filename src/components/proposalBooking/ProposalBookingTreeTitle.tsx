@@ -5,7 +5,7 @@ import React from 'react';
 import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
 import { parseTzLessDateTime } from 'utils/date';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   heading1: {
     fontSize: '17px',
     fontWeight: 'normal',

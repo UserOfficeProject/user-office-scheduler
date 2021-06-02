@@ -44,13 +44,11 @@ const useStyles = makeStyles(theme => ({
 }));
 
 type ProposalBookingTreeProps = {
-  instrument: string;
   refreshCalendar: () => void;
   proposalBookings: InstrumentProposalBooking[];
 };
 
 export default function ProposalBookingTree({
-  instrument,
   refreshCalendar,
   proposalBookings,
 }: ProposalBookingTreeProps) {

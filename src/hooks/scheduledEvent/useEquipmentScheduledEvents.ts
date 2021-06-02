@@ -41,7 +41,7 @@ export default function useEquipmentScheduledEvents(
     return () => {
       unmount = true;
     };
-  }, [selectedEquipment, api]);
+  }, [selectedEquipment, api, startsAt, endsAt]);
 
   return {
     loading,

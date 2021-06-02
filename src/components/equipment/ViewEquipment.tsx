@@ -9,6 +9,7 @@ import {
   IconButton,
   Box,
   TableCell,
+  Tooltip,
 } from '@material-ui/core';
 import {
   Comment as CommentIcon,
@@ -18,6 +19,7 @@ import {
   Assignment as AssignmentIcon,
   Check as CheckIcon,
   Clear as ClearIcon,
+  PersonAdd as PersonAddIcon,
 } from '@material-ui/icons';
 import moment, { Moment } from 'moment';
 import { useSnackbar } from 'notistack';
@@ -26,10 +28,15 @@ import { useParams, generatePath } from 'react-router';
 import { Link } from 'react-router-dom';
 
 import Loader from 'components/common/Loader';
+import PeopleModal from 'components/common/PeopleModal';
 import Table, { HeadCell } from 'components/common/Table';
 import { PATH_EDIT_EQUIPMENT } from 'components/paths';
 import { AppContext } from 'context/AppContext';
-import { EquipmentAssignmentStatus } from 'generated/sdk';
+import {
+  BasicUserDetails,
+  EquipmentAssignmentStatus,
+  User,
+} from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import useEquipment from 'hooks/equipment/useEquipment';
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
@@ -71,6 +78,9 @@ const useStyles = makeStyles(theme => ({
   spacingLeft: {
     marginLeft: theme.spacing(2),
   },
+  listItemText: {
+    maxWidth: 'fit-content',
+  },
 }));
 
 const MaintenanceInfo = ({
@@ -105,6 +115,10 @@ export default function ViewEquipment() {
   const { id } = useParams<{ id: string }>();
   const classes = useStyles();
   const { loading: equipmentLoading, equipment } = useEquipment(id);
+  const [selectedUsers, setSelectedUsers] = useState<
+    Pick<User, 'id' | 'firstname' | 'lastname'>[]
+  >([]);
+  const [showPeopleModal, setShowPeopleModal] = useState(false);
   const {
     loading: scheduledEventsLoading,
     scheduledEvents,
@@ -113,6 +127,11 @@ export default function ViewEquipment() {
     toTzLessDateTime(new Date()),
     toTzLessDateTime(moment(new Date()).add(1, 'year'))
   );
+  useEffect(() => {
+    if (equipment?.equipmentResponsible) {
+      setSelectedUsers(equipment.equipmentResponsible);
+    }
+  }, [equipment?.equipmentResponsible]);
   const api = useDataApi();
   const [rows, setRows] = useState<TableRow[]>([]);
   const [confirmationLoading, setConfirmationLoading] = useState(false);
@@ -137,6 +156,8 @@ export default function ViewEquipment() {
   if (!equipment) {
     return <div>Not found</div>;
   }
+
+  console.log(selectedUsers);
 
   const handleConfirmAssignment = (
     row: TableRow,
@@ -210,8 +231,31 @@ export default function ViewEquipment() {
     );
   };
 
+  const addEquipmentResponsibleUsers = async (users: BasicUserDetails[]) => {
+    const response = await api().addEquipmentResponsible({
+      equipmentResponsibleInput: {
+        equipmentId: equipment.id,
+        userIds: users.map(user => user.id),
+      },
+    });
+
+    if (response.addEquipmentResponsible) {
+      enqueueSnackbar('Success', { variant: 'success' });
+
+      setShowPeopleModal(false);
+    }
+  };
+
   return (
     <ContentContainer maxWidth={false}>
+      <PeopleModal
+        show={!!showPeopleModal}
+        close={(): void => setShowPeopleModal(false)}
+        addParticipants={addEquipmentResponsibleUsers}
+        selectedUsers={selectedUsers.map(selectedUser => selectedUser.id)}
+        selection={true}
+        title={'Select responsible people'}
+      />
       <Grid container>
         <Grid item xs={12}>
           <StyledPaper margin={[0, 1]}>
@@ -247,7 +291,17 @@ export default function ViewEquipment() {
                       secondary={`${equipment?.owner?.firstname ?? 'Unknown'} ${
                         equipment?.owner?.lastname
                       }`}
+                      className={classes.listItemText}
                     />
+                    <Tooltip title="Add equipment responsible">
+                      <IconButton
+                        onClick={() => setShowPeopleModal(true)}
+                        data-cy="add-equipment-responsible"
+                        aria-label="Add equipment responsible"
+                      >
+                        <PersonAddIcon />
+                      </IconButton>
+                    </Tooltip>
                   </ListItem>
                 </List>
               </Grid>

@@ -29,3 +29,8 @@ export const ContentContainer = styled(({ ...other }) => (
   margin: (props: any) => getSpacing(props.margin, [0, 'auto']),
   padding: props => getSpacing(props.padding, [4, 0]),
 });
+
+export const ButtonContainer = styled(({ ...other }) => <div {...other} />)({
+  display: 'flex',
+  justifyContent: 'flex-end',
+});

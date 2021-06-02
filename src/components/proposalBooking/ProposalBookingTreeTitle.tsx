@@ -25,7 +25,7 @@ const useStyles = makeStyles(theme => ({
 
 function formatTimeRemaining(seconds: number) {
   if (seconds === 0) {
-    return <span style={{ color: 'green' }}>Allocated</span>;
+    return <span style={{ color: 'green' }}>✓ Allocated</span>;
   }
   if (seconds < 0) {
     return <span style={{ color: 'red' }}>Over allocated</span>;

@@ -41,7 +41,6 @@
     "@types/yup": "^0.29.10",
     "date-fns": "^2.16.1",
     "dateformat": "^3.0.3",
-    "duo-scheduler-frontend-e2e": "file:cypress",
     "formik": "^2.2.5",
     "formik-material-ui": "^3.0.1",
     "formik-material-ui-pickers": "0.0.11",

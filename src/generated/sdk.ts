@@ -3316,7 +3316,7 @@ export type GetEquipmentScheduledEventsQuery = (
     & Pick<Equipment, 'id' | 'name'>
     & { events: Array<(
       { __typename?: 'ScheduledEvent' }
-      & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt' | 'equipmentAssignmentStatus'>
+      & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt' | 'equipmentAssignmentStatus' | 'equipmentId'>
     )> }
   )> }
 );
@@ -3701,6 +3701,7 @@ export const GetEquipmentScheduledEventsDocument = gql`
       startsAt
       endsAt
       equipmentAssignmentStatus
+      equipmentId
     }
   }
 }

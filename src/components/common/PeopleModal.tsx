@@ -13,7 +13,7 @@ function PeopleModal(props: {
   close: () => void;
   selection?: boolean;
   selectedUsers?: number[];
-  invitationUserRole?: UserRole;
+  userRole?: UserRole;
 }) {
   const addUser = (rowData: BasicUserDetails) => {
     props.addParticipants([
@@ -45,6 +45,7 @@ function PeopleModal(props: {
           }}
           selectedUsers={props.selectedUsers}
           selection={!!props.selection}
+          userRole={props.userRole}
           onUpdate={data => props.addParticipants(data as BasicUserDetails[])}
         />
       </DialogContent>

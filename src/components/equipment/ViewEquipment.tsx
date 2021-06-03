@@ -20,6 +20,7 @@ import {
   Check as CheckIcon,
   Clear as ClearIcon,
   PersonAdd as PersonAddIcon,
+  Group as GroupIcon,
 } from '@material-ui/icons';
 import moment, { Moment } from 'moment';
 import { useSnackbar } from 'notistack';
@@ -36,6 +37,7 @@ import {
   BasicUserDetails,
   EquipmentAssignmentStatus,
   User,
+  UserRole,
 } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import useEquipment from 'hooks/equipment/useEquipment';
@@ -127,11 +129,12 @@ export default function ViewEquipment() {
     toTzLessDateTime(new Date()),
     toTzLessDateTime(moment(new Date()).add(1, 'year'))
   );
+  const equipmentResponsible = equipment?.equipmentResponsible;
   useEffect(() => {
-    if (equipment?.equipmentResponsible) {
-      setSelectedUsers(equipment.equipmentResponsible);
+    if (equipmentResponsible) {
+      setSelectedUsers(equipmentResponsible);
     }
-  }, [equipment?.equipmentResponsible]);
+  }, [equipmentResponsible]);
   const api = useDataApi();
   const [rows, setRows] = useState<TableRow[]>([]);
   const [confirmationLoading, setConfirmationLoading] = useState(false);
@@ -156,8 +159,6 @@ export default function ViewEquipment() {
   if (!equipment) {
     return <div>Not found</div>;
   }
-
-  console.log(selectedUsers);
 
   const handleConfirmAssignment = (
     row: TableRow,
@@ -242,6 +243,8 @@ export default function ViewEquipment() {
     if (response.addEquipmentResponsible) {
       enqueueSnackbar('Success', { variant: 'success' });
 
+      setSelectedUsers([...selectedUsers, ...users]);
+
       setShowPeopleModal(false);
     }
   };
@@ -255,6 +258,7 @@ export default function ViewEquipment() {
         selectedUsers={selectedUsers.map(selectedUser => selectedUser.id)}
         selection={true}
         title={'Select responsible people'}
+        userRole={UserRole.INSTRUMENT_SCIENTIST}
       />
       <Grid container>
         <Grid item xs={12}>
@@ -291,6 +295,23 @@ export default function ViewEquipment() {
                       secondary={`${equipment?.owner?.firstname ?? 'Unknown'} ${
                         equipment?.owner?.lastname
                       }`}
+                      className={classes.listItemText}
+                    />
+                  </ListItem>
+                  <ListItem disableGutters>
+                    <ListItemAvatar>
+                      <Avatar>
+                        <GroupIcon />
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary="Responsible people"
+                      secondary={selectedUsers.map(
+                        (user, index) =>
+                          `${index ? ', ' : ''} ${user.firstname} ${
+                            user.lastname
+                          }`
+                      )}
                       className={classes.listItemText}
                     />
                     <Tooltip title="Add equipment responsible">

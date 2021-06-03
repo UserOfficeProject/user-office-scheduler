@@ -2,12 +2,11 @@
 import Button from '@material-ui/core/Button';
 import makeStyles from '@material-ui/styles/makeStyles';
 import MaterialTable, { Query, Options, Column } from 'material-table';
-import PropTypes from 'prop-types';
 import React, { useState, useEffect } from 'react';
 
 import { ActionButtonContainer } from 'components/common/ActionButtonContainer';
 import { tableIcons } from 'components/common/TableIcons';
-import { BasicUserDetails } from 'generated/sdk';
+import { BasicUserDetails, UserRole } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 
 function sendUserRequest(
@@ -15,13 +14,15 @@ function sendUserRequest(
   api: any,
   setLoading: React.Dispatch<React.SetStateAction<boolean>>,
   selectedUsers: number[] | undefined,
-  selectedParticipants: number[]
+  selectedParticipants: number[],
+  userRole: UserRole | null
 ) {
   const variables = {
     filter: searchQuery.search,
     offset: searchQuery.pageSize * searchQuery.page,
     first: searchQuery.pageSize,
     subtractUsers: selectedUsers ? selectedUsers : [],
+    userRole: userRole,
   };
 
   setLoading(true);
@@ -64,6 +65,7 @@ type PeopleTableProps<T extends BasicUserDetails = BasicUserDetails> = {
   selectedUsers?: number[];
   mtOptions?: Options;
   columns?: Column<any>[];
+  userRole?: UserRole;
 };
 
 const useStyles = makeStyles({
@@ -150,7 +152,8 @@ const PeopleTable: React.FC<PeopleTableProps> = props => {
           api,
           setLoading,
           props.selectedUsers,
-          selectedParticipants.map(({ id }) => id)
+          selectedParticipants.map(({ id }) => id),
+          props.userRole || null
         ).then((users: any) => {
           setCurrentPageIds(users.data.map(({ id }: { id: number }) => id));
 
@@ -252,25 +255,6 @@ const PeopleTable: React.FC<PeopleTableProps> = props => {
       )}
     </div>
   );
-};
-
-PeopleTable.propTypes = {
-  title: PropTypes.string,
-  action: PropTypes.shape({
-    fn: PropTypes.func.isRequired,
-    actionIcon: PropTypes.element.isRequired,
-    actionText: PropTypes.string.isRequired,
-  }),
-  selection: PropTypes.bool.isRequired,
-  isFreeAction: PropTypes.bool,
-  data: PropTypes.array,
-  search: PropTypes.bool,
-  onRemove: PropTypes.func,
-  onUpdate: PropTypes.func,
-  selectedUsers: PropTypes.array,
-  mtOptions: PropTypes.object,
-  isLoading: PropTypes.bool,
-  columns: PropTypes.array,
 };
 
 export default PeopleTable;

@@ -71,8 +71,31 @@ export default class PostgresEquipmentDataSource
       .select('*')
       .orderBy('name', 'asc')
       .modify(qb => {
-        if (equipmentIds) {
+        if (equipmentIds && equipmentIds[0] !== 0) {
           qb.whereIn('equipment_id', equipmentIds);
+        }
+      });
+
+    return equipmentRecords.map(createEquipmentObject);
+  }
+
+  async getAllUserEquipments(
+    userId: string,
+    equipmentIds?: number[]
+  ): Promise<Equipment[]> {
+    const equipmentRecords = await database<EquipmentRecord>(this.tableName)
+      .select('*')
+      .orderBy('name', 'asc')
+      .join(
+        this.equipmentResponsibleTable,
+        `${this.tableName}.equipment_id`,
+        `${this.equipmentResponsibleTable}.equipment_id`
+      )
+      .where('owner_id', userId)
+      .orWhere(`${this.equipmentResponsibleTable}.user_id`, userId)
+      .modify(qb => {
+        if (equipmentIds && equipmentIds[0] !== 0) {
+          qb.whereIn(`${this.tableName}.equipment_id`, equipmentIds);
         }
       });
 

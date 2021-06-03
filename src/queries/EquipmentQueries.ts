@@ -2,6 +2,7 @@ import { ResolverContext } from '../context';
 import { EquipmentDataSource } from '../datasources/EquipmentDataSource';
 import { ScheduledEventDataSource } from '../datasources/ScheduledEventDataSource';
 import Authorized from '../decorators/Authorized';
+import { isUserOfficer } from '../helpers/permissionHelpers';
 import {
   Equipment,
   EquipmentAssignmentStatus,
@@ -28,7 +29,22 @@ export default class EquipmentQueries {
     ctx: ResolverContext,
     equipmentIds?: number[]
   ): Promise<Equipment[]> {
-    return this.equipmentDataSource.getAll(equipmentIds);
+    const allEquipments = this.equipmentDataSource.getAll(equipmentIds);
+
+    if (isUserOfficer(ctx)) {
+      return allEquipments;
+    } else {
+      if (!ctx.user) {
+        return [];
+      }
+
+      const equipments = this.equipmentDataSource.getAllUserEquipments(
+        ctx.user.id,
+        equipmentIds
+      );
+
+      return equipments;
+    }
   }
 
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions

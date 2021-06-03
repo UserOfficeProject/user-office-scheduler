@@ -69,6 +69,7 @@ const apolloServer = async (app: Express) => {
 
           context.user = authJwtPayload?.user;
           context.roles = authJwtPayload?.roles;
+          context.currentRole = authJwtPayload?.currentRole;
         }
       } catch (error) {
         logger.logException('failed to parse x-auth-jwt-payload', error);

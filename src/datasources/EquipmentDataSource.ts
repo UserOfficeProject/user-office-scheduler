@@ -20,6 +20,10 @@ export interface EquipmentDataSource {
   ): Promise<Equipment | null>;
   get(id: number): Promise<Equipment | null>;
   getAll(equipmentIds?: number[]): Promise<Equipment[]>;
+  getAllUserEquipments(
+    userId: string,
+    equipmentIds?: number[]
+  ): Promise<Equipment[]>;
   scheduledEventEquipments(
     scheduledEventId: number
   ): Promise<Array<Equipment & { status: EquipmentAssignmentStatus }>>;

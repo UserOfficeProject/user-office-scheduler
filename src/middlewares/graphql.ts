@@ -3,6 +3,7 @@ import { ApolloServerPluginInlineTraceDisabled } from 'apollo-server-core';
 import { ApolloServer } from 'apollo-server-express';
 import { Express, Request as ExpressRequest } from 'express';
 import 'reflect-metadata';
+import jsonwebtoken from 'jsonwebtoken';
 
 import baseContext from '../buildContext';
 import { ResolverContext } from '../context';
@@ -55,12 +56,23 @@ const apolloServer = async (app: Express) => {
       };
 
       try {
-        const authJwtPayloadString = req.header('x-auth-jwt-payload');
-        if (authJwtPayloadString) {
-          const authJwtPayload = JSON.parse(
-            Buffer.from(authJwtPayloadString, 'base64').toString()
-          ) as AuthJwtPayload | AuthJwtApiTokenPayload;
+        const authorization = req.headers.authorization;
 
+        if (!authorization) {
+          throw new Error('Authorization header not provided!');
+        }
+
+        const token = authorization.split(' ')[1];
+
+        if (!token) {
+          throw new Error('Invalid token!');
+        }
+
+        const authJwtPayload = jsonwebtoken.decode(token) as
+          | AuthJwtPayload
+          | AuthJwtApiTokenPayload;
+
+        if (authJwtPayload) {
           if (authJwtPayload && 'accessTokenId' in authJwtPayload) {
             throw new Error(
               'Accessing the Scheduler with API token is not supported yet'

@@ -16,17 +16,25 @@ import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
 type TableRow = {
   id: string;
   equipmentName: string;
+  instrumentName?: string;
+  proposalTitle?: string;
+  proposalShortCode?: string;
   startsAt: Moment;
   endsAt: Moment;
   equipmentId: number;
   equipmentAssignmentStatus: EquipmentAssignmentStatus | null;
+  scheduledBy: string;
 };
 
 export const defaultHeadCells: HeadCell<TableRow>[] = [
   { id: 'equipmentName', label: 'Equipment name' },
+  { id: 'instrumentName', label: 'Instrument' },
+  { id: 'proposalTitle', label: 'Proposal' },
+  { id: 'proposalShortCode', label: 'Proposal ID' },
   { id: 'startsAt', label: 'Starts at' },
   { id: 'endsAt', label: 'Ends at' },
   { id: 'equipmentAssignmentStatus', label: 'Status' },
+  { id: 'scheduledBy', label: 'Scheduled by' },
 ];
 
 export default function ViewRequests() {
@@ -55,6 +63,9 @@ export default function ViewRequests() {
               endsAt,
               equipmentAssignmentStatus,
               equipmentId,
+              instrument,
+              proposalBooking,
+              scheduledBy,
               ...rest
             }) => ({
               ...rest,
@@ -63,6 +74,10 @@ export default function ViewRequests() {
               endsAt: parseTzLessDateTime(endsAt),
               equipmentId: equipmentId,
               equipmentName: scheduledEvent.name,
+              instrumentName: instrument?.name,
+              proposalTitle: proposalBooking?.proposal?.title,
+              proposalShortCode: proposalBooking?.proposal?.shortCode,
+              scheduledBy: `${scheduledBy?.firstname} ${scheduledBy?.lastname}`,
             })
           )
         );
@@ -171,6 +186,11 @@ export default function ViewRequests() {
                   return (
                     <>
                       <TableCell align="left">{row.equipmentName}</TableCell>
+                      <TableCell align="left">{row.instrumentName}</TableCell>
+                      <TableCell align="left">{row.proposalTitle}</TableCell>
+                      <TableCell align="left">
+                        {row.proposalShortCode}
+                      </TableCell>
                       <TableCell align="left">
                         {toTzLessDateTime(row.startsAt)}
                       </TableCell>
@@ -180,6 +200,7 @@ export default function ViewRequests() {
                       <TableCell align="left">
                         {row.equipmentAssignmentStatus}
                       </TableCell>
+                      <TableCell align="left">{row.scheduledBy}</TableCell>
                     </>
                   );
                 }}

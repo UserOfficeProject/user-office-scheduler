@@ -9,7 +9,8 @@ import {
   ScheduledEventBookingType,
 } from 'generated/sdk';
 
-export type BasicProposalBooking = GetScheduledEventsQuery['scheduledEvents'][number]['proposalBooking'];
+export type BasicProposalBooking =
+  GetScheduledEventsQuery['scheduledEvents'][number]['proposalBooking'];
 
 export type CalendarScheduledEvent = Pick<
   ScheduledEvent,
@@ -62,9 +63,7 @@ function getBookingTypeStyle(
   }
 }
 
-export function eventPropGetter(
-  event: CalendarScheduledEvent
-): {
+export function eventPropGetter(event: CalendarScheduledEvent): {
   className?: string;
   style?: CSSProperties;
 } {

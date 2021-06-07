@@ -50,7 +50,7 @@ export const defaultHeadCells: HeadCell<TableRow>[] = [
   { id: 'equipmentAssignmentStatus', label: 'Status' },
 ];
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     flexShrink: 0,
     flexGrow: 0,
@@ -105,14 +105,12 @@ export default function ViewEquipment() {
   const { id } = useParams<{ id: string }>();
   const classes = useStyles();
   const { loading: equipmentLoading, equipment } = useEquipment(id);
-  const {
-    loading: scheduledEventsLoading,
-    scheduledEvents,
-  } = useEquipmentScheduledEvents(
-    [parseInt(id)],
-    toTzLessDateTime(new Date()),
-    toTzLessDateTime(moment(new Date()).add(1, 'year'))
-  );
+  const { loading: scheduledEventsLoading, scheduledEvents } =
+    useEquipmentScheduledEvents(
+      [parseInt(id)],
+      toTzLessDateTime(new Date()),
+      toTzLessDateTime(moment(new Date()).add(1, 'year'))
+    );
   const api = useDataApi();
   const [rows, setRows] = useState<TableRow[]>([]);
   const [confirmationLoading, setConfirmationLoading] = useState(false);
@@ -156,15 +154,14 @@ export default function ViewEquipment() {
             ? EquipmentAssignmentStatus.ACCEPTED
             : EquipmentAssignmentStatus.REJECTED;
 
-        const {
-          confirmEquipmentAssignment: success,
-        } = await api().confirmEquipmentAssignment({
-          confirmEquipmentAssignmentInput: {
-            equipmentId: id,
-            scheduledEventId: row.id,
-            newStatus,
-          },
-        });
+        const { confirmEquipmentAssignment: success } =
+          await api().confirmEquipmentAssignment({
+            confirmEquipmentAssignmentInput: {
+              equipmentId: id,
+              scheduledEventId: row.id,
+              newStatus,
+            },
+          });
 
         setConfirmationLoading(false);
 
@@ -295,8 +292,8 @@ export default function ViewEquipment() {
                 rowActions={RowActions}
                 showEmptyRows
                 rows={rows}
-                extractKey={el => el.id}
-                renderRow={row => {
+                extractKey={(el) => el.id}
+                renderRow={(row) => {
                   return (
                     <>
                       <TableCell align="left">

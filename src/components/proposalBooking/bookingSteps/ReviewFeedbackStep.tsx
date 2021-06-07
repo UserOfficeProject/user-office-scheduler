@@ -18,7 +18,7 @@ import { useDataApi } from 'hooks/common/useDataApi';
 
 import { ProposalBookingDialogStepProps } from '../ProposalBookingDialog';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: { display: 'flex', flexDirection: 'column' },
   positionBottom: {
     display: 'flex',
@@ -84,7 +84,7 @@ export default function ReviewFeedbackStep({
               control={
                 <Checkbox
                   checked={warningAccepted}
-                  onChange={() => setWarningAccepted(prev => !prev)}
+                  onChange={() => setWarningAccepted((prev) => !prev)}
                   name="warningAccepted"
                   color="primary"
                 />

@@ -20,7 +20,7 @@ export default function useAvailableEquipments(scheduledEventId: string) {
     setLoading(true);
     api()
       .getAvailableEquipments({ scheduledEventId })
-      .then(data => {
+      .then((data) => {
         if (unmount) {
           return;
         }

@@ -16,7 +16,7 @@ export default function useUserInstruments() {
   const api = useDataApi();
 
   const refresh = useCallback(() => {
-    setCounter(prev => prev + 1);
+    setCounter((prev) => prev + 1);
   }, [setCounter]);
 
   useEffect(() => {
@@ -25,7 +25,7 @@ export default function useUserInstruments() {
     setLoading(true);
     api()
       .getUserInstruments()
-      .then(data => {
+      .then((data) => {
         if (unmount) {
           return;
         }

@@ -30,7 +30,7 @@ import * as Yup from 'yup';
 
 import Loader from 'components/common/Loader';
 import { PATH_VIEW_EQUIPMENT } from 'components/paths';
-import { EquipmentInput } from 'generated/sdk';
+import { Equipment, EquipmentInput } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import useEquipment from 'hooks/equipment/useEquipment';
 import { ContentContainer, StyledPaper } from 'styles/StyledComponents';
@@ -42,10 +42,7 @@ import {
 } from 'utils/date';
 
 export const equipmentValidationSchema = Yup.object().shape({
-  name: Yup.string()
-    .min(3)
-    .max(100)
-    .required(),
+  name: Yup.string().min(3).max(100).required(),
 
   maintenanceStartsAt: Yup.date()
     .nullable()
@@ -209,7 +206,7 @@ export default function CreateEditEquipment() {
                     ? enqueueError(error)
                     : history.push(
                         generatePath(PATH_VIEW_EQUIPMENT, {
-                          id: equipment?.id!,
+                          id: (equipment as Equipment).id,
                         })
                       );
                 }

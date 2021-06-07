@@ -8,7 +8,7 @@ import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentPr
 
 import ProposalBookingTree from '../proposalBooking/ProposalBookingTree';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
     height: '100%',

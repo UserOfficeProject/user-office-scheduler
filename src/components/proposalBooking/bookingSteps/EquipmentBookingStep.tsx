@@ -29,7 +29,7 @@ export type EquipmentTableRow = {
   autoAccept: boolean;
 };
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   toolbarRoot: {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(1),
@@ -115,15 +115,14 @@ export default function EquipmentBookingStep({
       cb: async () => {
         setLoading(true);
 
-        const {
-          deleteEquipmentAssignment: success,
-        } = await api().deleteEquipmentAssignment({
-          deleteEquipmentAssignmentInput: {
-            equipmentId,
-            scheduledEventId,
-            proposalBookingId: proposalBooking.id,
-          },
-        });
+        const { deleteEquipmentAssignment: success } =
+          await api().deleteEquipmentAssignment({
+            deleteEquipmentAssignmentInput: {
+              equipmentId,
+              scheduledEventId,
+              proposalBookingId: proposalBooking.id,
+            },
+          });
 
         if (success) {
           refresh();
@@ -194,7 +193,7 @@ export default function EquipmentBookingStep({
           control={
             <Checkbox
               checked={warningAccepted}
-              onChange={() => setWarningAccepted(prev => !prev)}
+              onChange={() => setWarningAccepted((prev) => !prev)}
               name="warningAccepted"
               color="primary"
               disabled={isStepReadOnly}

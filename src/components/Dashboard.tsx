@@ -26,7 +26,7 @@ import {
   PATH_EDIT_EQUIPMENT,
 } from './paths';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: { display: 'flex' },
   content: {
     flexGrow: 1,

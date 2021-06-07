@@ -23,7 +23,7 @@ import { useQuery } from 'hooks/common/useQuery';
 import useEquipments from 'hooks/equipment/useEquipments';
 import useUserInstruments from 'hooks/instrument/useUserInstruments';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   flex: {
     display: 'flex',
   },
@@ -143,7 +143,7 @@ export default function Toolbar({
       return null;
     }
 
-    return views.map(name => (
+    return views.map((name) => (
       <MenuItem key={name} value={name}>
         {messages[name]}
       </MenuItem>
@@ -178,7 +178,7 @@ export default function Toolbar({
           <Select
             className={classes.calendarViewSelect}
             value={view}
-            onChange={e => onChangeView(e.target.value as View)}
+            onChange={(e) => onChangeView(e.target.value as View)}
             data-cy="select-active-view"
           >
             {viewNamesGroup(messages)}
@@ -207,10 +207,10 @@ export default function Toolbar({
             handleHomeEndKeys
             className={classes.instrumentSelect}
             options={equipments}
-            getOptionLabel={equipment => equipment.name}
+            getOptionLabel={(equipment) => equipment.name}
             data-cy="input-equipment-select"
             id="input-equipment-select"
-            renderInput={params => (
+            renderInput={(params) => (
               <TextField
                 {...params}
                 placeholder="Equipment"
@@ -238,7 +238,7 @@ export default function Toolbar({
               } else {
                 query.set(
                   'equipment',
-                  `${newValue?.map(eq => eq.id).join(',')}`
+                  `${newValue?.map((eq) => eq.id).join(',')}`
                 );
               }
               setSelectedEquipment(newValue);
@@ -264,10 +264,10 @@ export default function Toolbar({
             handleHomeEndKeys
             className={classes.instrumentSelect}
             options={instruments}
-            getOptionLabel={instrument => instrument.name}
+            getOptionLabel={(instrument) => instrument.name}
             data-cy="input-instrument-select"
             id="input-instrument-select"
-            renderInput={params => (
+            renderInput={(params) => (
               <TextField
                 {...params}
                 placeholder="Instrument"

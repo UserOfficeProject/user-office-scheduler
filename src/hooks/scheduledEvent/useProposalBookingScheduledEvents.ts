@@ -24,7 +24,7 @@ export default function useProposalBookingScheduledEvents(
     setLoading(true);
     api()
       .getProposalBookingScheduledEvents({ proposalBookingId })
-      .then(data => {
+      .then((data) => {
         if (unmount) {
           return;
         }

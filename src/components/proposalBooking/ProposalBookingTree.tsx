@@ -22,7 +22,7 @@ type RenderTree = {
   onClick?: React.MouseEventHandler;
 };
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
     height: '100%',
@@ -54,10 +54,8 @@ export default function ProposalBookingTree({
 }: ProposalBookingTreeProps) {
   const classes = useStyles();
 
-  const [
-    selectedProposalBooking,
-    setSelectedProposalBooking,
-  ] = useState<InstrumentProposalBooking | null>(null);
+  const [selectedProposalBooking, setSelectedProposalBooking] =
+    useState<InstrumentProposalBooking | null>(null);
 
   const groupedByCall: RenderTree[] = useMemo(
     () =>
@@ -66,7 +64,7 @@ export default function ProposalBookingTree({
         .map((proposalBookings, id) => ({
           id: `call-${id}`, // avoid numerical ID collision
           title: `Call: ${proposalBookings[0].call.shortCode}`,
-          children: proposalBookings.map(proposalBooking => ({
+          children: proposalBookings.map((proposalBooking) => ({
             id: `proposal-${proposalBooking.proposal.id}`, // avoid numerical ID collision
             title: (
               <ProposalBookingTreeTitle proposalBooking={proposalBooking} />
@@ -88,7 +86,7 @@ export default function ProposalBookingTree({
         onIconClick={nodes.onClick}
       >
         {Array.isArray(nodes.children)
-          ? nodes.children.map(node => renderTree(node))
+          ? nodes.children.map((node) => renderTree(node))
           : null}
       </TreeItem>
     );
@@ -113,15 +111,17 @@ export default function ProposalBookingTree({
 
   return (
     <div className={clsx(classes.root, classes.autoOverflowY)}>
-      {// unmount the component when the dialog is closed
-      // so next time we start from scratch
-      selectedProposalBooking !== null && (
-        <ProposalBookingDialog
-          activeProposalBookingId={selectedProposalBooking.id}
-          isDialogOpen={true}
-          closeDialog={handleCloseDialog}
-        />
-      )}
+      {
+        // unmount the component when the dialog is closed
+        // so next time we start from scratch
+        selectedProposalBooking !== null && (
+          <ProposalBookingDialog
+            activeProposalBookingId={selectedProposalBooking.id}
+            isDialogOpen={true}
+            closeDialog={handleCloseDialog}
+          />
+        )
+      }
 
       <TreeView
         defaultCollapseIcon={<ExpandMoreIcon />}

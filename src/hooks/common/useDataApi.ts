@@ -79,7 +79,7 @@ class UnauthorizedGraphQLClient extends GraphQLClient {
     query: string,
     variables?: Variables
   ): Promise<T> {
-    return super.request(query, variables).catch(error => {
+    return super.request(query, variables).catch((error) => {
       // if the `notificationWithClientLog` fails
       // and it fails while reporting an error, it can
       // easily cause an infinite loop
@@ -143,7 +143,7 @@ class AuthorizedGraphQLClient extends GraphQLClient {
       }
     }
 
-    return super.request(query, variables).catch(error => {
+    return super.request(query, variables).catch((error) => {
       console.error({ error });
 
       // if the connection fails the `error` exists
@@ -214,7 +214,7 @@ export function useDataApi() {
               endpoint,
               token,
               enqueueSnackbar,
-              reason => {
+              (reason) => {
                 console.log(reason);
                 handleLogout();
               },

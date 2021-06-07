@@ -85,7 +85,8 @@ export default function Toolbar({
         ?.split(',')
         .map((num) => parseInt(num)) || []
     );
-  }, [query]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [queryValueInitialized, setQueryValueInitialized] = useState(
     !queryInstrument // if the link has query instrument query value when rendering this component

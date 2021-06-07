@@ -91,7 +91,7 @@ export default class PostgreSystemDataSource implements SystemDataSource {
           const msg = `${file} executed.`;
           log.push(msg);
         })
-        .catch(err => {
+        .catch((err) => {
           const msg = `${file} failed: ${err}`;
           log.push(msg);
 
@@ -122,7 +122,7 @@ export default class PostgreSystemDataSource implements SystemDataSource {
           const msg = `${file} executed.`;
           log.push(msg);
         })
-        .catch(err => {
+        .catch((err) => {
           const msg = `${file} failed. ${err}`;
           log.push(msg);
 
@@ -142,7 +142,7 @@ export default class PostgreSystemDataSource implements SystemDataSource {
         .select('state')
         .groupBy(2)
         .then(() => this.applyPatches())
-        .catch(e => {
+        .catch((e) => {
           initDbFailed++;
 
           logger.logException('Failed to initialize db', e, { initDbFailed });

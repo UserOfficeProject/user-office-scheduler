@@ -7,11 +7,11 @@ export async function instrumentScientistHasInstrument(
   instrumentId: number
 ): Promise<boolean> {
   if (!hasRole([Roles.USER_OFFICER], ctx.roles!)) {
-    const {
-      instrumentScientistHasInstrument,
-    } = await ctx.clients.userOffice().instrumentScientistHasInstrument({
-      instrumentId: +instrumentId,
-    });
+    const { instrumentScientistHasInstrument } = await ctx.clients
+      .userOffice()
+      .instrumentScientistHasInstrument({
+        instrumentId: +instrumentId,
+      });
 
     if (!instrumentScientistHasInstrument) {
       return false;

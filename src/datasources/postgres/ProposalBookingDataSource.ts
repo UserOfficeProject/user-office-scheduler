@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import {
   ProposalBooking,
   ProposalBookingFinalizeAction,
@@ -15,7 +14,8 @@ type CreateFields = Pick<
 >;
 
 export default class PostgresProposalBookingDataSource
-  implements ProposalBookingDataSource {
+  implements ProposalBookingDataSource
+{
   readonly tableName = 'proposal_bookings';
 
   async upsert(event: {
@@ -62,7 +62,7 @@ export default class PostgresProposalBookingDataSource
     )
       .select()
       .where('proposal_id', proposalId)
-      .modify(qb => {
+      .modify((qb) => {
         if (filter?.status) {
           qb.whereIn('status', filter.status);
         }

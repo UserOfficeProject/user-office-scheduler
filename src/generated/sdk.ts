@@ -252,6 +252,7 @@ export type DateConfig = {
   minDate: Maybe<Scalars['String']>;
   maxDate: Maybe<Scalars['String']>;
   defaultDate: Maybe<Scalars['String']>;
+  includeTime: Scalars['Boolean'];
 };
 
 
@@ -361,7 +362,8 @@ export type Feature = {
 
 export enum FeatureId {
   SHIPPING = 'SHIPPING',
-  SCHEDULER = 'SCHEDULER'
+  SCHEDULER = 'SCHEDULER',
+  EXTERNAL_AUTH = 'EXTERNAL_AUTH'
 }
 
 export type FieldCondition = {
@@ -1083,6 +1085,17 @@ export type SePsQueryResult = {
   seps: Array<Sep>;
 };
 
+export type Settings = {
+  __typename?: 'Settings';
+  id: SettingsId;
+  settingsValue: Scalars['String'];
+  description: Scalars['String'];
+};
+
+export enum SettingsId {
+  EXTERNAL_AUTH_LOGIN_URL = 'EXTERNAL_AUTH_LOGIN_URL'
+}
+
 export type Shipment = {
   __typename?: 'Shipment';
   id: Scalars['Int'];
@@ -1723,6 +1736,7 @@ export type Query = {
   sepProposal: Maybe<SepProposal>;
   sepProposalsByInstrument: Maybe<Array<SepProposal>>;
   seps: Maybe<SePsQueryResult>;
+  settings: Array<Settings>;
   shipment: Maybe<Shipment>;
   version: Scalars['String'];
   factoryVersion: Scalars['String'];
@@ -2083,7 +2097,7 @@ export type Mutation = {
   removeAssignedInstrumentFromCall: CallResponseWrap;
   changeProposalsStatus: SuccessResponseWrap;
   assignProposalsToInstrument: SuccessResponseWrap;
-  removeProposalFromInstrument: SuccessResponseWrap;
+  removeProposalsFromInstrument: SuccessResponseWrap;
   assignScientistsToInstrument: SuccessResponseWrap;
   removeScientistFromInstrument: SuccessResponseWrap;
   createInstrument: InstrumentResponseWrap;
@@ -2260,9 +2274,8 @@ export type MutationAssignProposalsToInstrumentArgs = {
 };
 
 
-export type MutationRemoveProposalFromInstrumentArgs = {
-  proposalId: Scalars['Int'];
-  instrumentId: Scalars['Int'];
+export type MutationRemoveProposalsFromInstrumentArgs = {
+  proposalIds: Array<Scalars['Int']>;
 };
 
 
@@ -3191,6 +3204,7 @@ export type FinalizeProposalBookingMutation = (
 
 export type GetInstrumentProposalBookingsQueryVariables = Exact<{
   instrumentId: Scalars['ID'];
+  filter: ProposalBookingScheduledEventFilter;
 }>;
 
 
@@ -3205,12 +3219,16 @@ export type GetInstrumentProposalBookingsQuery = (
     )>, proposal: Maybe<(
       { __typename?: 'Proposal' }
       & Pick<Proposal, 'id' | 'title' | 'shortCode'>
+    )>, scheduledEvents: Array<(
+      { __typename?: 'ScheduledEvent' }
+      & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
     )> }
   )> }
 );
 
 export type GetProposalBookingQueryVariables = Exact<{
   id: Scalars['ID'];
+  filter: ProposalBookingScheduledEventFilter;
 }>;
 
 
@@ -3225,6 +3243,9 @@ export type GetProposalBookingQuery = (
     )>, proposal: Maybe<(
       { __typename?: 'Proposal' }
       & Pick<Proposal, 'id' | 'title' | 'shortCode'>
+    )>, scheduledEvents: Array<(
+      { __typename?: 'ScheduledEvent' }
+      & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
     )> }
   )> }
 );
@@ -3548,7 +3569,7 @@ export const FinalizeProposalBookingDocument = gql`
 }
     `;
 export const GetInstrumentProposalBookingsDocument = gql`
-    query getInstrumentProposalBookings($instrumentId: ID!) {
+    query getInstrumentProposalBookings($instrumentId: ID!, $filter: ProposalBookingScheduledEventFilter!) {
   instrumentProposalBookings(instrumentId: $instrumentId) {
     id
     call {
@@ -3567,11 +3588,16 @@ export const GetInstrumentProposalBookingsDocument = gql`
     updatedAt
     status
     allocatedTime
+    scheduledEvents(filter: $filter) {
+      id
+      startsAt
+      endsAt
+    }
   }
 }
     `;
 export const GetProposalBookingDocument = gql`
-    query getProposalBooking($id: ID!) {
+    query getProposalBooking($id: ID!, $filter: ProposalBookingScheduledEventFilter!) {
   proposalBooking(id: $id) {
     id
     call {
@@ -3585,6 +3611,11 @@ export const GetProposalBookingDocument = gql`
       id
       title
       shortCode
+    }
+    scheduledEvents(filter: $filter) {
+      id
+      startsAt
+      endsAt
     }
     createdAt
     updatedAt

@@ -1,4 +1,7 @@
-query getProposalBooking($id: ID!) {
+query getProposalBooking(
+  $id: ID!
+  $filter: ProposalBookingScheduledEventFilter!
+) {
   proposalBooking(id: $id) {
     id
     call {
@@ -12,6 +15,11 @@ query getProposalBooking($id: ID!) {
       id
       title
       shortCode
+    }
+    scheduledEvents(filter: $filter) {
+      id
+      startsAt
+      endsAt
     }
     createdAt
     updatedAt

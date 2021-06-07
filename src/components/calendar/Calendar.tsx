@@ -22,6 +22,7 @@ import {
   GetScheduledEventsQuery,
 } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
+import useInstrumentProposalBookings from 'hooks/proposalBooking/useInstrumentProposalBookings';
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
 import useScheduledEvents from 'hooks/scheduledEvent/useScheduledEvents';
 import { ContentContainer, StyledPaper } from 'styles/StyledComponents';
@@ -122,7 +123,17 @@ export default function Calendar() {
     generateScheduledEventFilter(queryInstrument, startsAt, view)
   );
 
-  const { loading, scheduledEvents, refresh } = useScheduledEvents(filter);
+  const {
+    proposalBookings,
+    loading: loadingBookings,
+    refresh: refreshBookings,
+  } = useInstrumentProposalBookings(queryInstrument);
+
+  const {
+    scheduledEvents,
+    loading: loadingEvents,
+    refresh: refreshEvents,
+  } = useScheduledEvents(filter);
 
   const {
     scheduledEvents: eqEvents,
@@ -134,6 +145,10 @@ export default function Calendar() {
     filter.endsAt
   );
 
+  const refresh = () => {
+    refreshEvents();
+    refreshBookings();
+  };
   if (
     selectedEquipment.length !== queryEquipment.length ||
     !selectedEquipment.every(eq => queryEquipment.includes(eq))
@@ -275,10 +290,11 @@ export default function Calendar() {
                 <CalendarTodoBox
                   refreshCalendar={refresh}
                   onNewSimpleEvent={handleNewSimpleEvent}
+                  proposalBookings={proposalBookings}
                 />
               </Grid>
             </Grid>
-            {loading && <Loader />}
+            {(loadingEvents || loadingBookings) && <Loader />}
           </StyledPaper>
         </Grid>
       </Grid>

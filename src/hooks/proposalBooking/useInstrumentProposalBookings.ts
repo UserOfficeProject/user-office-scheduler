@@ -1,11 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import { Call, Proposal, ProposalBooking } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 
 export type InstrumentProposalBooking = Pick<
   ProposalBooking,
-  'id' | 'createdAt' | 'updatedAt' | 'status' | 'allocatedTime'
+  | 'id'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'status'
+  | 'allocatedTime'
+  | 'scheduledEvents'
 > & {
   call: Pick<
     Call,
@@ -15,20 +20,31 @@ export type InstrumentProposalBooking = Pick<
   proposal: Pick<Proposal, 'id' | 'title' | 'shortCode'>;
 };
 
-export default function useInstrumentProposalBookings(instrumentId: string) {
-  const [loading, setLoading] = useState(true);
+export default function useInstrumentProposalBookings(
+  instrumentId: string | null
+) {
+  const [loading, setLoading] = useState(false);
   const [proposalBookings, setProposalBookings] = useState<
     InstrumentProposalBooking[]
   >([]);
 
+  const [counter, setCounter] = useState<number>(0);
+
+  const refresh = useCallback(() => {
+    setCounter(prev => prev + 1);
+  }, [setCounter]);
+
   const api = useDataApi();
 
   useEffect(() => {
+    if (!instrumentId) {
+      return;
+    }
     let unmount = false;
 
     setLoading(true);
     api()
-      .getInstrumentProposalBookings({ instrumentId })
+      .getInstrumentProposalBookings({ instrumentId, filter: {} })
       .then(data => {
         if (unmount) {
           return;
@@ -49,7 +65,7 @@ export default function useInstrumentProposalBookings(instrumentId: string) {
     return () => {
       unmount = true;
     };
-  }, [instrumentId, api]);
+  }, [instrumentId, api, counter]);
 
-  return { loading, proposalBookings } as const;
+  return { loading, proposalBookings, refresh } as const;
 }

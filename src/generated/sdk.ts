@@ -3299,6 +3299,13 @@ export type GetEquipmentScheduledEventsQuery = (
     & { events: Array<(
       { __typename?: 'ScheduledEvent' }
       & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt' | 'equipmentAssignmentStatus'>
+      & { scheduledBy: Maybe<(
+        { __typename?: 'User' }
+        & Pick<User, 'firstname' | 'lastname'>
+      )>, instrument: Maybe<(
+        { __typename?: 'Instrument' }
+        & Pick<Instrument, 'name'>
+      )> }
     )> }
   )> }
 );
@@ -3344,7 +3351,13 @@ export type GetScheduledEventsQuery = (
   & { scheduledEvents: Array<(
     { __typename?: 'ScheduledEvent' }
     & Pick<ScheduledEvent, 'id' | 'bookingType' | 'startsAt' | 'endsAt' | 'description'>
-    & { proposalBooking: Maybe<(
+    & { instrument: Maybe<(
+      { __typename?: 'Instrument' }
+      & Pick<Instrument, 'name'>
+    )>, scheduledBy: Maybe<(
+      { __typename?: 'User' }
+      & Pick<User, 'firstname' | 'lastname'>
+    )>, proposalBooking: Maybe<(
       { __typename?: 'ProposalBooking' }
       & Pick<ProposalBooking, 'status'>
       & { proposal: Maybe<(
@@ -3647,6 +3660,13 @@ export const GetEquipmentScheduledEventsDocument = gql`
       startsAt
       endsAt
       equipmentAssignmentStatus
+      scheduledBy {
+        firstname
+        lastname
+      }
+      instrument {
+        name
+      }
     }
   }
 }
@@ -3687,6 +3707,13 @@ export const GetScheduledEventsDocument = gql`
     startsAt
     endsAt
     description
+    instrument {
+      name
+    }
+    scheduledBy {
+      firstname
+      lastname
+    }
     proposalBooking {
       status
       proposal {

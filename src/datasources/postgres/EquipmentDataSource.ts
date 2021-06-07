@@ -71,6 +71,7 @@ export default class PostgresEquipmentDataSource
       .select('*')
       .orderBy('name', 'asc')
       .modify(qb => {
+        // NOTE: For now 0 is used to load all equipments.
         if (equipmentIds && equipmentIds[0] !== 0) {
           qb.whereIn('equipment_id', equipmentIds);
         }
@@ -94,6 +95,7 @@ export default class PostgresEquipmentDataSource
       .where('owner_id', userId)
       .orWhere(`${this.equipmentResponsibleTable}.user_id`, userId)
       .modify(qb => {
+        // NOTE: For now 0 is used to load all equipments.
         if (equipmentIds && equipmentIds[0] !== 0) {
           qb.whereIn(`${this.tableName}.equipment_id`, equipmentIds);
         }

@@ -3230,6 +3230,7 @@ export type FinalizeProposalBookingMutation = (
 
 export type GetInstrumentProposalBookingsQueryVariables = Exact<{
   instrumentId: Scalars['ID'];
+  filter: ProposalBookingScheduledEventFilter;
 }>;
 
 
@@ -3244,12 +3245,16 @@ export type GetInstrumentProposalBookingsQuery = (
     )>, proposal: Maybe<(
       { __typename?: 'Proposal' }
       & Pick<Proposal, 'id' | 'title' | 'shortCode'>
+    )>, scheduledEvents: Array<(
+      { __typename?: 'ScheduledEvent' }
+      & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
     )> }
   )> }
 );
 
 export type GetProposalBookingQueryVariables = Exact<{
   id: Scalars['ID'];
+  filter: ProposalBookingScheduledEventFilter;
 }>;
 
 
@@ -3264,6 +3269,9 @@ export type GetProposalBookingQuery = (
     )>, proposal: Maybe<(
       { __typename?: 'Proposal' }
       & Pick<Proposal, 'id' | 'title' | 'shortCode'>
+    )>, scheduledEvents: Array<(
+      { __typename?: 'ScheduledEvent' }
+      & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
     )> }
   )> }
 );
@@ -3633,7 +3641,7 @@ export const FinalizeProposalBookingDocument = gql`
 }
     `;
 export const GetInstrumentProposalBookingsDocument = gql`
-    query getInstrumentProposalBookings($instrumentId: ID!) {
+    query getInstrumentProposalBookings($instrumentId: ID!, $filter: ProposalBookingScheduledEventFilter!) {
   instrumentProposalBookings(instrumentId: $instrumentId) {
     id
     call {
@@ -3652,11 +3660,16 @@ export const GetInstrumentProposalBookingsDocument = gql`
     updatedAt
     status
     allocatedTime
+    scheduledEvents(filter: $filter) {
+      id
+      startsAt
+      endsAt
+    }
   }
 }
     `;
 export const GetProposalBookingDocument = gql`
-    query getProposalBooking($id: ID!) {
+    query getProposalBooking($id: ID!, $filter: ProposalBookingScheduledEventFilter!) {
   proposalBooking(id: $id) {
     id
     call {
@@ -3670,6 +3683,11 @@ export const GetProposalBookingDocument = gql`
       id
       title
       shortCode
+    }
+    scheduledEvents(filter: $filter) {
+      id
+      startsAt
+      endsAt
     }
     createdAt
     updatedAt

@@ -1,4 +1,4 @@
-import { CircularProgress, makeStyles } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core';
 import {
   ChevronRight as ChevronRightIcon,
   ExpandMore as ExpandMoreIcon,
@@ -8,17 +8,16 @@ import {
 import { TreeView, TreeItem } from '@material-ui/lab';
 import clsx from 'clsx';
 import * as _ from 'lodash';
-import React, { useMemo, useState } from 'react';
+import React, { ReactNode, useMemo, useState } from 'react';
 
-import useInstrumentProposalBookings, {
-  InstrumentProposalBooking,
-} from 'hooks/proposalBooking/useInstrumentProposalBookings';
+import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
 
 import ProposalBookingDialog from './ProposalBookingDialog';
+import ProposalBookingTreeTitle from './ProposalBookingTreeTitle';
 
 type RenderTree = {
   id: string;
-  name: string;
+  title: ReactNode;
   children?: RenderTree[];
   onClick?: React.MouseEventHandler;
 };
@@ -45,18 +44,16 @@ const useStyles = makeStyles(theme => ({
 }));
 
 type ProposalBookingTreeProps = {
-  instrument: string;
   refreshCalendar: () => void;
+  proposalBookings: InstrumentProposalBooking[];
 };
 
 export default function ProposalBookingTree({
-  instrument,
   refreshCalendar,
+  proposalBookings,
 }: ProposalBookingTreeProps) {
   const classes = useStyles();
-  const { loading, proposalBookings } = useInstrumentProposalBookings(
-    instrument
-  );
+
   const [
     selectedProposalBooking,
     setSelectedProposalBooking,
@@ -68,10 +65,12 @@ export default function ProposalBookingTree({
         .groupBy(({ call: { id } }) => id)
         .map((proposalBookings, id) => ({
           id: `call-${id}`, // avoid numerical ID collision
-          name: `Call: ${proposalBookings[0].call.shortCode}`,
+          title: `Call: ${proposalBookings[0].call.shortCode}`,
           children: proposalBookings.map(proposalBooking => ({
             id: `proposal-${proposalBooking.proposal.id}`, // avoid numerical ID collision
-            name: `Proposal: ${proposalBooking.proposal.title}`,
+            title: (
+              <ProposalBookingTreeTitle proposalBooking={proposalBooking} />
+            ),
             onClick: () => setSelectedProposalBooking(proposalBooking),
           })),
         }))
@@ -84,7 +83,7 @@ export default function ProposalBookingTree({
       <TreeItem
         key={nodes.id}
         nodeId={nodes.id}
-        label={nodes.name}
+        label={nodes.title}
         icon={nodes.onClick ? <VisibilityIcon /> : null}
         onIconClick={nodes.onClick}
       >
@@ -102,14 +101,6 @@ export default function ProposalBookingTree({
       refreshCalendar();
     }
   };
-
-  if (loading) {
-    return (
-      <div className={clsx(classes.root, classes.centered)}>
-        <CircularProgress />
-      </div>
-    );
-  }
 
   if (groupedByCall.length === 0) {
     return (

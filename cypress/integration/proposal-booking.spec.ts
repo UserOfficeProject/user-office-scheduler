@@ -135,6 +135,10 @@ context('Proposal booking tests ', () => {
         cy.contains('2020-08-23 13:00:00');
       });
 
+      it('should display time allocation left', () => {
+        cy.contains('1 day, 23 hours left');
+      });
+
       it('should be able to delete time slot', () => {
         cy.get('[data-cy=enhanced-table-checkbox-0]').click();
 

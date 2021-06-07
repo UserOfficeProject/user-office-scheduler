@@ -3,13 +3,11 @@ import moment from 'moment';
 import * as Yup from 'yup';
 
 export const bulkUpsertScheduledEventsValidationSchema = Yup.object().shape({
-  proposalBookingId: util.NumericalID.required(
-    'ProposalBooking ID is required'
-  ),
+  proposalBookingId: Yup.number().required('ProposalBooking ID is required'),
   scheduledEvents: Yup.array()
     .of(
       Yup.object().shape({
-        id: util.ID.required('ScheduledEvent ID is required'),
+        id: Yup.number().required('ScheduledEvent ID is required'),
         startsAt: Yup.date().typeError(util.TYPE_ERR_INVALID_DATE).required(),
 
         endsAt: Yup.date()

@@ -61,7 +61,7 @@ export default class ScheduledEventMutations {
     bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput
   ): Promise<ScheduledEvent[] | Rejection> {
     const proposalBooking = await this.proposalBookingDataSource.get(
-      bulkUpsertScheduledEvents.proposalBookingId
+      +bulkUpsertScheduledEvents.proposalBookingId
     );
 
     if (

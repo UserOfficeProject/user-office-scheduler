@@ -29,9 +29,9 @@ export default class EquipmentQueries {
     ctx: ResolverContext,
     equipmentIds?: number[]
   ): Promise<Equipment[]> {
-    const allEquipments = this.equipmentDataSource.getAll(equipmentIds);
-
     if (isUserOfficer(ctx)) {
+      const allEquipments = this.equipmentDataSource.getAll(equipmentIds);
+
       return allEquipments;
     } else {
       if (!ctx.user) {

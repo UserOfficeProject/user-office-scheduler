@@ -44,7 +44,7 @@ export default function ViewRequests() {
     loading: scheduledEventsLoading,
     scheduledEvents,
   } = useEquipmentScheduledEvents(
-    [0], // NOTE: For now 0 is used to load all scheduled events for all equipments.
+    [], // NOTE: Empty array is used to load all equipments.
     toTzLessDateTime(new Date()),
     toTzLessDateTime(moment(new Date()).add(1, 'year'))
   );

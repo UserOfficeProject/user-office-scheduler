@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 import { ScheduledEvent, EquipmentWithAssignmentStatus } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';

@@ -1,5 +1,5 @@
 import MomentUtils from '@date-io/moment';
-import { getTranslation } from '@esss-swap/duo-localisation';
+import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
 import {
   TYPE_ERR_INVALID_DATE,
   atOrLaterThanMsg,
@@ -22,7 +22,7 @@ import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import { Formik, Form, Field } from 'formik';
 import { TextField, CheckboxWithLabel } from 'formik-material-ui';
 import { KeyboardDateTimePicker } from 'formik-material-ui-pickers';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 import { useSnackbar } from 'notistack';
 import React, { useState, useEffect } from 'react';
 import { useParams, useHistory, generatePath } from 'react-router';
@@ -110,7 +110,7 @@ export default function CreateEditEquipment() {
     }
   }, [loading, equipment]);
 
-  const enqueueError = (error: any) =>
+  const enqueueError = (error: ResourceId) =>
     enqueueSnackbar(getTranslation(error), { variant: 'error' });
 
   if (loading) {
@@ -177,10 +177,10 @@ export default function CreateEditEquipment() {
                   input.maintenanceEndsAt = null;
                 } else {
                   input.maintenanceStartsAt = toTzLessDateTime(
-                    values.maintenanceStartsAt!
+                    values.maintenanceStartsAt as Moment
                   );
                   input.maintenanceEndsAt = toTzLessDateTime(
-                    values.maintenanceEndsAt!
+                    values.maintenanceEndsAt as Moment
                   );
                 }
 
@@ -193,7 +193,7 @@ export default function CreateEditEquipment() {
                   });
 
                   error
-                    ? enqueueError(error)
+                    ? enqueueError(error as ResourceId)
                     : history.push(generatePath(PATH_VIEW_EQUIPMENT, { id }));
                 } else {
                   const {
@@ -203,7 +203,7 @@ export default function CreateEditEquipment() {
                   });
 
                   error
-                    ? enqueueError(error)
+                    ? enqueueError(error as ResourceId)
                     : history.push(
                         generatePath(PATH_VIEW_EQUIPMENT, {
                           id: (equipment as Equipment).id,

@@ -74,7 +74,18 @@ export default function Toolbar({
 
   const query = useQuery();
 
+  const [queryEquipment, setQueryEquipment] = useState<number[]>([]);
+
   const queryInstrument = query.get('instrument');
+
+  useEffect(() => {
+    setQueryEquipment(
+      query
+        .get('equipment')
+        ?.split(',')
+        .map((num) => parseInt(num)) || []
+    );
+  }, [query]);
 
   const [queryValueInitialized, setQueryValueInitialized] = useState(
     !queryInstrument // if the link has query instrument query value when rendering this component
@@ -88,6 +99,18 @@ export default function Toolbar({
   const [selectedEquipment, setSelectedEquipment] = useState<
     Pick<Equipment, 'id' | 'name'>[] | undefined
   >([]);
+
+  useEffect(() => {
+    if (
+      selectedEquipment?.length === 0 &&
+      !(queryEquipment.length === 0) &&
+      equipments
+    ) {
+      setSelectedEquipment(
+        equipments.filter((eq) => queryEquipment.includes(parseInt(eq.id)))
+      );
+    }
+  }, [equipments, queryEquipment, selectedEquipment]);
 
   useEffect(() => {
     if (!instrumentsLoading && queryInstrument) {

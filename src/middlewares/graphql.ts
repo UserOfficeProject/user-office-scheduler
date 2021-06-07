@@ -54,38 +54,35 @@ const apolloServer = async (app: Express) => {
         ...baseContext,
         clients: { userOffice: initGraphQLClient(req.headers.authorization) },
       };
+      const { authorization } = req.headers;
 
-      try {
-        const authorization = req.headers.authorization;
+      if (authorization) {
+        try {
+          const token = authorization.split(' ')[1];
 
-        if (!authorization) {
-          throw new Error('Authorization header not provided!');
-        }
-
-        const token = authorization.split(' ')[1];
-
-        if (!token) {
-          throw new Error('Invalid token!');
-        }
-
-        const authJwtPayload = jsonwebtoken.decode(token) as
-          | AuthJwtPayload
-          | AuthJwtApiTokenPayload;
-
-        if (authJwtPayload) {
-          if (authJwtPayload && 'accessTokenId' in authJwtPayload) {
-            throw new Error(
-              'Accessing the Scheduler with API token is not supported yet'
-            );
+          if (!token) {
+            throw new Error('Invalid token!');
           }
 
-          context.user = authJwtPayload?.user;
-          context.roles = authJwtPayload?.roles;
-          context.currentRole = authJwtPayload?.currentRole;
+          const authJwtPayload = jsonwebtoken.decode(token) as
+            | AuthJwtPayload
+            | AuthJwtApiTokenPayload;
+
+          if (authJwtPayload) {
+            if (authJwtPayload && 'accessTokenId' in authJwtPayload) {
+              throw new Error(
+                'Accessing the Scheduler with API token is not supported yet'
+              );
+            }
+
+            context.user = authJwtPayload?.user;
+            context.roles = authJwtPayload?.roles;
+            context.currentRole = authJwtPayload?.currentRole;
+          }
+        } catch (error) {
+          logger.logException('failed to decode token', error);
+          throw error;
         }
-      } catch (error) {
-        logger.logException('failed to parse x-auth-jwt-payload', error);
-        throw error;
       }
 
       return context;

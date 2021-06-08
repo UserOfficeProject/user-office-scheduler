@@ -131,15 +131,20 @@ export default function BookingEventStep({
   };
 
   const handleAdd = () => {
+    const lastRow = rows.length > 0 ? rows[rows.length - 1] : undefined;
+    const startsAt = lastRow?.endsAt ?? moment().startOf('hour');
+    const endsAt = startsAt
+      .clone()
+      .startOf('hour')
+      .add(1, 'hour');
+
     handleRowsChange(rows => [
       ...rows,
       {
         id: `t-${Date.now()}`,
         newlyCreated: true,
-        startsAt: moment().startOf('hour'),
-        endsAt: moment()
-          .startOf('hour')
-          .add(1, 'hour'),
+        startsAt: startsAt,
+        endsAt: endsAt,
       },
     ]);
   };

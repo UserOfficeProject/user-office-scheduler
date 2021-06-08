@@ -77,9 +77,7 @@ context('Proposal booking tests ', () => {
         .first()
         .click();
 
-      cy.get('#instrument-calls-tree-view [role=treeitem]')
-        .first()
-        .click();
+      cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
 
       cy.get(
         '#instrument-calls-tree-view [role=treeitem] [role=group] [role=treeitem] svg'
@@ -122,17 +120,27 @@ context('Proposal booking tests ', () => {
 
         cy.get('[data-cy=btn-time-table-edit-row]').click();
 
-        cy.get('[data-cy=startsAt] input')
-          .clear()
-          .type('2020-08-25 12:00:00');
-        cy.get('[data-cy=endsAt] input')
-          .clear()
-          .type('2020-08-25 13:00:00');
+        cy.get('[data-cy=startsAt] input').clear().type('2020-08-25 12:00:00');
+        cy.get('[data-cy=endsAt] input').clear().type('2020-08-25 13:00:00');
 
         cy.get('[data-cy=btn-time-table-reset-row]').click();
 
         cy.contains('2020-08-23 12:00:00');
         cy.contains('2020-08-23 13:00:00');
+      });
+
+      it('should be able to open time slot by clicking on the calendar event', () => {
+        cy.get('[data-cy="btn-close-dialog"]').click();
+        cy.finishedLoading();
+
+        cy.get('.rbc-time-content .rbc-event').contains('999999').click();
+
+        cy.get('[data-cy=btn-time-table-edit-row]').should('exist');
+
+        cy.contains(/2020-09-21 14:00:00/);
+        cy.contains(/2020-09-21 15:00:00/);
+        cy.contains('Proposal title');
+        cy.get('[data-cy="btn-next"]').should('exist');
       });
 
       it('should display time allocation left', () => {
@@ -164,12 +172,8 @@ context('Proposal booking tests ', () => {
       it('should show warning when `startsAt` is after `endsAt`', () => {
         cy.get('[data-cy=btn-time-table-edit-row]').click();
 
-        cy.get('[data-cy=startsAt] input')
-          .clear()
-          .type('2020-08-25 12:00:00');
-        cy.get('[data-cy=endsAt] input')
-          .clear()
-          .type('2020-08-23 13:00:00');
+        cy.get('[data-cy=startsAt] input').clear().type('2020-08-25 12:00:00');
+        cy.get('[data-cy=endsAt] input').clear().type('2020-08-23 13:00:00');
 
         cy.get('[data-cy=btn-time-table-save-row]').click();
 
@@ -298,9 +302,7 @@ context('Proposal booking tests ', () => {
           .find('[data-cy=equipment-row-status]')
           .contains(/accepted/i);
 
-        cy.get('@row')
-          .first()
-          .as('firstRow');
+        cy.get('@row').first().as('firstRow');
 
         cy.get('@firstRow').contains(/Available equipment 1 - no auto accept/i);
 
@@ -350,9 +352,7 @@ context('Proposal booking tests ', () => {
 
         cy.contains(/i wish to proceed/i).click();
 
-        cy.get('@activateBookingBtn')
-          .should('not.be.disabled')
-          .click();
+        cy.get('@activateBookingBtn').should('not.be.disabled').click();
 
         cy.wait(100);
 
@@ -398,9 +398,7 @@ context('Proposal booking tests ', () => {
 
         cy.contains(/i wish to proceed/i).click();
 
-        cy.get('@restartBooking')
-          .should('not.be.disabled')
-          .click();
+        cy.get('@restartBooking').should('not.be.disabled').click();
 
         cy.wait(500);
 
@@ -416,9 +414,7 @@ context('Proposal booking tests ', () => {
 
         cy.contains(/i wish to proceed/i).click();
 
-        cy.get('@activateBookingBtn')
-          .should('not.be.disabled')
-          .click();
+        cy.get('@activateBookingBtn').should('not.be.disabled').click();
 
         cy.wait(500);
       });
@@ -441,12 +437,8 @@ context('Proposal booking tests ', () => {
 
         cy.get('[data-cy=btn-time-table-edit-row]').click();
 
-        cy.get('[data-cy=startsAt] input')
-          .clear()
-          .type('2020-08-25 12:00:00');
-        cy.get('[data-cy=endsAt] input')
-          .clear()
-          .type('2020-08-25 13:00:00');
+        cy.get('[data-cy=startsAt] input').clear().type('2020-08-25 12:00:00');
+        cy.get('[data-cy=endsAt] input').clear().type('2020-08-25 13:00:00');
 
         cy.get('[data-cy=btn-time-table-reset-row]').click();
 
@@ -509,9 +501,7 @@ context('Proposal booking tests ', () => {
 
         cy.contains(/i wish to proceed/i).click();
 
-        cy.get('@closeBooking')
-          .should('not.be.disabled')
-          .click();
+        cy.get('@closeBooking').should('not.be.disabled').click();
 
         cy.wait(500);
 

@@ -7,7 +7,7 @@ export const bulkUpsertScheduledEventsValidationSchema = Yup.object().shape({
   scheduledEvents: Yup.array()
     .of(
       Yup.object().shape({
-        id: Yup.number().required('ScheduledEvent ID is required'),
+        id: Yup.string().required('ScheduledEvent ID is required'),
         startsAt: Yup.date().typeError(util.TYPE_ERR_INVALID_DATE).required(),
 
         endsAt: Yup.date()

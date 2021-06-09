@@ -180,6 +180,19 @@ context('Proposal booking tests ', () => {
       it('should show confirmation when there are overlapping events', () => {
         cy.get('[data-cy=btn-add-time-slot]').click();
 
+        cy.get('[data-cy=btn-time-table-edit-row]')
+          .last()
+          .click();
+
+        cy.get('[data-cy=startsAt] input')
+          .clear()
+          .type('2020-09-21 14:00:00');
+        cy.get('[data-cy=endsAt] input')
+          .clear()
+          .type('2020-09-21 15:00:00');
+
+        cy.get('[data-cy=btn-time-table-save-row]').click();
+
         cy.get('[data-cy=btn-save]').click();
 
         cy.contains(/confirmation/i);

@@ -24,7 +24,13 @@ import clsx from 'clsx';
 import humanizeDuration from 'humanize-duration';
 import moment from 'moment';
 import { useSnackbar } from 'notistack';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 import Loader from 'components/common/Loader';
 import { AppContext } from 'context/AppContext';
@@ -80,7 +86,10 @@ export default function BookingEventStep({
   handleNext,
   handleSetDirty,
 }: ProposalBookingDialogStepProps) {
-  const isStepReadOnly = activeStatus !== ProposalBookingStatus.DRAFT;
+  const [isEditingTimeTable, setIsEditingTimeTable] = useState(false);
+
+  const isStepReadOnly =
+    activeStatus !== ProposalBookingStatus.DRAFT || isEditingTimeTable;
 
   const {
     call: { startCycle, endCycle, cycleComment },
@@ -110,6 +119,10 @@ export default function BookingEventStep({
       allocatable: proposalBooking.allocatedTime - allocated,
     };
   }, [rows, proposalBooking]);
+
+  const handleOnEditModeChanged = useCallback((isReadOnly: boolean) => {
+    setIsEditingTimeTable(isReadOnly);
+  }, []);
 
   useEffect(() => {
     if (!loading) {
@@ -319,6 +332,7 @@ export default function BookingEventStep({
           maxHeight={380}
           rows={rows}
           handleRowsChange={handleRowsChange}
+          onEditModeToggled={handleOnEditModeChanged}
           titleComponent={
             <>
               Time slots

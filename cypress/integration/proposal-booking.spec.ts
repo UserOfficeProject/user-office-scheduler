@@ -135,6 +135,12 @@ context('Proposal booking tests ', () => {
         cy.contains('2020-08-23 13:00:00');
       });
 
+      it('should not be able to navigate while editing time slot', () => {
+        cy.get('[data-cy=btn-time-table-edit-row]').click();
+        cy.get('[data-cy=btn-save]').should('be.disabled');
+        cy.get('[data-cy=btn-next]').should('be.disabled');
+      });
+
       it('should display time allocation left', () => {
         cy.contains('1 day, 23 hours left');
       });

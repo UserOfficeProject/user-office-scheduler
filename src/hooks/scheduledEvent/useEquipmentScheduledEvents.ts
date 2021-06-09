@@ -4,7 +4,7 @@ import { GetEquipmentScheduledEventsQuery, Scalars } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 
 export default function useEquipmentScheduledEvents(
-  equipmentIds: number[],
+  equipmentIds: (string | undefined)[],
   startsAt: Scalars['TzLessDateTime'],
   endsAt: Scalars['TzLessDateTime']
 ) {
@@ -12,8 +12,11 @@ export default function useEquipmentScheduledEvents(
   const [scheduledEvents, setScheduledEvents] = useState<
     GetEquipmentScheduledEventsQuery['equipments']
   >([]);
-  const [selectedEquipment, setSelectedEquipments] =
-    useState<number[]>(equipmentIds);
+  const [selectedEquipment, setSelectedEquipments] = useState<number[]>(
+    equipmentIds.flatMap((equipmentId) =>
+      equipmentId ? [parseInt(equipmentId)] : []
+    )
+  );
   const api = useDataApi();
   useEffect(() => {
     let unmount = false;

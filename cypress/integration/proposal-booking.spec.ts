@@ -229,6 +229,31 @@ context('Proposal booking tests ', () => {
         cy.contains(/2020-09-21 15:00:00/);
       });
 
+      it('should be able to open time slot by clicking on the calendar equipment event', () => {
+        cy.get('[data-cy="btn-close-dialog"]').click();
+        cy.finishedLoading();
+
+        cy.get('[data-cy="input-equipment-select"]').click();
+        cy.contains('Available equipment 1 - no auto accept').click();
+
+        cy.get('.rbc-time-content .rbc-event')
+          .contains('Available equipment 1 - no auto accept')
+          .click();
+
+        cy.get('[role="dialog"] [data-cy="btn-edit-equipment"]').should(
+          'exist'
+        );
+
+        cy.get('[role="dialog"]').contains('Auto accept equipment requests');
+        cy.get('[role="dialog"]').contains('Time Slots Upcoming Year');
+        cy.get('[data-cy="btn-close-dialog"]').should('exist');
+        cy.get('[data-cy="equipment-upcoming-time-slots-table"]').should(
+          'exist'
+        );
+
+        cy.get('[data-cy="btn-close-dialog"]').click();
+      });
+
       it('should not show already assigned equipments', () => {
         cy.get('[data-cy=btn-book-equipment]').click();
 
@@ -322,6 +347,8 @@ context('Proposal booking tests ', () => {
         cy.contains(/confirmation/i);
 
         cy.get('[data-cy=btn-ok]').click();
+
+        cy.finishedLoading();
 
         cy.get('[role=alert]').contains(/removed/i);
         cy.wait(100);

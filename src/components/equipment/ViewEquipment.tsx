@@ -99,15 +99,22 @@ const MaintenanceInfo = ({
   return <>Has no scheduled maintenance</>;
 };
 
-export default function ViewEquipment() {
+type ViewEquipmentProps = {
+  equipmentId?: string;
+};
+
+export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
   const { enqueueSnackbar } = useSnackbar();
   const { showConfirmation } = useContext(AppContext);
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams<{ id?: string }>();
   const classes = useStyles();
-  const { loading: equipmentLoading, equipment } = useEquipment(id);
+
+  const { loading: equipmentLoading, equipment } = useEquipment(
+    id || equipmentId
+  );
   const { loading: scheduledEventsLoading, scheduledEvents } =
     useEquipmentScheduledEvents(
-      [parseInt(id)],
+      [id || equipmentId],
       toTzLessDateTime(new Date()),
       toTzLessDateTime(moment(new Date()).add(1, 'year'))
     );
@@ -115,7 +122,7 @@ export default function ViewEquipment() {
   const [rows, setRows] = useState<TableRow[]>([]);
   const [confirmationLoading, setConfirmationLoading] = useState(false);
   useEffect(() => {
-    if (!scheduledEventsLoading) {
+    if (!scheduledEventsLoading && scheduledEvents?.length) {
       setRows(
         scheduledEvents[0].events.map(
           ({ startsAt, endsAt, equipmentAssignmentStatus, ...rest }) => ({
@@ -140,6 +147,12 @@ export default function ViewEquipment() {
     row: TableRow,
     status: 'accept' | 'reject'
   ) => {
+    const assignmentEquipmentId = id || equipmentId;
+
+    if (!assignmentEquipmentId) {
+      return;
+    }
+
     showConfirmation({
       message: (
         <>
@@ -157,7 +170,7 @@ export default function ViewEquipment() {
         const { confirmEquipmentAssignment: success } =
           await api().confirmEquipmentAssignment({
             confirmEquipmentAssignmentInput: {
-              equipmentId: id,
+              equipmentId: assignmentEquipmentId,
               scheduledEventId: row.id,
               newStatus,
             },
@@ -207,6 +220,12 @@ export default function ViewEquipment() {
     );
   };
 
+  const pathEquipmentId = id || equipmentId;
+
+  if (!pathEquipmentId) {
+    return <div>Equipment ID not found!</div>;
+  }
+
   return (
     <ContentContainer maxWidth={false}>
       <Grid container>
@@ -215,7 +234,11 @@ export default function ViewEquipment() {
             {confirmationLoading && <Loader />}
 
             <Box display="flex" justifyContent="flex-end">
-              <Link to={generatePath(PATH_EDIT_EQUIPMENT, { id })}>
+              <Link
+                to={generatePath(PATH_EDIT_EQUIPMENT, {
+                  id: pathEquipmentId,
+                })}
+              >
                 <IconButton data-cy="btn-edit-equipment">
                   <EditIcon />
                 </IconButton>
@@ -293,6 +316,7 @@ export default function ViewEquipment() {
                 showEmptyRows
                 rows={rows}
                 extractKey={(el) => el.id}
+                data-cy="equipment-upcoming-time-slots-table"
                 renderRow={(row) => {
                   return (
                     <>

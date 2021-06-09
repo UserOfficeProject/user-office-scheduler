@@ -11,6 +11,7 @@ import {
 } from 'react-big-calendar';
 
 import Loader from 'components/common/Loader';
+import EquipmentBookingDialog from 'components/equipment/EquipmentBookingDialog';
 import ProposalBookingDialog from 'components/proposalBooking/ProposalBookingDialog';
 import ScheduledEventDialog, {
   SlotInfo,
@@ -21,13 +22,9 @@ import {
   ScheduledEvent,
   ScheduledEventBookingType,
   GetScheduledEventsQuery,
-  Call,
-  Proposal,
 } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
-import useInstrumentProposalBookings, {
-  InstrumentProposalBooking,
-} from 'hooks/proposalBooking/useInstrumentProposalBookings';
+import useInstrumentProposalBookings from 'hooks/proposalBooking/useInstrumentProposalBookings';
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
 import useScheduledEvents from 'hooks/scheduledEvent/useScheduledEvents';
 import { ContentContainer, StyledPaper } from 'styles/StyledComponents';
@@ -67,6 +64,7 @@ function transformEvent(
     end: parseTzLessDateTime(scheduledEvent.endsAt).toDate(),
     title: BookingTypesMap[scheduledEvent.bookingType],
     bookingType: scheduledEvent.bookingType,
+    equipmentId: scheduledEvent.equipmentId,
     description: scheduledEvent.description,
     proposalBooking: scheduledEvent.proposalBooking,
     instrument: scheduledEvent.instrument,
@@ -103,11 +101,7 @@ export default function Calendar() {
 
   const query = useQuery();
   const queryInstrument = query.get('instrument');
-  const queryEquipment =
-    query
-      .get('equipment')
-      ?.split(',')
-      .map((num) => parseInt(num)) || [];
+  const queryEquipment = query.get('equipment')?.split(',') || [];
 
   const { showAlert } = useContext(AppContext);
   const [selectedEvent, setSelectedEvent] = useState<
@@ -125,8 +119,12 @@ export default function Calendar() {
   const [filter, setFilter] = useState(
     generateScheduledEventFilter(queryInstrument, startsAt, view)
   );
-  const [selectedProposalBooking, setSelectedProposalBooking] =
-    useState<InstrumentProposalBooking | null>(null);
+  const [selectedProposalBooking, setSelectedProposalBooking] = useState<
+    string | null
+  >(null);
+  const [selectedEquipmentBooking, setSelectedEquipmentBooking] = useState<
+    string | null
+  >(null);
 
   const {
     proposalBookings,
@@ -150,15 +148,17 @@ export default function Calendar() {
     filter.endsAt
   );
 
+  const equipmentEventsOnly = eqEvents.map((eqEvent) => eqEvent.events).flat(1);
+
   const refresh = () => {
     refreshEvents();
     refreshBookings();
   };
   if (
     selectedEquipment.length !== queryEquipment.length ||
-    !selectedEquipment.every((eq) => queryEquipment.includes(eq))
+    !selectedEquipment.every((eq) => queryEquipment.includes(eq.toString()))
   ) {
-    setSelectedEquipments(queryEquipment);
+    setSelectedEquipments(queryEquipment.map((item) => parseInt(item)));
   }
   useEffect(() => {
     setFilter(generateScheduledEventFilter(queryInstrument, startsAt, view));
@@ -175,6 +175,7 @@ export default function Calendar() {
             proposalBooking: null,
             instrument: event.instrument,
             scheduledBy: event.scheduledBy,
+            equipmentId: event.equipmentId,
           };
         });
       })
@@ -220,28 +221,43 @@ export default function Calendar() {
     }
   };
 
-  const onSelectEvent = ({ id }: CalendarScheduledEvent) => {
-    const scheduledEvent = scheduledEvents.find((se) => se.id === id);
+  const onSelectEvent = (selectedScheduledEvent: CalendarScheduledEvent) => {
+    switch (selectedScheduledEvent.bookingType) {
+      case ScheduledEventBookingType.USER_OPERATIONS: {
+        const scheduledEvent = scheduledEvents.find(
+          (se) => se.id === selectedScheduledEvent.id
+        );
 
-    if (scheduledEvent) {
-      if (
-        scheduledEvent.proposalBooking &&
-        scheduledEvent.bookingType === ScheduledEventBookingType.USER_OPERATIONS
-      ) {
-        // NOTE: Types here are a bit of a mess. It needs more attention to fix.
-        setSelectedProposalBooking({
-          allocatedTime: scheduledEvent.proposalBooking.allocatedTime,
-          call: scheduledEvent.proposalBooking.call as Call,
-          createdAt: scheduledEvent.proposalBooking.createdAt,
-          id: scheduledEvent.proposalBooking.id,
-          proposal: scheduledEvent.proposalBooking.proposal as Proposal,
-          scheduledEvents: scheduledEvent.proposalBooking
-            .scheduledEvents as ScheduledEvent[],
-          status: scheduledEvent.proposalBooking.status,
-          updatedAt: scheduledEvent.proposalBooking.updatedAt,
-        });
-      } else {
-        setSelectedEvent(scheduledEvent);
+        if (scheduledEvent?.proposalBooking) {
+          setSelectedProposalBooking(scheduledEvent.proposalBooking.id);
+        }
+        break;
+      }
+
+      case ScheduledEventBookingType.EQUIPMENT: {
+        const equipmentScheduledEvent = equipmentEventsOnly.find(
+          (se) =>
+            se.id === selectedScheduledEvent.id &&
+            se.equipmentId === selectedScheduledEvent.equipmentId
+        );
+
+        if (equipmentScheduledEvent) {
+          setSelectedEquipmentBooking(
+            equipmentScheduledEvent.equipmentId.toString()
+          );
+        }
+        break;
+      }
+
+      default: {
+        const scheduledEvent = scheduledEvents.find(
+          (se) => se.id === selectedScheduledEvent.id
+        );
+
+        if (scheduledEvent) {
+          setSelectedEvent(scheduledEvent);
+        }
+        break;
       }
     }
   };
@@ -261,6 +277,7 @@ export default function Calendar() {
 
   const handleCloseDialog = (shouldRefresh?: boolean) => {
     setSelectedProposalBooking(null);
+    setSelectedEquipmentBooking(null);
 
     if (shouldRefresh) {
       refresh();
@@ -287,7 +304,14 @@ export default function Calendar() {
             )}
             {selectedProposalBooking !== null && (
               <ProposalBookingDialog
-                activeProposalBookingId={selectedProposalBooking.id}
+                activeProposalBookingId={selectedProposalBooking}
+                isDialogOpen={true}
+                closeDialog={handleCloseDialog}
+              />
+            )}
+            {selectedEquipmentBooking !== null && (
+              <EquipmentBookingDialog
+                activeEquipmentBookingId={selectedEquipmentBooking}
                 isDialogOpen={true}
                 closeDialog={handleCloseDialog}
               />

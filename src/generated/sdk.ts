@@ -3298,7 +3298,7 @@ export type GetEquipmentScheduledEventsQuery = (
     & Pick<Equipment, 'id' | 'name'>
     & { events: Array<(
       { __typename?: 'ScheduledEvent' }
-      & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt' | 'equipmentAssignmentStatus'>
+      & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt' | 'equipmentAssignmentStatus' | 'equipmentId'>
       & { scheduledBy: Maybe<(
         { __typename?: 'User' }
         & Pick<User, 'firstname' | 'lastname'>
@@ -3351,7 +3351,7 @@ export type GetScheduledEventsQuery = (
   { __typename?: 'Query' }
   & { scheduledEvents: Array<(
     { __typename?: 'ScheduledEvent' }
-    & Pick<ScheduledEvent, 'id' | 'bookingType' | 'startsAt' | 'endsAt' | 'description'>
+    & Pick<ScheduledEvent, 'id' | 'bookingType' | 'equipmentId' | 'startsAt' | 'endsAt' | 'description'>
     & { instrument: Maybe<(
       { __typename?: 'Instrument' }
       & Pick<Instrument, 'name'>
@@ -3667,6 +3667,7 @@ export const GetEquipmentScheduledEventsDocument = gql`
       startsAt
       endsAt
       equipmentAssignmentStatus
+      equipmentId
       scheduledBy {
         firstname
         lastname
@@ -3711,6 +3712,7 @@ export const GetScheduledEventsDocument = gql`
   scheduledEvents(filter: $filter) {
     id
     bookingType
+    equipmentId
     startsAt
     endsAt
     description

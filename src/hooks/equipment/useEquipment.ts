@@ -14,7 +14,7 @@ export type DetailedEquipment = Pick<
   | 'autoAccept'
 > & { owner: Maybe<Pick<User, 'firstname' | 'lastname'>> };
 
-export default function useEquipment(id: string) {
+export default function useEquipment(id?: string) {
   const [loading, setLoading] = useState(true);
   const [equipment, setEquipment] = useState<DetailedEquipment | null>(null);
 
@@ -22,22 +22,23 @@ export default function useEquipment(id: string) {
 
   useEffect(() => {
     let unmount = false;
+    if (id) {
+      setLoading(true);
+      api()
+        .getEquipment({ id })
+        .then((data) => {
+          if (unmount) {
+            return;
+          }
 
-    setLoading(true);
-    api()
-      .getEquipment({ id })
-      .then((data) => {
-        if (unmount) {
-          return;
-        }
+          if (data.equipment) {
+            setEquipment(data.equipment);
+          }
 
-        if (data.equipment) {
-          setEquipment(data.equipment);
-        }
-
-        setLoading(false);
-      })
-      .catch(console.error);
+          setLoading(false);
+        })
+        .catch(console.error);
+    }
 
     return () => {
       unmount = true;

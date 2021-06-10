@@ -80,16 +80,29 @@ const useStyles = makeStyles({
   },
 });
 
-const columns = [
+const tableColumns = [
   { title: 'Name', field: 'firstname' },
   { title: 'Surname', field: 'lastname' },
   { title: 'Organisation', field: 'organisation' },
 ];
 
-const PeopleTable: React.FC<PeopleTableProps> = (props) => {
-  const { isLoading } = props;
+const PeopleTable: React.FC<PeopleTableProps> = ({
+  isLoading = false,
+  data,
+  action,
+  selection,
+  search,
+  onRemove,
+  onUpdate,
+  columns,
+  isFreeAction,
+  mtOptions,
+  selectedUsers,
+  userRole,
+  title,
+}) => {
   const api = useDataApi();
-  const [loading, setLoading] = useState(props.isLoading ?? false);
+  const [loading, setLoading] = useState(isLoading);
   const [pageSize, setPageSize] = useState(5);
   const [selectedParticipants, setSelectedParticipants] = useState<
     BasicUserDetails[]
@@ -98,8 +111,6 @@ const PeopleTable: React.FC<PeopleTableProps> = (props) => {
   const [currentPageIds, setCurrentPageIds] = useState<number[]>([]);
 
   const classes = useStyles();
-
-  const { data, action } = props;
 
   useEffect(() => {
     if (isLoading !== undefined) {
@@ -117,10 +128,10 @@ const PeopleTable: React.FC<PeopleTableProps> = (props) => {
 
   const actionArray = [];
   action &&
-    !props.selection &&
+    !selection &&
     actionArray.push({
       icon: () => action.actionIcon,
-      isFreeAction: props.isFreeAction,
+      isFreeAction: isFreeAction,
       tooltip: action.actionText,
       onClick: (
         event: React.MouseEvent<JSX.Element>,
@@ -128,8 +139,8 @@ const PeopleTable: React.FC<PeopleTableProps> = (props) => {
       ) => action.fn(rowData),
     });
 
-  const tableData = props.data
-    ? (props.data as (BasicUserDetails & {
+  const tableData = data
+    ? (data as (BasicUserDetails & {
         tableData: { checked: boolean };
       })[])
     : (
@@ -151,9 +162,9 @@ const PeopleTable: React.FC<PeopleTableProps> = (props) => {
           query,
           api,
           setLoading,
-          props.selectedUsers,
+          selectedUsers,
           selectedParticipants.map(({ id }) => id),
-          props.userRole || null
+          userRole || null
         ).then((users: any) => {
           setCurrentPageIds(users.data.map(({ id }: { id: number }) => id));
 
@@ -165,8 +176,8 @@ const PeopleTable: React.FC<PeopleTableProps> = (props) => {
     <div data-cy="equipment-responsible" className={classes.tableWrapper}>
       <MaterialTable
         icons={tableIcons}
-        title={props.title}
-        columns={props.columns ?? columns}
+        title={title}
+        columns={columns ?? tableColumns}
         onSelectionChange={(selectedItems, selectedItem) => {
           // when the user wants to (un)select all items
           // `selectedItem` will be undefined
@@ -212,26 +223,26 @@ const PeopleTable: React.FC<PeopleTableProps> = (props) => {
         data={tableData}
         isLoading={loading}
         options={{
-          search: props.search,
+          search: search,
           debounceInterval: 400,
           pageSize,
-          selection: props.selection,
-          ...props.mtOptions,
+          selection: selection,
+          ...mtOptions,
         }}
         actions={actionArray}
         editable={
-          props.onRemove
+          onRemove
             ? {
                 onRowDelete: (oldData) =>
                   new Promise<void>((resolve) => {
                     resolve();
-                    props.onRemove?.(oldData);
+                    onRemove?.(oldData);
                   }),
               }
             : {}
         }
       />
-      {props.selection && (
+      {selection && (
         <ActionButtonContainer>
           <div className={classes.verticalCentered}>
             {selectedParticipants.length} user(s) selected
@@ -241,8 +252,8 @@ const PeopleTable: React.FC<PeopleTableProps> = (props) => {
             variant="contained"
             color="primary"
             onClick={() => {
-              if (props.onUpdate) {
-                props.onUpdate(selectedParticipants);
+              if (onUpdate) {
+                onUpdate(selectedParticipants);
                 setSelectedParticipants([]);
               }
             }}

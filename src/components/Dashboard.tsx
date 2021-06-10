@@ -28,7 +28,7 @@ import {
 } from './paths';
 import ViewRequests from './requests/ViewRequests';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: { display: 'flex' },
   content: {
     flexGrow: 1,

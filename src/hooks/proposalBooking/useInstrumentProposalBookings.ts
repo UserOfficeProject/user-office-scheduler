@@ -31,7 +31,7 @@ export default function useInstrumentProposalBookings(
   const [counter, setCounter] = useState<number>(0);
 
   const refresh = useCallback(() => {
-    setCounter(prev => prev + 1);
+    setCounter((prev) => prev + 1);
   }, [setCounter]);
 
   const api = useDataApi();
@@ -45,7 +45,7 @@ export default function useInstrumentProposalBookings(
     setLoading(true);
     api()
       .getInstrumentProposalBookings({ instrumentId, filter: {} })
-      .then(data => {
+      .then((data) => {
         if (unmount) {
           return;
         }

@@ -20,7 +20,7 @@ export default function useEquipments() {
   const api = useDataApi();
 
   const refresh = useCallback(() => {
-    setCounter(prev => prev + 1);
+    setCounter((prev) => prev + 1);
   }, [setCounter]);
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export default function useEquipments() {
     setLoading(true);
     api()
       .getEquipments()
-      .then(data => {
+      .then((data) => {
         if (unmount) {
           return;
         }

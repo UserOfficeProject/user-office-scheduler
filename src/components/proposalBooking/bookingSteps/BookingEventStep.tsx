@@ -37,7 +37,7 @@ import { hasOverlappingEvents } from 'utils/scheduledEvent';
 import { ProposalBookingDialogStepProps } from '../ProposalBookingDialog';
 import TimeTable, { TimeTableRow } from '../TimeTable';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     flexShrink: 0,
     flexGrow: 0,
@@ -131,15 +131,13 @@ export default function BookingEventStep({
   };
 
   const handleAdd = () => {
-    handleRowsChange(rows => [
+    handleRowsChange((rows) => [
       ...rows,
       {
         id: `t-${Date.now()}`,
         newlyCreated: true,
         startsAt: moment().startOf('hour'),
-        endsAt: moment()
-          .startOf('hour')
-          .add(1, 'hour'),
+        endsAt: moment().startOf('hour').add(1, 'hour'),
       },
     ]);
   };

@@ -29,7 +29,7 @@ export default function useEquipment(id: string) {
     setLoading(true);
     api()
       .getEquipment({ id })
-      .then(data => {
+      .then((data) => {
         if (unmount) {
           return;
         }

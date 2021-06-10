@@ -384,13 +384,13 @@ context('Proposal booking tests ', () => {
 
         cy.get('[data-cy=btn-cancel]').click();
 
-        cy.finishedLoading();
-
         cy.get('@firstRowDeleteBtn').click();
 
         cy.contains(/confirmation/i);
 
         cy.get('[data-cy=btn-ok]').click();
+
+        cy.finishedLoading();
 
         cy.get('[role=alert]').contains(/removed/i);
         cy.wait(100);

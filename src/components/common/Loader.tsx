@@ -4,7 +4,7 @@ import React from 'react';
 
 import { ContentContainer, StyledPaper } from 'styles/StyledComponents';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     position: 'absolute',
     top: 0,

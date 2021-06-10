@@ -59,7 +59,7 @@ export const defaultHeadCells: HeadCell<TableRow>[] = [
   { id: 'equipmentAssignmentStatus', label: 'Status' },
 ];
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     flexShrink: 0,
     flexGrow: 0,
@@ -121,14 +121,12 @@ export default function ViewEquipment() {
     Pick<User, 'id' | 'firstname' | 'lastname'>[]
   >([]);
   const [showPeopleModal, setShowPeopleModal] = useState(false);
-  const {
-    loading: scheduledEventsLoading,
-    scheduledEvents,
-  } = useEquipmentScheduledEvents(
-    [parseInt(id)],
-    toTzLessDateTime(new Date()),
-    toTzLessDateTime(moment(new Date()).add(1, 'year'))
-  );
+  const { loading: scheduledEventsLoading, scheduledEvents } =
+    useEquipmentScheduledEvents(
+      [parseInt(id)],
+      toTzLessDateTime(new Date()),
+      toTzLessDateTime(moment(new Date()).add(1, 'year'))
+    );
   const equipmentResponsible = equipment?.equipmentResponsible;
   useEffect(() => {
     if (equipmentResponsible) {
@@ -178,15 +176,14 @@ export default function ViewEquipment() {
             ? EquipmentAssignmentStatus.ACCEPTED
             : EquipmentAssignmentStatus.REJECTED;
 
-        const {
-          confirmEquipmentAssignment: success,
-        } = await api().confirmEquipmentAssignment({
-          confirmEquipmentAssignmentInput: {
-            equipmentId: id,
-            scheduledEventId: row.id,
-            newStatus,
-          },
-        });
+        const { confirmEquipmentAssignment: success } =
+          await api().confirmEquipmentAssignment({
+            confirmEquipmentAssignmentInput: {
+              equipmentId: id,
+              scheduledEventId: row.id,
+              newStatus,
+            },
+          });
 
         setConfirmationLoading(false);
 
@@ -236,7 +233,7 @@ export default function ViewEquipment() {
     const response = await api().addEquipmentResponsible({
       equipmentResponsibleInput: {
         equipmentId: equipment.id,
-        userIds: users.map(user => user.id),
+        userIds: users.map((user) => user.id),
       },
     });
 
@@ -255,7 +252,7 @@ export default function ViewEquipment() {
         show={!!showPeopleModal}
         close={(): void => setShowPeopleModal(false)}
         addParticipants={addEquipmentResponsibleUsers}
-        selectedUsers={selectedUsers.map(selectedUser => selectedUser.id)}
+        selectedUsers={selectedUsers.map((selectedUser) => selectedUser.id)}
         selection={true}
         title={'Select responsible people'}
         userRole={UserRole.INSTRUMENT_SCIENTIST}
@@ -370,8 +367,8 @@ export default function ViewEquipment() {
                 rowActions={RowActions}
                 showEmptyRows
                 rows={rows}
-                extractKey={el => el.id}
-                renderRow={row => {
+                extractKey={(el) => el.id}
+                renderRow={(row) => {
                   return (
                     <>
                       <TableCell align="left">

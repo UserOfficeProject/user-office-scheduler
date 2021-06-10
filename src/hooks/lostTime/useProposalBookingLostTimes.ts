@@ -20,7 +20,7 @@ export default function useProposalBookingLostTimes(proposalBookingId: string) {
     setLoading(true);
     api()
       .getProposalBookingLostTimes({ proposalBookingId })
-      .then(data => {
+      .then((data) => {
         if (unmount) {
           return;
         }

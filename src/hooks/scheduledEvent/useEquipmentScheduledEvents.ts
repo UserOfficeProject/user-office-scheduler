@@ -12,9 +12,8 @@ export default function useEquipmentScheduledEvents(
   const [scheduledEvents, setScheduledEvents] = useState<
     GetEquipmentScheduledEventsQuery['equipments']
   >([]);
-  const [selectedEquipment, setSelectedEquipments] = useState<number[]>(
-    equipmentIds
-  );
+  const [selectedEquipment, setSelectedEquipments] =
+    useState<number[]>(equipmentIds);
   const api = useDataApi();
   useEffect(() => {
     let unmount = false;
@@ -25,7 +24,7 @@ export default function useEquipmentScheduledEvents(
         startsAt,
         endsAt,
       })
-      .then(data => {
+      .then((data) => {
         if (unmount) {
           return;
         }

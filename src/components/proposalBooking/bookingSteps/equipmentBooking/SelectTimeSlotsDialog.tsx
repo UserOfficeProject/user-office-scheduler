@@ -40,10 +40,8 @@ export default function SelectTimeSlotsDialog({
     proposalBooking.id
   );
   const [rows, setRows] = useState<TimeTableRow[]>([]);
-  const [
-    selectedScheduledEvent,
-    setSelectedScheduledEvent,
-  ] = useState<TimeTableRow | null>(null);
+  const [selectedScheduledEvent, setSelectedScheduledEvent] =
+    useState<TimeTableRow | null>(null);
 
   useEffect(() => {
     if (!loading) {
@@ -96,8 +94,8 @@ export default function SelectTimeSlotsDialog({
           rowActions={RowActions}
           showEmptyRows
           rows={rows}
-          extractKey={el => el.id}
-          renderRow={row => {
+          extractKey={(el) => el.id}
+          renderRow={(row) => {
             return (
               <>
                 <TableCell align="left">

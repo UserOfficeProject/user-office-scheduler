@@ -40,14 +40,12 @@ export const defaultHeadCells: HeadCell<TableRow>[] = [
 export default function ViewRequests() {
   const { enqueueSnackbar } = useSnackbar();
   const { showConfirmation } = useContext(AppContext);
-  const {
-    loading: scheduledEventsLoading,
-    scheduledEvents,
-  } = useEquipmentScheduledEvents(
-    [], // NOTE: Empty array is used to load all equipments.
-    toTzLessDateTime(new Date()),
-    toTzLessDateTime(moment(new Date()).add(1, 'year'))
-  );
+  const { loading: scheduledEventsLoading, scheduledEvents } =
+    useEquipmentScheduledEvents(
+      [], // NOTE: Empty array is used to load all equipments.
+      toTzLessDateTime(new Date()),
+      toTzLessDateTime(moment(new Date()).add(1, 'year'))
+    );
   const api = useDataApi();
   const [rows, setRows] = useState<TableRow[]>([]);
   const [confirmationLoading, setConfirmationLoading] = useState(false);
@@ -55,7 +53,7 @@ export default function ViewRequests() {
     if (!scheduledEventsLoading && scheduledEvents.length) {
       const newRows: TableRow[] = [];
 
-      scheduledEvents.forEach(scheduledEvent => {
+      scheduledEvents.forEach((scheduledEvent) => {
         newRows.push(
           ...scheduledEvent.events.map(
             ({
@@ -108,15 +106,14 @@ export default function ViewRequests() {
             ? EquipmentAssignmentStatus.ACCEPTED
             : EquipmentAssignmentStatus.REJECTED;
 
-        const {
-          confirmEquipmentAssignment: success,
-        } = await api().confirmEquipmentAssignment({
-          confirmEquipmentAssignmentInput: {
-            equipmentId: row.equipmentId.toString(),
-            scheduledEventId: row.id,
-            newStatus,
-          },
-        });
+        const { confirmEquipmentAssignment: success } =
+          await api().confirmEquipmentAssignment({
+            confirmEquipmentAssignmentInput: {
+              equipmentId: row.equipmentId.toString(),
+              scheduledEventId: row.id,
+              newStatus,
+            },
+          });
 
         setConfirmationLoading(false);
 
@@ -181,8 +178,8 @@ export default function ViewRequests() {
                 rowActions={RowActions}
                 showEmptyRows
                 rows={rows}
-                extractKey={el => `${el.id}_${el.equipmentId}`}
-                renderRow={row => {
+                extractKey={(el) => `${el.id}_${el.equipmentId}`}
+                renderRow={(row) => {
                   return (
                     <>
                       <TableCell align="left">{row.equipmentName}</TableCell>

@@ -86,7 +86,7 @@ const columns = [
   { title: 'Organisation', field: 'organisation' },
 ];
 
-const PeopleTable: React.FC<PeopleTableProps> = props => {
+const PeopleTable: React.FC<PeopleTableProps> = (props) => {
   const { isLoading } = props;
   const api = useDataApi();
   const [loading, setLoading] = useState(props.isLoading ?? false);
@@ -174,16 +174,16 @@ const PeopleTable: React.FC<PeopleTableProps> = props => {
             // first clear the current page because if any row was unselected
             // the (un)select all option will select every rows
             // which would result in duplicates
-            setSelectedParticipants(selectedParticipants =>
+            setSelectedParticipants((selectedParticipants) =>
               selectedParticipants.filter(
                 ({ id }) => !currentPageIds.includes(id)
               )
             );
 
             if (selectedItems.length > 0) {
-              setSelectedParticipants(selectedParticipants => [
+              setSelectedParticipants((selectedParticipants) => [
                 ...selectedParticipants,
-                ...(selectedItems.map(selectedItem => ({
+                ...(selectedItems.map((selectedItem) => ({
                   id: selectedItem.id,
                   firstname: selectedItem.firstname,
                   lastname: selectedItem.lastname,
@@ -195,7 +195,7 @@ const PeopleTable: React.FC<PeopleTableProps> = props => {
             return;
           }
 
-          setSelectedParticipants(selectedParticipants =>
+          setSelectedParticipants((selectedParticipants) =>
             selectedItem.tableData.checked
               ? ([
                   ...selectedParticipants,
@@ -222,8 +222,8 @@ const PeopleTable: React.FC<PeopleTableProps> = props => {
         editable={
           props.onRemove
             ? {
-                onRowDelete: oldData =>
-                  new Promise<void>(resolve => {
+                onRowDelete: (oldData) =>
+                  new Promise<void>((resolve) => {
                     resolve();
                     props.onRemove?.(oldData);
                   }),

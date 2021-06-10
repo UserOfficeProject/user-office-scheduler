@@ -11,7 +11,7 @@ import { Redirect } from 'react-router';
 import { UserContext } from 'context/UserContext';
 import useSchedulerConfig from 'hooks/meta/useSchedulerConfig';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     position: 'absolute',
     top: 0,

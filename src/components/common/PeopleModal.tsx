@@ -46,7 +46,7 @@ function PeopleModal(props: {
           selectedUsers={props.selectedUsers}
           selection={!!props.selection}
           userRole={props.userRole}
-          onUpdate={data => props.addParticipants(data as BasicUserDetails[])}
+          onUpdate={(data) => props.addParticipants(data as BasicUserDetails[])}
         />
       </DialogContent>
     </Dialog>

@@ -55,7 +55,7 @@ export class EquipmentWithAssignmentStatus extends Equipment {
 }
 
 @Resolver(() => Equipment)
-export class EquipmentEventResolver {
+export class EquipmentResolvers {
   @FieldResolver(() => [ScheduledEvent])
   events(
     @Root() equipment: Equipment,
@@ -69,5 +69,13 @@ export class EquipmentEventResolver {
       startsAt,
       endsAt
     );
+  }
+
+  @FieldResolver(() => [User])
+  equipmentResponsible(
+    @Root() equipment: Equipment,
+    @Ctx() ctx: ResolverContext
+  ): Promise<User[]> {
+    return ctx.queries.equipment.getEquipmentResponsible(ctx, equipment.id);
   }
 }

@@ -1,4 +1,4 @@
-import { Equipment } from '../../models/Equipment';
+import { Equipment, EquipmentResponsible } from '../../models/Equipment';
 import { LostTime } from '../../models/LostTime';
 import {
   ProposalBooking,
@@ -99,6 +99,12 @@ export interface EquipmentRecord {
   readonly auto_accept: boolean;
 }
 
+export interface EquipmentResponsibleRecord {
+  readonly equipment_responsible_id: number;
+  readonly equipment_id: number;
+  readonly user_id: number;
+}
+
 export const createEquipmentObject = (equipment: EquipmentRecord) =>
   new Equipment(
     equipment.equipment_id,
@@ -110,6 +116,10 @@ export const createEquipmentObject = (equipment: EquipmentRecord) =>
     equipment.maintenance_ends_at,
     equipment.auto_accept
   );
+
+export const createEquipmentResponsibleObject = (
+  equipmentResponsible: EquipmentResponsibleRecord
+) => new EquipmentResponsible(equipmentResponsible.user_id);
 
 export interface EquipmentsScheduledEventsRecord {
   readonly equipment_id: number;

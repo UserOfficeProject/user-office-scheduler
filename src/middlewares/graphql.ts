@@ -3,6 +3,7 @@ import { ApolloServerPluginInlineTraceDisabled } from 'apollo-server-core';
 import { ApolloServer } from 'apollo-server-express';
 import { Express, Request as ExpressRequest } from 'express';
 import 'reflect-metadata';
+import jsonwebtoken from 'jsonwebtoken';
 
 import baseContext from '../buildContext';
 import { ResolverContext } from '../context';
@@ -51,26 +52,35 @@ const apolloServer = async (app: Express) => {
         ...baseContext,
         clients: { userOffice: initGraphQLClient(req.headers.authorization) },
       };
+      const { authorization } = req.headers;
 
-      try {
-        const authJwtPayloadString = req.header('x-auth-jwt-payload');
-        if (authJwtPayloadString) {
-          const authJwtPayload = JSON.parse(
-            Buffer.from(authJwtPayloadString, 'base64').toString()
-          ) as AuthJwtPayload | AuthJwtApiTokenPayload;
+      if (authorization) {
+        try {
+          const token = authorization.split(' ')[1];
 
-          if (authJwtPayload && 'accessTokenId' in authJwtPayload) {
-            throw new Error(
-              'Accessing the Scheduler with API token is not supported yet'
-            );
+          if (!token) {
+            throw new Error('Invalid token!');
           }
 
-          context.user = authJwtPayload?.user;
-          context.roles = authJwtPayload?.roles;
+          const authJwtPayload = jsonwebtoken.decode(token) as
+            | AuthJwtPayload
+            | AuthJwtApiTokenPayload;
+
+          if (authJwtPayload) {
+            if (authJwtPayload && 'accessTokenId' in authJwtPayload) {
+              throw new Error(
+                'Accessing the Scheduler with API token is not supported yet'
+              );
+            }
+
+            context.user = authJwtPayload?.user;
+            context.roles = authJwtPayload?.roles;
+            context.currentRole = authJwtPayload?.currentRole;
+          }
+        } catch (error) {
+          logger.logException('failed to decode token', error);
+          throw error;
         }
-      } catch (error) {
-        logger.logException('failed to parse x-auth-jwt-payload', error);
-        throw error;
       }
 
       return context;

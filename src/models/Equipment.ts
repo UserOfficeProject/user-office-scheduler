@@ -15,3 +15,7 @@ export class Equipment {
     public autoAccept: boolean
   ) {}
 }
+
+export class EquipmentResponsible {
+  constructor(public id: number) {}
+}

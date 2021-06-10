@@ -15,10 +15,10 @@ export const StyledPaper = styled(({ style, ...other }) => (
 ))({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   margin: (props: any) => getSpacing(props.margin, [3, 0]),
-  padding: props => getSpacing(props.padding, [2]),
+  padding: (props) => getSpacing(props.padding, [2]),
   [getTheme().breakpoints.up(600 + getTheme().spacing(3) * 2)]: {
-    margin: props => getSpacing(props.margin, [6, 0]),
-    padding: props => getSpacing(props.padding, [3]),
+    margin: (props) => getSpacing(props.margin, [6, 0]),
+    padding: (props) => getSpacing(props.padding, [3]),
   },
 });
 
@@ -27,5 +27,5 @@ export const ContentContainer = styled(({ ...other }) => (
 ))({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   margin: (props: any) => getSpacing(props.margin, [0, 'auto']),
-  padding: props => getSpacing(props.padding, [4, 0]),
+  padding: (props) => getSpacing(props.padding, [4, 0]),
 });

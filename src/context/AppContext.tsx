@@ -36,10 +36,8 @@ type AppContextProviderProps = {
 };
 
 export function AppContextProvider({ children }: AppContextProviderProps) {
-  const [
-    activeConfirmation,
-    setActiveConfirmation,
-  ] = useState<ConfirmationParams | null>(null);
+  const [activeConfirmation, setActiveConfirmation] =
+    useState<ConfirmationParams | null>(null);
   const [activeAlert, setActiveAlert] = useState<AlertParams | null>(null);
   const [showLoader, setShowLoader] = useState<boolean>(false);
 

@@ -21,10 +21,10 @@ export function hasOverlappingEvents<T extends BaseEvent>(
   // but will stop at first match
   // comparing 1000 events takes 500ms
   // TODO: optimize in the future
-  return events.some(outerEvent => {
+  return events.some((outerEvent) => {
     // console.log('outer run');
 
-    return events.some(innerEvent => {
+    return events.some((innerEvent) => {
       // console.log('inner run');
 
       if (innerEvent.id === outerEvent.id) {

@@ -314,7 +314,6 @@ context('Proposal booking tests ', () => {
         cy.contains(/you want to remove the selected equipment/i);
 
         cy.get('[data-cy=btn-cancel]').click();
-        cy.get('[data-cy=btn-ok]').click();
 
         cy.get('@firstRowDeleteBtn').click();
 

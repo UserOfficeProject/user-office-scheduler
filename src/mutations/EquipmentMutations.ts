@@ -13,7 +13,7 @@ import {
   ConfirmEquipmentAssignmentInput,
   EquipmentResponsibleInput,
 } from '../resolvers/mutations/EquipmentMutation';
-import { Roles } from '../types/shared';
+import { Roles, User } from '../types/shared';
 
 export default class EquipmentMutations {
   constructor(
@@ -26,7 +26,10 @@ export default class EquipmentMutations {
     ctx: ResolverContext,
     newEquipmentInput: EquipmentInput
   ): Promise<Equipment | Rejection> {
-    return this.equipmentDataSource.create(+ctx.user?.id!, newEquipmentInput);
+    return this.equipmentDataSource.create(
+      +(ctx.user as User).id,
+      newEquipmentInput
+    );
   }
 
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions

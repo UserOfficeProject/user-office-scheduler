@@ -18,7 +18,7 @@ import {
   BulkUpsertScheduledEventsInput,
   NewScheduledEventInput,
 } from '../resolvers/mutations/ScheduledEventMutation';
-import { Roles } from '../types/shared';
+import { Roles, User } from '../types/shared';
 import { bulkUpsertScheduledEventsValidationSchema } from '../validation/scheduledEvent';
 
 export default class ScheduledEventMutations {
@@ -44,8 +44,8 @@ export default class ScheduledEventMutations {
     }
 
     return this.scheduledEventDataSource
-      .create(+ctx.user?.id!, newScheduledEvent)
-      .catch(error => {
+      .create(+(ctx.user as User).id, newScheduledEvent)
+      .catch((error) => {
         logger.logException('Could not create scheduled event', error, {
           newScheduledEvent,
         });
@@ -61,7 +61,7 @@ export default class ScheduledEventMutations {
     bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput
   ): Promise<ScheduledEvent[] | Rejection> {
     const proposalBooking = await this.proposalBookingDataSource.get(
-      bulkUpsertScheduledEvents.proposalBookingId
+      +bulkUpsertScheduledEvents.proposalBookingId
     );
 
     if (
@@ -77,11 +77,11 @@ export default class ScheduledEventMutations {
 
     return this.scheduledEventDataSource
       .bulkUpsert(
-        +ctx.user?.id!,
+        +(ctx.user as User).id,
         proposalBooking.instrument.id,
         bulkUpsertScheduledEvents
       )
-      .catch(error => {
+      .catch((error) => {
         logger.logException('ScheduledEvent bulkUpsert failed', error, {
           bulkUpsertScheduledEvents,
         });

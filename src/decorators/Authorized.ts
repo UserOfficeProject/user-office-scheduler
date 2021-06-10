@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { AuthenticationError, ApolloError } from 'apollo-server';
 
 import { ResolverContext } from '../context';
@@ -6,7 +7,7 @@ import { hasRole } from '../utils/authorization';
 
 const Authorized = (roles: Roles[] = []) => {
   return (
-    target: object,
+    target: any,
     name: string,
     descriptor: {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -15,7 +16,7 @@ const Authorized = (roles: Roles[] = []) => {
   ) => {
     const originalMethod = descriptor.value;
 
-    descriptor.value = async function(...args) {
+    descriptor.value = async function (...args) {
       const [ctx] = args;
 
       if (!ctx.user || !ctx.roles) {

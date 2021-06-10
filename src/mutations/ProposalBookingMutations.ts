@@ -1,5 +1,4 @@
 import { logger } from '@esss-swap/duo-logger';
-import { util } from '@esss-swap/duo-validation';
 import * as Yup from 'yup';
 
 import { ResolverContext } from '../context';
@@ -18,7 +17,7 @@ export default class ProposalBookingMutations {
   constructor(private proposalBookingDataSource: ProposalBookingDataSource) {}
 
   // the action is validated by graphql
-  @ValidateArgs(Yup.mixed().required(), util.NumericalID.required())
+  @ValidateArgs(Yup.mixed().required(), Yup.number().required())
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
   async finalize(
     ctx: ResolverContext,
@@ -44,7 +43,7 @@ export default class ProposalBookingMutations {
       });
   }
 
-  @ValidateArgs(util.NumericalID.required())
+  @ValidateArgs(Yup.number().required())
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
   async activate(
     ctx: ResolverContext,

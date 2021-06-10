@@ -41,7 +41,8 @@ export const dummyScheduledEvents: ScheduledEvent[] = [
 ];
 
 export default class MockupScheduledEventDataSource
-  implements ScheduledEventDataSource {
+  implements ScheduledEventDataSource
+{
   async create(
     scheduledById: number,
     newScheduledEvent: NewScheduledEventInput
@@ -74,7 +75,7 @@ export default class MockupScheduledEventDataSource
   }
 
   async get(id: number): Promise<ScheduledEvent | null> {
-    return dummyScheduledEvents.find(se => se.id === id) ?? null;
+    return dummyScheduledEvents.find((se) => se.id === id) ?? null;
   }
 
   async getAll(filter?: ScheduledEventFilter): Promise<ScheduledEvent[]> {

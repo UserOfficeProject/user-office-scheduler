@@ -7,7 +7,6 @@ import {
   Resolver,
   Root,
   Ctx,
-  Arg,
   Int,
 } from 'type-graphql';
 

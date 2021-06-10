@@ -16,7 +16,7 @@ const schemaValidation = async (schema: yup.Schema<any>, inputArgs: any) => {
 
 const ValidateArgs = (...schemas: yup.Schema<any>[]) => {
   return (
-    target: object,
+    target: any,
     name: string,
     descriptor: {
       value?: (...args: any[]) => Promise<Rejection | any>;
@@ -24,7 +24,7 @@ const ValidateArgs = (...schemas: yup.Schema<any>[]) => {
   ) => {
     const originalMethod = descriptor.value;
 
-    descriptor.value = async function(...args) {
+    descriptor.value = async function (...args) {
       let inputArgs;
       if (args[0]?.isContext === true) {
         [, ...inputArgs] = args;

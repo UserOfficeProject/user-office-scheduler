@@ -12,12 +12,12 @@ router.get('/health-check', (req: Request, res: Response) => {
       message !== 'Healthy' ? res.status(500) : res.status(200);
       res.end();
     })
-    .catch(e => {
+    .catch((e) => {
       logger.logException('Health check failed', e);
       res.status(500).end();
     });
 });
 
-export default function() {
+export default function () {
   return router;
 }

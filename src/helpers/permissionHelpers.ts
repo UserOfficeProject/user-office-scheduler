@@ -30,12 +30,12 @@ export async function instrumentScientistHasAccess(
     return false;
   }
 
-  const {
-    instrumentScientistHasAccess,
-  } = await ctx.clients.userOffice().instrumentScientistHasAccess({
-    proposalId: +proposalBooking.proposal.id,
-    instrumentId: +proposalBooking.instrument.id,
-  });
+  const { instrumentScientistHasAccess } = await ctx.clients
+    .userOffice()
+    .instrumentScientistHasAccess({
+      proposalId: +proposalBooking.proposal.id,
+      instrumentId: +proposalBooking.instrument.id,
+    });
 
   if (!instrumentScientistHasAccess) {
     return false;
@@ -71,11 +71,11 @@ export async function userHacAccess(
     return false;
   }
 
-  const {
-    userHasAccessToProposal,
-  } = await ctx.clients.userOffice().userHasAccess({
-    proposalId: +proposalBooking.proposal.id,
-  });
+  const { userHasAccessToProposal } = await ctx.clients
+    .userOffice()
+    .userHasAccess({
+      proposalId: +proposalBooking.proposal.id,
+    });
 
   if (!userHasAccessToProposal) {
     return false;

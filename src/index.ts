@@ -15,14 +15,11 @@ async function bootstrap() {
   const PORT = process.env.PORT || 4000;
   const app = express();
 
-  app
-    .use(cookieParser())
-    .use(exceptionHandler())
-    .use(healthCheck());
+  app.use(cookieParser()).use(exceptionHandler()).use(healthCheck());
 
   await apolloServer(app);
 
-  process.on('uncaughtException', error => {
+  process.on('uncaughtException', (error) => {
     logger.logException('Unhandled NODE exception', error);
   });
 

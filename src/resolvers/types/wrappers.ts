@@ -13,18 +13,14 @@ export class ResponseWrapBase<T> {
 }
 
 @ObjectType()
-export class ScheduledEventResponseWrap extends ResponseWrapBase<
-  ScheduledEvent
-> {
+export class ScheduledEventResponseWrap extends ResponseWrapBase<ScheduledEvent> {
   @Response()
   @Field(() => ScheduledEvent, { nullable: true })
   scheduledEvent: ScheduledEvent;
 }
 
 @ObjectType()
-export class ScheduledEventsResponseWrap extends ResponseWrapBase<
-  ScheduledEvent
-> {
+export class ScheduledEventsResponseWrap extends ResponseWrapBase<ScheduledEvent> {
   @Response()
   @Field(() => [ScheduledEvent], { nullable: true })
   scheduledEvent: ScheduledEvent[];
@@ -38,9 +34,7 @@ export class LostTimesResponseWrap extends ResponseWrapBase<LostTime> {
 }
 
 @ObjectType()
-export class ProposalBookingResponseWrap extends ResponseWrapBase<
-  ProposalBooking
-> {
+export class ProposalBookingResponseWrap extends ResponseWrapBase<ProposalBooking> {
   @Response()
   @Field(() => ProposalBooking, { nullable: true })
   proposalBooking: ProposalBooking;

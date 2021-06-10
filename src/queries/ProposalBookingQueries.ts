@@ -65,10 +65,8 @@ export default class ProposalBookingQueries {
       };
     }
 
-    const proposalBooking = await this.proposalBookingDataSource.getByProposalId(
-      proposalId,
-      filter
-    );
+    const proposalBooking =
+      await this.proposalBookingDataSource.getByProposalId(proposalId, filter);
 
     if (!proposalBooking) {
       return null;

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import { LostTime } from '../../models/LostTime';
 import { BulkUpsertLostTimesInput } from '../../resolvers/mutations/LostTimeMutation';
 import { LostTimeDataSource } from '../LostTimeDataSource';
@@ -17,7 +16,7 @@ export default class PostgresLostTimeDataSource implements LostTimeDataSource {
   bulkUpsert(
     bulkUpsertLostTimes: BulkUpsertLostTimesInput
   ): Promise<LostTime[]> {
-    return database.transaction(async trx => {
+    return database.transaction(async (trx) => {
       const { proposalBookingId, lostTimes } = bulkUpsertLostTimes;
 
       // delete existing events that weren't included in the upsert
@@ -39,7 +38,7 @@ export default class PostgresLostTimeDataSource implements LostTimeDataSource {
 
       const newlyCreatedRecords = await trx<BulkUpsertFields>(this.tableName)
         .insert(
-          lostTimes.map(newObj => ({
+          lostTimes.map((newObj) => ({
             lost_time_id: newObj.newlyCreated ? this.nextId : newObj.id,
             proposal_booking_id: bulkUpsertLostTimes.proposalBookingId,
             starts_at: newObj.startsAt,

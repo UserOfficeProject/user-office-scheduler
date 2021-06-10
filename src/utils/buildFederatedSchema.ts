@@ -12,10 +12,12 @@ import {
   createResolversMap,
 } from 'type-graphql';
 
-// TODO: should be ported to a lerna as a separate package, so we can reuse it across the backends
-export async function buildFederatedSchema<TContext extends {} = {}>(
+import { ResolverContext } from '../context';
+
+// TODO: should be ported to a lerna as a separate package, so we can reuse it across the backend repositories
+export async function buildFederatedSchema(
   options: Omit<BuildSchemaOptions, 'skipCheck'>,
-  referenceResolvers?: GraphQLResolverMap<TContext> // this should be `GraphQLReferenceResolver` but the types not match
+  referenceResolvers?: GraphQLResolverMap<ResolverContext>
 ) {
   const schema = await buildSchema({
     ...options,

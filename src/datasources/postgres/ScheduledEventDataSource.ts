@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import {
   ScheduledEvent,
   ScheduledEventBookingType,
@@ -23,7 +22,8 @@ type CreateFields = Omit<
 >;
 
 export default class PostgreScheduledEventDataSource
-  implements ScheduledEventDataSource {
+  implements ScheduledEventDataSource
+{
   readonly tableName = 'scheduled_events';
   readonly equipSchdEvTableName = 'scheduled_events_equipments';
   // eslint-disable-next-line quotes
@@ -54,7 +54,7 @@ export default class PostgreScheduledEventDataSource
     instrumentId: number,
     bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput
   ): Promise<ScheduledEvent[]> {
-    return database.transaction(async trx => {
+    return database.transaction(async (trx) => {
       const { proposalBookingId, scheduledEvents } = bulkUpsertScheduledEvents;
 
       // delete existing events that weren't included in the upsert
@@ -78,7 +78,7 @@ export default class PostgreScheduledEventDataSource
         this.tableName
       )
         .insert(
-          scheduledEvents.map(newObj => ({
+          scheduledEvents.map((newObj) => ({
             scheduled_event_id: newObj.newlyCreated ? this.nextId : newObj.id,
             proposal_booking_id: proposalBookingId,
             booking_type: ScheduledEventBookingType.USER_OPERATIONS,
@@ -142,7 +142,7 @@ export default class PostgreScheduledEventDataSource
       .select()
       .where('proposal_booking_id', proposalBookingId)
       .orderBy('starts_at', 'asc')
-      .modify(qb => {
+      .modify((qb) => {
         if (filter?.bookingType) {
           qb.where('booking_type', filter.bookingType);
         }

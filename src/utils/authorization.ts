@@ -8,9 +8,9 @@ export function hasRole(
     return true;
   }
 
-  return requiredRoles.some(requiredRole =>
+  return requiredRoles.some((requiredRole) =>
     availableRoles.some(
-      availableRole => requiredRole === availableRole.shortCode
+      (availableRole) => requiredRole === availableRole.shortCode
     )
   );
 }

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import { Equipment, EquipmentAssignmentStatus } from '../../models/Equipment';
 import { ScheduledEvent } from '../../models/ScheduledEvent';
 import {
@@ -16,7 +15,8 @@ import {
 } from './records';
 
 export default class PostgresEquipmentDataSource
-  implements EquipmentDataSource {
+  implements EquipmentDataSource
+{
   readonly tableName = 'equipments';
   readonly scheduledEventsTable = 'scheduled_events';
   readonly scheduledEventsEquipmentsTable = 'scheduled_events_equipments';
@@ -62,7 +62,7 @@ export default class PostgresEquipmentDataSource
     const equipmentRecords = await database<EquipmentRecord>(this.tableName)
       .select('*')
       .orderBy('name', 'asc')
-      .modify(qb => {
+      .modify((qb) => {
         if (equipmentIds) {
           qb.whereIn('equipment_id', equipmentIds);
         }
@@ -106,19 +106,19 @@ export default class PostgresEquipmentDataSource
           endsAt: scheduledEvent.endsAt,
         }
       )
-      .where(qb => {
+      .where((qb) => {
         // available, not under maintenance
         qb.where('maintenance_starts_at', null);
-        qb.orWhere(qb => {
+        qb.orWhere((qb) => {
           // scheduled for maintenance indefinitely with a start date
           qb.whereNot('maintenance_starts_at', null);
           qb.where('maintenance_ends_at', null);
           qb.where('maintenance_starts_at', '>=', scheduledEvent.endsAt);
         });
-        qb.orWhere(qb => {
+        qb.orWhere((qb) => {
           qb.whereNot('maintenance_starts_at', null);
           qb.whereNot('maintenance_ends_at', null);
-          qb.whereNot(qb => {
+          qb.whereNot((qb) => {
             // checking overlap
             qb.where('maintenance_starts_at', '>=', scheduledEvent.startsAt);
             qb.andWhere('maintenance_ends_at', '<=', scheduledEvent.endsAt);
@@ -150,7 +150,7 @@ export default class PostgresEquipmentDataSource
         scheduledEventId
       );
 
-    return equipmentRecords.map(record => ({
+    return equipmentRecords.map((record) => ({
       ...createEquipmentObject(record),
       status: record.status,
     }));
@@ -160,13 +160,14 @@ export default class PostgresEquipmentDataSource
     scheduledEventId: number,
     equipmentId: number
   ): Promise<EquipmentAssignmentStatus | null> {
-    const equipmentAssignmentRecord = await database<
-      EquipmentsScheduledEventsRecord
-    >(this.scheduledEventsEquipmentsTable)
-      .select<Pick<EquipmentsScheduledEventsRecord, 'status'>>('status')
-      .where('scheduled_event_id', scheduledEventId)
-      .where('equipment_id', equipmentId)
-      .first();
+    const equipmentAssignmentRecord =
+      await database<EquipmentsScheduledEventsRecord>(
+        this.scheduledEventsEquipmentsTable
+      )
+        .select<Pick<EquipmentsScheduledEventsRecord, 'status'>>('status')
+        .where('scheduled_event_id', scheduledEventId)
+        .where('equipment_id', equipmentId)
+        .first();
 
     return (
       (equipmentAssignmentRecord?.status as EquipmentAssignmentStatus) ?? null
@@ -183,11 +184,11 @@ export default class PostgresEquipmentDataSource
         this.scheduledEventsEquipmentsTable
       )
         .insert(
-          input.equipmentIds.map(equipmentId => ({
+          input.equipmentIds.map((equipmentId) => ({
             equipment_id: equipmentId,
             scheduled_event_id: input.scheduledEventId,
             status: equipments.find(
-              equipment => equipment.equipment_id === +equipmentId
+              (equipment) => equipment.equipment_id === +equipmentId
             )?.auto_accept
               ? EquipmentAssignmentStatus.ACCEPTED
               : EquipmentAssignmentStatus.PENDING,

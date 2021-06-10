@@ -34,6 +34,7 @@ import 'styles/react-big-calendar.css';
 import CalendarTodoBox from './CalendarTodoBox';
 import Event, { CalendarScheduledEvent, eventPropGetter } from './Event';
 import Toolbar from './Toolbar';
+import YearView from './YearView';
 
 moment.locale('en-gb');
 
@@ -254,31 +255,40 @@ export default function Calendar() {
             )}
             <Grid container className={classes.fullHeight}>
               <Grid item xs className={classes.fullHeight}>
-                <BigCalendar
-                  selectable
-                  // TODO: needs some position fixing
-                  // popup
-                  localizer={localizer}
-                  events={events}
-                  defaultView={CALENDAR_DEFAULT_VIEW}
-                  views={['month', 'week']}
-                  defaultDate={startsAt}
-                  step={60}
-                  timeslots={1}
-                  showMultiDayTimes={true}
-                  dayLayoutAlgorithm={'no-overlap'}
-                  eventPropGetter={eventPropGetter}
-                  slotPropGetter={slotPropGetter}
-                  onSelectEvent={onSelectEvent}
-                  onSelectSlot={onSelectSlot}
-                  onSelecting={onSelecting}
-                  onNavigate={onNavigate}
-                  onView={onViewChange}
-                  components={{
-                    toolbar: Toolbar,
-                    event: Event,
-                  }}
-                />
+                {
+                  // @ts-expect-error test
+                  <BigCalendar
+                    selectable
+                    // TODO: needs some position fixing
+                    // popup
+                    localizer={localizer}
+                    events={events}
+                    defaultView={CALENDAR_DEFAULT_VIEW}
+                    views={{
+                      day: true,
+                      week: true,
+                      month: true,
+                      halfYear: YearView,
+                    }}
+                    defaultDate={startsAt}
+                    step={60}
+                    timeslots={1}
+                    showMultiDayTimes={true}
+                    dayLayoutAlgorithm={'no-overlap'}
+                    eventPropGetter={eventPropGetter}
+                    slotPropGetter={slotPropGetter}
+                    onSelectEvent={onSelectEvent}
+                    onSelectSlot={onSelectSlot}
+                    onSelecting={onSelecting}
+                    onNavigate={onNavigate}
+                    onView={onViewChange}
+                    messages={{ halfYear: '6 months' }}
+                    components={{
+                      toolbar: Toolbar,
+                      event: Event,
+                    }}
+                  />
+                }
               </Grid>
               <Grid item xs={2} className={classes.fullHeight}>
                 <CalendarTodoBox

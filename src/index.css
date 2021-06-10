@@ -1,3 +1,49 @@
 .MuiPaper-elevation2.MuiPaper-root {
   box-shadow: none;
 }
+
+.year {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.month {
+  margin: 5px 5px 15px 5px;
+}
+
+.month-name {
+  color: #ccbe88;
+  font-weight: bold;
+}
+
+.day {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  line-height: 30px;
+}
+
+.date {
+  width: 30px;
+  height: 30px;
+  background: white;
+  border-radius: 50px;
+  border: none;
+  outline: none;
+}
+
+.date.in-month:hover {
+  cursor: pointer;
+  background: #ccbe88;
+}
+
+.today {
+  background: #ccbe88;
+}
+
+.date.prev-month,
+.date.next-month {
+  color: grey;
+}

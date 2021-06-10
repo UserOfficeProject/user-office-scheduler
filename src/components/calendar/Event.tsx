@@ -2,6 +2,7 @@ import { makeStyles } from '@material-ui/core';
 import React, { CSSProperties } from 'react';
 import { EventProps } from 'react-big-calendar';
 
+import EquipmentBookingInfo from 'components/equipment/EquipmentBookingInfo';
 import ProposalBookingInfo from 'components/proposalBooking/ProposalBookingInfo';
 import {
   GetScheduledEventsQuery,
@@ -13,13 +14,14 @@ export type BasicProposalBooking = GetScheduledEventsQuery['scheduledEvents'][nu
 
 export type CalendarScheduledEvent = Pick<
   ScheduledEvent,
-  'id' | 'bookingType' | 'description'
+  'id' | 'bookingType' | 'description' | 'bookingType'
 > & {
   start: Date;
   end: Date;
   title: string;
-} & {
   proposalBooking: BasicProposalBooking;
+  instrument: GetScheduledEventsQuery['scheduledEvents'][number]['instrument'];
+  scheduledBy: GetScheduledEventsQuery['scheduledEvents'][number]['scheduledBy'];
 };
 
 const useStyles = makeStyles(() => ({
@@ -78,19 +80,36 @@ export function eventPropGetter(
 }
 
 export default function Event({
-  event: { description, start, proposalBooking },
+  event: {
+    description,
+    start,
+    proposalBooking,
+    bookingType,
+    instrument,
+    scheduledBy,
+  },
   title,
 }: EventProps<CalendarScheduledEvent>) {
   const classes = useStyles();
-
-  return (
-    <div data-cy={`event-${start.toISOString()}`}>
-      <strong>{title}</strong>
-      {/* TODO: should be hidden in some cases, like Month view */}
-      {description && (
-        <div className={classes.eventDescription}>{description}</div>
-      )}
-      <ProposalBookingInfo booking={proposalBooking} />
-    </div>
-  );
+  switch (bookingType) {
+    case ScheduledEventBookingType.USER_OPERATIONS:
+      return <ProposalBookingInfo booking={proposalBooking} />;
+    case ScheduledEventBookingType.EQUIPMENT:
+      return (
+        <EquipmentBookingInfo
+          name={description ?? 'NA'}
+          instrument={instrument?.name ?? 'NA'}
+          scheduledBy={
+            `${scheduledBy?.firstname} ${scheduledBy?.lastname}` ?? 'NA'
+          }
+        />
+      );
+    default:
+      return (
+        <div data-cy={`event-${start.toISOString()}`}>
+          <strong>{title}</strong>
+          <div className={classes.eventDescription}>{description}</div>
+        </div>
+      );
+  }
 }

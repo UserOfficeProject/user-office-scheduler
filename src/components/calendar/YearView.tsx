@@ -8,6 +8,12 @@ import {
 // @ts-expect-error For now seems like TimeGrid can't be imported otherwise.
 import TimeGrid from 'react-big-calendar/lib/TimeGrid';
 
+/**
+ * NOTE: This is done using `TimeGrid` component from react-big-calendar but that is like longer week view which is not the optimal and most wanted scenario.
+ * We would like to show instruments instead of hours(TimeGutter) on the very left side and show how much that specific instrument is booked through the selected time span of either 3 or 6 months.
+ * To achieve this we need some more time and create some very custom component that uses some small blocks from react-big-calendar components.
+ * What can be helpful is https://github.com/jquense/react-big-calendar/blob/master/src/TimeGrid.js where instead of TimeGutter we should render some list of selected instruments and try to render and position the events correctly trough the selected timespan. Maybe some other components could be useful as well from react-big-calendar to achieve this.
+ */
 class YearView extends React.Component<CalendarProps> {
   static range: (date: Date) => Date[];
   static navigate: (newDate: Date, newView: NavigateAction) => Date;

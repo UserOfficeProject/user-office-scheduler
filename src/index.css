@@ -2,48 +2,34 @@
   box-shadow: none;
 }
 
-.year {
+.calendar-yearly-view {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
+  overflow: hidden;
 }
 
-.month {
-  margin: 5px 5px 15px 5px;
+.calendar-yearly-view .rbc-time-content > .rbc-day-slot {
+  min-width: 52px;
 }
 
-.month-name {
-  color: #ccbe88;
-  font-weight: bold;
+.calendar-yearly-view .rbc-header {
+  min-width: 52px;
+  min-height: 35px;
+  white-space: normal;
+  text-overflow: unset;
 }
 
-.day {
-  display: inline-block;
-  width: 30px;
-  height: 30px;
-  text-align: center;
-  line-height: 30px;
+.calendar-yearly-view .rbc-day-bg {
+  min-width: 52px;
 }
 
-.date {
-  width: 30px;
-  height: 30px;
-  background: white;
-  border-radius: 50px;
-  border: none;
-  outline: none;
+.calendar-yearly-view .rbc-time-view {
+  overflow: auto;
 }
 
-.date.in-month:hover {
-  cursor: pointer;
-  background: #ccbe88;
+.calendar-yearly-view .rbc-time-header {
+  overflow: hidden;
 }
 
-.today {
-  background: #ccbe88;
-}
-
-.date.prev-month,
-.date.next-month {
-  color: grey;
+.calendar-yearly-view .rbc-allday-cell {
+  display: none;
 }

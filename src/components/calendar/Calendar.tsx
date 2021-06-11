@@ -42,6 +42,8 @@ const localizer = momentLocalizer(moment);
 
 const CALENDAR_DEFAULT_VIEW = 'week';
 
+export type ExtendedView = View | 'year';
+
 const useStyles = makeStyles(() => ({
   fullHeight: {
     height: '100%',
@@ -117,7 +119,7 @@ export default function Calendar() {
   const [startsAt, setStartAt] = useState(
     moment().startOf(CALENDAR_DEFAULT_VIEW).toDate()
   );
-  const [view, setView] = useState<View>(CALENDAR_DEFAULT_VIEW);
+  const [view, setView] = useState<ExtendedView>(CALENDAR_DEFAULT_VIEW);
   const [filter, setFilter] = useState(
     generateScheduledEventFilter(queryInstrument, startsAt, view)
   );
@@ -254,7 +256,7 @@ export default function Calendar() {
               />
             )}
             <Grid container className={classes.fullHeight}>
-              <Grid item xs className={classes.fullHeight}>
+              <Grid item xs={10} className={classes.fullHeight}>
                 {
                   // @ts-expect-error test
                   <BigCalendar
@@ -268,7 +270,7 @@ export default function Calendar() {
                       day: true,
                       week: true,
                       month: true,
-                      halfYear: YearView,
+                      year: YearView,
                     }}
                     defaultDate={startsAt}
                     step={60}
@@ -282,10 +284,24 @@ export default function Calendar() {
                     onSelecting={onSelecting}
                     onNavigate={onNavigate}
                     onView={onViewChange}
-                    messages={{ halfYear: '6 months' }}
+                    // TODO: This should be adjustable length but for now it is fixed amount of 3 months
+                    messages={{ year: '3 months' }}
                     components={{
                       toolbar: Toolbar,
                       event: Event,
+                      header: ({ date, localizer }) => {
+                        switch (view) {
+                          case 'year':
+                            return localizer.format(date, 'ddd DD MMM', '');
+                          case 'week':
+                            return localizer.format(date, 'dddd', '');
+                          case 'month':
+                            return localizer.format(date, 'dddd', '');
+
+                          default:
+                            return '';
+                        }
+                      },
                     }}
                   />
                 }

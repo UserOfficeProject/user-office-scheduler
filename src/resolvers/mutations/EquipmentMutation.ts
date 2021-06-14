@@ -6,6 +6,7 @@ import {
   Mutation,
   Ctx,
   Arg,
+  Int,
 } from 'type-graphql';
 
 import { ResolverContext } from '../../context';
@@ -66,6 +67,15 @@ export class ConfirmEquipmentAssignmentInput {
 
   @Field(() => EquipmentAssignmentStatus)
   newStatus: EquipmentAssignmentStatus;
+}
+
+@InputType()
+export class EquipmentResponsibleInput {
+  @Field(() => ID)
+  equipmentId: number;
+
+  @Field(() => [Int])
+  userIds: number[];
 }
 
 @Resolver()
@@ -134,6 +144,18 @@ export class EquipmentMutation {
     return ctx.mutations.equipment.confirmAssignment(
       ctx,
       confirmEquipmentAssignmentInput
+    );
+  }
+
+  @Mutation(() => Boolean)
+  addEquipmentResponsible(
+    @Ctx() ctx: ResolverContext,
+    @Arg('equipmentResponsibleInput', () => EquipmentResponsibleInput)
+    equipmentResponsibleInput: EquipmentResponsibleInput
+  ): Promise<boolean> {
+    return ctx.mutations.equipment.addEquipmentResponsible(
+      ctx,
+      equipmentResponsibleInput
     );
   }
 }

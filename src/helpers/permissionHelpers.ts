@@ -83,3 +83,11 @@ export async function userHacAccess(
 
   return true;
 }
+
+export function isUserOfficer(agent: ResolverContext | null) {
+  if (agent == null) {
+    return false;
+  }
+
+  return agent?.currentRole?.shortCode === Roles.USER_OFFICER;
+}

@@ -82,6 +82,7 @@ const context: BasicResolverContext = {
       throw new Error('UserOffice client not initialized');
     },
   },
+  currentRole: undefined,
 };
 
 export default context;

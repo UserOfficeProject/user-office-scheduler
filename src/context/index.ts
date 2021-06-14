@@ -31,6 +31,7 @@ export interface BasicResolverContext {
   isContext: true;
   queries: ResolverContextQueries;
   mutations: ResolverContextMutations;
+  currentRole?: Role;
   user?: User;
   roles?: Role[];
   clients: {

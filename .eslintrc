@@ -8,7 +8,6 @@
     "plugin:@typescript-eslint/recommended",
     "plugin:prettier/recommended",
     "plugin:jest/recommended"
-    
   ],
   "plugins": [
     "@typescript-eslint", // Let's us override rules below.
@@ -71,6 +70,6 @@
       "error",
       { "blankLine": "always", "prev": "*", "next": "return" }
     ],
-    "unused-imports/no-unused-imports-ts": 2
+    "unused-imports/no-unused-imports-ts": "error"
   }
 }

@@ -21,7 +21,7 @@ export default function useSchedulerConfig() {
     setIsLoading(true);
     unauthorizedApi()
       .getSchedulerConfig()
-      .then(conf => {
+      .then((conf) => {
         if (unmount) {
           return;
         }

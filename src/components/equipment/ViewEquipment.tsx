@@ -9,6 +9,7 @@ import {
   IconButton,
   Box,
   TableCell,
+  Tooltip,
 } from '@material-ui/core';
 import {
   Comment as CommentIcon,
@@ -18,6 +19,8 @@ import {
   Assignment as AssignmentIcon,
   Check as CheckIcon,
   Clear as ClearIcon,
+  PersonAdd as PersonAddIcon,
+  Group as GroupIcon,
 } from '@material-ui/icons';
 import moment, { Moment } from 'moment';
 import { useSnackbar } from 'notistack';
@@ -26,10 +29,16 @@ import { useParams, generatePath } from 'react-router';
 import { Link } from 'react-router-dom';
 
 import Loader from 'components/common/Loader';
+import PeopleModal from 'components/common/PeopleModal';
 import Table, { HeadCell } from 'components/common/Table';
 import { PATH_EDIT_EQUIPMENT } from 'components/paths';
 import { AppContext } from 'context/AppContext';
-import { EquipmentAssignmentStatus } from 'generated/sdk';
+import {
+  BasicUserDetails,
+  EquipmentAssignmentStatus,
+  User,
+  UserRole,
+} from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import useEquipment from 'hooks/equipment/useEquipment';
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
@@ -50,7 +59,7 @@ export const defaultHeadCells: HeadCell<TableRow>[] = [
   { id: 'equipmentAssignmentStatus', label: 'Status' },
 ];
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     flexShrink: 0,
     flexGrow: 0,
@@ -70,6 +79,9 @@ const useStyles = makeStyles(theme => ({
   },
   spacingLeft: {
     marginLeft: theme.spacing(2),
+  },
+  listItemText: {
+    maxWidth: 'fit-content',
   },
 }));
 
@@ -105,14 +117,22 @@ export default function ViewEquipment() {
   const { id } = useParams<{ id: string }>();
   const classes = useStyles();
   const { loading: equipmentLoading, equipment } = useEquipment(id);
-  const {
-    loading: scheduledEventsLoading,
-    scheduledEvents,
-  } = useEquipmentScheduledEvents(
-    [parseInt(id)],
-    toTzLessDateTime(new Date()),
-    toTzLessDateTime(moment(new Date()).add(1, 'year'))
-  );
+  const [selectedUsers, setSelectedUsers] = useState<
+    Pick<User, 'id' | 'firstname' | 'lastname'>[]
+  >([]);
+  const [showPeopleModal, setShowPeopleModal] = useState(false);
+  const { loading: scheduledEventsLoading, scheduledEvents } =
+    useEquipmentScheduledEvents(
+      [parseInt(id)],
+      toTzLessDateTime(new Date()),
+      toTzLessDateTime(moment(new Date()).add(1, 'year'))
+    );
+  const equipmentResponsible = equipment?.equipmentResponsible;
+  useEffect(() => {
+    if (equipmentResponsible) {
+      setSelectedUsers(equipmentResponsible);
+    }
+  }, [equipmentResponsible]);
   const api = useDataApi();
   const [rows, setRows] = useState<TableRow[]>([]);
   const [confirmationLoading, setConfirmationLoading] = useState(false);
@@ -156,15 +176,14 @@ export default function ViewEquipment() {
             ? EquipmentAssignmentStatus.ACCEPTED
             : EquipmentAssignmentStatus.REJECTED;
 
-        const {
-          confirmEquipmentAssignment: success,
-        } = await api().confirmEquipmentAssignment({
-          confirmEquipmentAssignmentInput: {
-            equipmentId: id,
-            scheduledEventId: row.id,
-            newStatus,
-          },
-        });
+        const { confirmEquipmentAssignment: success } =
+          await api().confirmEquipmentAssignment({
+            confirmEquipmentAssignmentInput: {
+              equipmentId: id,
+              scheduledEventId: row.id,
+              newStatus,
+            },
+          });
 
         setConfirmationLoading(false);
 
@@ -210,8 +229,34 @@ export default function ViewEquipment() {
     );
   };
 
+  const addEquipmentResponsibleUsers = async (users: BasicUserDetails[]) => {
+    const response = await api().addEquipmentResponsible({
+      equipmentResponsibleInput: {
+        equipmentId: equipment.id,
+        userIds: users.map((user) => user.id),
+      },
+    });
+
+    if (response.addEquipmentResponsible) {
+      enqueueSnackbar('Success', { variant: 'success' });
+
+      setSelectedUsers([...selectedUsers, ...users]);
+
+      setShowPeopleModal(false);
+    }
+  };
+
   return (
     <ContentContainer maxWidth={false}>
+      <PeopleModal
+        show={!!showPeopleModal}
+        close={(): void => setShowPeopleModal(false)}
+        addParticipants={addEquipmentResponsibleUsers}
+        selectedUsers={selectedUsers.map((selectedUser) => selectedUser.id)}
+        selection={true}
+        title={'Select responsible people'}
+        userRole={UserRole.INSTRUMENT_SCIENTIST}
+      />
       <Grid container>
         <Grid item xs={12}>
           <StyledPaper margin={[0, 1]}>
@@ -247,7 +292,34 @@ export default function ViewEquipment() {
                       secondary={`${equipment?.owner?.firstname ?? 'Unknown'} ${
                         equipment?.owner?.lastname
                       }`}
+                      className={classes.listItemText}
                     />
+                  </ListItem>
+                  <ListItem disableGutters>
+                    <ListItemAvatar>
+                      <Avatar>
+                        <GroupIcon />
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary="Responsible people"
+                      secondary={selectedUsers.map(
+                        (user, index) =>
+                          `${index ? ', ' : ''} ${user.firstname} ${
+                            user.lastname
+                          }`
+                      )}
+                      className={classes.listItemText}
+                    />
+                    <Tooltip title="Add equipment responsible">
+                      <IconButton
+                        onClick={() => setShowPeopleModal(true)}
+                        data-cy="add-equipment-responsible"
+                        aria-label="Add equipment responsible"
+                      >
+                        <PersonAddIcon />
+                      </IconButton>
+                    </Tooltip>
                   </ListItem>
                 </List>
               </Grid>
@@ -295,8 +367,8 @@ export default function ViewEquipment() {
                 rowActions={RowActions}
                 showEmptyRows
                 rows={rows}
-                extractKey={el => el.id}
-                renderRow={row => {
+                extractKey={(el) => el.id}
+                renderRow={(row) => {
                   return (
                     <>
                       <TableCell align="left">

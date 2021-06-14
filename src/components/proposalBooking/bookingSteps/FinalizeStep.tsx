@@ -27,7 +27,7 @@ import { hasOverlappingEvents } from 'utils/scheduledEvent';
 import { ProposalBookingDialogStepProps } from '../ProposalBookingDialog';
 import TimeTable, { TimeTableRow } from '../TimeTable';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   spacing: {
     display: 'flex',
     alignItems: 'center',
@@ -82,15 +82,13 @@ export default function FinalizeStep({
   };
 
   const handleAdd = () => {
-    handleRowsChange(rows => [
+    handleRowsChange((rows) => [
       ...rows,
       {
         id: `t-${Date.now()}`,
         newlyCreated: true,
         startsAt: moment().startOf('hour'),
-        endsAt: moment()
-          .startOf('hour')
-          .add(1, 'hour'),
+        endsAt: moment().startOf('hour').add(1, 'hour'),
       },
     ]);
   };
@@ -247,7 +245,7 @@ export default function FinalizeStep({
             control={
               <Checkbox
                 checked={warningAccepted}
-                onChange={() => setWarningAccepted(prev => !prev)}
+                onChange={() => setWarningAccepted((prev) => !prev)}
                 name="warningAccepted"
                 color="primary"
                 disabled={isStepReadOnly}

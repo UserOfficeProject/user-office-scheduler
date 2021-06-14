@@ -23,10 +23,8 @@ export default function useScheduledEventWithEquipments({
   scheduledEventId: string;
 }) {
   const [loading, setLoading] = useState(true);
-  const [
-    scheduledEvent,
-    setScheduledEvent,
-  ] = useState<ScheduledEventWithEquipments | null>(null);
+  const [scheduledEvent, setScheduledEvent] =
+    useState<ScheduledEventWithEquipments | null>(null);
 
   const api = useDataApi();
 
@@ -36,7 +34,7 @@ export default function useScheduledEventWithEquipments({
     setLoading(true);
     api()
       .getScheduledEventWithEquipments({ proposalBookingId, scheduledEventId })
-      .then(data => {
+      .then((data) => {
         if (unmount) {
           return;
         }

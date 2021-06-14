@@ -48,7 +48,7 @@ export default function SplitButton<T extends string>({
   };
 
   const handleToggle = () => {
-    setOpen(prevOpen => !prevOpen);
+    setOpen((prevOpen) => !prevOpen);
   };
 
   const handleClose = (event: React.MouseEvent<Document, MouseEvent>) => {
@@ -104,11 +104,13 @@ export default function SplitButton<T extends string>({
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList id="split-button-menu">
-                  {options.map(option => (
+                  {options.map((option) => (
                     <MenuItem
                       key={option.key}
                       selected={option.key === selectedKey}
-                      onClick={event => handleMenuItemClick(event, option.key)}
+                      onClick={(event) =>
+                        handleMenuItemClick(event, option.key)
+                      }
                     >
                       {option.label}
                     </MenuItem>

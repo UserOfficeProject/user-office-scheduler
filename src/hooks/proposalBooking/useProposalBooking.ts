@@ -22,10 +22,8 @@ export type DetailedProposalBooking = Pick<
 
 export default function useProposalBooking(id: string) {
   const [loading, setLoading] = useState(true);
-  const [
-    proposalBooking,
-    setProposalBooking,
-  ] = useState<DetailedProposalBooking | null>(null);
+  const [proposalBooking, setProposalBooking] =
+    useState<DetailedProposalBooking | null>(null);
 
   const api = useDataApi();
 
@@ -35,7 +33,7 @@ export default function useProposalBooking(id: string) {
     setLoading(true);
     api()
       .getProposalBooking({ id, filter: {} })
-      .then(data => {
+      .then((data) => {
         if (unmount) {
           return;
         }

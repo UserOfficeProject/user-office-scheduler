@@ -46,11 +46,11 @@ const PrivateRoute: React.FC<RouteProps> = ({
 };
 
 class App extends React.Component {
-  static getDerivedStateFromError(error: any) {
+  static getDerivedStateFromError(error: Error) {
     console.error('getDerivedStateFromError', error);
   }
 
-  componentDidCatch(error: any): void {
+  componentDidCatch(error: Error): void {
     console.log('componentDidCatch', error);
 
     // const api = useUnauthorizedApi();

@@ -56,7 +56,7 @@ const useStyles = makeStyles(() => ({
 function transformEvent(
   scheduledEvents: GetScheduledEventsQuery['scheduledEvents']
 ): CalendarScheduledEvent[] {
-  return scheduledEvents.map(scheduledEvent => ({
+  return scheduledEvents.map((scheduledEvent) => ({
     id: scheduledEvent.id,
     start: parseTzLessDateTime(scheduledEvent.startsAt).toDate(),
     end: parseTzLessDateTime(scheduledEvent.endsAt).toDate(),
@@ -73,7 +73,7 @@ function isOverlapping(
   { start, end }: { start: Date | string; end: Date | string },
   calendarEvents: CalendarScheduledEvent[]
 ): boolean {
-  return calendarEvents.some(calendarEvent => {
+  return calendarEvents.some((calendarEvent) => {
     if (
       (calendarEvent.start >= start && calendarEvent.end <= end) ||
       //
@@ -102,7 +102,7 @@ export default function Calendar() {
     query
       .get('equipment')
       ?.split(',')
-      .map(num => parseInt(num)) || [];
+      .map((num) => parseInt(num)) || [];
 
   const { showAlert } = useContext(AppContext);
   const [selectedEvent, setSelectedEvent] = useState<
@@ -114,9 +114,7 @@ export default function Calendar() {
     | null
   >(null);
   const [startsAt, setStartAt] = useState(
-    moment()
-      .startOf(CALENDAR_DEFAULT_VIEW)
-      .toDate()
+    moment().startOf(CALENDAR_DEFAULT_VIEW).toDate()
   );
   const [view, setView] = useState<View>(CALENDAR_DEFAULT_VIEW);
   const [filter, setFilter] = useState(
@@ -151,7 +149,7 @@ export default function Calendar() {
   };
   if (
     selectedEquipment.length !== queryEquipment.length ||
-    !selectedEquipment.every(eq => queryEquipment.includes(eq))
+    !selectedEquipment.every((eq) => queryEquipment.includes(eq))
   ) {
     setSelectedEquipments(queryEquipment);
   }
@@ -159,20 +157,21 @@ export default function Calendar() {
     setFilter(generateScheduledEventFilter(queryInstrument, startsAt, view));
   }, [queryInstrument, startsAt, view]);
 
-  const eqEventsTransformed: GetScheduledEventsQuery['scheduledEvents'] = eqEvents
-    .map(eq => {
-      return eq.events.map(event => {
-        return {
-          ...event,
-          bookingType: ScheduledEventBookingType.EQUIPMENT,
-          description: eq.name,
-          proposalBooking: null,
-          instrument: event.instrument,
-          scheduledBy: event.scheduledBy,
-        };
-      });
-    })
-    .flat(1);
+  const eqEventsTransformed: GetScheduledEventsQuery['scheduledEvents'] =
+    eqEvents
+      .map((eq) => {
+        return eq.events.map((event) => {
+          return {
+            ...event,
+            bookingType: ScheduledEventBookingType.EQUIPMENT,
+            description: eq.name,
+            proposalBooking: null,
+            instrument: event.instrument,
+            scheduledBy: event.scheduledBy,
+          };
+        });
+      })
+      .flat(1);
 
   const events = useMemo(
     () => transformEvent([...scheduledEvents, ...eqEventsTransformed]),
@@ -215,7 +214,7 @@ export default function Calendar() {
   };
 
   const onSelectEvent = ({ id }: CalendarScheduledEvent) => {
-    const scheduledEvent = scheduledEvents.find(se => se.id === id);
+    const scheduledEvent = scheduledEvents.find((se) => se.id === id);
 
     if (scheduledEvent) {
       setSelectedEvent(scheduledEvent);
@@ -223,14 +222,9 @@ export default function Calendar() {
   };
 
   const handleNewSimpleEvent = () => {
-    const start = moment()
-      .startOf('hour')
-      .toDate();
+    const start = moment().startOf('hour').toDate();
 
-    const end = moment()
-      .startOf('hour')
-      .add(1, 'hour')
-      .toDate();
+    const end = moment().startOf('hour').add(1, 'hour').toDate();
 
     setSelectedEvent({
       action: 'click',

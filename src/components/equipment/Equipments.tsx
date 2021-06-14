@@ -48,9 +48,9 @@ export default function Equipments() {
               headCells={defaultHeadCells}
               rows={equipments}
               rowActions={RowActions}
-              extractKey={el => el.id}
+              extractKey={(el) => el.id}
               showEmptyRows
-              renderRow={row => {
+              renderRow={(row) => {
                 return (
                   <>
                     <TableCell align="left">{row.name}</TableCell>

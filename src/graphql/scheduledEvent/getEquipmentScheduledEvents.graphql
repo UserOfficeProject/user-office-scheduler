@@ -12,12 +12,21 @@ query getEquipmentScheduledEvents(
       endsAt
       equipmentAssignmentStatus
       equipmentId
-      scheduledBy {
-        firstname
-        lastname
+      proposalBooking {
+        proposal {
+          id
+          title
+          shortCode
+        }
       }
       instrument {
+        id
         name
+      }
+      scheduledBy {
+        id
+        firstname
+        lastname
       }
     }
   }

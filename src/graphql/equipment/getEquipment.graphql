@@ -11,5 +11,10 @@ query getEquipment($id: ID!) {
       firstname
       lastname
     }
+    equipmentResponsible {
+      id
+      firstname
+      lastname
+    }
   }
 }

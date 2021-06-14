@@ -241,7 +241,7 @@ export default function Calendar() {
             se.equipmentId === selectedScheduledEvent.equipmentId
         );
 
-        if (equipmentScheduledEvent) {
+        if (equipmentScheduledEvent && equipmentScheduledEvent.equipmentId) {
           setSelectedEquipmentBooking(
             equipmentScheduledEvent.equipmentId.toString()
           );

@@ -229,31 +229,6 @@ context('Proposal booking tests ', () => {
         cy.contains(/2020-09-21 15:00:00/);
       });
 
-      it('should be able to open time slot by clicking on the calendar equipment event', () => {
-        cy.get('[data-cy="btn-close-dialog"]').click();
-        cy.finishedLoading();
-
-        cy.get('[data-cy="input-equipment-select"]').click();
-        cy.contains('Available equipment 1 - no auto accept').click();
-
-        cy.get('.rbc-time-content .rbc-event')
-          .contains('Available equipment 1 - no auto accept')
-          .click();
-
-        cy.get('[role="dialog"] [data-cy="btn-edit-equipment"]').should(
-          'exist'
-        );
-
-        cy.get('[role="dialog"]').contains('Auto accept equipment requests');
-        cy.get('[role="dialog"]').contains('Time Slots Upcoming Year');
-        cy.get('[data-cy="btn-close-dialog"]').should('exist');
-        cy.get('[data-cy="equipment-upcoming-time-slots-table"]').should(
-          'exist'
-        );
-
-        cy.get('[data-cy="btn-close-dialog"]').click();
-      });
-
       it('should not show already assigned equipments', () => {
         cy.get('[data-cy=btn-book-equipment]').click();
 
@@ -299,9 +274,7 @@ context('Proposal booking tests ', () => {
 
         cy.get('[data-cy="add-equipment-responsible"]').click();
 
-        cy.get('input[type="checkbox"]')
-          .first()
-          .click();
+        cy.get('input[type="checkbox"]').first().click();
 
         cy.get('[data-cy="assign-selected-users"]').click();
 
@@ -319,13 +292,38 @@ context('Proposal booking tests ', () => {
 
         cy.get('[data-cy="add-equipment-responsible"]').click();
 
-        cy.get('input[type="checkbox"]')
-          .first()
-          .click();
+        cy.get('input[type="checkbox"]').first().click();
 
         cy.get('[data-cy="assign-selected-users"]').click();
 
         cy.get('[role=alert]').contains(/success/i);
+      });
+
+      it('should be able to open time slot by clicking on the calendar equipment event', () => {
+        cy.get('[data-cy="btn-close-dialog"]').click();
+        cy.finishedLoading();
+
+        cy.get('[data-cy="input-equipment-select"]').click();
+        cy.get('[role="presentation"]')
+          .contains('Available equipment 1 - no auto accept')
+          .click();
+
+        cy.get('.rbc-time-content .rbc-event')
+          .contains('Available equipment 1 - no auto accept')
+          .click();
+
+        cy.get('[role="dialog"] [data-cy="btn-edit-equipment"]').should(
+          'exist'
+        );
+
+        cy.get('[role="dialog"]').contains('Auto accept equipment requests');
+        cy.get('[role="dialog"]').contains('Time Slots Upcoming Year');
+        cy.get('[data-cy="btn-close-dialog"]').should('exist');
+        cy.get('[data-cy="equipment-upcoming-time-slots-table"]').should(
+          'exist'
+        );
+
+        cy.get('[data-cy="btn-close-dialog"]').click();
       });
 
       it('should be able to view equipment assignment request from requests page', () => {

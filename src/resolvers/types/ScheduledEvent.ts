@@ -59,7 +59,7 @@ export class ScheduledEvent implements Partial<ScheduledEventBase> {
   instrument?: Instrument;
 
   @Field(() => Int, { nullable: true })
-  equipmentId: number;
+  equipmentId?: number;
 }
 
 @Resolver(() => ScheduledEvent)

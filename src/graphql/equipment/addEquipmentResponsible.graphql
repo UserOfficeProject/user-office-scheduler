@@ -1,0 +1,7 @@
+mutation addEquipmentResponsible(
+  $equipmentResponsibleInput: EquipmentResponsibleInput!
+) {
+  addEquipmentResponsible(
+    equipmentResponsibleInput: $equipmentResponsibleInput
+  )
+}

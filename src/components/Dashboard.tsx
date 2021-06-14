@@ -21,10 +21,12 @@ import {
   PATH_CALENDAR,
   PATH_ROOT,
   PATH_EQUIPMENTS,
+  PATH_REQUESTS,
   PATH_VIEW_EQUIPMENT,
   PATH_CREATE_EQUIPMENT,
   PATH_EDIT_EQUIPMENT,
 } from './paths';
+import ViewRequests from './requests/ViewRequests';
 
 const useStyles = makeStyles((theme) => ({
   root: { display: 'flex' },
@@ -126,6 +128,7 @@ export default function Dashboard() {
             exact
           />
           <Route path={PATH_VIEW_EQUIPMENT} component={ViewEquipment} exact />
+          <Route path={PATH_REQUESTS} component={ViewRequests} exact />
           <Route path={PATH_ROOT}>
             <Redirect to={PATH_CALENDAR} />
           </Route>

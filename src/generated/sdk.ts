@@ -2978,6 +2978,16 @@ export type VisitsFilter = {
   questionaryId?: Maybe<Scalars['Int']>;
 };
 
+export type AddEquipmentResponsibleMutationVariables = Exact<{
+  equipmentResponsibleInput: EquipmentResponsibleInput;
+}>;
+
+
+export type AddEquipmentResponsibleMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'addEquipmentResponsible'>
+);
+
 export type AssignEquipmentToScheduledEventMutationVariables = Exact<{
   assignEquipmentsToScheduledEventInput: AssignEquipmentsToScheduledEventInput;
 }>;
@@ -3051,6 +3061,9 @@ export type GetEquipmentQuery = (
     & { owner: Maybe<(
       { __typename?: 'User' }
       & Pick<User, 'firstname' | 'lastname'>
+    )>, equipmentResponsible: Array<(
+      { __typename?: 'User' }
+      & Pick<User, 'id' | 'firstname' | 'lastname'>
     )> }
   )> }
 );
@@ -3312,13 +3325,19 @@ export type GetEquipmentScheduledEventsQuery = (
     & Pick<Equipment, 'id' | 'name'>
     & { events: Array<(
       { __typename?: 'ScheduledEvent' }
-      & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt' | 'equipmentAssignmentStatus'>
-      & { scheduledBy: Maybe<(
-        { __typename?: 'User' }
-        & Pick<User, 'firstname' | 'lastname'>
+      & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt' | 'equipmentAssignmentStatus' | 'equipmentId'>
+      & { proposalBooking: Maybe<(
+        { __typename?: 'ProposalBooking' }
+        & { proposal: Maybe<(
+          { __typename?: 'Proposal' }
+          & Pick<Proposal, 'id' | 'title' | 'shortCode'>
+        )> }
       )>, instrument: Maybe<(
         { __typename?: 'Instrument' }
-        & Pick<Instrument, 'name'>
+        & Pick<Instrument, 'id' | 'name'>
+      )>, scheduledBy: Maybe<(
+        { __typename?: 'User' }
+        & Pick<User, 'id' | 'firstname' | 'lastname'>
       )> }
     )> }
   )> }
@@ -3410,7 +3429,48 @@ export type GetScheduledEventsWithEquipmentsQuery = (
   )> }
 );
 
+export type BasicUserDetailsFragment = (
+  { __typename?: 'BasicUserDetails' }
+  & Pick<BasicUserDetails, 'id' | 'firstname' | 'lastname' | 'organisation' | 'position' | 'created' | 'placeholder'>
+);
 
+export type GetUsersQueryVariables = Exact<{
+  filter?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  userRole?: Maybe<UserRole>;
+  subtractUsers?: Maybe<Array<Scalars['Int']> | Scalars['Int']>;
+}>;
+
+
+export type GetUsersQuery = (
+  { __typename?: 'Query' }
+  & { users: Maybe<(
+    { __typename?: 'UserQueryResult' }
+    & Pick<UserQueryResult, 'totalCount'>
+    & { users: Array<(
+      { __typename?: 'BasicUserDetails' }
+      & BasicUserDetailsFragment
+    )> }
+  )> }
+);
+
+export const BasicUserDetailsFragmentDoc = gql`
+    fragment basicUserDetails on BasicUserDetails {
+  id
+  firstname
+  lastname
+  organisation
+  position
+  created
+  placeholder
+}
+    `;
+export const AddEquipmentResponsibleDocument = gql`
+    mutation addEquipmentResponsible($equipmentResponsibleInput: EquipmentResponsibleInput!) {
+  addEquipmentResponsible(equipmentResponsibleInput: $equipmentResponsibleInput)
+}
+    `;
 export const AssignEquipmentToScheduledEventDocument = gql`
     mutation assignEquipmentToScheduledEvent($assignEquipmentsToScheduledEventInput: AssignEquipmentsToScheduledEventInput!) {
   assignToScheduledEvents(
@@ -3472,6 +3532,11 @@ export const GetEquipmentDocument = gql`
     maintenanceEndsAt
     autoAccept
     owner {
+      firstname
+      lastname
+    }
+    equipmentResponsible {
+      id
       firstname
       lastname
     }
@@ -3681,12 +3746,22 @@ export const GetEquipmentScheduledEventsDocument = gql`
       startsAt
       endsAt
       equipmentAssignmentStatus
-      scheduledBy {
-        firstname
-        lastname
+      equipmentId
+      proposalBooking {
+        proposal {
+          id
+          title
+          shortCode
+        }
       }
       instrument {
+        id
         name
+      }
+      scheduledBy {
+        id
+        firstname
+        lastname
       }
     }
   }
@@ -3782,6 +3857,22 @@ export const GetScheduledEventsWithEquipmentsDocument = gql`
   }
 }
     `;
+export const GetUsersDocument = gql`
+    query getUsers($filter: String, $first: Int, $offset: Int, $userRole: UserRole, $subtractUsers: [Int!]) {
+  users(
+    filter: $filter
+    first: $first
+    offset: $offset
+    userRole: $userRole
+    subtractUsers: $subtractUsers
+  ) {
+    users {
+      ...basicUserDetails
+    }
+    totalCount
+  }
+}
+    ${BasicUserDetailsFragmentDoc}`;
 
 export type SdkFunctionWrapper = <T>(action: () => Promise<T>) => Promise<T>;
 
@@ -3789,6 +3880,9 @@ export type SdkFunctionWrapper = <T>(action: () => Promise<T>) => Promise<T>;
 const defaultWrapper: SdkFunctionWrapper = sdkFunction => sdkFunction();
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
+    addEquipmentResponsible(variables: AddEquipmentResponsibleMutationVariables): Promise<AddEquipmentResponsibleMutation> {
+      return withWrapper(() => client.request<AddEquipmentResponsibleMutation>(print(AddEquipmentResponsibleDocument), variables));
+    },
     assignEquipmentToScheduledEvent(variables: AssignEquipmentToScheduledEventMutationVariables): Promise<AssignEquipmentToScheduledEventMutation> {
       return withWrapper(() => client.request<AssignEquipmentToScheduledEventMutation>(print(AssignEquipmentToScheduledEventDocument), variables));
     },
@@ -3866,6 +3960,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     getScheduledEventsWithEquipments(variables: GetScheduledEventsWithEquipmentsQueryVariables): Promise<GetScheduledEventsWithEquipmentsQuery> {
       return withWrapper(() => client.request<GetScheduledEventsWithEquipmentsQuery>(print(GetScheduledEventsWithEquipmentsDocument), variables));
+    },
+    getUsers(variables?: GetUsersQueryVariables): Promise<GetUsersQuery> {
+      return withWrapper(() => client.request<GetUsersQuery>(print(GetUsersDocument), variables));
     }
   };
 }

@@ -97,6 +97,6 @@
     "@typescript-eslint/ban-ts-comment": "warn",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "jest/no-export": "off", // rule not implemented properly, rule should only restrict exporting tests
-    "unused-imports/no-unused-imports-ts": 2
+    "unused-imports/no-unused-imports-ts": "error"
   }
 }

@@ -259,6 +259,75 @@ context('Proposal booking tests ', () => {
           .contains(/accepted/i);
       });
 
+      it('Officer should be able to assign equipment responsible people', () => {
+        cy.initializeSession('UserOfficer');
+
+        cy.visit({
+          url: '/equipments',
+          timeout: 15000,
+        });
+
+        cy.contains(/Available equipment 1 - no auto accept/i)
+          .parent()
+          .find('[data-cy="btn-view-equipment"]')
+          .click();
+
+        cy.get('[data-cy="add-equipment-responsible"]').click();
+
+        cy.get('input[type="checkbox"]')
+          .first()
+          .click();
+
+        cy.get('[data-cy="assign-selected-users"]').click();
+
+        cy.get('[role=alert]').contains(/success/i);
+
+        cy.visit({
+          url: '/equipments',
+          timeout: 15000,
+        });
+
+        cy.contains(/Available equipment 2 - auto accept/i)
+          .parent()
+          .find('[data-cy="btn-view-equipment"]')
+          .click();
+
+        cy.get('[data-cy="add-equipment-responsible"]').click();
+
+        cy.get('input[type="checkbox"]')
+          .first()
+          .click();
+
+        cy.get('[data-cy="assign-selected-users"]').click();
+
+        cy.get('[role=alert]').contains(/success/i);
+      });
+
+      it('should be able to view equipment assignment request from requests page', () => {
+        cy.visit('/requests');
+
+        cy.contains(/Available equipment 1 - no auto accept/i)
+          .parent()
+          .contains(/2020-09-21 14:00:00/);
+        cy.contains(/Available equipment 1 - no auto accept/i)
+          .parent()
+          .contains(/2020-09-21 15:00:00/);
+
+        cy.contains(/Available equipment 1 - no auto accept/i)
+          .parent()
+          .find('[data-cy="btn-confirm-assignment-accept"]')
+          .should('exist');
+        cy.contains(/Available equipment 1 - no auto accept/i)
+          .parent()
+          .find('[data-cy="btn-confirm-assignment-reject"]')
+          .should('exist');
+
+        cy.contains('Instrument');
+        cy.contains('Proposal');
+        cy.contains('Proposal ID');
+        cy.contains('Scheduled by');
+      });
+
       it('should be able to accept / reject assignment request', () => {
         cy.visit('/equipments');
 
@@ -323,6 +392,8 @@ context('Proposal booking tests ', () => {
 
         cy.get('[data-cy=btn-ok]').click();
 
+        cy.finishedLoading();
+
         cy.get('[role=alert]').contains(/removed/i);
         cy.wait(100);
         cy.get('@firstRow').contains(/Available equipment 2 - auto accept/i);
@@ -336,6 +407,8 @@ context('Proposal booking tests ', () => {
           .click();
 
         cy.contains(/Available equipment 2 - auto accept/i);
+
+        cy.finishedLoading();
 
         cy.contains(/2020-09-21 14:00:00/);
         cy.contains(/2020-09-21 15:00:00/);

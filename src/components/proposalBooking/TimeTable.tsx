@@ -137,6 +137,7 @@ type TimeTableProps<T extends Record<string, unknown>> = {
   maxHeight?: number;
   selectable?: boolean;
   handleRowsChange?: (cb: React.SetStateAction<TimeTableRow[]>) => void;
+  onEditModeToggled?: (readOnly: boolean) => void;
 } & Partial<TableProps<T>>;
 
 export default function TimeTable<T extends TimeTableRow>({
@@ -146,6 +147,7 @@ export default function TimeTable<T extends TimeTableRow>({
   maxHeight,
   selectable,
   handleRowsChange,
+  onEditModeToggled,
   ...props
 }: TimeTableProps<T>) {
   const [editing, setEditing] = useState<string | false>(false);
@@ -154,6 +156,10 @@ export default function TimeTable<T extends TimeTableRow>({
   useEffect(() => {
     setEditing(false);
   }, [rows]);
+
+  useEffect(() => {
+    onEditModeToggled?.(!!editing);
+  }, [editing, onEditModeToggled]);
 
   const handleOnSave = (id: string, startsAt: Moment, endsAt: Moment) => {
     setEditing(false);

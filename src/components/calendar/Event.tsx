@@ -6,6 +6,8 @@ import EquipmentBookingInfo from 'components/equipment/EquipmentBookingInfo';
 import ProposalBookingInfo from 'components/proposalBooking/ProposalBookingInfo';
 import {
   GetScheduledEventsQuery,
+  ProposalBooking,
+  ProposalBookingStatus,
   ScheduledEvent,
   ScheduledEventBookingType,
 } from 'generated/sdk';
@@ -30,6 +32,10 @@ const useStyles = makeStyles(() => ({
     marginTop: 5,
   },
 }));
+
+export const isDraftEvent = (
+  proposalBooking?: Pick<ProposalBooking, 'status'> | null
+) => proposalBooking?.status === ProposalBookingStatus.DRAFT;
 
 function getBookingTypeStyle(
   bookingType: ScheduledEventBookingType
@@ -74,6 +80,7 @@ export function eventPropGetter(event: CalendarScheduledEvent): {
       borderRadius: 0,
       border: '1px solid #FFF',
       ...getBookingTypeStyle(event.bookingType),
+      opacity: isDraftEvent(event.proposalBooking) ? '0.6' : 'unset',
     },
   };
 }
@@ -101,6 +108,7 @@ export default function Event({
           scheduledBy={
             `${scheduledBy?.firstname} ${scheduledBy?.lastname}` ?? 'NA'
           }
+          proposalBooking={proposalBooking}
         />
       );
     default:

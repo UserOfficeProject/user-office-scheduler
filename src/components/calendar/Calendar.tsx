@@ -53,10 +53,10 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function transformEvent(
+const transformEvent = (
   scheduledEvents: GetScheduledEventsQuery['scheduledEvents']
-): CalendarScheduledEvent[] {
-  return scheduledEvents.map((scheduledEvent) => ({
+): CalendarScheduledEvent[] =>
+  scheduledEvents.map((scheduledEvent) => ({
     id: scheduledEvent.id,
     start: parseTzLessDateTime(scheduledEvent.startsAt).toDate(),
     end: parseTzLessDateTime(scheduledEvent.endsAt).toDate(),
@@ -67,7 +67,6 @@ function transformEvent(
     instrument: scheduledEvent.instrument,
     scheduledBy: scheduledEvent.scheduledBy,
   }));
-}
 
 function isOverlapping(
   { start, end }: { start: Date | string; end: Date | string },
@@ -159,18 +158,16 @@ export default function Calendar() {
 
   const eqEventsTransformed: GetScheduledEventsQuery['scheduledEvents'] =
     eqEvents
-      .map((eq) => {
-        return eq.events.map((event) => {
-          return {
-            ...event,
-            bookingType: ScheduledEventBookingType.EQUIPMENT,
-            description: eq.name,
-            proposalBooking: null,
-            instrument: event.instrument,
-            scheduledBy: event.scheduledBy,
-          };
-        });
-      })
+      .map((eq) =>
+        eq.events.map((event) => ({
+          ...event,
+          bookingType: ScheduledEventBookingType.EQUIPMENT,
+          description: eq.name,
+          proposalBooking: event.proposalBooking,
+          instrument: event.instrument,
+          scheduledBy: event.scheduledBy,
+        }))
+      )
       .flat(1);
 
   const events = useMemo(

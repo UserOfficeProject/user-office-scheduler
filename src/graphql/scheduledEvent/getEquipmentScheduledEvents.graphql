@@ -13,10 +13,15 @@ query getEquipmentScheduledEvents(
       equipmentAssignmentStatus
       equipmentId
       proposalBooking {
+        status
         proposal {
           id
           title
           shortCode
+          proposer {
+            firstname
+            lastname
+          }
         }
       }
       instrument {

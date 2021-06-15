@@ -654,8 +654,8 @@ export type Mutation = {
   removeMemberFromSep: SepResponseWrap;
   assignSepReviewersToProposal: SepResponseWrap;
   removeMemberFromSEPProposal: SepResponseWrap;
-  assignProposalToSEP: NextProposalStatusResponseWrap;
-  removeProposalAssignment: SepResponseWrap;
+  assignProposalsToSep: NextProposalStatusResponseWrap;
+  removeProposalsFromSep: SepResponseWrap;
   createSEP: SepResponseWrap;
   reorderSepMeetingDecisionProposals: SepMeetingDecisionResponseWrap;
   saveSepMeetingDecision: SepMeetingDecisionResponseWrap;
@@ -1007,14 +1007,14 @@ export type MutationRemoveMemberFromSepProposalArgs = {
 };
 
 
-export type MutationAssignProposalToSepArgs = {
-  proposalId: Scalars['Int'];
+export type MutationAssignProposalsToSepArgs = {
+  proposals: Array<ProposalIdWithCallId>;
   sepId: Scalars['Int'];
 };
 
 
-export type MutationRemoveProposalAssignmentArgs = {
-  proposalId: Scalars['Int'];
+export type MutationRemoveProposalsFromSepArgs = {
+  proposalIds: Array<Scalars['Int']>;
   sepId: Scalars['Int'];
 };
 
@@ -1764,6 +1764,7 @@ export type ProposalView = {
   instrumentName: Maybe<Scalars['String']>;
   callShortCode: Maybe<Scalars['String']>;
   sepCode: Maybe<Scalars['String']>;
+  sepId: Maybe<Scalars['Int']>;
   reviewAverage: Maybe<Scalars['Float']>;
   reviewDeviation: Maybe<Scalars['Float']>;
   instrumentId: Maybe<Scalars['Int']>;
@@ -3327,9 +3328,14 @@ export type GetEquipmentScheduledEventsQuery = (
       & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt' | 'equipmentAssignmentStatus' | 'equipmentId'>
       & { proposalBooking: Maybe<(
         { __typename?: 'ProposalBooking' }
+        & Pick<ProposalBooking, 'status'>
         & { proposal: Maybe<(
           { __typename?: 'Proposal' }
           & Pick<Proposal, 'id' | 'title' | 'shortCode'>
+          & { proposer: Maybe<(
+            { __typename?: 'BasicUserDetails' }
+            & Pick<BasicUserDetails, 'firstname' | 'lastname'>
+          )> }
         )> }
       )>, instrument: Maybe<(
         { __typename?: 'Instrument' }
@@ -3740,10 +3746,15 @@ export const GetEquipmentScheduledEventsDocument = gql`
       equipmentAssignmentStatus
       equipmentId
       proposalBooking {
+        status
         proposal {
           id
           title
           shortCode
+          proposer {
+            firstname
+            lastname
+          }
         }
       }
       instrument {

@@ -654,8 +654,8 @@ export type Mutation = {
   removeMemberFromSep: SepResponseWrap;
   assignSepReviewersToProposal: SepResponseWrap;
   removeMemberFromSEPProposal: SepResponseWrap;
-  assignProposalToSEP: NextProposalStatusResponseWrap;
-  removeProposalAssignment: SepResponseWrap;
+  assignProposalsToSep: NextProposalStatusResponseWrap;
+  removeProposalsFromSep: SepResponseWrap;
   createSEP: SepResponseWrap;
   reorderSepMeetingDecisionProposals: SepMeetingDecisionResponseWrap;
   saveSepMeetingDecision: SepMeetingDecisionResponseWrap;
@@ -1007,14 +1007,14 @@ export type MutationRemoveMemberFromSepProposalArgs = {
 };
 
 
-export type MutationAssignProposalToSepArgs = {
-  proposalId: Scalars['Int'];
+export type MutationAssignProposalsToSepArgs = {
+  proposals: Array<ProposalIdWithCallId>;
   sepId: Scalars['Int'];
 };
 
 
-export type MutationRemoveProposalAssignmentArgs = {
-  proposalId: Scalars['Int'];
+export type MutationRemoveProposalsFromSepArgs = {
+  proposalIds: Array<Scalars['Int']>;
   sepId: Scalars['Int'];
 };
 
@@ -1764,6 +1764,7 @@ export type ProposalView = {
   instrumentName: Maybe<Scalars['String']>;
   callShortCode: Maybe<Scalars['String']>;
   sepCode: Maybe<Scalars['String']>;
+  sepId: Maybe<Scalars['Int']>;
   reviewAverage: Maybe<Scalars['Float']>;
   reviewDeviation: Maybe<Scalars['Float']>;
   instrumentId: Maybe<Scalars['Int']>;
@@ -2535,7 +2536,7 @@ export type ScheduledEvent = {
   scheduledBy: Maybe<User>;
   description: Maybe<Scalars['String']>;
   instrument: Maybe<Instrument>;
-  equipmentId: Scalars['Int'];
+  equipmentId: Maybe<Scalars['Int']>;
   equipments: Array<EquipmentWithAssignmentStatus>;
   equipmentAssignmentStatus: Maybe<EquipmentAssignmentStatus>;
   proposalBooking: Maybe<ProposalBooking>;
@@ -3375,6 +3376,7 @@ export type GetScheduledEventWithEquipmentsQuery = (
 
 export type GetScheduledEventsQueryVariables = Exact<{
   filter: ScheduledEventFilter;
+  scheduledEventFilter: ProposalBookingScheduledEventFilter;
 }>;
 
 
@@ -3391,7 +3393,7 @@ export type GetScheduledEventsQuery = (
       & Pick<User, 'firstname' | 'lastname'>
     )>, proposalBooking: Maybe<(
       { __typename?: 'ProposalBooking' }
-      & Pick<ProposalBooking, 'status'>
+      & Pick<ProposalBooking, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'allocatedTime'>
       & { proposal: Maybe<(
         { __typename?: 'Proposal' }
         & Pick<Proposal, 'id' | 'title' | 'shortCode'>
@@ -3399,6 +3401,12 @@ export type GetScheduledEventsQuery = (
           { __typename?: 'BasicUserDetails' }
           & Pick<BasicUserDetails, 'firstname' | 'lastname'>
         )> }
+      )>, call: Maybe<(
+        { __typename?: 'Call' }
+        & Pick<Call, 'id' | 'shortCode' | 'startCycle' | 'endCycle' | 'cycleComment'>
+      )>, scheduledEvents: Array<(
+        { __typename?: 'ScheduledEvent' }
+        & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
       )> }
     )> }
   )> }
@@ -3788,7 +3796,7 @@ export const GetScheduledEventWithEquipmentsDocument = gql`
 }
     `;
 export const GetScheduledEventsDocument = gql`
-    query getScheduledEvents($filter: ScheduledEventFilter!) {
+    query getScheduledEvents($filter: ScheduledEventFilter!, $scheduledEventFilter: ProposalBookingScheduledEventFilter!) {
   scheduledEvents(filter: $filter) {
     id
     bookingType
@@ -3803,7 +3811,11 @@ export const GetScheduledEventsDocument = gql`
       lastname
     }
     proposalBooking {
+      id
+      createdAt
+      updatedAt
       status
+      allocatedTime
       proposal {
         id
         title
@@ -3812,6 +3824,18 @@ export const GetScheduledEventsDocument = gql`
           firstname
           lastname
         }
+      }
+      call {
+        id
+        shortCode
+        startCycle
+        endCycle
+        cycleComment
+      }
+      scheduledEvents(filter: $scheduledEventFilter) {
+        id
+        startsAt
+        endsAt
       }
     }
   }

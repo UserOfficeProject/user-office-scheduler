@@ -11,6 +11,7 @@ import {
 } from 'react-big-calendar';
 
 import Loader from 'components/common/Loader';
+import ProposalBookingDialog from 'components/proposalBooking/ProposalBookingDialog';
 import ScheduledEventDialog, {
   SlotInfo,
 } from 'components/scheduledEvent/ScheduledEventDialog';
@@ -20,9 +21,13 @@ import {
   ScheduledEvent,
   ScheduledEventBookingType,
   GetScheduledEventsQuery,
+  Call,
+  Proposal,
 } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
-import useInstrumentProposalBookings from 'hooks/proposalBooking/useInstrumentProposalBookings';
+import useInstrumentProposalBookings, {
+  InstrumentProposalBooking,
+} from 'hooks/proposalBooking/useInstrumentProposalBookings';
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
 import useScheduledEvents from 'hooks/scheduledEvent/useScheduledEvents';
 import { ContentContainer, StyledPaper } from 'styles/StyledComponents';
@@ -119,6 +124,8 @@ export default function Calendar() {
   const [filter, setFilter] = useState(
     generateScheduledEventFilter(queryInstrument, startsAt, view)
   );
+  const [selectedProposalBooking, setSelectedProposalBooking] =
+    useState<InstrumentProposalBooking | null>(null);
 
   const {
     proposalBookings,
@@ -214,7 +221,25 @@ export default function Calendar() {
     const scheduledEvent = scheduledEvents.find((se) => se.id === id);
 
     if (scheduledEvent) {
-      setSelectedEvent(scheduledEvent);
+      if (
+        scheduledEvent.proposalBooking &&
+        scheduledEvent.bookingType === ScheduledEventBookingType.USER_OPERATIONS
+      ) {
+        // NOTE: Types here are a bit of a mess. It needs more attention to fix.
+        setSelectedProposalBooking({
+          allocatedTime: scheduledEvent.proposalBooking.allocatedTime,
+          call: scheduledEvent.proposalBooking.call as Call,
+          createdAt: scheduledEvent.proposalBooking.createdAt,
+          id: scheduledEvent.proposalBooking.id,
+          proposal: scheduledEvent.proposalBooking.proposal as Proposal,
+          scheduledEvents: scheduledEvent.proposalBooking
+            .scheduledEvents as ScheduledEvent[],
+          status: scheduledEvent.proposalBooking.status,
+          updatedAt: scheduledEvent.proposalBooking.updatedAt,
+        });
+      } else {
+        setSelectedEvent(scheduledEvent);
+      }
     }
   };
 
@@ -229,6 +254,14 @@ export default function Calendar() {
       end,
       slots: [start, end],
     });
+  };
+
+  const handleCloseDialog = (shouldRefresh?: boolean) => {
+    setSelectedProposalBooking(null);
+
+    if (shouldRefresh) {
+      refresh();
+    }
   };
 
   // 100% height needed for month view
@@ -247,6 +280,13 @@ export default function Calendar() {
                 selectedInstrumentId={queryInstrument}
                 isDialogOpen={selectedEvent !== null}
                 closeDialog={closeDialog}
+              />
+            )}
+            {selectedProposalBooking !== null && (
+              <ProposalBookingDialog
+                activeProposalBookingId={selectedProposalBooking.id}
+                isDialogOpen={true}
+                closeDialog={handleCloseDialog}
               />
             )}
             <Grid container className={classes.fullHeight}>

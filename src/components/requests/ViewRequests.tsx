@@ -21,7 +21,7 @@ type TableRow = {
   proposalShortCode?: string;
   startsAt: Moment;
   endsAt: Moment;
-  equipmentId: number;
+  equipmentId?: number | null;
   equipmentAssignmentStatus: EquipmentAssignmentStatus | null;
   scheduledBy: string;
 };
@@ -105,6 +105,16 @@ export default function ViewRequests() {
           status === 'accept'
             ? EquipmentAssignmentStatus.ACCEPTED
             : EquipmentAssignmentStatus.REJECTED;
+
+        if (!row.equipmentId) {
+          setConfirmationLoading(false);
+
+          enqueueSnackbar('No equipment id', {
+            variant: 'error',
+          });
+
+          return;
+        }
 
         const { confirmEquipmentAssignment: success } =
           await api().confirmEquipmentAssignment({

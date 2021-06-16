@@ -80,7 +80,7 @@ context('Proposal booking tests ', () => {
       cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
 
       cy.get(
-        '#instrument-calls-tree-view [role=treeitem] [role=group] [role=treeitem] svg'
+        '#instrument-calls-tree-view [role=treeitem] [role=group] [role=treeitem]'
       )
         .first()
         .click();

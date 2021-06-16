@@ -22,7 +22,7 @@ import { UserContext } from 'context/UserContext';
 
 export const drawerWidth = 240;
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   toolbar: {
     paddingRight: 24, // keep right padding when drawer closed
   },
@@ -72,7 +72,7 @@ export default function AppToolbar({
 
   const handleProfileOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
-    setProfileOpen(prev => !prev);
+    setProfileOpen((prev) => !prev);
   };
 
   return (

@@ -11,6 +11,7 @@ import {
 } from 'react-big-calendar';
 
 import Loader from 'components/common/Loader';
+import ProposalBookingDialog from 'components/proposalBooking/ProposalBookingDialog';
 import ScheduledEventDialog, {
   SlotInfo,
 } from 'components/scheduledEvent/ScheduledEventDialog';
@@ -20,9 +21,13 @@ import {
   ScheduledEvent,
   ScheduledEventBookingType,
   GetScheduledEventsQuery,
+  Call,
+  Proposal,
 } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
-import useInstrumentProposalBookings from 'hooks/proposalBooking/useInstrumentProposalBookings';
+import useInstrumentProposalBookings, {
+  InstrumentProposalBooking,
+} from 'hooks/proposalBooking/useInstrumentProposalBookings';
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
 import useScheduledEvents from 'hooks/scheduledEvent/useScheduledEvents';
 import { ContentContainer, StyledPaper } from 'styles/StyledComponents';
@@ -56,7 +61,7 @@ const useStyles = makeStyles(() => ({
 function transformEvent(
   scheduledEvents: GetScheduledEventsQuery['scheduledEvents']
 ): CalendarScheduledEvent[] {
-  return scheduledEvents.map(scheduledEvent => ({
+  return scheduledEvents.map((scheduledEvent) => ({
     id: scheduledEvent.id,
     start: parseTzLessDateTime(scheduledEvent.startsAt).toDate(),
     end: parseTzLessDateTime(scheduledEvent.endsAt).toDate(),
@@ -73,7 +78,7 @@ function isOverlapping(
   { start, end }: { start: Date | string; end: Date | string },
   calendarEvents: CalendarScheduledEvent[]
 ): boolean {
-  return calendarEvents.some(calendarEvent => {
+  return calendarEvents.some((calendarEvent) => {
     if (
       (calendarEvent.start >= start && calendarEvent.end <= end) ||
       //
@@ -102,7 +107,7 @@ export default function Calendar() {
     query
       .get('equipment')
       ?.split(',')
-      .map(num => parseInt(num)) || [];
+      .map((num) => parseInt(num)) || [];
 
   const { showAlert } = useContext(AppContext);
   const [selectedEvent, setSelectedEvent] = useState<
@@ -114,14 +119,14 @@ export default function Calendar() {
     | null
   >(null);
   const [startsAt, setStartAt] = useState(
-    moment()
-      .startOf(CALENDAR_DEFAULT_VIEW)
-      .toDate()
+    moment().startOf(CALENDAR_DEFAULT_VIEW).toDate()
   );
   const [view, setView] = useState<View>(CALENDAR_DEFAULT_VIEW);
   const [filter, setFilter] = useState(
     generateScheduledEventFilter(queryInstrument, startsAt, view)
   );
+  const [selectedProposalBooking, setSelectedProposalBooking] =
+    useState<InstrumentProposalBooking | null>(null);
 
   const {
     proposalBookings,
@@ -151,7 +156,7 @@ export default function Calendar() {
   };
   if (
     selectedEquipment.length !== queryEquipment.length ||
-    !selectedEquipment.every(eq => queryEquipment.includes(eq))
+    !selectedEquipment.every((eq) => queryEquipment.includes(eq))
   ) {
     setSelectedEquipments(queryEquipment);
   }
@@ -159,20 +164,21 @@ export default function Calendar() {
     setFilter(generateScheduledEventFilter(queryInstrument, startsAt, view));
   }, [queryInstrument, startsAt, view]);
 
-  const eqEventsTransformed: GetScheduledEventsQuery['scheduledEvents'] = eqEvents
-    .map(eq => {
-      return eq.events.map(event => {
-        return {
-          ...event,
-          bookingType: ScheduledEventBookingType.EQUIPMENT,
-          description: eq.name,
-          proposalBooking: null,
-          instrument: event.instrument,
-          scheduledBy: event.scheduledBy,
-        };
-      });
-    })
-    .flat(1);
+  const eqEventsTransformed: GetScheduledEventsQuery['scheduledEvents'] =
+    eqEvents
+      .map((eq) => {
+        return eq.events.map((event) => {
+          return {
+            ...event,
+            bookingType: ScheduledEventBookingType.EQUIPMENT,
+            description: eq.name,
+            proposalBooking: null,
+            instrument: event.instrument,
+            scheduledBy: event.scheduledBy,
+          };
+        });
+      })
+      .flat(1);
 
   const events = useMemo(
     () => transformEvent([...scheduledEvents, ...eqEventsTransformed]),
@@ -215,22 +221,35 @@ export default function Calendar() {
   };
 
   const onSelectEvent = ({ id }: CalendarScheduledEvent) => {
-    const scheduledEvent = scheduledEvents.find(se => se.id === id);
+    const scheduledEvent = scheduledEvents.find((se) => se.id === id);
 
     if (scheduledEvent) {
-      setSelectedEvent(scheduledEvent);
+      if (
+        scheduledEvent.proposalBooking &&
+        scheduledEvent.bookingType === ScheduledEventBookingType.USER_OPERATIONS
+      ) {
+        // NOTE: Types here are a bit of a mess. It needs more attention to fix.
+        setSelectedProposalBooking({
+          allocatedTime: scheduledEvent.proposalBooking.allocatedTime,
+          call: scheduledEvent.proposalBooking.call as Call,
+          createdAt: scheduledEvent.proposalBooking.createdAt,
+          id: scheduledEvent.proposalBooking.id,
+          proposal: scheduledEvent.proposalBooking.proposal as Proposal,
+          scheduledEvents: scheduledEvent.proposalBooking
+            .scheduledEvents as ScheduledEvent[],
+          status: scheduledEvent.proposalBooking.status,
+          updatedAt: scheduledEvent.proposalBooking.updatedAt,
+        });
+      } else {
+        setSelectedEvent(scheduledEvent);
+      }
     }
   };
 
   const handleNewSimpleEvent = () => {
-    const start = moment()
-      .startOf('hour')
-      .toDate();
+    const start = moment().startOf('hour').toDate();
 
-    const end = moment()
-      .startOf('hour')
-      .add(1, 'hour')
-      .toDate();
+    const end = moment().startOf('hour').add(1, 'hour').toDate();
 
     setSelectedEvent({
       action: 'click',
@@ -238,6 +257,14 @@ export default function Calendar() {
       end,
       slots: [start, end],
     });
+  };
+
+  const handleCloseDialog = (shouldRefresh?: boolean) => {
+    setSelectedProposalBooking(null);
+
+    if (shouldRefresh) {
+      refresh();
+    }
   };
 
   // 100% height needed for month view
@@ -256,6 +283,13 @@ export default function Calendar() {
                 selectedInstrumentId={queryInstrument}
                 isDialogOpen={selectedEvent !== null}
                 closeDialog={closeDialog}
+              />
+            )}
+            {selectedProposalBooking !== null && (
+              <ProposalBookingDialog
+                activeProposalBookingId={selectedProposalBooking.id}
+                isDialogOpen={true}
+                closeDialog={handleCloseDialog}
               />
             )}
             <Grid container className={classes.fullHeight}>

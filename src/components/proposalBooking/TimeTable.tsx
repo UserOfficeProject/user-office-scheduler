@@ -104,7 +104,7 @@ function InlineTimeEdit({
               className: classes.smaller,
             }}
             value={startsAt}
-            onChange={newValue => setStartsAt(newValue)}
+            onChange={(newValue) => setStartsAt(newValue)}
           />
         </TableCell>
         <TableCell align="left">
@@ -122,7 +122,7 @@ function InlineTimeEdit({
               className: classes.smaller,
             }}
             value={endsAt}
-            onChange={newValue => setEndsAt(newValue)}
+            onChange={(newValue) => setEndsAt(newValue)}
           />
         </TableCell>
       </MuiPickersUtilsProvider>
@@ -130,13 +130,14 @@ function InlineTimeEdit({
   );
 }
 
-type TimeTableProps<T extends object> = {
+type TimeTableProps<T extends Record<string, unknown>> = {
   rows: T[];
   titleComponent: string | JSX.Element;
   editable?: boolean;
   maxHeight?: number;
   selectable?: boolean;
   handleRowsChange?: (cb: React.SetStateAction<TimeTableRow[]>) => void;
+  onEditModeToggled?: (readOnly: boolean) => void;
 } & Partial<TableProps<T>>;
 
 export default function TimeTable<T extends TimeTableRow>({
@@ -146,6 +147,7 @@ export default function TimeTable<T extends TimeTableRow>({
   maxHeight,
   selectable,
   handleRowsChange,
+  onEditModeToggled,
   ...props
 }: TimeTableProps<T>) {
   const [editing, setEditing] = useState<string | false>(false);
@@ -155,10 +157,14 @@ export default function TimeTable<T extends TimeTableRow>({
     setEditing(false);
   }, [rows]);
 
+  useEffect(() => {
+    onEditModeToggled?.(!!editing);
+  }, [editing, onEditModeToggled]);
+
   const handleOnSave = (id: string, startsAt: Moment, endsAt: Moment) => {
     setEditing(false);
-    handleRowsChange?.(rows =>
-      rows.map(row => {
+    handleRowsChange?.((rows) =>
+      rows.map((row) => {
         if (row.id !== id) {
           return row;
         }
@@ -174,7 +180,7 @@ export default function TimeTable<T extends TimeTableRow>({
 
   const handleDelete = (ids: string[]) => {
     setEditing(false);
-    handleRowsChange?.(rows => rows.filter(row => !ids.includes(row.id)));
+    handleRowsChange?.((rows) => rows.filter((row) => !ids.includes(row.id)));
   };
 
   const handleEditing = (id: string | false) => () => {
@@ -228,10 +234,10 @@ export default function TimeTable<T extends TimeTableRow>({
       tooltipActions={tooltipActions}
       rowActions={rowActions}
       rows={rows}
-      extractKey={el => el.id}
+      extractKey={(el) => el.id}
       onDelete={handleDelete}
       onPageChange={handleOnPageChange}
-      renderRow={row => {
+      renderRow={(row) => {
         if (editing && row.id === editing) {
           return (
             <InlineTimeEdit

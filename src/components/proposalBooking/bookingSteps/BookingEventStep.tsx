@@ -24,7 +24,13 @@ import clsx from 'clsx';
 import humanizeDuration from 'humanize-duration';
 import moment from 'moment';
 import { useSnackbar } from 'notistack';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 import Loader from 'components/common/Loader';
 import { AppContext } from 'context/AppContext';
@@ -37,7 +43,7 @@ import { hasOverlappingEvents } from 'utils/scheduledEvent';
 import { ProposalBookingDialogStepProps } from '../ProposalBookingDialog';
 import TimeTable, { TimeTableRow } from '../TimeTable';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     flexShrink: 0,
     flexGrow: 0,
@@ -80,7 +86,10 @@ export default function BookingEventStep({
   handleNext,
   handleSetDirty,
 }: ProposalBookingDialogStepProps) {
-  const isStepReadOnly = activeStatus !== ProposalBookingStatus.DRAFT;
+  const [isEditingTimeTable, setIsEditingTimeTable] = useState(false);
+
+  const isStepReadOnly =
+    activeStatus !== ProposalBookingStatus.DRAFT || isEditingTimeTable;
 
   const {
     call: { startCycle, endCycle, cycleComment },
@@ -111,6 +120,10 @@ export default function BookingEventStep({
     };
   }, [rows, proposalBooking]);
 
+  const handleOnEditModeChanged = useCallback((isReadOnly: boolean) => {
+    setIsEditingTimeTable(isReadOnly);
+  }, []);
+
   useEffect(() => {
     if (!loading) {
       setRows(
@@ -133,12 +146,9 @@ export default function BookingEventStep({
   const handleAdd = () => {
     const lastRow = rows.length > 0 ? rows[rows.length - 1] : undefined;
     const startsAt = lastRow?.endsAt ?? moment().startOf('hour');
-    const endsAt = startsAt
-      .clone()
-      .startOf('hour')
-      .add(1, 'hour');
+    const endsAt = startsAt.clone().startOf('hour').add(1, 'hour');
 
-    handleRowsChange(rows => [
+    handleRowsChange((rows) => [
       ...rows,
       {
         id: `t-${Date.now()}`,
@@ -324,6 +334,7 @@ export default function BookingEventStep({
           maxHeight={380}
           rows={rows}
           handleRowsChange={handleRowsChange}
+          onEditModeToggled={handleOnEditModeChanged}
           titleComponent={
             <>
               Time slots

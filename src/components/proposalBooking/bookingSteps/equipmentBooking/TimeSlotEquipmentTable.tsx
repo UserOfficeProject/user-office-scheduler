@@ -135,7 +135,7 @@ export default function TimeSlotEquipmentTable({
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map(row => (
+          {rows.map((row) => (
             <Row
               key={row.id}
               row={row}

@@ -7,5 +7,14 @@ declare namespace Cypress {
     configureClock(): void;
     resetDB(): void;
     resetSchedulerDB(): void;
+    /**
+     * Checks if the progress bar does not exist in the dom anymore.
+     *
+     * @returns {typeof finishedLoading}
+     * @memberof Chainable
+     * @example
+     *    cy.finishedLoading()
+     */
+    finishedLoading: () => void;
   }
 }

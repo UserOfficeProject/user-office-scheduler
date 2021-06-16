@@ -132,10 +132,8 @@ export default function ProposalBookingDialog({
 
   const { showConfirmation } = useContext(AppContext);
   const [activeStep, setActiveStep] = useState(-1);
-  const [
-    activeStatus,
-    setActiveStatus,
-  ] = useState<ProposalBookingStatus | null>(null);
+  const [activeStatus, setActiveStatus] =
+    useState<ProposalBookingStatus | null>(null);
   const [isDirty, setIsDirty] = useState(false);
 
   const { loading, proposalBooking } = useProposalBooking(
@@ -155,12 +153,12 @@ export default function ProposalBookingDialog({
   };
 
   const handleNext = () => {
-    setActiveStep(prevStep => Math.min(prevStep + 1, maxSteps));
+    setActiveStep((prevStep) => Math.min(prevStep + 1, maxSteps));
     setIsDirty(false);
   };
 
   const handleBack = () => {
-    setActiveStep(prevStep => Math.max(prevStep - 1, 0));
+    setActiveStep((prevStep) => Math.max(prevStep - 1, 0));
     setIsDirty(false);
   };
 

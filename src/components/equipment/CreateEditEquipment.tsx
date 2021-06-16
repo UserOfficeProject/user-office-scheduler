@@ -1,5 +1,5 @@
 import MomentUtils from '@date-io/moment';
-import { getTranslation } from '@esss-swap/duo-localisation';
+import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
 import {
   TYPE_ERR_INVALID_DATE,
   atOrLaterThanMsg,
@@ -22,7 +22,7 @@ import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import { Formik, Form, Field } from 'formik';
 import { TextField, CheckboxWithLabel } from 'formik-material-ui';
 import { KeyboardDateTimePicker } from 'formik-material-ui-pickers';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 import { useSnackbar } from 'notistack';
 import React, { useState, useEffect } from 'react';
 import { useParams, useHistory, generatePath } from 'react-router';
@@ -30,7 +30,7 @@ import * as Yup from 'yup';
 
 import Loader from 'components/common/Loader';
 import { PATH_VIEW_EQUIPMENT } from 'components/paths';
-import { EquipmentInput } from 'generated/sdk';
+import { Equipment, EquipmentInput } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import useEquipment from 'hooks/equipment/useEquipment';
 import { ContentContainer, StyledPaper } from 'styles/StyledComponents';
@@ -42,10 +42,7 @@ import {
 } from 'utils/date';
 
 export const equipmentValidationSchema = Yup.object().shape({
-  name: Yup.string()
-    .min(3)
-    .max(100)
-    .required(),
+  name: Yup.string().min(3).max(100).required(),
 
   maintenanceStartsAt: Yup.date()
     .nullable()
@@ -113,7 +110,7 @@ export default function CreateEditEquipment() {
     }
   }, [loading, equipment]);
 
-  const enqueueError = (error: any) =>
+  const enqueueError = (error: ResourceId) =>
     enqueueSnackbar(getTranslation(error), { variant: 'error' });
 
   if (loading) {
@@ -180,10 +177,10 @@ export default function CreateEditEquipment() {
                   input.maintenanceEndsAt = null;
                 } else {
                   input.maintenanceStartsAt = toTzLessDateTime(
-                    values.maintenanceStartsAt!
+                    values.maintenanceStartsAt as Moment
                   );
                   input.maintenanceEndsAt = toTzLessDateTime(
-                    values.maintenanceEndsAt!
+                    values.maintenanceEndsAt as Moment
                   );
                 }
 
@@ -196,7 +193,7 @@ export default function CreateEditEquipment() {
                   });
 
                   error
-                    ? enqueueError(error)
+                    ? enqueueError(error as ResourceId)
                     : history.push(generatePath(PATH_VIEW_EQUIPMENT, { id }));
                 } else {
                   const {
@@ -206,10 +203,10 @@ export default function CreateEditEquipment() {
                   });
 
                   error
-                    ? enqueueError(error)
+                    ? enqueueError(error as ResourceId)
                     : history.push(
                         generatePath(PATH_VIEW_EQUIPMENT, {
-                          id: equipment?.id!,
+                          id: (equipment as Equipment).id,
                         })
                       );
                 }

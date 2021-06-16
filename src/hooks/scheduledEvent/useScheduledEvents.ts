@@ -16,7 +16,7 @@ export default function useScheduledEvents(filter: ScheduledEventFilter) {
   const api = useDataApi();
 
   const refresh = useCallback(() => {
-    setCounter(prev => prev + 1);
+    setCounter((prev) => prev + 1);
   }, [setCounter]);
 
   useEffect(() => {
@@ -24,8 +24,8 @@ export default function useScheduledEvents(filter: ScheduledEventFilter) {
 
     setLoading(true);
     api()
-      .getScheduledEvents({ filter })
-      .then(data => {
+      .getScheduledEvents({ filter, scheduledEventFilter: {} })
+      .then((data) => {
         if (unmount) {
           return;
         }

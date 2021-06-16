@@ -12,7 +12,10 @@ export type DetailedEquipment = Pick<
   | 'maintenanceStartsAt'
   | 'maintenanceEndsAt'
   | 'autoAccept'
-> & { owner: Maybe<Pick<User, 'firstname' | 'lastname'>> };
+> & {
+  owner: Maybe<Pick<User, 'firstname' | 'lastname'>>;
+  equipmentResponsible: Array<Pick<User, 'id' | 'firstname' | 'lastname'>>;
+};
 
 export default function useEquipment(id: string) {
   const [loading, setLoading] = useState(true);
@@ -26,7 +29,7 @@ export default function useEquipment(id: string) {
     setLoading(true);
     api()
       .getEquipment({ id })
-      .then(data => {
+      .then((data) => {
         if (unmount) {
           return;
         }

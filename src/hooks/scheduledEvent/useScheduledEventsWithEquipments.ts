@@ -30,7 +30,7 @@ export default function useScheduledEventsWithEquipments(
   const api = useDataApi();
 
   const refresh = useCallback(() => {
-    setCounter(prev => prev + 1);
+    setCounter((prev) => prev + 1);
   }, [setCounter]);
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export default function useScheduledEventsWithEquipments(
     setLoading(true);
     api()
       .getScheduledEventsWithEquipments({ proposalBookingId })
-      .then(data => {
+      .then((data) => {
         if (unmount) {
           return;
         }

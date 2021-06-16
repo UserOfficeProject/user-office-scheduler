@@ -14,7 +14,7 @@ async function generateSdk() {
   await generate(ctx);
 }
 
-generateSdk().catch(e => {
+generateSdk().catch((e) => {
   // error text is printed by the codegen tool in most cases
   // print error only if it's something unrelated to codegen
   // or we running in CI

@@ -22,7 +22,7 @@ import {
 import clsx from 'clsx';
 import React, { useState, useEffect } from 'react';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     width: '100%',
   },
@@ -81,7 +81,7 @@ function stableSort<T>(array: T[], comparator: (a: T, b: T) => number) {
     return a[1] - b[1];
   });
 
-  return stabilizedThis.map(el => el[0]);
+  return stabilizedThis.map((el) => el[0]);
 }
 
 export interface HeadCell<T> {
@@ -117,11 +117,10 @@ function EnhancedTableHead<T>(props: EnhancedTableProps<T>) {
     onRequestSort,
     onSelectAllClick,
   } = props;
-  const createSortHandler = (property: keyof T) => (
-    event: React.MouseEvent<unknown>
-  ) => {
-    onRequestSort(event, property);
-  };
+  const createSortHandler =
+    (property: keyof T) => (event: React.MouseEvent<unknown>) => {
+      onRequestSort(event, property);
+    };
 
   const columns: HeadCell<T>[] = hasActions
     ? [
@@ -148,7 +147,7 @@ function EnhancedTableHead<T>(props: EnhancedTableProps<T>) {
             />
           </TableCell>
         )}
-        {columns.map(headCell => (
+        {columns.map((headCell) => (
           <TableCell
             key={`${headCell.id}`}
             align={headCell.numeric ? 'right' : 'left'}
@@ -260,7 +259,7 @@ const EnhancedTableToolbar = ({
   );
 };
 
-export type TableProps<T extends object> = {
+export type TableProps<T extends Record<string, unknown>> = {
   headCells: HeadCell<T>[];
   rows: T[];
   tableTitle: string | JSX.Element;
@@ -325,7 +324,7 @@ export default function Table<T extends { [k: string]: any }>({
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelectedRows = rows.map(n => extractKey(n));
+      const newSelectedRows = rows.map((n) => extractKey(n));
       setSelected(newSelectedRows);
 
       return;
@@ -384,7 +383,7 @@ export default function Table<T extends { [k: string]: any }>({
       <EnhancedTableToolbar
         title={tableTitle}
         numSelected={selected.length}
-        tooltipActions={tooltipActions?.map(action => {
+        tooltipActions={tooltipActions?.map((action) => {
           const onClick = () => {
             action.onClick(selected);
             action.clearSelect && setSelected([]);
@@ -451,7 +450,7 @@ export default function Table<T extends { [k: string]: any }>({
                     >
                       <Checkbox
                         checked={isItemSelected}
-                        onClick={event => handleClick(event, extractKey(row))}
+                        onClick={(event) => handleClick(event, extractKey(row))}
                         inputProps={{ 'data-cy': labelId } as any}
                       />
                     </TableCell>

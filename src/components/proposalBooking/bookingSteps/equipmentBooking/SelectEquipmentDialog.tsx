@@ -46,15 +46,14 @@ export default function SelectEquipmentDialog({
   const { equipments, loading } = useAvailableEquipments(scheduledEvent.id);
 
   const handleAssign = async (ids: string[]) => {
-    const {
-      assignToScheduledEvents: success,
-    } = await api().assignEquipmentToScheduledEvent({
-      assignEquipmentsToScheduledEventInput: {
-        equipmentIds: ids,
-        scheduledEventId: scheduledEvent.id,
-        proposalBookingId: proposalBooking.id,
-      },
-    });
+    const { assignToScheduledEvents: success } =
+      await api().assignEquipmentToScheduledEvent({
+        assignEquipmentsToScheduledEventInput: {
+          equipmentIds: ids,
+          scheduledEventId: scheduledEvent.id,
+          proposalBookingId: proposalBooking.id,
+        },
+      });
 
     success
       ? enqueueSnackbar('Success', { variant: 'success' })
@@ -86,8 +85,8 @@ export default function SelectEquipmentDialog({
           showEmptyRows
           tooltipActions={selectActions}
           rows={equipments}
-          extractKey={el => el.id}
-          renderRow={row => {
+          extractKey={(el) => el.id}
+          renderRow={(row) => {
             return (
               <>
                 <TableCell align="left">{row.name}</TableCell>

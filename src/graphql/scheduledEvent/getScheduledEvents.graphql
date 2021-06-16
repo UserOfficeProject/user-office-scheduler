@@ -1,19 +1,26 @@
-query getScheduledEvents($filter: ScheduledEventFilter!) {
+query getScheduledEvents(
+  $filter: ScheduledEventFilter!
+  $scheduledEventFilter: ProposalBookingScheduledEventFilter!
+) {
   scheduledEvents(filter: $filter) {
     id
     bookingType
     startsAt
     endsAt
     description
-    instrument{
+    instrument {
       name
     }
-    scheduledBy{
+    scheduledBy {
       firstname
       lastname
     }
     proposalBooking {
+      id
+      createdAt
+      updatedAt
       status
+      allocatedTime
       proposal {
         id
         title
@@ -22,6 +29,18 @@ query getScheduledEvents($filter: ScheduledEventFilter!) {
           firstname
           lastname
         }
+      }
+      call {
+        id
+        shortCode
+        startCycle
+        endCycle
+        cycleComment
+      }
+      scheduledEvents(filter: $scheduledEventFilter) {
+        id
+        startsAt
+        endsAt
       }
     }
   }

@@ -319,7 +319,7 @@ context('Proposal booking tests ', () => {
 
         cy.get('.rbc-time-content .rbc-event')
           .contains('Available equipment 1 - no auto accept')
-          .click();
+          .click({ force: true });
 
         cy.get('[role="dialog"] [data-cy="btn-edit-equipment"]').should(
           'exist'

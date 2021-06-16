@@ -37,6 +37,10 @@ export const isDraftEvent = (
   proposalBooking?: Pick<ProposalBooking, 'status'> | null
 ) => proposalBooking?.status === ProposalBookingStatus.DRAFT;
 
+export const isClosedEvent = (
+  proposalBooking?: Pick<ProposalBooking, 'status'> | null
+) => proposalBooking?.status === ProposalBookingStatus.CLOSED;
+
 function getBookingTypeStyle(
   bookingType: ScheduledEventBookingType
 ): CSSProperties | undefined {
@@ -71,16 +75,25 @@ function getBookingTypeStyle(
   }
 }
 
+const getClosedBookingStyle = (): CSSProperties => ({
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  color: '#fff',
+});
+
 export function eventPropGetter(event: CalendarScheduledEvent): {
   className?: string;
   style?: CSSProperties;
 } {
+  const eventStyle = isClosedEvent(event.proposalBooking)
+    ? getClosedBookingStyle()
+    : getBookingTypeStyle(event.bookingType);
+
   return {
     style: {
       borderRadius: 0,
       border: '1px solid #FFF',
-      ...getBookingTypeStyle(event.bookingType),
       opacity: isDraftEvent(event.proposalBooking) ? '0.6' : 'unset',
+      ...eventStyle,
     },
   };
 }

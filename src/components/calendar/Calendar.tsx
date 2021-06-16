@@ -23,6 +23,7 @@ import {
   GetScheduledEventsQuery,
   Call,
   Proposal,
+  ProposalBooking,
 } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
 import useInstrumentProposalBookings, {
@@ -170,7 +171,7 @@ export default function Calendar() {
           ...event,
           bookingType: ScheduledEventBookingType.EQUIPMENT,
           description: eq.name,
-          proposalBooking: event.proposalBooking,
+          proposalBooking: event.proposalBooking as ProposalBooking,
           instrument: event.instrument,
           scheduledBy: event.scheduledBy,
         }))

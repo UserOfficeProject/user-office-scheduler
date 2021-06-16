@@ -22,13 +22,9 @@ import {
   ScheduledEvent,
   ScheduledEventBookingType,
   GetScheduledEventsQuery,
-  Call,
-  Proposal,
 } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
-import useInstrumentProposalBookings, {
-  InstrumentProposalBooking,
-} from 'hooks/proposalBooking/useInstrumentProposalBookings';
+import useInstrumentProposalBookings from 'hooks/proposalBooking/useInstrumentProposalBookings';
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
 import useScheduledEvents from 'hooks/scheduledEvent/useScheduledEvents';
 import { ContentContainer, StyledPaper } from 'styles/StyledComponents';

@@ -103,6 +103,7 @@ context('Proposal booking tests ', () => {
       });
 
       it('should be able to edit time slot', () => {
+        cy.finishedLoading();
         cy.get('[data-cy=btn-time-table-edit-row]').click();
 
         cy.get('[data-cy=startsAt] input').clear();
@@ -134,6 +135,8 @@ context('Proposal booking tests ', () => {
         cy.finishedLoading();
 
         cy.get('.rbc-time-content .rbc-event').contains('999999').click();
+
+        cy.finishedLoading();
 
         cy.get('[data-cy=btn-time-table-edit-row]').should('exist');
 

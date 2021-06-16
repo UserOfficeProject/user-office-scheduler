@@ -3,7 +3,6 @@ import {
   ChevronRight as ChevronRightIcon,
   ExpandMore as ExpandMoreIcon,
   PriorityHigh as PriorityHighIcon,
-  Visibility as VisibilityIcon,
 } from '@material-ui/icons';
 import { TreeView, TreeItem } from '@material-ui/lab';
 import clsx from 'clsx';
@@ -27,6 +26,11 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     height: '100%',
     flexDirection: 'column',
+
+    '& [role="group"] [role="treeitem"] .MuiTreeItem-content .MuiTreeItem-iconContainer':
+      {
+        display: 'none',
+      },
   },
   centered: {
     justifyContent: 'center',
@@ -82,8 +86,7 @@ export default function ProposalBookingTree({
         key={nodes.id}
         nodeId={nodes.id}
         label={nodes.title}
-        icon={nodes.onClick ? <VisibilityIcon /> : null}
-        onIconClick={nodes.onClick}
+        onClick={nodes.onClick}
       >
         {Array.isArray(nodes.children)
           ? nodes.children.map((node) => renderTree(node))

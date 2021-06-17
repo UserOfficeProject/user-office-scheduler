@@ -564,11 +564,8 @@ context('Proposal booking tests ', () => {
 
         cy.contains(/close proposal booking/i).as('closeBooking');
 
-        cy.get('@closeBooking').should('be.disabled');
-
-        cy.get('[data-cy="btn-ok"]').click();
-
         cy.get('@closeBooking').should('not.be.disabled').click();
+        cy.get('[data-cy="btn-ok"]').click();
 
         cy.wait(500);
 

@@ -216,7 +216,7 @@ context('Calendar tests', () => {
 
       cy.get('[data-cy=bookingType]').click();
 
-      cy.get('[role=listbox] [role=option]').click();
+      cy.get('[role=listbox] [role=option]').first().click();
 
       cy.get('[data-cy=bookingType] input').should('not.have.value', '');
 

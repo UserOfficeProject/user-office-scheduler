@@ -1,6 +1,9 @@
 import { makeStyles } from '@material-ui/core';
 import React from 'react';
 
+import { isClosedEvent, isDraftEvent } from 'components/calendar/Event';
+import { ProposalBooking } from 'generated/sdk';
+
 const useStyles = makeStyles(() => ({
   container: {
     paddingTop: '3px',
@@ -30,17 +33,23 @@ interface EquipmentBookingInfoProps {
   name: string;
   scheduledBy: string;
   instrument: string;
+  proposalBooking?: Pick<ProposalBooking, 'status'> | null;
 }
 function EquipmentBookingInfo({
   name,
   scheduledBy,
   instrument,
+  proposalBooking,
 }: EquipmentBookingInfoProps) {
   const classes = useStyles();
 
   return (
     <div className={classes.container}>
-      <div className={classes.name}>{name}</div>
+      <div className={classes.name}>
+        {isDraftEvent(proposalBooking) ? '[Draft] - ' : ''}
+        {isClosedEvent(proposalBooking) ? '[Closed] - ' : ''}
+        {name}
+      </div>
       <div className={classes.title}>{instrument}</div>
       <div className={classes.bookedBy}>{scheduledBy}</div>
     </div>

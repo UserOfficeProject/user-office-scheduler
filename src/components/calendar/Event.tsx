@@ -6,6 +6,8 @@ import EquipmentBookingInfo from 'components/equipment/EquipmentBookingInfo';
 import ProposalBookingInfo from 'components/proposalBooking/ProposalBookingInfo';
 import {
   GetScheduledEventsQuery,
+  ProposalBooking,
+  ProposalBookingStatus,
   ScheduledEvent,
   ScheduledEventBookingType,
 } from 'generated/sdk';
@@ -30,6 +32,14 @@ const useStyles = makeStyles(() => ({
     marginTop: 5,
   },
 }));
+
+export const isDraftEvent = (
+  proposalBooking?: Pick<ProposalBooking, 'status'> | null
+) => proposalBooking?.status === ProposalBookingStatus.DRAFT;
+
+export const isClosedEvent = (
+  proposalBooking?: Pick<ProposalBooking, 'status'> | null
+) => proposalBooking?.status === ProposalBookingStatus.CLOSED;
 
 function getBookingTypeStyle(
   bookingType: ScheduledEventBookingType
@@ -65,15 +75,25 @@ function getBookingTypeStyle(
   }
 }
 
+const getClosedBookingStyle = (): CSSProperties => ({
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  color: '#fff',
+});
+
 export function eventPropGetter(event: CalendarScheduledEvent): {
   className?: string;
   style?: CSSProperties;
 } {
+  const eventStyle = isClosedEvent(event.proposalBooking)
+    ? getClosedBookingStyle()
+    : getBookingTypeStyle(event.bookingType);
+
   return {
     style: {
       borderRadius: 0,
       border: '1px solid #FFF',
-      ...getBookingTypeStyle(event.bookingType),
+      opacity: isDraftEvent(event.proposalBooking) ? '0.6' : 'unset',
+      ...eventStyle,
     },
   };
 }
@@ -101,6 +121,7 @@ export default function Event({
           scheduledBy={
             `${scheduledBy?.firstname} ${scheduledBy?.lastname}` ?? 'NA'
           }
+          proposalBooking={proposalBooking}
         />
       );
     default:

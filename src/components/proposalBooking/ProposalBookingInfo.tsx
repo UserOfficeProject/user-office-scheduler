@@ -1,7 +1,11 @@
 import { makeStyles } from '@material-ui/core';
 import React from 'react';
 
-import { BasicProposalBooking } from 'components/calendar/Event';
+import {
+  BasicProposalBooking,
+  isDraftEvent,
+  isClosedEvent,
+} from 'components/calendar/Event';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -42,7 +46,11 @@ function ProposalBookingInfo({ booking }: ProposalBookingInfoProps) {
 
   return (
     <div className={classes.container}>
-      <div className={classes.shortCode}>{proposal.shortCode}</div>
+      <div className={classes.shortCode}>
+        {isDraftEvent(booking) ? '[Draft] - ' : ''}
+        {isClosedEvent(booking) ? '[Closed] - ' : ''}
+        {proposal.shortCode}
+      </div>
       <div className={classes.title}>{proposal.title}</div>
       <div className={classes.proposer}>
         {`${proposal.proposer?.firstname} ${proposal.proposer?.lastname}`}

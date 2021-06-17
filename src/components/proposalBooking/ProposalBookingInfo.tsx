@@ -9,22 +9,27 @@ import {
 
 const useStyles = makeStyles(() => ({
   container: {
-    padding: '10px 5px 5px 5px ',
+    paddingTop: '3px',
+    display: 'flex',
+    flexWrap: 'wrap',
   },
 
   shortCode: {
     fontSize: 12,
     fontWeight: 'bold',
-    padding: '5px 0',
+    minWidth: '100%',
+    flexGrow: 1,
   },
   title: {
-    fontSize: 15,
-    padding: '5px 0',
+    fontSize: 12,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    padding: '1px 2px 0 0',
   },
   proposer: {
     fontSize: 12,
-    padding: '5px 0',
     fontStyle: 'italic',
+    padding: '1px 2px 0 0',
   },
 }));
 
@@ -41,11 +46,11 @@ function ProposalBookingInfo({ booking }: ProposalBookingInfoProps) {
 
   return (
     <div className={classes.container}>
-      <strong>
+      <div className={classes.shortCode}>
         {isDraftEvent(booking) ? '[Draft] - ' : ''}
         {isClosedEvent(booking) ? '[Closed] - ' : ''}
         {proposal.shortCode}
-      </strong>
+      </div>
       <div className={classes.title}>{proposal.title}</div>
       <div className={classes.proposer}>
         {`${proposal.proposer?.firstname} ${proposal.proposer?.lastname}`}

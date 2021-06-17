@@ -6,8 +6,6 @@ import {
   Button,
   makeStyles,
   Toolbar,
-  FormControlLabel,
-  Checkbox,
 } from '@material-ui/core';
 import { Add as AddIcon } from '@material-ui/icons';
 import { useSnackbar } from 'notistack';
@@ -57,7 +55,6 @@ export default function EquipmentBookingStep({
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState(false);
   const [equipmentDialog, setEquipmentDialog] = useState(false);
-  const [warningAccepted, setWarningAccepted] = useState(false);
   const {
     loading: scheduledEventsLoading,
     scheduledEvents,
@@ -75,30 +72,39 @@ export default function EquipmentBookingStep({
   const api = useDataApi();
 
   const handleActivateSubmit = async () => {
-    try {
-      setLoading(true);
+    showConfirmation({
+      message: (
+        <>
+          Are you sure you want to <strong>activate</strong> booking?
+        </>
+      ),
+      cb: async () => {
+        try {
+          setLoading(true);
 
-      const {
-        activateProposalBooking: { error },
-      } = await api().activateProposalBooking({
-        id: proposalBooking.id,
-      });
+          const {
+            activateProposalBooking: { error },
+          } = await api().activateProposalBooking({
+            id: proposalBooking.id,
+          });
 
-      if (error) {
-        enqueueSnackbar(getTranslation(error as ResourceId), {
-          variant: 'error',
-        });
+          if (error) {
+            enqueueSnackbar(getTranslation(error as ResourceId), {
+              variant: 'error',
+            });
 
-        setLoading(false);
-      } else {
-        handleNext();
-        handleSetActiveStepByStatus(ProposalBookingStatus.BOOKED);
-      }
-    } catch (e) {
-      // TODO
-      setLoading(false);
-      console.error(e);
-    }
+            setLoading(false);
+          } else {
+            handleNext();
+            handleSetActiveStepByStatus(ProposalBookingStatus.BOOKED);
+          }
+        } catch (e) {
+          // TODO
+          setLoading(false);
+          console.error(e);
+        }
+      },
+    });
   };
 
   const handleDeleteAssignment = (
@@ -189,22 +195,10 @@ export default function EquipmentBookingStep({
         >
           Back
         </Button>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={warningAccepted}
-              onChange={() => setWarningAccepted((prev) => !prev)}
-              name="warningAccepted"
-              color="primary"
-              disabled={isStepReadOnly}
-            />
-          }
-          label="I wish to proceed"
-        />
         <Button
           variant="contained"
           color="primary"
-          disabled={isStepReadOnly || !warningAccepted}
+          disabled={isStepReadOnly}
           onClick={handleActivateSubmit}
         >
           Activate booking

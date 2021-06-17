@@ -280,9 +280,7 @@ context('Proposal booking tests ', () => {
 
         cy.get('[data-cy="add-equipment-responsible"]').click();
 
-        cy.get('input[type="checkbox"]')
-          .first()
-          .click();
+        cy.get('input[type="checkbox"]').first().click();
 
         cy.get('[data-cy="assign-selected-users"]').click();
 
@@ -300,9 +298,7 @@ context('Proposal booking tests ', () => {
 
         cy.get('[data-cy="add-equipment-responsible"]').click();
 
-        cy.get('input[type="checkbox"]')
-          .first()
-          .click();
+        cy.get('input[type="checkbox"]').first().click();
 
         cy.get('[data-cy="assign-selected-users"]').click();
 
@@ -427,11 +423,9 @@ context('Proposal booking tests ', () => {
 
         cy.contains(/activate booking/i).as('activateBookingBtn');
 
-        cy.get('@activateBookingBtn').should('be.disabled');
-
-        cy.contains(/i wish to proceed/i).click();
-
         cy.get('@activateBookingBtn').should('not.be.disabled').click();
+
+        cy.get('[data-cy="btn-ok"]').click();
 
         cy.wait(100);
 
@@ -464,8 +458,6 @@ context('Proposal booking tests ', () => {
       it('should be able to restart the booking process', () => {
         cy.contains(/warning/i);
 
-        cy.contains(/close proposal booking/i).should('be.disabled');
-
         cy.get('[aria-label=proposal-booking-finalization-strategy]').click();
 
         cy.contains(/restart the booking process/i).click();
@@ -473,11 +465,9 @@ context('Proposal booking tests ', () => {
 
         cy.contains(/restart the booking process/i).as('restartBooking');
 
-        cy.get('@restartBooking').should('be.disabled');
-
-        cy.contains(/i wish to proceed/i).click();
-
         cy.get('@restartBooking').should('not.be.disabled').click();
+
+        cy.get('[data-cy="btn-ok"]').click();
 
         cy.wait(500);
 
@@ -489,11 +479,9 @@ context('Proposal booking tests ', () => {
 
         cy.contains(/activate booking/i).as('activateBookingBtn');
 
-        cy.get('@activateBookingBtn').should('be.disabled');
-
-        cy.contains(/i wish to proceed/i).click();
-
         cy.get('@activateBookingBtn').should('not.be.disabled').click();
+
+        cy.get('[data-cy="btn-ok"]').click();
 
         cy.wait(500);
       });
@@ -578,7 +566,7 @@ context('Proposal booking tests ', () => {
 
         cy.get('@closeBooking').should('be.disabled');
 
-        cy.contains(/i wish to proceed/i).click();
+        cy.get('[data-cy="btn-ok"]').click();
 
         cy.get('@closeBooking').should('not.be.disabled').click();
 

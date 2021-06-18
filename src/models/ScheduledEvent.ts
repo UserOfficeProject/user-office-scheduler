@@ -31,3 +31,11 @@ export class ScheduledEvent {
     public equipmentId: number
   ) {}
 }
+
+export class EquipmentsScheduledEvent {
+  constructor(
+    public equipmentId: number,
+    public scheduledEventId: number,
+    public status: string
+  ) {}
+}

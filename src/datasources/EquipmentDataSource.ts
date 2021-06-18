@@ -29,7 +29,7 @@ export interface EquipmentDataSource {
   ): Promise<Array<Equipment & { status: EquipmentAssignmentStatus }>>;
   equipmentAssignmentStatus(
     scheduledEventId: number,
-    equipmentId: number
+    equipmentId?: number
   ): Promise<EquipmentAssignmentStatus | null>;
   availableEquipments(scheduledEvent: ScheduledEvent): Promise<Equipment[]>;
   assign(

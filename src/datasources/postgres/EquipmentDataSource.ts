@@ -200,7 +200,7 @@ export default class PostgresEquipmentDataSource
 
   async equipmentAssignmentStatus(
     scheduledEventId: number,
-    equipmentId: number
+    equipmentId?: number
   ): Promise<EquipmentAssignmentStatus | null> {
     const equipmentAssignmentRecord =
       await database<EquipmentsScheduledEventsRecord>(

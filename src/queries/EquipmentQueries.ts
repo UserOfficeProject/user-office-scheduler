@@ -75,7 +75,7 @@ export default class EquipmentQueries {
   equipmentAssignmentStatus(
     ctx: ResolverContext,
     scheduledEventId: number,
-    equipmentId: number
+    equipmentId?: number
   ): Promise<EquipmentAssignmentStatus | null> {
     return this.equipmentDataSource.equipmentAssignmentStatus(
       scheduledEventId,

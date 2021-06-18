@@ -113,6 +113,7 @@ context('Proposal booking tests ', () => {
       });
 
       it('should be able to edit time slot', () => {
+        cy.finishedLoading();
         cy.get('[data-cy=btn-time-table-edit-row]').click();
 
         cy.get('[data-cy=startsAt] input').clear();
@@ -144,6 +145,8 @@ context('Proposal booking tests ', () => {
         cy.finishedLoading();
 
         cy.get('.rbc-time-content .rbc-event').contains('999999').click();
+
+        cy.finishedLoading();
 
         cy.get('[data-cy=btn-time-table-edit-row]').should('exist');
 
@@ -326,6 +329,33 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy="assign-selected-users"]').click();
 
         cy.get('[role=alert]').contains(/success/i);
+      });
+
+      it('should be able to open time slot by clicking on the calendar equipment event', () => {
+        cy.get('[data-cy="btn-close-dialog"]').click();
+        cy.finishedLoading();
+
+        cy.get('[data-cy="input-equipment-select"]').click();
+        cy.get('[role="presentation"]')
+          .contains('Available equipment 1 - no auto accept')
+          .click();
+
+        cy.get('.rbc-time-content .rbc-event')
+          .contains('Available equipment 1 - no auto accept')
+          .click({ force: true });
+
+        cy.get('[role="dialog"] [data-cy="btn-edit-equipment"]').should(
+          'exist'
+        );
+
+        cy.get('[role="dialog"]').contains('Auto accept equipment requests');
+        cy.get('[role="dialog"]').contains('Time Slots Upcoming Year');
+        cy.get('[data-cy="btn-close-dialog"]').should('exist');
+        cy.get('[data-cy="equipment-upcoming-time-slots-table"]').should(
+          'exist'
+        );
+
+        cy.get('[data-cy="btn-close-dialog"]').click();
       });
 
       it('should be able to view equipment assignment request from requests page', () => {

@@ -17,7 +17,7 @@ export type BasicProposalBooking =
 
 export type CalendarScheduledEvent = Pick<
   ScheduledEvent,
-  'id' | 'bookingType' | 'description' | 'bookingType'
+  'id' | 'bookingType' | 'description' | 'bookingType' | 'equipmentId'
 > & {
   start: Date;
   end: Date;

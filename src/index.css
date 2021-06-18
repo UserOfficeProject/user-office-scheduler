@@ -1,3 +1,35 @@
 .MuiPaper-elevation2.MuiPaper-root {
   box-shadow: none;
 }
+
+.calendar-yearly-view {
+  display: flex;
+  overflow: hidden;
+}
+
+.calendar-yearly-view .rbc-time-content > .rbc-day-slot {
+  min-width: 52px;
+}
+
+.calendar-yearly-view .rbc-header {
+  min-width: 52px;
+  min-height: 35px;
+  white-space: normal;
+  text-overflow: unset;
+}
+
+.calendar-yearly-view .rbc-day-bg {
+  min-width: 52px;
+}
+
+.calendar-yearly-view .rbc-time-view {
+  overflow: auto;
+}
+
+.calendar-yearly-view .rbc-time-header {
+  overflow: hidden;
+}
+
+.calendar-yearly-view .rbc-allday-cell {
+  display: none;
+}

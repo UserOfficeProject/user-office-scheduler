@@ -1,9 +1,9 @@
 function clickOnEventSlot(slot: string) {
-  cy.get(`[data-cy='event-slot-${slot}']`).then($el => {
+  cy.get(`[data-cy='event-slot-${slot}']`).then(($el) => {
     const el = $el[0] as HTMLDivElement;
     const elRect = el.getBoundingClientRect();
 
-    cy.get('.rbc-time-content').then($tarEl => {
+    cy.get('.rbc-time-content').then(($tarEl) => {
       const tar = $tarEl[0] as HTMLDivElement;
       const tarRect = tar.getBoundingClientRect();
 
@@ -35,9 +35,7 @@ context('Calendar tests', () => {
       cy.wait(500);
 
       cy.get('[data-cy=select-active-view]').click();
-      cy.get('[role=listbox] [role=option]')
-        .first()
-        .click();
+      cy.get('[role=listbox] [role=option][data-value="month"]').click();
 
       cy.wait(500);
 
@@ -46,9 +44,7 @@ context('Calendar tests', () => {
       cy.wait(500);
 
       cy.get('[data-cy=select-active-view]').click();
-      cy.get('[role=listbox] [role=option]')
-        .eq(1)
-        .click();
+      cy.get('[role=listbox] [role=option][data-value="week"]').click();
       cy.get('.rbc-time-view').should('be.visible');
     });
 
@@ -118,9 +114,7 @@ context('Calendar tests', () => {
     it('should show the selected month', () => {
       cy.get('[data-cy=select-active-view]').click();
 
-      cy.get('[role=listbox] [role=option]')
-        .first()
-        .click();
+      cy.get('[role=listbox] [role=option][data-value="month"]').click();
 
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
@@ -222,9 +216,7 @@ context('Calendar tests', () => {
 
       cy.get('[data-cy=bookingType]').click();
 
-      cy.get('[role=listbox] [role=option]')
-        .first()
-        .click();
+      cy.get('[role=listbox] [role=option]').first().click();
 
       cy.get('[data-cy=bookingType] input').should('not.have.value', '');
 

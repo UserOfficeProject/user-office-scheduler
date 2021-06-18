@@ -37,12 +37,15 @@ import 'styles/react-big-calendar.css';
 import CalendarTodoBox from './CalendarTodoBox';
 import Event, { CalendarScheduledEvent, eventPropGetter } from './Event';
 import Toolbar from './Toolbar';
+import YearView from './YearView';
 
 moment.locale('en-gb');
 
 const localizer = momentLocalizer(moment);
 
 const CALENDAR_DEFAULT_VIEW = 'week';
+
+export type ExtendedView = View | 'year';
 
 const useStyles = makeStyles(() => ({
   fullHeight: {
@@ -115,7 +118,7 @@ export default function Calendar() {
   const [startsAt, setStartAt] = useState(
     moment().startOf(CALENDAR_DEFAULT_VIEW).toDate()
   );
-  const [view, setView] = useState<View>(CALENDAR_DEFAULT_VIEW);
+  const [view, setView] = useState<ExtendedView>(CALENDAR_DEFAULT_VIEW);
   const [filter, setFilter] = useState(
     generateScheduledEventFilter(queryInstrument, startsAt, view)
   );
@@ -315,32 +318,55 @@ export default function Calendar() {
               />
             )}
             <Grid container className={classes.fullHeight}>
-              <Grid item xs className={classes.fullHeight}>
-                <BigCalendar
-                  selectable
-                  // TODO: needs some position fixing
-                  // popup
-                  localizer={localizer}
-                  events={events}
-                  defaultView={CALENDAR_DEFAULT_VIEW}
-                  views={['month', 'week']}
-                  defaultDate={startsAt}
-                  step={60}
-                  timeslots={1}
-                  showMultiDayTimes={true}
-                  dayLayoutAlgorithm={'no-overlap'}
-                  eventPropGetter={eventPropGetter}
-                  slotPropGetter={slotPropGetter}
-                  onSelectEvent={onSelectEvent}
-                  onSelectSlot={onSelectSlot}
-                  onSelecting={onSelecting}
-                  onNavigate={onNavigate}
-                  onView={onViewChange}
-                  components={{
-                    toolbar: Toolbar,
-                    event: Event,
-                  }}
-                />
+              <Grid item xs={10} className={classes.fullHeight}>
+                {
+                  // @ts-expect-error test
+                  <BigCalendar
+                    selectable
+                    // TODO: needs some position fixing
+                    // popup
+                    localizer={localizer}
+                    events={events}
+                    defaultView={CALENDAR_DEFAULT_VIEW}
+                    views={{
+                      day: true,
+                      week: true,
+                      month: true,
+                      year: YearView,
+                    }}
+                    defaultDate={startsAt}
+                    step={60}
+                    timeslots={1}
+                    showMultiDayTimes={true}
+                    dayLayoutAlgorithm={'no-overlap'}
+                    eventPropGetter={eventPropGetter}
+                    slotPropGetter={slotPropGetter}
+                    onSelectEvent={onSelectEvent}
+                    onSelectSlot={onSelectSlot}
+                    onSelecting={onSelecting}
+                    onNavigate={onNavigate}
+                    onView={onViewChange}
+                    // TODO: This should be adjustable length but for now it is fixed amount of 3 months
+                    messages={{ year: '3 months' }}
+                    components={{
+                      toolbar: Toolbar,
+                      event: Event,
+                      header: ({ date, localizer }) => {
+                        switch (view) {
+                          case 'year':
+                            return localizer.format(date, 'ddd DD MMM', '');
+                          case 'week':
+                            return localizer.format(date, 'dddd', '');
+                          case 'month':
+                            return localizer.format(date, 'dddd', '');
+
+                          default:
+                            return '';
+                        }
+                      },
+                    }}
+                  />
+                }
               </Grid>
               <Grid item xs={2} className={classes.fullHeight}>
                 <CalendarTodoBox

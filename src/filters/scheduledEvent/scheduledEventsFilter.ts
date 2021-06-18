@@ -1,13 +1,13 @@
 import moment from 'moment';
-import { View } from 'react-big-calendar';
 
+import { ExtendedView } from 'components/calendar/Calendar';
 import { ScheduledEventFilter } from 'generated/sdk';
 import { toTzLessDateTime } from 'utils/date';
 
 export default function generateScheduledEventFilter(
   instrumentId: string | null,
   startsAt: Date,
-  activeView: View
+  activeView: ExtendedView
 ): ScheduledEventFilter {
   instrumentId = instrumentId ?? null;
 
@@ -28,6 +28,15 @@ export default function generateScheduledEventFilter(
         instrumentId,
         startsAt: toTzLessDateTime(newStartsAt),
         endsAt: toTzLessDateTime(newStartsAt.add(1, 'month')),
+      };
+    }
+    case 'year': {
+      const newStartsAt = moment(startsAt).startOf('month');
+
+      return {
+        instrumentId,
+        startsAt: toTzLessDateTime(newStartsAt),
+        endsAt: toTzLessDateTime(newStartsAt.add(3, 'month')),
       };
     }
     default:

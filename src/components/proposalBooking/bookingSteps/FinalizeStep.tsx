@@ -1,11 +1,5 @@
 import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
-import {
-  Button,
-  Checkbox,
-  DialogContent,
-  FormControlLabel,
-  makeStyles,
-} from '@material-ui/core';
+import { Button, DialogContent, makeStyles } from '@material-ui/core';
 import { Add as AddIcon, Save as SaveIcon } from '@material-ui/icons';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import moment from 'moment';
@@ -32,6 +26,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     alignItems: 'center',
     margin: theme.spacing(3, 1, 1),
+    gap: theme.spacing(1),
   },
   spacingLeft: {
     marginLeft: theme.spacing(2),
@@ -58,7 +53,6 @@ export default function FinalizeStep({
   const { showConfirmation } = useContext(AppContext);
   const { enqueueSnackbar } = useSnackbar();
   const api = useDataApi();
-  const [warningAccepted, setWarningAccepted] = useState(false);
   const [rows, setRows] = useState<TimeTableRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -151,39 +145,54 @@ export default function FinalizeStep({
   const handleFinalizeSubmit = async (
     selectedKey: ProposalBookingFinalizeAction
   ) => {
-    try {
-      setIsLoading(true);
+    showConfirmation({
+      message: (
+        <>
+          Are you sure you want to{' '}
+          <strong>
+            {selectedKey === ProposalBookingFinalizeAction.CLOSE
+              ? 'close'
+              : 'restart'}
+          </strong>{' '}
+          the selected booking?
+        </>
+      ),
+      cb: async () => {
+        try {
+          setIsLoading(true);
 
-      const {
-        finalizeProposalBooking: { error },
-      } = await api().finalizeProposalBooking({
-        action: selectedKey,
-        id: proposalBooking.id,
-      });
+          const {
+            finalizeProposalBooking: { error },
+          } = await api().finalizeProposalBooking({
+            action: selectedKey,
+            id: proposalBooking.id,
+          });
 
-      if (error) {
-        enqueueSnackbar(getTranslation(error as ResourceId), {
-          variant: 'error',
-        });
+          if (error) {
+            enqueueSnackbar(getTranslation(error as ResourceId), {
+              variant: 'error',
+            });
 
-        setIsLoading(false);
-      } else {
-        selectedKey === ProposalBookingFinalizeAction.CLOSE
-          ? handleNext()
-          : handleResetSteps();
+            setIsLoading(false);
+          } else {
+            selectedKey === ProposalBookingFinalizeAction.CLOSE
+              ? handleNext()
+              : handleResetSteps();
 
-        handleSetActiveStepByStatus(
-          selectedKey === ProposalBookingFinalizeAction.CLOSE
-            ? ProposalBookingStatus.CLOSED
-            : ProposalBookingStatus.DRAFT
-        );
-      }
-    } catch (e) {
-      // TODO
+            handleSetActiveStepByStatus(
+              selectedKey === ProposalBookingFinalizeAction.CLOSE
+                ? ProposalBookingStatus.CLOSED
+                : ProposalBookingStatus.DRAFT
+            );
+          }
+        } catch (e) {
+          // TODO
 
-      setIsLoading(false);
-      console.error(e);
-    }
+          setIsLoading(false);
+          console.error(e);
+        }
+      },
+    });
   };
 
   const handleFinalize = (selectedKey: ProposalBookingFinalizeAction) => {
@@ -228,7 +237,7 @@ export default function FinalizeStep({
             </>
           }
         />
-        <div>
+        <div className={classes.spacing}>
           <Button
             variant="contained"
             color="primary"
@@ -239,20 +248,6 @@ export default function FinalizeStep({
           >
             Save lost time
           </Button>
-        </div>
-        <div className={classes.spacing}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={warningAccepted}
-                onChange={() => setWarningAccepted((prev) => !prev)}
-                name="warningAccepted"
-                color="primary"
-                disabled={isStepReadOnly}
-              />
-            }
-            label="I wish to proceed"
-          />
           <SplitButton
             label="proposal-booking-finalization-strategy"
             options={[
@@ -266,10 +261,11 @@ export default function FinalizeStep({
               },
             ]}
             onClick={handleFinalize}
-            disabled={isStepReadOnly || !warningAccepted}
+            disabled={isStepReadOnly}
             dropdownDisabled={isStepReadOnly}
           />
         </div>
+        <div></div>
         {!isStepReadOnly && (
           <div>
             <Alert severity="warning">

@@ -274,6 +274,7 @@ export type TableProps<T extends Record<string, unknown>> = {
   extractKey: (obj: T) => string;
   onDelete?: (ids: string[]) => void;
   onPageChange?: (page: number) => void;
+  'data-cy'?: string;
 };
 
 const defaultRowsPerPageOptions = [5, 10, 25, { value: -1, label: 'All' }];
@@ -299,6 +300,7 @@ export default function Table<T extends { [k: string]: any }>({
   renderRow,
   extractKey,
   onPageChange,
+  ...rest
 }: TableProps<T>) {
   const classes = useStyles();
   const [order, setOrder] = useState<Order>('asc');
@@ -404,6 +406,7 @@ export default function Table<T extends { [k: string]: any }>({
           aria-labelledby="tableTitle"
           size="medium"
           aria-label="enhanced sticky table"
+          data-cy={rest['data-cy']}
           stickyHeader
         >
           <EnhancedTableHead

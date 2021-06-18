@@ -5,6 +5,7 @@ query getScheduledEvents(
   scheduledEvents(filter: $filter) {
     id
     bookingType
+    equipmentId
     startsAt
     endsAt
     description

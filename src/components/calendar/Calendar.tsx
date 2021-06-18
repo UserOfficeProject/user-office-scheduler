@@ -22,6 +22,7 @@ import {
   ScheduledEvent,
   ScheduledEventBookingType,
   GetScheduledEventsQuery,
+  ProposalBooking,
 } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
 import useInstrumentProposalBookings from 'hooks/proposalBooking/useInstrumentProposalBookings';
@@ -55,10 +56,10 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function transformEvent(
+const transformEvent = (
   scheduledEvents: GetScheduledEventsQuery['scheduledEvents']
-): CalendarScheduledEvent[] {
-  return scheduledEvents.map((scheduledEvent) => ({
+): CalendarScheduledEvent[] =>
+  scheduledEvents.map((scheduledEvent) => ({
     id: scheduledEvent.id,
     start: parseTzLessDateTime(scheduledEvent.startsAt).toDate(),
     end: parseTzLessDateTime(scheduledEvent.endsAt).toDate(),
@@ -70,7 +71,6 @@ function transformEvent(
     instrument: scheduledEvent.instrument,
     scheduledBy: scheduledEvent.scheduledBy,
   }));
-}
 
 function isOverlapping(
   { start, end }: { start: Date | string; end: Date | string },
@@ -166,19 +166,17 @@ export default function Calendar() {
 
   const eqEventsTransformed: GetScheduledEventsQuery['scheduledEvents'] =
     eqEvents
-      .map((eq) => {
-        return eq.events.map((event) => {
-          return {
-            ...event,
-            bookingType: ScheduledEventBookingType.EQUIPMENT,
-            description: eq.name,
-            proposalBooking: null,
-            instrument: event.instrument,
-            scheduledBy: event.scheduledBy,
-            equipmentId: event.equipmentId,
-          };
-        });
-      })
+      .map((eq) =>
+        eq.events.map((event) => ({
+          ...event,
+          bookingType: ScheduledEventBookingType.EQUIPMENT,
+          description: eq.name,
+          proposalBooking: event.proposalBooking as ProposalBooking,
+          instrument: event.instrument,
+          scheduledBy: event.scheduledBy,
+          equipmentId: event.equipmentId,
+        }))
+      )
       .flat(1);
 
   const events = useMemo(

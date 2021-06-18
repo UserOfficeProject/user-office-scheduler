@@ -102,6 +102,16 @@ context('Proposal booking tests ', () => {
         cy.contains(/time slots with equipments/i);
       });
 
+      it('Draft events should have opacity', () => {
+        cy.get('[data-cy="btn-close-dialog"]').click();
+
+        cy.get('[title="14:00 – 15:00: User operations"]').should(
+          'have.css',
+          'opacity',
+          '0.6'
+        );
+      });
+
       it('should be able to edit time slot', () => {
         cy.get('[data-cy=btn-time-table-edit-row]').click();
 
@@ -583,6 +593,16 @@ context('Proposal booking tests ', () => {
         cy.wait(500);
 
         cy.contains(/Proposal booking is already closed, you can not edit it/i);
+      });
+
+      it('Closed events should have gray color and opacity', () => {
+        cy.get('[data-cy="btn-close-dialog"]').click();
+
+        cy.get('[title="14:00 – 15:00: User operations"]').should(
+          'have.css',
+          'background-color',
+          'rgba(0, 0, 0, 0.5)'
+        );
       });
     });
   });

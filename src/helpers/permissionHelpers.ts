@@ -33,7 +33,7 @@ export async function instrumentScientistHasAccess(
   const { instrumentScientistHasAccess } = await ctx.clients
     .userOffice()
     .instrumentScientistHasAccess({
-      proposalPK: +proposalBooking.proposal.id,
+      proposalPk: +proposalBooking.proposal.id,
       instrumentId: +proposalBooking.instrument.id,
     });
 
@@ -74,7 +74,7 @@ export async function userHacAccess(
   const { userHasAccessToProposal } = await ctx.clients
     .userOffice()
     .userHasAccess({
-      proposalPK: +proposalBooking.proposal.id,
+      proposalPk: +proposalBooking.proposal.id,
     });
 
   if (!userHasAccessToProposal) {

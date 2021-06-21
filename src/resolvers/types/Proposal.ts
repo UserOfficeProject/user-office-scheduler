@@ -39,7 +39,7 @@ export class ProposalResolvers {
     @Arg('filter', () => ProposalProposalBookingFilter, { nullable: true })
     filter?: ProposalProposalBookingFilter
   ) {
-    return ctx.queries.proposalBooking.getByProposalPK(
+    return ctx.queries.proposalBooking.getByProposalPk(
       ctx,
       proposal.id,
       filter

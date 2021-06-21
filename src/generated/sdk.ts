@@ -35,7 +35,7 @@ export type AddStatusChangingEventsToConnectionInput = {
 };
 
 export type AddTechnicalReviewInput = {
-  proposalID: Scalars['Int'];
+  proposalPk: Scalars['Int'];
   comment?: Maybe<Scalars['String']>;
   publicComment?: Maybe<Scalars['String']>;
   timeAllocation?: Maybe<Scalars['Int']>;
@@ -49,6 +49,11 @@ export type AddUserRoleResponseWrap = {
   rejection: Maybe<Rejection>;
   success: Maybe<Scalars['Boolean']>;
 };
+
+export enum AllocationTimeUnits {
+  DAY = 'Day',
+  HOUR = 'Hour'
+}
 
 export type Answer = {
   __typename?: 'Answer';
@@ -164,6 +169,7 @@ export type Call = {
   cycleComment: Scalars['String'];
   surveyComment: Scalars['String'];
   proposalWorkflowId: Maybe<Scalars['Int']>;
+  allocationTimeUnit: AllocationTimeUnits;
   templateId: Maybe<Scalars['Int']>;
   instruments: Array<InstrumentWithAvailabilityTime>;
   proposalWorkflow: Maybe<ProposalWorkflow>;
@@ -187,7 +193,7 @@ export type CallsFilter = {
 
 export type ChangeProposalsStatusInput = {
   statusId: Scalars['Int'];
-  proposals: Array<ProposalIdWithCallId>;
+  proposals: Array<ProposalPkWithCallId>;
 };
 
 export type CheckExternalTokenWrap = {
@@ -228,6 +234,7 @@ export type CreateCallInput = {
   proposalSequence?: Maybe<Scalars['Int']>;
   cycleComment: Scalars['String'];
   surveyComment: Scalars['String'];
+  allocationTimeUnit: AllocationTimeUnits;
   proposalWorkflowId?: Maybe<Scalars['Int']>;
   templateId?: Maybe<Scalars['Int']>;
 };
@@ -795,13 +802,13 @@ export type MutationChangeProposalsStatusArgs = {
 
 
 export type MutationAssignProposalsToInstrumentArgs = {
-  proposals: Array<ProposalIdWithCallId>;
+  proposals: Array<ProposalPkWithCallId>;
   instrumentId: Scalars['Int'];
 };
 
 
 export type MutationRemoveProposalsFromInstrumentArgs = {
-  proposalIds: Array<Scalars['Int']>;
+  proposalPks: Array<Scalars['Int']>;
 };
 
 
@@ -943,7 +950,7 @@ export type MutationAddReviewArgs = {
 
 export type MutationAddUserForReviewArgs = {
   userID: Scalars['Int'];
-  proposalID: Scalars['Int'];
+  proposalPk: Scalars['Int'];
   sepID: Scalars['Int'];
 };
 
@@ -955,14 +962,14 @@ export type MutationSubmitProposalsReviewArgs = {
 
 export type MutationUpdateTechnicalReviewAssigneeArgs = {
   userId: Scalars['Int'];
-  proposalIds: Array<Scalars['Int']>;
+  proposalPks: Array<Scalars['Int']>;
 };
 
 
 export type MutationCreateSampleArgs = {
   title: Scalars['String'];
   templateId: Scalars['Int'];
-  proposalId: Scalars['Int'];
+  proposalPk: Scalars['Int'];
   questionId: Scalars['String'];
 };
 
@@ -996,25 +1003,25 @@ export type MutationRemoveMemberFromSepArgs = {
 export type MutationAssignSepReviewersToProposalArgs = {
   memberIds: Array<Scalars['Int']>;
   sepId: Scalars['Int'];
-  proposalId: Scalars['Int'];
+  proposalPk: Scalars['Int'];
 };
 
 
 export type MutationRemoveMemberFromSepProposalArgs = {
   memberId: Scalars['Int'];
   sepId: Scalars['Int'];
-  proposalId: Scalars['Int'];
+  proposalPk: Scalars['Int'];
 };
 
 
 export type MutationAssignProposalsToSepArgs = {
-  proposals: Array<ProposalIdWithCallId>;
+  proposals: Array<ProposalPkWithCallId>;
   sepId: Scalars['Int'];
 };
 
 
 export type MutationRemoveProposalsFromSepArgs = {
-  proposalIds: Array<Scalars['Int']>;
+  proposalPks: Array<Scalars['Int']>;
   sepId: Scalars['Int'];
 };
 
@@ -1048,20 +1055,20 @@ export type MutationUpdateSepArgs = {
 
 export type MutationUpdateSepTimeAllocationArgs = {
   sepId: Scalars['Int'];
-  proposalId: Scalars['Int'];
+  proposalPk: Scalars['Int'];
   sepTimeAllocation?: Maybe<Scalars['Int']>;
 };
 
 
 export type MutationCreateShipmentArgs = {
   title: Scalars['String'];
-  proposalId: Scalars['Int'];
+  proposalPk: Scalars['Int'];
 };
 
 
 export type MutationUpdateShipmentArgs = {
   shipmentId: Scalars['Int'];
-  proposalId?: Maybe<Scalars['Int']>;
+  proposalPk?: Maybe<Scalars['Int']>;
   title?: Maybe<Scalars['String']>;
   status?: Maybe<ShipmentStatus>;
   externalRef?: Maybe<Scalars['String']>;
@@ -1265,7 +1272,7 @@ export type MutationCreateProposalArgs = {
 
 
 export type MutationCreateVisitArgs = {
-  proposalId: Scalars['Int'];
+  proposalPk: Scalars['Int'];
   team?: Maybe<Array<Scalars['Int']>>;
 };
 
@@ -1429,7 +1436,7 @@ export type MutationUpdatePasswordArgs = {
 export type MutationUpdateVisitArgs = {
   visitId: Scalars['Int'];
   status?: Maybe<VisitStatus>;
-  proposalId?: Maybe<Scalars['Int']>;
+  proposalPk?: Maybe<Scalars['Int']>;
   team?: Maybe<Array<Scalars['Int']>>;
 };
 
@@ -1609,6 +1616,7 @@ export type Proposal = {
   questionary: Maybe<Questionary>;
   sepMeetingDecision: Maybe<SepMeetingDecision>;
   samples: Maybe<Array<Sample>>;
+  visits: Maybe<Array<Visit>>;
   proposalBooking: Maybe<ProposalBooking>;
 };
 
@@ -1676,18 +1684,18 @@ export type ProposalEvent = {
   description: Maybe<Scalars['String']>;
 };
 
-export type ProposalIdWithCallId = {
+export type ProposalPkWithCallId = {
   id: Scalars['Int'];
   callId: Scalars['Int'];
 };
 
-export type ProposalIdWithRankOrder = {
-  proposalId: Scalars['Int'];
+export type ProposalPkWithRankOrder = {
+  proposalPk: Scalars['Int'];
   rankOrder: Scalars['Int'];
 };
 
-export type ProposalIdWithReviewId = {
-  proposalId: Scalars['Int'];
+export type ProposalPkWithReviewId = {
+  proposalPk: Scalars['Int'];
   reviewId: Scalars['Int'];
 };
 
@@ -1770,6 +1778,7 @@ export type ProposalView = {
   reviewDeviation: Maybe<Scalars['Float']>;
   instrumentId: Maybe<Scalars['Int']>;
   callId: Scalars['Int'];
+  allocationTimeUnit: AllocationTimeUnits;
 };
 
 export type ProposalWorkflow = {
@@ -2047,7 +2056,7 @@ export type QueryInstrumentScientistHasInstrumentArgs = {
 
 
 export type QueryInstrumentScientistHasAccessArgs = {
-  proposalId: Scalars['Int'];
+  proposalPk: Scalars['Int'];
   instrumentId: Scalars['Int'];
 };
 
@@ -2063,7 +2072,7 @@ export type QueryProposalArgs = {
 
 
 export type QueryUserHasAccessToProposalArgs = {
-  proposalId: Scalars['Int'];
+  proposalPk: Scalars['Int'];
 };
 
 
@@ -2099,7 +2108,7 @@ export type QueryReviewArgs = {
 
 
 export type QueryProposalReviewsArgs = {
-  proposalId: Scalars['Int'];
+  proposalPk: Scalars['Int'];
 };
 
 
@@ -2140,7 +2149,7 @@ export type QuerySepProposalsArgs = {
 
 
 export type QuerySepProposalArgs = {
-  proposalId: Scalars['Int'];
+  proposalPk: Scalars['Int'];
   sepId: Scalars['Int'];
 };
 
@@ -2345,7 +2354,7 @@ export type RemoveAssignedInstrumentFromCallInput = {
 };
 
 export type ReorderSepMeetingDecisionProposalsInput = {
-  proposals: Array<ProposalIdWithRankOrder>;
+  proposals: Array<ProposalPkWithRankOrder>;
 };
 
 export type Review = {
@@ -2423,7 +2432,7 @@ export type Sep = {
 
 export type SepAssignment = {
   __typename?: 'SEPAssignment';
-  proposalId: Scalars['Int'];
+  proposalPk: Scalars['Int'];
   sepMemberUserId: Maybe<Scalars['Int']>;
   sepId: Scalars['Int'];
   dateAssigned: Scalars['DateTime'];
@@ -2438,7 +2447,7 @@ export type SepAssignment = {
 
 export type SepProposal = {
   __typename?: 'SEPProposal';
-  proposalId: Scalars['Int'];
+  proposalPk: Scalars['Int'];
   sepId: Scalars['Int'];
   dateAssigned: Scalars['DateTime'];
   sepTimeAllocation: Maybe<Scalars['Int']>;
@@ -2479,7 +2488,7 @@ export type Sample = {
   title: Scalars['String'];
   creatorId: Scalars['Int'];
   questionaryId: Scalars['Int'];
-  proposalId: Scalars['Int'];
+  proposalPk: Scalars['Int'];
   questionId: Scalars['String'];
   safetyStatus: SampleStatus;
   safetyComment: Scalars['String'];
@@ -2513,11 +2522,11 @@ export type SamplesFilter = {
   sampleIds?: Maybe<Array<Scalars['Int']>>;
   status?: Maybe<SampleStatus>;
   questionId?: Maybe<Scalars['String']>;
-  proposalId?: Maybe<Scalars['Int']>;
+  proposalPk?: Maybe<Scalars['Int']>;
 };
 
 export type SaveSepMeetingDecisionInput = {
-  proposalId: Scalars['Int'];
+  proposalPk: Scalars['Int'];
   commentForUser?: Maybe<Scalars['String']>;
   commentForManagement?: Maybe<Scalars['String']>;
   recommendation?: Maybe<ProposalEndStatus>;
@@ -2537,7 +2546,7 @@ export type ScheduledEvent = {
   scheduledBy: Maybe<User>;
   description: Maybe<Scalars['String']>;
   instrument: Maybe<Instrument>;
-  equipmentId: Scalars['Int'];
+  equipmentId: Maybe<Scalars['Int']>;
   equipments: Array<EquipmentWithAssignmentStatus>;
   equipmentAssignmentStatus: Maybe<EquipmentAssignmentStatus>;
   proposalBooking: Maybe<ProposalBooking>;
@@ -2586,7 +2595,7 @@ export type SelectionFromOptionsConfig = {
 
 export type SepMeetingDecision = {
   __typename?: 'SepMeetingDecision';
-  proposalId: Scalars['Int'];
+  proposalPk: Scalars['Int'];
   recommendation: Maybe<ProposalEndStatus>;
   commentForManagement: Maybe<Scalars['String']>;
   commentForUser: Maybe<Scalars['String']>;
@@ -2616,7 +2625,7 @@ export type Shipment = {
   __typename?: 'Shipment';
   id: Scalars['Int'];
   title: Scalars['String'];
-  proposalId: Scalars['Int'];
+  proposalPk: Scalars['Int'];
   status: ShipmentStatus;
   externalRef: Maybe<Scalars['String']>;
   questionaryId: Scalars['Int'];
@@ -2648,7 +2657,7 @@ export enum ShipmentStatus {
 export type ShipmentsFilter = {
   title?: Maybe<Scalars['String']>;
   creatorId?: Maybe<Scalars['Int']>;
-  proposalId?: Maybe<Scalars['Int']>;
+  proposalPk?: Maybe<Scalars['Int']>;
   questionaryIds?: Maybe<Array<Scalars['Int']>>;
   status?: Maybe<ShipmentStatus>;
   externalRef?: Maybe<Scalars['String']>;
@@ -2677,11 +2686,11 @@ export type StatusChangingEvent = {
 };
 
 export type SubmitProposalsReviewInput = {
-  proposals: Array<ProposalIdWithReviewId>;
+  proposals: Array<ProposalPkWithReviewId>;
 };
 
 export type SubmitTechnicalReviewInput = {
-  proposalID: Scalars['Int'];
+  proposalPk: Scalars['Int'];
   comment?: Maybe<Scalars['String']>;
   publicComment?: Maybe<Scalars['String']>;
   timeAllocation?: Maybe<Scalars['Int']>;
@@ -2710,7 +2719,7 @@ export type SuccessResponseWrap = {
 export type TechnicalReview = {
   __typename?: 'TechnicalReview';
   id: Scalars['Int'];
-  proposalID: Scalars['Int'];
+  proposalPk: Scalars['Int'];
   comment: Maybe<Scalars['String']>;
   publicComment: Maybe<Scalars['String']>;
   timeAllocation: Maybe<Scalars['Int']>;
@@ -2855,6 +2864,7 @@ export type UpdateCallInput = {
   proposalSequence?: Maybe<Scalars['Int']>;
   cycleComment: Scalars['String'];
   surveyComment: Scalars['String'];
+  allocationTimeUnit: AllocationTimeUnits;
   proposalWorkflowId?: Maybe<Scalars['Int']>;
   callEnded?: Maybe<Scalars['Int']>;
   callReviewEnded?: Maybe<Scalars['Int']>;
@@ -2917,7 +2927,13 @@ export type UserReviewsArgs = {
 
 
 export type UserProposalsArgs = {
+  filter?: Maybe<UserProposalsFilter>;
+};
+
+export type UserProposalsFilter = {
   instrumentId?: Maybe<Scalars['Int']>;
+  managementDecisionSubmitted?: Maybe<Scalars['Boolean']>;
+  finalStatus?: Maybe<ProposalEndStatus>;
 };
 
 export type UserQueryResult = {
@@ -2945,10 +2961,9 @@ export enum UserRole {
 export type Visit = {
   __typename?: 'Visit';
   id: Scalars['Int'];
-  proposalId: Scalars['Int'];
+  proposalPk: Scalars['Int'];
   status: VisitStatus;
   questionaryId: Scalars['Int'];
-  instrumentId: Scalars['Int'];
   visitorId: Scalars['Int'];
   proposal: Proposal;
   team: Array<BasicUserDetails>;
@@ -2977,6 +2992,7 @@ export enum VisitStatus {
 export type VisitsFilter = {
   visitorId?: Maybe<Scalars['Int']>;
   questionaryId?: Maybe<Scalars['Int']>;
+  proposalPk?: Maybe<Scalars['Int']>;
 };
 
 export type AddEquipmentResponsibleMutationVariables = Exact<{

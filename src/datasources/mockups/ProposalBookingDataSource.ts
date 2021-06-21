@@ -7,8 +7,8 @@ import { ProposalBookingDataSource } from '../ProposalBookingDataSource';
 export default class MockupProposalBookingDataSource
   implements ProposalBookingDataSource
 {
-  getByProposalId(
-    proposalId: number,
+  getByProposalPK(
+    proposalPK: number,
     filter?:
       | import('../../resolvers/types/Proposal').ProposalProposalBookingFilter
       | undefined

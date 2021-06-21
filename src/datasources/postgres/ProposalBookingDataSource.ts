@@ -19,14 +19,14 @@ export default class PostgresProposalBookingDataSource
   readonly tableName = 'proposal_bookings';
 
   async upsert(event: {
-    proposalId: number;
+    proposalPK: number;
     callId: number;
     allocatedTime: number;
     instrumentId: number;
   }): Promise<void> {
     await database<CreateFields>(this.tableName)
       .insert({
-        proposal_id: event.proposalId,
+        proposal_id: event.proposalPK,
         call_id: event.callId,
         status: ProposalBookingStatus.DRAFT,
         allocated_time: event.allocatedTime,
@@ -53,15 +53,15 @@ export default class PostgresProposalBookingDataSource
       : null;
   }
 
-  async getByProposalId(
-    proposalId: number,
+  async getByProposalPK(
+    proposalPK: number,
     filter?: ProposalProposalBookingFilter
   ): Promise<ProposalBooking | null> {
     const proposalBooking = await database<ProposalBookingRecord>(
       this.tableName
     )
       .select()
-      .where('proposal_id', proposalId)
+      .where('proposal_id', proposalPK)
       .modify((qb) => {
         if (filter?.status) {
           qb.whereIn('status', filter.status);

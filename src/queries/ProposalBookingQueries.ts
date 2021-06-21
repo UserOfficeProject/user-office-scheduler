@@ -51,9 +51,9 @@ export default class ProposalBookingQueries {
   }
 
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST, Roles.USER])
-  async getByProposalId(
+  async getByProposalPK(
     ctx: ResolverContext,
-    proposalId: number,
+    proposalPK: number,
     filter?: ProposalProposalBookingFilter
   ): Promise<ProposalBooking | null> {
     // don't show proposal bookings is draft state for users
@@ -66,7 +66,7 @@ export default class ProposalBookingQueries {
     }
 
     const proposalBooking =
-      await this.proposalBookingDataSource.getByProposalId(proposalId, filter);
+      await this.proposalBookingDataSource.getByProposalPK(proposalPK, filter);
 
     if (!proposalBooking) {
       return null;

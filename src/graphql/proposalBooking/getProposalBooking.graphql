@@ -12,7 +12,7 @@ query getProposalBooking(
       cycleComment
     }
     proposal {
-      id
+      primaryKey
       title
       shortCode
     }

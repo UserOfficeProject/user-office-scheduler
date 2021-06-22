@@ -856,7 +856,7 @@ export type MutationSubmitInstrumentArgs = {
 
 
 export type MutationAdministrationProposalArgs = {
-  id: Scalars['Int'];
+  primaryKey: Scalars['Int'];
   commentForUser?: Maybe<Scalars['String']>;
   commentForManagement?: Maybe<Scalars['String']>;
   finalStatus?: Maybe<ProposalEndStatus>;
@@ -872,7 +872,7 @@ export type MutationCloneProposalArgs = {
 
 
 export type MutationUpdateProposalArgs = {
-  id: Scalars['Int'];
+  primaryKey: Scalars['Int'];
   title?: Maybe<Scalars['String']>;
   abstract?: Maybe<Scalars['String']>;
   users?: Maybe<Array<Scalars['Int']>>;
@@ -1587,7 +1587,7 @@ export type PrepareDbResponseWrap = {
 
 export type Proposal = {
   __typename?: 'Proposal';
-  id: Scalars['Int'];
+  primaryKey: Scalars['Int'];
   title: Scalars['String'];
   abstract: Scalars['String'];
   statusId: Scalars['Int'];
@@ -1685,7 +1685,7 @@ export type ProposalEvent = {
 };
 
 export type ProposalPkWithCallId = {
-  id: Scalars['Int'];
+  primaryKey: Scalars['Int'];
   callId: Scalars['Int'];
 };
 
@@ -1758,7 +1758,7 @@ export type ProposalTemplatesFilter = {
 
 export type ProposalView = {
   __typename?: 'ProposalView';
-  id: Scalars['Int'];
+  primaryKey: Scalars['Int'];
   title: Scalars['String'];
   statusId: Scalars['Int'];
   statusName: Scalars['String'];
@@ -3262,7 +3262,7 @@ export type GetInstrumentProposalBookingsQuery = (
       & Pick<Call, 'id' | 'shortCode' | 'startCycle' | 'endCycle' | 'cycleComment'>
     )>, proposal: Maybe<(
       { __typename?: 'Proposal' }
-      & Pick<Proposal, 'id' | 'title' | 'shortCode'>
+      & Pick<Proposal, 'primaryKey' | 'title' | 'shortCode'>
     )>, scheduledEvents: Array<(
       { __typename?: 'ScheduledEvent' }
       & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
@@ -3286,7 +3286,7 @@ export type GetProposalBookingQuery = (
       & Pick<Call, 'id' | 'shortCode' | 'startCycle' | 'endCycle' | 'cycleComment'>
     )>, proposal: Maybe<(
       { __typename?: 'Proposal' }
-      & Pick<Proposal, 'id' | 'title' | 'shortCode'>
+      & Pick<Proposal, 'primaryKey' | 'title' | 'shortCode'>
     )>, scheduledEvents: Array<(
       { __typename?: 'ScheduledEvent' }
       & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
@@ -3348,7 +3348,7 @@ export type GetEquipmentScheduledEventsQuery = (
         & Pick<ProposalBooking, 'status'>
         & { proposal: Maybe<(
           { __typename?: 'Proposal' }
-          & Pick<Proposal, 'id' | 'title' | 'shortCode'>
+          & Pick<Proposal, 'primaryKey' | 'title' | 'shortCode'>
           & { proposer: Maybe<(
             { __typename?: 'BasicUserDetails' }
             & Pick<BasicUserDetails, 'firstname' | 'lastname'>
@@ -3418,7 +3418,7 @@ export type GetScheduledEventsQuery = (
       & Pick<ProposalBooking, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'allocatedTime'>
       & { proposal: Maybe<(
         { __typename?: 'Proposal' }
-        & Pick<Proposal, 'id' | 'title' | 'shortCode'>
+        & Pick<Proposal, 'primaryKey' | 'title' | 'shortCode'>
         & { proposer: Maybe<(
           { __typename?: 'BasicUserDetails' }
           & Pick<BasicUserDetails, 'firstname' | 'lastname'>
@@ -3688,7 +3688,7 @@ export const GetInstrumentProposalBookingsDocument = gql`
       cycleComment
     }
     proposal {
-      id
+      primaryKey
       title
       shortCode
     }
@@ -3716,7 +3716,7 @@ export const GetProposalBookingDocument = gql`
       cycleComment
     }
     proposal {
-      id
+      primaryKey
       title
       shortCode
     }
@@ -3772,7 +3772,7 @@ export const GetEquipmentScheduledEventsDocument = gql`
       proposalBooking {
         status
         proposal {
-          id
+          primaryKey
           title
           shortCode
           proposer {
@@ -3845,7 +3845,7 @@ export const GetScheduledEventsDocument = gql`
       status
       allocatedTime
       proposal {
-        id
+        primaryKey
         title
         shortCode
         proposer {

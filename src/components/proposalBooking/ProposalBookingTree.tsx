@@ -69,7 +69,7 @@ export default function ProposalBookingTree({
           id: `call-${id}`, // avoid numerical ID collision
           title: `Call: ${proposalBookings[0].call.shortCode}`,
           children: proposalBookings.map((proposalBooking) => ({
-            id: `proposal-${proposalBooking.proposal.id}`, // avoid numerical ID collision
+            id: `proposal-${proposalBooking.proposal.primaryKey}`, // avoid numerical ID collision
             title: (
               <ProposalBookingTreeTitle proposalBooking={proposalBooking} />
             ),

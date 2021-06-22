@@ -23,7 +23,7 @@ query getScheduledEvents(
       status
       allocatedTime
       proposal {
-        id
+        primaryKey
         title
         shortCode
         proposer {

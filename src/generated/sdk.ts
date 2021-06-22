@@ -204,7 +204,7 @@ export type CheckExternalTokenWrap = {
 
 export type CloneProposalInput = {
   callId: Scalars['Int'];
-  proposalToCloneId: Scalars['Int'];
+  proposalToClonePk: Scalars['Int'];
 };
 
 export type ConfirmEquipmentAssignmentInput = {
@@ -856,7 +856,7 @@ export type MutationSubmitInstrumentArgs = {
 
 
 export type MutationAdministrationProposalArgs = {
-  primaryKey: Scalars['Int'];
+  proposalPk: Scalars['Int'];
   commentForUser?: Maybe<Scalars['String']>;
   commentForManagement?: Maybe<Scalars['String']>;
   finalStatus?: Maybe<ProposalEndStatus>;
@@ -1293,7 +1293,7 @@ export type MutationDeleteInstrumentArgs = {
 
 
 export type MutationDeleteProposalArgs = {
-  id: Scalars['Int'];
+  proposalPk: Scalars['Int'];
 };
 
 
@@ -1402,7 +1402,7 @@ export type MutationDeleteProposalWorkflowArgs = {
 
 
 export type MutationSubmitProposalArgs = {
-  id: Scalars['Int'];
+  proposalPk: Scalars['Int'];
 };
 
 

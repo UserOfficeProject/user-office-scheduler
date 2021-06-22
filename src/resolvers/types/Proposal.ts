@@ -17,11 +17,11 @@ import { ProposalBooking } from './ProposalBooking';
 
 @ObjectType()
 @Directive('@extends')
-@Directive('@key(fields: "id")')
+@Directive('@key(fields: "primaryKey")')
 export class Proposal {
   @Directive('@external')
   @Field(() => Int)
-  id: number;
+  primaryKey: number;
 }
 
 @InputType()
@@ -41,7 +41,7 @@ export class ProposalResolvers {
   ) {
     return ctx.queries.proposalBooking.getByProposalPk(
       ctx,
-      proposal.id,
+      proposal.primaryKey,
       filter
     );
   }

@@ -727,7 +727,7 @@ export type MutationSubmitInstrumentArgs = {
 
 
 export type MutationAdministrationProposalArgs = {
-  id: Scalars['Int'];
+  primaryKey: Scalars['Int'];
   commentForUser?: Maybe<Scalars['String']>;
   commentForManagement?: Maybe<Scalars['String']>;
   finalStatus?: Maybe<ProposalEndStatus>;
@@ -1388,7 +1388,7 @@ export type PrepareDbResponseWrap = {
 
 export type Proposal = {
   __typename?: 'Proposal';
-  id: Scalars['Int'];
+  primaryKey: Scalars['Int'];
   title: Scalars['String'];
   abstract: Scalars['String'];
   statusId: Scalars['Int'];
@@ -1439,7 +1439,7 @@ export type ProposalEvent = {
 };
 
 export type ProposalPkWithCallId = {
-  id: Scalars['Int'];
+  primaryKey: Scalars['Int'];
   callId: Scalars['Int'];
 };
 
@@ -1530,7 +1530,7 @@ export type ProposalTemplatesFilter = {
 
 export type ProposalView = {
   __typename?: 'ProposalView';
-  id: Scalars['Int'];
+  primaryKey: Scalars['Int'];
   title: Scalars['String'];
   statusId: Scalars['Int'];
   statusName: Scalars['String'];

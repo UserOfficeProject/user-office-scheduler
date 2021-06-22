@@ -12,7 +12,7 @@ export enum ProposalBookingFinalizeAction {
 export class ProposalBooking {
   constructor(
     public id: number,
-    public proposal: { id: number },
+    public proposal: { primaryKey: number },
     public call: { id: number },
     public createdAt: Date,
     public updatedAt: Date,

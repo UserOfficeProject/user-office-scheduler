@@ -46,7 +46,7 @@ export const createScheduledEventObject = (
 
 export interface ProposalBookingRecord {
   readonly proposal_booking_id: number;
-  readonly proposal_id: number;
+  readonly proposal_pk: number;
   readonly call_id: number;
   readonly created_at: Date;
   readonly updated_at: Date;
@@ -60,7 +60,7 @@ export const createProposalBookingObject = (
 ) =>
   new ProposalBooking(
     proposalBooking.proposal_booking_id,
-    { id: proposalBooking.proposal_id },
+    { primaryKey: proposalBooking.proposal_pk },
     { id: proposalBooking.call_id },
     proposalBooking.created_at,
     proposalBooking.updated_at,

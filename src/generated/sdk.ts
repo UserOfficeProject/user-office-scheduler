@@ -872,7 +872,7 @@ export type MutationCloneProposalArgs = {
 
 
 export type MutationUpdateProposalArgs = {
-  primaryKey: Scalars['Int'];
+  proposalPk: Scalars['Int'];
   title?: Maybe<Scalars['String']>;
   abstract?: Maybe<Scalars['String']>;
   users?: Maybe<Array<Scalars['Int']>>;
@@ -1359,7 +1359,7 @@ export type MutationLoginArgs = {
 
 
 export type MutationNotifyProposalArgs = {
-  id: Scalars['Int'];
+  proposalPk: Scalars['Int'];
 };
 
 

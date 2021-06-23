@@ -1,6 +1,6 @@
-query instrumentScientistHasAccess($proposalId: Int!, $instrumentId: Int!) {
+query instrumentScientistHasAccess($proposalPk: Int!, $instrumentId: Int!) {
   instrumentScientistHasAccess(
-    proposalId: $proposalId
+    proposalPk: $proposalPk
     instrumentId: $instrumentId
   )
 }

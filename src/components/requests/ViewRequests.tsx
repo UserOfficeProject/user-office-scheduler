@@ -18,7 +18,7 @@ type TableRow = {
   equipmentName: string;
   instrumentName?: string;
   proposalTitle?: string;
-  proposalShortCode?: string;
+  proposalId?: string;
   startsAt: Moment;
   endsAt: Moment;
   equipmentId?: number | null;
@@ -30,7 +30,7 @@ export const defaultHeadCells: HeadCell<TableRow>[] = [
   { id: 'equipmentName', label: 'Equipment name' },
   { id: 'instrumentName', label: 'Instrument' },
   { id: 'proposalTitle', label: 'Proposal' },
-  { id: 'proposalShortCode', label: 'Proposal ID' },
+  { id: 'proposalId', label: 'Proposal ID' },
   { id: 'startsAt', label: 'Starts at' },
   { id: 'endsAt', label: 'Ends at' },
   { id: 'equipmentAssignmentStatus', label: 'Status' },
@@ -74,7 +74,7 @@ export default function ViewRequests() {
               equipmentName: scheduledEvent.name,
               instrumentName: instrument?.name,
               proposalTitle: proposalBooking?.proposal?.title,
-              proposalShortCode: proposalBooking?.proposal?.shortCode,
+              proposalId: proposalBooking?.proposal?.proposalId,
               scheduledBy: `${scheduledBy?.firstname} ${scheduledBy?.lastname}`,
             })
           )
@@ -195,9 +195,7 @@ export default function ViewRequests() {
                       <TableCell align="left">{row.equipmentName}</TableCell>
                       <TableCell align="left">{row.instrumentName}</TableCell>
                       <TableCell align="left">{row.proposalTitle}</TableCell>
-                      <TableCell align="left">
-                        {row.proposalShortCode}
-                      </TableCell>
+                      <TableCell align="left">{row.proposalId}</TableCell>
                       <TableCell align="left">
                         {toTzLessDateTime(row.startsAt)}
                       </TableCell>

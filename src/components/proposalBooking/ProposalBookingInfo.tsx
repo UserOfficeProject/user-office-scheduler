@@ -14,7 +14,7 @@ const useStyles = makeStyles(() => ({
     flexWrap: 'wrap',
   },
 
-  shortCode: {
+  proposalId: {
     fontSize: 12,
     fontWeight: 'bold',
     minWidth: '100%',
@@ -46,10 +46,10 @@ function ProposalBookingInfo({ booking }: ProposalBookingInfoProps) {
 
   return (
     <div className={classes.container}>
-      <div className={classes.shortCode}>
+      <div className={classes.proposalId}>
         {isDraftEvent(booking) ? '[Draft] - ' : ''}
         {isClosedEvent(booking) ? '[Closed] - ' : ''}
-        {proposal.shortCode}
+        {proposal.proposalId}
       </div>
       <div className={classes.title}>{proposal.title}</div>
       <div className={classes.proposer}>

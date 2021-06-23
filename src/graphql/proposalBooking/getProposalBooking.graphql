@@ -14,7 +14,7 @@ query getProposalBooking(
     proposal {
       primaryKey
       title
-      shortCode
+      proposalId
     }
     scheduledEvents(filter: $filter) {
       id

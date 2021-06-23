@@ -17,7 +17,7 @@ query getEquipmentScheduledEvents(
         proposal {
           primaryKey
           title
-          shortCode
+          proposalId
           proposer {
             firstname
             lastname

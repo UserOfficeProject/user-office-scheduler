@@ -17,7 +17,7 @@ export type InstrumentProposalBooking = Pick<
     'id' | 'shortCode' | 'startCycle' | 'endCycle' | 'cycleComment'
   >;
 } & {
-  proposal: Pick<Proposal, 'primaryKey' | 'title' | 'shortCode'>;
+  proposal: Pick<Proposal, 'primaryKey' | 'title' | 'proposalId'>;
 };
 
 export default function useInstrumentProposalBookings(

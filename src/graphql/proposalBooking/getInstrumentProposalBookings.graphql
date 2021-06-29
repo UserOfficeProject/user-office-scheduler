@@ -12,9 +12,9 @@ query getInstrumentProposalBookings(
       cycleComment
     }
     proposal {
-      id
+      primaryKey
       title
-      shortCode
+      proposalId
     }
     createdAt
     updatedAt

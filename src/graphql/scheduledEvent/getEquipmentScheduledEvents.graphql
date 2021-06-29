@@ -15,9 +15,9 @@ query getEquipmentScheduledEvents(
       proposalBooking {
         status
         proposal {
-          id
+          primaryKey
           title
-          shortCode
+          proposalId
           proposer {
             firstname
             lastname

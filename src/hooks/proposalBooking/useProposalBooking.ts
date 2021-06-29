@@ -17,7 +17,7 @@ export type DetailedProposalBooking = Pick<
     'id' | 'shortCode' | 'startCycle' | 'endCycle' | 'cycleComment'
   >;
 } & {
-  proposal: Pick<Proposal, 'id' | 'title' | 'shortCode'>;
+  proposal: Pick<Proposal, 'primaryKey' | 'title' | 'proposalId'>;
 };
 
 export default function useProposalBooking(id: string) {

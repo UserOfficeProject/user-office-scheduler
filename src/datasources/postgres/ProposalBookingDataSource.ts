@@ -10,7 +10,7 @@ import { createProposalBookingObject, ProposalBookingRecord } from './records';
 
 type CreateFields = Pick<
   ProposalBookingRecord,
-  'proposal_id' | 'call_id' | 'status' | 'allocated_time' | 'instrument_id'
+  'proposal_pk' | 'call_id' | 'status' | 'allocated_time' | 'instrument_id'
 >;
 
 export default class PostgresProposalBookingDataSource
@@ -19,20 +19,20 @@ export default class PostgresProposalBookingDataSource
   readonly tableName = 'proposal_bookings';
 
   async upsert(event: {
-    proposalId: number;
+    proposalPk: number;
     callId: number;
     allocatedTime: number;
     instrumentId: number;
   }): Promise<void> {
     await database<CreateFields>(this.tableName)
       .insert({
-        proposal_id: event.proposalId,
+        proposal_pk: event.proposalPk,
         call_id: event.callId,
         status: ProposalBookingStatus.DRAFT,
         allocated_time: event.allocatedTime,
         instrument_id: event.instrumentId,
       })
-      .onConflict(['proposal_id', 'call_id'])
+      .onConflict(['proposal_pk', 'call_id'])
       .merge({
         allocated_time: event.allocatedTime,
         instrument_id: event.instrumentId,
@@ -53,15 +53,15 @@ export default class PostgresProposalBookingDataSource
       : null;
   }
 
-  async getByProposalId(
-    proposalId: number,
+  async getByProposalPk(
+    proposalPk: number,
     filter?: ProposalProposalBookingFilter
   ): Promise<ProposalBooking | null> {
     const proposalBooking = await database<ProposalBookingRecord>(
       this.tableName
     )
       .select()
-      .where('proposal_id', proposalId)
+      .where('proposal_pk', proposalPk)
       .modify((qb) => {
         if (filter?.status) {
           qb.whereIn('status', filter.status);

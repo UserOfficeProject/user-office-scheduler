@@ -8,8 +8,8 @@ export interface ProposalBookingDataSource {
   // TODO(asztalos): validate input
   upsert(event: any): Promise<void>;
   get(id: number): Promise<ProposalBooking | null>;
-  getByProposalId(
-    proposalId: number,
+  getByProposalPk(
+    proposalPk: number,
     filter?: ProposalProposalBookingFilter
   ): Promise<ProposalBooking | null>;
   instrumentProposalBookings(instrumentId: number): Promise<ProposalBooking[]>;

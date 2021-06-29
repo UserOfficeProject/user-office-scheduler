@@ -198,7 +198,11 @@ export default function EquipmentBookingStep({
           readOnly={isStepReadOnly}
         />
         {!allEquipmentsAccepted && (
-          <Alert severity="warning" className={classes.spacingTop}>
+          <Alert
+            severity="warning"
+            className={classes.spacingTop}
+            data-cy="accepted-equipment-warning"
+          >
             <AlertTitle>Warning</AlertTitle>
             All booked equipments must be accepted before activating the booking
           </Alert>

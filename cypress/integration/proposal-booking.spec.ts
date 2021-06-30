@@ -203,16 +203,10 @@ context('Proposal booking tests ', () => {
       it('should show confirmation when there are overlapping events', () => {
         cy.get('[data-cy=btn-add-time-slot]').click();
 
-        cy.get('[data-cy=btn-time-table-edit-row]')
-          .last()
-          .click();
+        cy.get('[data-cy=btn-time-table-edit-row]').last().click();
 
-        cy.get('[data-cy=startsAt] input')
-          .clear()
-          .type('2020-09-21 14:00:00');
-        cy.get('[data-cy=endsAt] input')
-          .clear()
-          .type('2020-09-21 15:00:00');
+        cy.get('[data-cy=startsAt] input').clear().type('2020-09-21 14:00:00');
+        cy.get('[data-cy=endsAt] input').clear().type('2020-09-21 15:00:00');
 
         cy.get('[data-cy=btn-time-table-save-row]').click();
 
@@ -289,6 +283,28 @@ context('Proposal booking tests ', () => {
           .eq(1)
           .find('[data-cy=equipment-row-status]')
           .contains(/accepted/i);
+      });
+
+      it('should show available equipments that are booked by proposals that instrument scientist is part of even if he/she is not equipment owner or responsible', () => {
+        cy.get('[data-cy="btn-close-dialog"]').click();
+        cy.finishedLoading();
+
+        cy.get('[data-cy="input-equipment-select"]').click();
+
+        cy.get('[role="presentation"]').contains(
+          /Available equipment 1 - no auto accept/i
+        );
+        cy.get('[role="presentation"]').contains(
+          /Available equipment 2 - auto accept/i
+        );
+
+        cy.visit({
+          url: '/equipments',
+          timeout: 15000,
+        });
+
+        cy.contains(/Available equipment 1 - no auto accept/i);
+        cy.contains(/Available equipment 2 - auto accept/i);
       });
 
       it('Officer should be able to assign equipment responsible people', () => {

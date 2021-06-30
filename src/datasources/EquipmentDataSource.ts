@@ -22,6 +22,7 @@ export interface EquipmentDataSource {
   getAll(equipmentIds?: number[]): Promise<Equipment[]>;
   getAllUserEquipments(
     userId: string,
+    userInstrumentIds: number[],
     equipmentIds?: number[]
   ): Promise<Equipment[]>;
   scheduledEventEquipments(

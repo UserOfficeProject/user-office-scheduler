@@ -1394,7 +1394,7 @@ export type Proposal = {
   statusId: Scalars['Int'];
   created: Scalars['DateTime'];
   updated: Scalars['DateTime'];
-  shortCode: Scalars['String'];
+  proposalId: Scalars['String'];
   finalStatus: Maybe<ProposalEndStatus>;
   callId: Scalars['Int'];
   questionaryId: Scalars['Int'];
@@ -1535,7 +1535,7 @@ export type ProposalView = {
   statusId: Scalars['Int'];
   statusName: Scalars['String'];
   statusDescription: Scalars['String'];
-  shortCode: Scalars['String'];
+  proposalId: Scalars['String'];
   rankOrder: Maybe<Scalars['Int']>;
   finalStatus: Maybe<ProposalEndStatus>;
   notified: Scalars['Boolean'];
@@ -1811,7 +1811,7 @@ export type QueryIsNaturalKeyPresentArgs = {
 
 
 export type QueryProposalArgs = {
-  id: Scalars['Int'];
+  primaryKey: Scalars['Int'];
 };
 
 
@@ -2654,6 +2654,20 @@ export type InstrumentScientistHasInstrumentQuery = (
   & Pick<Query, 'instrumentScientistHasInstrument'>
 );
 
+export type UserInstrumentsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type UserInstrumentsQuery = (
+  { __typename?: 'Query' }
+  & { userInstruments: Maybe<(
+    { __typename?: 'InstrumentsQueryResult' }
+    & { instruments: Array<(
+      { __typename?: 'Instrument' }
+      & Pick<Instrument, 'id'>
+    )> }
+  )> }
+);
+
 export type UserHasAccessQueryVariables = Exact<{
   proposalPk: Scalars['Int'];
 }>;
@@ -2678,6 +2692,15 @@ export const InstrumentScientistHasInstrumentDocument = gql`
   instrumentScientistHasInstrument(instrumentId: $instrumentId)
 }
     `;
+export const UserInstrumentsDocument = gql`
+    query userInstruments {
+  userInstruments {
+    instruments {
+      id
+    }
+  }
+}
+    `;
 export const UserHasAccessDocument = gql`
     query userHasAccess($proposalPk: Int!) {
   userHasAccessToProposal(proposalPk: $proposalPk)
@@ -2695,6 +2718,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     instrumentScientistHasInstrument(variables: InstrumentScientistHasInstrumentQueryVariables): Promise<InstrumentScientistHasInstrumentQuery> {
       return withWrapper(() => client.request<InstrumentScientistHasInstrumentQuery>(print(InstrumentScientistHasInstrumentDocument), variables));
+    },
+    userInstruments(variables?: UserInstrumentsQueryVariables): Promise<UserInstrumentsQuery> {
+      return withWrapper(() => client.request<UserInstrumentsQuery>(print(UserInstrumentsDocument), variables));
     },
     userHasAccess(variables: UserHasAccessQueryVariables): Promise<UserHasAccessQuery> {
       return withWrapper(() => client.request<UserHasAccessQuery>(print(UserHasAccessDocument), variables));

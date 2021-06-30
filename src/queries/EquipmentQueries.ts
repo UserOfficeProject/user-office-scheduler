@@ -2,6 +2,7 @@ import { ResolverContext } from '../context';
 import { EquipmentDataSource } from '../datasources/EquipmentDataSource';
 import { ScheduledEventDataSource } from '../datasources/ScheduledEventDataSource';
 import Authorized from '../decorators/Authorized';
+import { getUserInstruments } from '../helpers/instrumentHelpers';
 import { isUserOfficer } from '../helpers/permissionHelpers';
 import {
   Equipment,
@@ -38,8 +39,14 @@ export default class EquipmentQueries {
         return [];
       }
 
+      const userInstruments = await getUserInstruments(ctx);
+      const userInstrumentIds = userInstruments.map(
+        (instrument) => instrument.id
+      );
+
       const equipments = this.equipmentDataSource.getAllUserEquipments(
         ctx.user.id,
+        userInstrumentIds,
         equipmentIds
       );
 

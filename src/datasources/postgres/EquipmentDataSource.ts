@@ -85,7 +85,7 @@ export default class PostgresEquipmentDataSource
     equipmentIds?: number[]
   ): Promise<Equipment[]> {
     const equipmentRecords = await database<EquipmentRecord>(this.tableName)
-      .select('equipments.*')
+      .select(`${this.tableName}.*`)
       .distinctOn(`${this.tableName}.equipment_id`)
       .leftJoin(
         this.scheduledEventsEquipmentsTable,

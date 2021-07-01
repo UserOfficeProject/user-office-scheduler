@@ -42,6 +42,7 @@ export default function ProposalBookingDialog({
       PaperProps={{
         className: classes.fullHeight,
       }}
+      data-cy="equipment-booking-dialog"
     >
       <DialogTitle>Equipment booking</DialogTitle>
       <DialogContent>

@@ -371,7 +371,9 @@ context('Proposal booking tests ', () => {
           'exist'
         );
 
-        cy.get('[data-cy="btn-close-dialog"]').click();
+        cy.get(
+          '[data-cy="equipment-booking-dialog"] [data-cy="btn-close-dialog"]'
+        ).click();
       });
 
       it('should be able to view equipment assignment request from requests page', () => {

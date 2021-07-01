@@ -255,6 +255,17 @@ context('Proposal booking tests ', () => {
         cy.contains(/2020-09-21 15:00:00/);
       });
 
+      it('should show warning if some equipment is not accepted', () => {
+        cy.get('[data-cy="accepted-equipment-warning"]').should(
+          'contain.text',
+          'Warning'
+        );
+        cy.get('[data-cy="accepted-equipment-warning"]').should(
+          'contain.text',
+          'All booked equipments must be accepted before activating the booking'
+        );
+      });
+
       it('should not show already assigned equipments', () => {
         cy.get('[data-cy=btn-book-equipment]').click();
 

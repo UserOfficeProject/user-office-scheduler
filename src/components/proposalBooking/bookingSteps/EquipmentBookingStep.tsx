@@ -8,12 +8,17 @@ import {
   Toolbar,
 } from '@material-ui/core';
 import { Add as AddIcon } from '@material-ui/icons';
+import Alert from '@material-ui/lab/Alert';
+import AlertTitle from '@material-ui/lab/AlertTitle';
 import { useSnackbar } from 'notistack';
 import React, { useState, useContext } from 'react';
 
 import Loader from 'components/common/Loader';
 import { AppContext } from 'context/AppContext';
-import { ProposalBookingStatus } from 'generated/sdk';
+import {
+  EquipmentAssignmentStatus,
+  ProposalBookingStatus,
+} from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import useScheduledEventsWithEquipments from 'hooks/scheduledEvent/useScheduledEventsWithEquipments';
 
@@ -40,6 +45,9 @@ const useStyles = makeStyles((theme) => ({
   spacingLeft: {
     marginLeft: theme.spacing(2),
   },
+  spacingTop: {
+    marginTop: theme.spacing(2),
+  },
 }));
 
 export default function EquipmentBookingStep({
@@ -62,6 +70,12 @@ export default function EquipmentBookingStep({
   } = useScheduledEventsWithEquipments(proposalBooking.id);
 
   const isLoading = scheduledEventsLoading || loading;
+
+  const allEquipmentsAccepted = scheduledEvents.every((event) =>
+    event.equipments.every(
+      (equipment) => equipment.status === EquipmentAssignmentStatus.ACCEPTED
+    )
+  );
 
   const handleCloseDialog = () => {
     setEquipmentDialog(false);
@@ -183,6 +197,16 @@ export default function EquipmentBookingStep({
           onDeleteAssignment={handleDeleteAssignment}
           readOnly={isStepReadOnly}
         />
+        {!allEquipmentsAccepted && (
+          <Alert
+            severity="warning"
+            className={classes.spacingTop}
+            data-cy="accepted-equipment-warning"
+          >
+            <AlertTitle>Warning</AlertTitle>
+            All booked equipments must be accepted before activating the booking
+          </Alert>
+        )}
       </DialogContent>
 
       <DialogActions>
@@ -198,7 +222,7 @@ export default function EquipmentBookingStep({
         <Button
           variant="contained"
           color="primary"
-          disabled={isStepReadOnly}
+          disabled={isStepReadOnly || !allEquipmentsAccepted}
           onClick={handleActivateSubmit}
         >
           Activate booking

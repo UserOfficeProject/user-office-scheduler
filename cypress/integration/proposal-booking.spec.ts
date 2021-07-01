@@ -203,16 +203,10 @@ context('Proposal booking tests ', () => {
       it('should show confirmation when there are overlapping events', () => {
         cy.get('[data-cy=btn-add-time-slot]').click();
 
-        cy.get('[data-cy=btn-time-table-edit-row]')
-          .last()
-          .click();
+        cy.get('[data-cy=btn-time-table-edit-row]').last().click();
 
-        cy.get('[data-cy=startsAt] input')
-          .clear()
-          .type('2020-09-21 14:00:00');
-        cy.get('[data-cy=endsAt] input')
-          .clear()
-          .type('2020-09-21 15:00:00');
+        cy.get('[data-cy=startsAt] input').clear().type('2020-09-21 14:00:00');
+        cy.get('[data-cy=endsAt] input').clear().type('2020-09-21 15:00:00');
 
         cy.get('[data-cy=btn-time-table-save-row]').click();
 
@@ -259,6 +253,17 @@ context('Proposal booking tests ', () => {
 
         cy.contains(/2020-09-21 14:00:00/);
         cy.contains(/2020-09-21 15:00:00/);
+      });
+
+      it('should show warning if some equipment is not accepted', () => {
+        cy.get('[data-cy="accepted-equipment-warning"]').should(
+          'contain.text',
+          'Warning'
+        );
+        cy.get('[data-cy="accepted-equipment-warning"]').should(
+          'contain.text',
+          'All booked equipments must be accepted before activating the booking'
+        );
       });
 
       it('should not show already assigned equipments', () => {

@@ -3,7 +3,10 @@ import {
   EquipmentAssignmentStatus,
   EquipmentResponsible,
 } from '../../models/Equipment';
-import { ScheduledEvent } from '../../models/ScheduledEvent';
+import {
+  EquipmentsScheduledEvent,
+  ScheduledEvent,
+} from '../../models/ScheduledEvent';
 import {
   EquipmentInput,
   AssignEquipmentsToScheduledEventInput,
@@ -291,6 +294,7 @@ export default class PostgresEquipmentDataSource
 
     return deletedRecords.length === 1;
   }
+
   async addEquipmentResponsible(
     input: EquipmentResponsibleInput
   ): Promise<boolean> {
@@ -305,5 +309,35 @@ export default class PostgresEquipmentDataSource
         .returning('*');
 
     return equipmentResponsibleRecords.length === dataToInsert.length;
+  }
+
+  async equipmentEventsByProposalBookingId(
+    proposalBookingId: number
+  ): Promise<Array<EquipmentsScheduledEvent>> {
+    const equipmentScheduledEvents = await database<
+      EquipmentsScheduledEventsRecord[]
+    >(this.scheduledEventsTable)
+      .select(
+        `${this.scheduledEventsTable}.*`,
+        `${this.scheduledEventsEquipmentsTable}.*`
+      )
+      .join(
+        this.scheduledEventsEquipmentsTable,
+        `${this.scheduledEventsTable}.scheduled_event_id`,
+        `${this.scheduledEventsEquipmentsTable}.scheduled_event_id`
+      )
+      .where(
+        `${this.scheduledEventsTable}.proposal_booking_id`,
+        proposalBookingId
+      );
+
+    return equipmentScheduledEvents.map(
+      (record) =>
+        new EquipmentsScheduledEvent(
+          record.equipment_id,
+          record.scheduled_event_id,
+          record.status
+        )
+    );
   }
 }

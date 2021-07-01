@@ -3,7 +3,10 @@ import {
   EquipmentAssignmentStatus,
   EquipmentResponsible,
 } from '../models/Equipment';
-import { ScheduledEvent } from '../models/ScheduledEvent';
+import {
+  EquipmentsScheduledEvent,
+  ScheduledEvent,
+} from '../models/ScheduledEvent';
 import {
   EquipmentInput,
   AssignEquipmentsToScheduledEventInput,
@@ -46,4 +49,7 @@ export interface EquipmentDataSource {
     addEquipmentResponsibleInput: EquipmentResponsibleInput
   ): Promise<boolean>;
   getEquipmentResponsible(equipmentId: number): Promise<EquipmentResponsible[]>;
+  equipmentEventsByProposalBookingId(
+    proposalBookingId: number
+  ): Promise<Array<EquipmentsScheduledEvent>>;
 }

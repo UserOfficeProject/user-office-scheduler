@@ -33,7 +33,8 @@ const proposalBookingQueries = new ProposalBookingQueries(
   proposalBookingDataSource
 );
 const proposalBookingMutations = new ProposalBookingMutations(
-  proposalBookingDataSource
+  proposalBookingDataSource,
+  equipmentDataSource
 );
 
 const lostTimeQueries = new LostTimeQueries(lostTimeDataSource);

@@ -2,10 +2,12 @@ import { logger } from '@esss-swap/duo-logger';
 import * as Yup from 'yup';
 
 import { ResolverContext } from '../context';
+import { EquipmentDataSource } from '../datasources/EquipmentDataSource';
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
 import Authorized from '../decorators/Authorized';
 import ValidateArgs from '../decorators/ValidateArgs';
 import { instrumentScientistHasAccess } from '../helpers/permissionHelpers';
+import { EquipmentAssignmentStatus } from '../models/Equipment';
 import {
   ProposalBooking,
   ProposalBookingFinalizeAction,
@@ -14,7 +16,10 @@ import { Rejection, rejection } from '../rejection';
 import { Roles } from '../types/shared';
 
 export default class ProposalBookingMutations {
-  constructor(private proposalBookingDataSource: ProposalBookingDataSource) {}
+  constructor(
+    private proposalBookingDataSource: ProposalBookingDataSource,
+    private equipmentDataSource: EquipmentDataSource
+  ) {}
 
   // the action is validated by graphql
   @ValidateArgs(Yup.mixed().required(), Yup.number().required())
@@ -50,9 +55,19 @@ export default class ProposalBookingMutations {
     id: number
   ): Promise<ProposalBooking | Rejection> {
     const proposalBooking = await this.proposalBookingDataSource.get(id);
+    const allProposalBookingEquipmentEvents =
+      await this.equipmentDataSource.equipmentEventsByProposalBookingId(id);
+
+    const allEquipmentsAccepted = allProposalBookingEquipmentEvents.every(
+      (event) => event.status === EquipmentAssignmentStatus.ACCEPTED
+    );
 
     if (!proposalBooking) {
       return rejection('NOT_FOUND');
+    }
+
+    if (!allEquipmentsAccepted) {
+      return rejection('NOT_ALLOWED');
     }
 
     if (!(await instrumentScientistHasAccess(ctx, proposalBooking))) {

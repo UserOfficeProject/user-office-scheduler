@@ -143,17 +143,23 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
   const [rows, setRows] = useState<TableRow[]>([]);
   const [confirmationLoading, setConfirmationLoading] = useState(false);
   useEffect(() => {
-    if (!scheduledEventsLoading && scheduledEvents?.length) {
-      setRows(
-        scheduledEvents[0].events.map(
-          ({ startsAt, endsAt, equipmentAssignmentStatus, ...rest }) => ({
-            ...rest,
-            equipmentAssignmentStatus,
-            startsAt: parseTzLessDateTime(startsAt),
-            endsAt: parseTzLessDateTime(endsAt),
-          })
-        )
+    if (!scheduledEventsLoading && scheduledEvents?.length && equipment) {
+      const equipmentWithEvents = scheduledEvents.find(
+        (event) => event.id === equipment.id
       );
+
+      if (equipmentWithEvents) {
+        setRows(
+          equipmentWithEvents.events.map(
+            ({ startsAt, endsAt, equipmentAssignmentStatus, ...rest }) => ({
+              ...rest,
+              equipmentAssignmentStatus,
+              startsAt: parseTzLessDateTime(startsAt),
+              endsAt: parseTzLessDateTime(endsAt),
+            })
+          )
+        );
+      }
     }
   }, [scheduledEventsLoading, scheduledEvents]);
   if (equipmentLoading) {

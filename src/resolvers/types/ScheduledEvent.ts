@@ -8,6 +8,7 @@ import {
   Root,
   Ctx,
   Int,
+  Directive,
 } from 'type-graphql';
 
 import { ResolverContext } from '../../context';
@@ -23,6 +24,7 @@ import { ProposalBooking } from './ProposalBooking';
 import { User } from './User';
 
 @ObjectType()
+@Directive('@key(fields: "id")')
 export class ScheduledEvent implements Partial<ScheduledEventBase> {
   @Field(() => ID)
   id: number;

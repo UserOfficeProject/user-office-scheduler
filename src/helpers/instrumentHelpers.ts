@@ -1,4 +1,5 @@
 import { ResolverContext } from '../context';
+import { Instrument } from '../generated/sdk';
 import { Roles } from '../types/shared';
 import { hasRole } from '../utils/authorization';
 
@@ -19,4 +20,16 @@ export async function instrumentScientistHasInstrument(
   }
 
   return true;
+}
+
+export async function getUserInstruments(
+  ctx: ResolverContext
+): Promise<Pick<Instrument, 'id'>[]> {
+  const { userInstruments } = await ctx.clients.userOffice().userInstruments();
+
+  if (!userInstruments?.instruments) {
+    return [];
+  }
+
+  return userInstruments.instruments;
 }

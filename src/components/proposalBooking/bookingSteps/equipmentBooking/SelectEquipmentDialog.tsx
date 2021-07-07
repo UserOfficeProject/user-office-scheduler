@@ -5,9 +5,8 @@ import {
   TableCell,
   Dialog,
 } from '@material-ui/core';
-import { DoneAll as DoneAllIcon } from '@material-ui/icons';
 import { useSnackbar } from 'notistack';
-import React from 'react';
+import React, { useState } from 'react';
 
 import Loader from 'components/common/Loader';
 import Table, { HeadCell } from 'components/common/Table';
@@ -44,6 +43,7 @@ export default function SelectEquipmentDialog({
   const { enqueueSnackbar } = useSnackbar();
   const api = useDataApi();
   const { equipments, loading } = useAvailableEquipments(scheduledEvent.id);
+  const [selectedEquipments, setSelectedEquipments] = useState<string[]>([]);
 
   const handleAssign = async (ids: string[]) => {
     const { assignToScheduledEvents: success } =
@@ -64,26 +64,20 @@ export default function SelectEquipmentDialog({
     success && closeDialog(true);
   };
 
-  const selectActions = [
-    {
-      tooltip: 'Assign equipment',
-      icon: <DoneAllIcon data-cy="btn-assign-all" />,
-      onClick: handleAssign,
-    },
-  ];
-
   return (
     <Dialog open={isDialogOpen} maxWidth="md" fullWidth>
       {loading && <Loader />}
       <DialogContent>
         <Table
           selectable
+          onSelectionChange={(selectedItems) =>
+            setSelectedEquipments(selectedItems)
+          }
           defaultOrderBy="name"
           tableTitle="Equipments"
           headCells={defaultHeadCells}
           tableContainerMaxHeight={600}
           showEmptyRows
-          tooltipActions={selectActions}
           rows={equipments}
           extractKey={(el) => el.id}
           renderRow={(row) => {
@@ -99,6 +93,15 @@ export default function SelectEquipmentDialog({
         />
       </DialogContent>
       <DialogActions>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => handleAssign(selectedEquipments)}
+          disabled={!selectedEquipments.length}
+          data-cy="btn-assign-equipment"
+        >
+          Assign equipment
+        </Button>
         <Button color="primary" onClick={() => closeDialog()}>
           Close
         </Button>

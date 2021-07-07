@@ -274,6 +274,7 @@ export type TableProps<T extends Record<string, unknown>> = {
   extractKey: (obj: T) => string;
   onDelete?: (ids: string[]) => void;
   onPageChange?: (page: number) => void;
+  onSelectionChange?: (selected: string[]) => void;
   'data-cy'?: string;
 };
 
@@ -287,6 +288,10 @@ const labelDisplayedRows = ({ from, to, count }: LabelDisplayedRowsArgs) => {
   return `${range} of ${of}`;
 };
 
+/**
+ * TODO: Maybe we should replace this Table component with material-table.
+ * To be consistent with the core-frontend and because now it is included in the scheduler-frontend anyway.
+ */
 export default function Table<T extends { [k: string]: any }>({
   headCells,
   rows,
@@ -300,6 +305,7 @@ export default function Table<T extends { [k: string]: any }>({
   renderRow,
   extractKey,
   onPageChange,
+  onSelectionChange,
   ...rest
 }: TableProps<T>) {
   const classes = useStyles();
@@ -328,10 +334,12 @@ export default function Table<T extends { [k: string]: any }>({
     if (event.target.checked) {
       const newSelectedRows = rows.map((n) => extractKey(n));
       setSelected(newSelectedRows);
+      onSelectionChange?.(newSelectedRows);
 
       return;
     }
     setSelected([]);
+    onSelectionChange?.([]);
   };
 
   const handleClick = (_: React.MouseEvent<unknown>, key: string) => {
@@ -352,6 +360,7 @@ export default function Table<T extends { [k: string]: any }>({
     }
 
     setSelected(newSelected);
+    onSelectionChange?.(newSelected);
   };
 
   const handleChangePage = (_: unknown, newPage: number) => {
@@ -389,6 +398,7 @@ export default function Table<T extends { [k: string]: any }>({
           const onClick = () => {
             action.onClick(selected);
             action.clearSelect && setSelected([]);
+            action.clearSelect && onSelectionChange?.([]);
           };
 
           return {

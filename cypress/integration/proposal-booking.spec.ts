@@ -249,7 +249,7 @@ context('Proposal booking tests ', () => {
 
         cy.get('[data-cy=enhanced-table-checkbox-0]').click();
         cy.get('[data-cy=enhanced-table-checkbox-1]').click();
-        cy.get('[data-cy=btn-assign-all]').click();
+        cy.get('[data-cy=btn-assign-equipment]').click();
 
         cy.contains(/2020-09-21 14:00:00/);
         cy.contains(/2020-09-21 15:00:00/);

@@ -161,7 +161,7 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
         );
       }
     }
-  }, [scheduledEventsLoading, scheduledEvents]);
+  }, [scheduledEventsLoading, scheduledEvents, equipment]);
   if (equipmentLoading) {
     return <Loader container />;
   }

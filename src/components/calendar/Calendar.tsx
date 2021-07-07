@@ -1,4 +1,13 @@
-import { Grid, makeStyles } from '@material-ui/core';
+import {
+  IconButton,
+  Collapse,
+  Grid,
+  makeStyles,
+  useTheme,
+  Tooltip,
+} from '@material-ui/core';
+import ChevronLeft from '@material-ui/icons/ChevronLeft';
+import CloseIcon from '@material-ui/icons/Close';
 import clsx from 'clsx';
 import generateScheduledEventFilter from 'filters/scheduledEvent/scheduledEventsFilter';
 import moment from 'moment';
@@ -47,15 +56,26 @@ const CALENDAR_DEFAULT_VIEW = 'week';
 
 export type ExtendedView = View | 'year';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   fullHeight: {
     height: '100%',
+    position: 'relative',
   },
   relative: {
     position: 'relative',
   },
   eventDescription: {
     marginTop: 5,
+  },
+  collapsibleGrid: {
+    overflow: 'hidden',
+  },
+  eventToolbarButton: {
+    position: 'absolute',
+    right: -24,
+    top: -24,
+    background: theme.palette.grey[200],
+    borderRadius: 0,
   },
 }));
 
@@ -101,6 +121,7 @@ function slotPropGetter(date: Date): any {
 
 export default function Calendar() {
   const classes = useStyles();
+  const theme = useTheme();
 
   const query = useQuery();
   const queryInstrument = query.get('instrument');
@@ -128,6 +149,7 @@ export default function Calendar() {
   const [selectedEquipmentBooking, setSelectedEquipmentBooking] = useState<
     string | null
   >(null);
+  const [showTodoBox, setShowTodoBox] = useState<boolean>(true);
 
   const {
     proposalBookings,
@@ -318,7 +340,30 @@ export default function Calendar() {
               />
             )}
             <Grid container className={classes.fullHeight}>
-              <Grid item xs={10} className={classes.fullHeight}>
+              <Grid
+                item
+                xs={showTodoBox ? 10 : 12}
+                className={classes.fullHeight}
+                style={{
+                  transition: theme.transitions.create('all', {
+                    easing: theme.transitions.easing.sharp,
+                    duration: theme.transitions.duration.leavingScreen,
+                  }),
+                }}
+              >
+                {!showTodoBox && (
+                  <Tooltip title="Open event toolbar">
+                    <IconButton
+                      onClick={() => setShowTodoBox(true)}
+                      aria-label="Open event toolbar"
+                      className={classes.eventToolbarButton}
+                      size="small"
+                      data-cy="open-event-toolbar"
+                    >
+                      <ChevronLeft />
+                    </IconButton>
+                  </Tooltip>
+                )}
                 {
                   // @ts-expect-error test
                   <BigCalendar
@@ -368,12 +413,25 @@ export default function Calendar() {
                   />
                 }
               </Grid>
-              <Grid item xs={2} className={classes.fullHeight}>
-                <CalendarTodoBox
-                  refreshCalendar={refresh}
-                  onNewSimpleEvent={handleNewSimpleEvent}
-                  proposalBookings={proposalBookings}
-                />
+              <Grid item xs className={classes.collapsibleGrid}>
+                <Collapse in={showTodoBox}>
+                  <Tooltip title="Close event toolbar">
+                    <IconButton
+                      onClick={() => setShowTodoBox(false)}
+                      aria-label="Close event toolbar"
+                      className={classes.eventToolbarButton}
+                      size="small"
+                      data-cy="close-event-toolbar"
+                    >
+                      <CloseIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <CalendarTodoBox
+                    refreshCalendar={refresh}
+                    onNewSimpleEvent={handleNewSimpleEvent}
+                    proposalBookings={proposalBookings}
+                  />
+                </Collapse>
               </Grid>
             </Grid>
             {(loadingEvents || loadingBookings) && <Loader />}

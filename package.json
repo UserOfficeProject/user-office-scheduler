@@ -50,7 +50,7 @@
     "express-jwt": "^6.0.0",
     "graphql": "^15.5.0",
     "graphql-request": "^3.4.0",
-    "graphql-tag": "^2.11.0",
+    "graphql-tag": "^2.12.4",
     "jsonwebtoken": "^8.5.1",
     "knex": "^0.21.19",
     "luxon": "^1.26.0",

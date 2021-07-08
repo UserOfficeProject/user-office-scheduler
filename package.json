@@ -37,7 +37,7 @@
     "@esss-swap/duo-logger": "^1.1.0",
     "@esss-swap/duo-message-broker": "^1.0.4",
     "@esss-swap/duo-validation": "^2.0.4",
-    "apollo-graphql": "^0.6.1",
+    "apollo-graphql": "^0.9.3",
     "apollo-server": "^2.24.0",
     "apollo-server-core": "^2.24.0",
     "apollo-server-express": "^2.24.0",

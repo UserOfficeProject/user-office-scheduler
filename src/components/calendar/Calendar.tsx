@@ -414,18 +414,20 @@ export default function Calendar() {
                 }
               </Grid>
               <Grid item xs className={classes.collapsibleGrid}>
-                <Collapse in={showTodoBox}>
-                  <Tooltip title="Close event toolbar">
-                    <IconButton
-                      onClick={() => setShowTodoBox(false)}
-                      aria-label="Close event toolbar"
-                      className={classes.eventToolbarButton}
-                      size="small"
-                      data-cy="close-event-toolbar"
-                    >
-                      <CloseIcon />
-                    </IconButton>
-                  </Tooltip>
+                <Collapse in={showTodoBox} data-cy="collapsible-event-toolbar">
+                  {showTodoBox && (
+                    <Tooltip title="Close event toolbar">
+                      <IconButton
+                        onClick={() => setShowTodoBox(false)}
+                        aria-label="Close event toolbar"
+                        className={classes.eventToolbarButton}
+                        size="small"
+                        data-cy="close-event-toolbar"
+                      >
+                        <CloseIcon />
+                      </IconButton>
+                    </Tooltip>
+                  )}
                   <CalendarTodoBox
                     refreshCalendar={refresh}
                     onNewSimpleEvent={handleNewSimpleEvent}

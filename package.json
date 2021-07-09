@@ -38,7 +38,7 @@
     "@types/react-router": "^5.1.14",
     "@types/react-dom": "^17.0.5",
     "@types/react-router-dom": "^5.1.7",
-    "@types/yup": "^0.29.10",
+    "@types/yup": "^0.29.11",
     "date-fns": "^2.21.3",
     "dateformat": "^4.5.1",
     "formik": "^2.2.6",

@@ -54,7 +54,7 @@
     "jsonwebtoken": "^8.5.1",
     "knex": "^0.21.19",
     "luxon": "^1.26.0",
-    "pg": "^8.5.1",
+    "pg": "^8.6.0",
     "reflect-metadata": "^0.1.13",
     "type-graphql": "^1.1.1",
     "yup": "^0.31.1"

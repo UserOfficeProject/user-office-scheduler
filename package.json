@@ -46,7 +46,7 @@
     "formik-material-ui-pickers": "0.0.12",
     "graphql": "^15.5.0",
     "graphql-request": "^3.4.0",
-    "humanize-duration": "^3.24.0",
+    "humanize-duration": "^3.27.0",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
     "material-table": "~1.62.0",

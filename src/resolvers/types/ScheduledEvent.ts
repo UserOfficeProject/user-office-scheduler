@@ -1,7 +1,6 @@
 import { Type } from 'class-transformer';
 import {
   Field,
-  ID,
   ObjectType,
   FieldResolver,
   Resolver,
@@ -26,7 +25,7 @@ import { User } from './User';
 @ObjectType()
 @Directive('@key(fields: "id")')
 export class ScheduledEvent implements Partial<ScheduledEventBase> {
-  @Field(() => ID)
+  @Field(() => Int)
   id: number;
 
   @Field(() => Date)

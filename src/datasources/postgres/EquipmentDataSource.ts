@@ -84,18 +84,33 @@ export default class PostgresEquipmentDataSource
 
   async getAllUserEquipments(
     userId: string,
+    userInstrumentIds: number[],
     equipmentIds?: number[]
   ): Promise<Equipment[]> {
     const equipmentRecords = await database<EquipmentRecord>(this.tableName)
-      .select('*')
-      .orderBy('name', 'asc')
-      .join(
+      .select(`${this.tableName}.*`)
+      .distinctOn(`${this.tableName}.equipment_id`)
+      .leftJoin(
+        this.scheduledEventsEquipmentsTable,
+        `${this.tableName}.equipment_id`,
+        `${this.scheduledEventsEquipmentsTable}.equipment_id`
+      )
+      .leftJoin(
+        this.scheduledEventsTable,
+        `${this.scheduledEventsEquipmentsTable}.scheduled_event_id`,
+        `${this.scheduledEventsTable}.scheduled_event_id`
+      )
+      .leftJoin(
         this.equipmentResponsibleTable,
         `${this.tableName}.equipment_id`,
         `${this.equipmentResponsibleTable}.equipment_id`
       )
       .where('owner_id', userId)
       .orWhere(`${this.equipmentResponsibleTable}.user_id`, userId)
+      .orWhereIn(
+        `${this.scheduledEventsTable}.instrument_id`,
+        userInstrumentIds
+      )
       .modify((qb) => {
         if (equipmentIds?.length) {
           qb.whereIn(`${this.tableName}.equipment_id`, equipmentIds);

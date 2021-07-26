@@ -1,13 +1,13 @@
 import { Type } from 'class-transformer';
 import {
   Field,
-  ID,
   ObjectType,
   FieldResolver,
   Resolver,
   Root,
   Ctx,
   Int,
+  Directive,
 } from 'type-graphql';
 
 import { ResolverContext } from '../../context';
@@ -23,8 +23,9 @@ import { ProposalBooking } from './ProposalBooking';
 import { User } from './User';
 
 @ObjectType()
+@Directive('@key(fields: "id")')
 export class ScheduledEvent implements Partial<ScheduledEventBase> {
-  @Field(() => ID)
+  @Field(() => Int)
   id: number;
 
   @Field(() => Date)

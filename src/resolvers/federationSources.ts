@@ -10,7 +10,8 @@ export default function federationSources(): {
   return {
     orphanedTypes: [],
     referenceResolvers: {
-      // $Name: { __resolveReference: resolve$NameReference },
+      // Example:
+      // ScheduledEvent: { __resolveReference: resolveScheduledEventReference },
     },
   };
 }

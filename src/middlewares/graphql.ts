@@ -28,7 +28,6 @@ const apolloServer = async (app: Express) => {
       resolvers: [
         __dirname + '/../resolvers/**/*Query.{ts,js}',
         __dirname + '/../resolvers/**/*Mutation.{ts,js}',
-        __dirname + '/../resolvers/**/*Resolver.{ts,js}',
       ],
       orphanedTypes: [...orphanedTypes],
     },

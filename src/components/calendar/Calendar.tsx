@@ -125,7 +125,7 @@ export default function Calendar() {
 
   const query = useQuery();
   const queryInstrument = query.get('instrument');
-  const queryEquipment = query.get('equipment')?.split(',') || [];
+  const queryEquipment = query.get('equipment')?.split(',');
 
   const { showAlert } = useContext(AppContext);
   const [selectedEvent, setSelectedEvent] = useState<
@@ -165,13 +165,14 @@ export default function Calendar() {
 
   const {
     scheduledEvents: eqEvents,
+    setScheduledEvents,
     selectedEquipment,
     setSelectedEquipments,
-  } = useEquipmentScheduledEvents(
-    queryEquipment,
-    filter.startsAt,
-    filter.endsAt
-  );
+  } = useEquipmentScheduledEvents({
+    equipmentIds: queryEquipment,
+    startsAt: filter.startsAt,
+    endsAt: filter.endsAt,
+  });
 
   const equipmentEventsOnly = eqEvents.map((eqEvent) => eqEvent.events).flat(1);
 
@@ -179,12 +180,25 @@ export default function Calendar() {
     refreshEvents();
     refreshBookings();
   };
-  if (
-    selectedEquipment.length !== queryEquipment.length ||
-    !selectedEquipment.every((eq) => queryEquipment.includes(eq.toString()))
-  ) {
-    setSelectedEquipments(queryEquipment.map((item) => parseInt(item)));
-  }
+
+  useEffect(() => {
+    if (!selectedEquipment && !queryEquipment) {
+      setScheduledEvents([]);
+    }
+
+    if (
+      selectedEquipment?.length !== queryEquipment?.length ||
+      !selectedEquipment?.every((eq) => queryEquipment?.includes(eq.toString()))
+    ) {
+      setSelectedEquipments(queryEquipment?.map((item) => parseInt(item)));
+    }
+  }, [
+    selectedEquipment,
+    queryEquipment,
+    setSelectedEquipments,
+    setScheduledEvents,
+  ]);
+
   useEffect(() => {
     setFilter(generateScheduledEventFilter(queryInstrument, startsAt, view));
   }, [queryInstrument, startsAt, view]);

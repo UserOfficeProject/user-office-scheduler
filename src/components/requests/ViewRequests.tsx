@@ -41,11 +41,11 @@ export default function ViewRequests() {
   const { enqueueSnackbar } = useSnackbar();
   const { showConfirmation } = useContext(AppContext);
   const { loading: scheduledEventsLoading, scheduledEvents } =
-    useEquipmentScheduledEvents(
-      [], // NOTE: Empty array is used to load all equipments.
-      toTzLessDateTime(new Date()),
-      toTzLessDateTime(moment(new Date()).add(1, 'year'))
-    );
+    useEquipmentScheduledEvents({
+      equipmentIds: [], // NOTE: Empty array is used to load all equipments.
+      startsAt: toTzLessDateTime(new Date()),
+      endsAt: toTzLessDateTime(moment(new Date()).add(1, 'year')),
+    });
   const api = useDataApi();
   const [rows, setRows] = useState<TableRow[]>([]);
   const [confirmationLoading, setConfirmationLoading] = useState(false);

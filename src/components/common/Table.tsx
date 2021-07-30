@@ -363,7 +363,10 @@ export default function Table<T extends { [k: string]: any }>({
     onSelectionChange?.(newSelected);
   };
 
-  const handleChangePage = (_: unknown, newPage: number) => {
+  const handlePageChange = (
+    event: React.MouseEvent<HTMLButtonElement> | null,
+    newPage: number
+  ) => {
     setPage(newPage);
   };
 
@@ -497,7 +500,7 @@ export default function Table<T extends { [k: string]: any }>({
         count={rows.length}
         rowsPerPage={rowsPerPage}
         page={page}
-        onChangePage={handleChangePage}
+        onPageChange={handlePageChange}
         onChangeRowsPerPage={handleChangeRowsPerPage}
       />
     </>

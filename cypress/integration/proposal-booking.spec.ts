@@ -73,6 +73,8 @@ context('Proposal booking tests ', () => {
         timeout: 15000,
       });
 
+      cy.finishedLoading();
+
       cy.get('[data-cy=input-instrument-select]').click();
 
       cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
@@ -124,12 +126,8 @@ context('Proposal booking tests ', () => {
 
         cy.get('[data-cy=btn-time-table-save-row]').click();
 
-        cy.get('[data-cy=startsAt] input').type(
-          getHourDateTimeAfter(2)
-        );
-        cy.get('[data-cy=endsAt] input').type(
-          getHourDateTimeAfter(3)
-        );
+        cy.get('[data-cy=startsAt] input').type(getHourDateTimeAfter(2));
+        cy.get('[data-cy=endsAt] input').type(getHourDateTimeAfter(3));
 
         cy.get('[data-cy=btn-time-table-save-row]').click();
 
@@ -141,9 +139,7 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy=startsAt] input')
           .clear()
           .type(getHourDateTimeAfter(24));
-        cy.get('[data-cy=endsAt] input')
-          .clear()
-          .type(getHourDateTimeAfter(25));
+        cy.get('[data-cy=endsAt] input').clear().type(getHourDateTimeAfter(25));
 
         cy.get('[data-cy=btn-time-table-reset-row]').click();
 
@@ -205,9 +201,7 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy=startsAt] input')
           .clear()
           .type(getHourDateTimeAfter(24));
-        cy.get('[data-cy=endsAt] input')
-          .clear()
-          .type(getHourDateTimeAfter(20));
+        cy.get('[data-cy=endsAt] input').clear().type(getHourDateTimeAfter(20));
 
         cy.get('[data-cy=btn-time-table-save-row]').click();
 
@@ -221,9 +215,7 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy=btn-time-table-edit-row]').last().click();
 
         cy.get('[data-cy=startsAt] input').clear().type(currentHourDateTime);
-        cy.get('[data-cy=endsAt] input')
-          .clear()
-          .type(getHourDateTimeAfter(1));
+        cy.get('[data-cy=endsAt] input').clear().type(getHourDateTimeAfter(1));
 
         cy.get('[data-cy=btn-time-table-save-row]').click();
 
@@ -592,12 +584,8 @@ context('Proposal booking tests ', () => {
 
         cy.get('[data-cy=btn-time-table-save-row]').click();
 
-        cy.get('[data-cy=startsAt] input').type(
-          getHourDateTimeAfter(24)
-        );
-        cy.get('[data-cy=endsAt] input').type(
-          getHourDateTimeAfter(25)
-        );
+        cy.get('[data-cy=startsAt] input').type(getHourDateTimeAfter(24));
+        cy.get('[data-cy=endsAt] input').type(getHourDateTimeAfter(25));
 
         cy.get('[data-cy=btn-time-table-save-row]').click();
 
@@ -609,9 +597,7 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy=startsAt] input')
           .clear()
           .type(getHourDateTimeAfter(48));
-        cy.get('[data-cy=endsAt] input')
-          .clear()
-          .type(getHourDateTimeAfter(49));
+        cy.get('[data-cy=endsAt] input').clear().type(getHourDateTimeAfter(49));
 
         cy.get('[data-cy=btn-time-table-reset-row]').click();
 
@@ -647,12 +633,8 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy=startsAt] input').clear();
         cy.get('[data-cy=endsAt] input').clear();
 
-        cy.get('[data-cy=startsAt] input').type(
-          getHourDateTimeAfter(48)
-        );
-        cy.get('[data-cy=endsAt] input').type(
-          getHourDateTimeAfter(24)
-        );
+        cy.get('[data-cy=startsAt] input').type(getHourDateTimeAfter(48));
+        cy.get('[data-cy=endsAt] input').type(getHourDateTimeAfter(24));
 
         cy.get('[data-cy=btn-time-table-save-row]').click();
 

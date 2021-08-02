@@ -54,6 +54,29 @@ Cypress.Commands.add('resetDB', () => {
   cy.wrap(request);
 });
 
+Cypress.Commands.add('createEvent', (newScheduledEvent) => {
+  const query = `mutation {
+    createScheduledEvent(newScheduledEvent: {
+      instrumentId: ${newScheduledEvent.instrumentId},
+      bookingType: ${newScheduledEvent.bookingType},
+      endsAt: "${newScheduledEvent.endsAt}",
+      startsAt: "${newScheduledEvent.startsAt}",
+      description: "${newScheduledEvent.description}"
+    }) {
+      error
+      scheduledEvent {
+        id
+      }
+    }
+  }`;
+  const authHeader = `Bearer ${Cypress.env('SVC_ACC_TOKEN')}`;
+  const request = new GraphQLClient('/gateway', {
+    headers: { authorization: authHeader },
+  }).rawRequest(query, null);
+
+  cy.wrap(request);
+});
+
 Cypress.Commands.add('resetSchedulerDB', () => {
   const query = `mutation {
     resetSchedulerDb(includeSeeds: true)

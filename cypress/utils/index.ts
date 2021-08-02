@@ -1,5 +1,14 @@
-import moment, { DurationInputArg2 } from 'moment';
-import { toTzLessDateTime } from '../../src/utils/date';
+import moment, { DurationInputArg2, Moment } from 'moment';
+
+export const TZ_LESS_DATE_TIME_FORMAT = 'yyyy-MM-DD HH:mm:ss';
+
+export const toTzLessDateTime = (dateTime: Moment | Date | string): string => {
+  if (dateTime instanceof Date || typeof dateTime === 'string') {
+    dateTime = moment(dateTime);
+  }
+
+  return dateTime.format(TZ_LESS_DATE_TIME_FORMAT);
+};
 
 export const getCurrentHourDateTime = () => {
   const now = new Date();

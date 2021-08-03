@@ -95,7 +95,7 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy=btn-add-time-slot]').click();
 
         cy.contains(currentHourDateTime);
-        cy.contains(getHourDateTimeAfter(1));
+        cy.contains(getHourDateTimeAfter(24));
 
         cy.get('[data-cy=btn-save]').click();
 
@@ -158,7 +158,8 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy=btn-time-table-edit-row]').should('exist');
 
         cy.contains(currentHourDateTime);
-        cy.contains(getHourDateTimeAfter(1));
+        cy.contains(getHourDateTimeAfter(24));
+
         cy.contains('Proposal title');
         cy.get('[data-cy="btn-next"]').should('exist');
       });
@@ -170,7 +171,7 @@ context('Proposal booking tests ', () => {
       });
 
       it('should display time allocation left', () => {
-        cy.contains('1 day, 23 hours left');
+        cy.contains('1 day');
       });
 
       it('should be able to delete time slot', () => {
@@ -244,7 +245,7 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy=btn-book-equipment]').click();
 
         cy.contains(currentHourDateTime);
-        cy.contains(getHourDateTimeAfter(1));
+        cy.contains(getHourDateTimeAfter(24));
 
         cy.get('[data-cy=btn-assign-to-scheduled-event').click();
 
@@ -260,7 +261,7 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy=btn-assign-equipment]').click();
 
         cy.contains(currentHourDateTime);
-        cy.contains(getHourDateTimeAfter(1));
+        cy.contains(getHourDateTimeAfter(24));
       });
 
       it('should show warning if some equipment is not accepted', () => {
@@ -284,7 +285,7 @@ context('Proposal booking tests ', () => {
 
       it('should show the assignment status', () => {
         cy.contains(currentHourDateTime);
-        cy.contains(getHourDateTimeAfter(1));
+        cy.contains(getHourDateTimeAfter(24));
 
         cy.get('[data-cy=btn-expand-row]').click();
 
@@ -403,7 +404,7 @@ context('Proposal booking tests ', () => {
           .contains(currentHourDateTime);
         cy.contains(/Available equipment 1 - no auto accept/i)
           .parent()
-          .contains(getHourDateTimeAfter(1));
+          .contains(getHourDateTimeAfter(24));
 
         cy.contains(/Available equipment 1 - no auto accept/i)
           .parent()
@@ -431,7 +432,7 @@ context('Proposal booking tests ', () => {
         cy.contains(/Available equipment 1 - no auto accept/i);
 
         cy.contains(currentHourDateTime);
-        cy.contains(getHourDateTimeAfter(1));
+        cy.contains(getHourDateTimeAfter(24));
 
         cy.get('[data-cy=btn-confirm-assignment-accept]').click();
 
@@ -503,7 +504,7 @@ context('Proposal booking tests ', () => {
         cy.finishedLoading();
 
         cy.contains(currentHourDateTime);
-        cy.contains(getHourDateTimeAfter(1));
+        cy.contains(getHourDateTimeAfter(24));
       });
     });
 

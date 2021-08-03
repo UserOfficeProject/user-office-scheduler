@@ -91,7 +91,7 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy=btn-add-time-slot]').click();
 
         cy.contains(/2020-09-21 14:00:00/);
-        cy.contains(/2020-09-21 15:00:00/);
+        cy.contains(/2020-09-22 14:00:00/);
 
         cy.get('[data-cy=btn-save]').click();
 
@@ -105,7 +105,7 @@ context('Proposal booking tests ', () => {
       it('Draft events should have opacity', () => {
         cy.get('[data-cy="btn-close-dialog"]').click();
 
-        cy.get('[title="14:00 – 15:00: User operations"]').should(
+        cy.get('[title="14:00 – : User operations"]').should(
           'have.css',
           'opacity',
           '0.6'
@@ -151,7 +151,7 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy=btn-time-table-edit-row]').should('exist');
 
         cy.contains(/2020-09-21 14:00:00/);
-        cy.contains(/2020-09-21 15:00:00/);
+        cy.contains(/2020-09-22 14:00:00/);
         cy.contains('Proposal title');
         cy.get('[data-cy="btn-next"]').should('exist');
       });
@@ -163,7 +163,7 @@ context('Proposal booking tests ', () => {
       });
 
       it('should display time allocation left', () => {
-        cy.contains('1 day, 23 hours left');
+        cy.contains('1 day');
       });
 
       it('should be able to delete time slot', () => {
@@ -235,7 +235,7 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy=btn-book-equipment]').click();
 
         cy.contains(/2020-09-21 14:00:00/);
-        cy.contains(/2020-09-21 15:00:00/);
+        cy.contains(/2020-09-22 14:00:00/);
 
         cy.get('[data-cy=btn-assign-to-scheduled-event').click();
 
@@ -252,7 +252,7 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy=btn-assign-equipment]').click();
 
         cy.contains(/2020-09-21 14:00:00/);
-        cy.contains(/2020-09-21 15:00:00/);
+        cy.contains(/2020-09-22 14:00:00/);
       });
 
       it('should show warning if some equipment is not accepted', () => {
@@ -276,7 +276,7 @@ context('Proposal booking tests ', () => {
 
       it('should show the assignment status', () => {
         cy.contains(/2020-09-21 14:00:00/);
-        cy.contains(/2020-09-21 15:00:00/);
+        cy.contains(/2020-09-22 14:00:00/);
 
         cy.get('[data-cy=btn-expand-row]').click();
 
@@ -395,7 +395,7 @@ context('Proposal booking tests ', () => {
           .contains(/2020-09-21 14:00:00/);
         cy.contains(/Available equipment 1 - no auto accept/i)
           .parent()
-          .contains(/2020-09-21 15:00:00/);
+          .contains(/2020-09-22 14:00:00/);
 
         cy.contains(/Available equipment 1 - no auto accept/i)
           .parent()
@@ -423,7 +423,7 @@ context('Proposal booking tests ', () => {
         cy.contains(/Available equipment 1 - no auto accept/i);
 
         cy.contains(/2020-09-21 14:00:00/);
-        cy.contains(/2020-09-21 15:00:00/);
+        cy.contains(/2020-09-22 14:00:00/);
 
         cy.get('[data-cy=btn-confirm-assignment-accept]').click();
 
@@ -495,7 +495,7 @@ context('Proposal booking tests ', () => {
         cy.finishedLoading();
 
         cy.contains(/2020-09-21 14:00:00/);
-        cy.contains(/2020-09-21 15:00:00/);
+        cy.contains(/2020-09-22 14:00:00/);
       });
     });
 
@@ -657,7 +657,7 @@ context('Proposal booking tests ', () => {
       it('Closed events should have gray color and opacity', () => {
         cy.get('[data-cy="btn-close-dialog"]').click();
 
-        cy.get('[title="14:00 – 15:00: User operations"]').should(
+        cy.get('[title="14:00 – : User operations"]').should(
           'have.css',
           'background-color',
           'rgba(0, 0, 0, 0.5)'

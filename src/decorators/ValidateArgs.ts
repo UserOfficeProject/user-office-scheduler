@@ -1,10 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ResourceId } from '@esss-swap/duo-localisation';
-import * as yup from 'yup';
+import * as Yup from 'yup';
 
 import { Rejection, rejection } from '../rejection';
 
-const schemaValidation = async (schema: yup.Schema<any>, inputArgs: any) => {
+const schemaValidation = async (
+  schema: Yup.AnyObjectSchema,
+  inputArgs: any
+) => {
   try {
     await schema.validate(inputArgs, { abortEarly: false });
   } catch (error) {
@@ -14,7 +17,7 @@ const schemaValidation = async (schema: yup.Schema<any>, inputArgs: any) => {
   return null;
 };
 
-const ValidateArgs = (...schemas: yup.Schema<any>[]) => {
+const ValidateArgs = (...schemas: Yup.AnyObjectSchema[]) => {
   return (
     target: any,
     name: string,

@@ -38,3 +38,30 @@ export const getFormattedDateAfter = (
   amount = 0,
   unit: DurationInputArg2 = 'days'
 ) => moment(currentHourDateTime).add(amount, unit).format(format);
+
+export const getFormattedBeginningOfSelectedWeek = (
+  format = 'DD',
+  selectedWeek = 0
+) =>
+  moment(currentHourDateTime)
+    .add(selectedWeek, 'week')
+    .startOf('isoWeek')
+    .format(format);
+
+export const getFormattedEndOfSelectedWeek = (selectedWeek = 0) => {
+  const beginningOfSelectedWeek = moment(currentHourDateTime)
+    .add(selectedWeek, 'week')
+    .startOf('isoWeek');
+  const endOfSelectedWeek = moment(currentHourDateTime)
+    .add(selectedWeek, 'week')
+    .endOf('isoWeek');
+
+  const areBeginningAndEndSameMonth = moment(beginningOfSelectedWeek).isSame(
+    endOfSelectedWeek,
+    'month'
+  );
+
+  const format = areBeginningAndEndSameMonth ? 'DD' : 'MMMM DD';
+
+  return endOfSelectedWeek.format(format);
+};

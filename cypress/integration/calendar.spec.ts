@@ -1,5 +1,7 @@
 import {
   currentHourDateTime,
+  getFormattedBeginningOfSelectedWeek,
+  getFormattedEndOfSelectedWeek,
   getFormattedDateAfter,
   getHourDateTimeAfter,
 } from '../utils';
@@ -79,96 +81,87 @@ context('Calendar tests', () => {
     it('should show the selected day', () => {
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
-        `${getFormattedDateAfter('MMMM DD')} – ${getFormattedDateAfter(
-          'DD',
-          6
-        )}`
+        `${getFormattedBeginningOfSelectedWeek(
+          'MMMM DD'
+        )} – ${getFormattedEndOfSelectedWeek()}`
       );
 
       cy.wait(500);
       cy.get('[data-cy=btn-view-next]').click();
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
-        `${getFormattedDateAfter(
+        `${getFormattedBeginningOfSelectedWeek(
           'MMMM DD',
-          1,
-          'week'
-        )} – ${getFormattedDateAfter('DD', 13)}`
+          1
+        )} – ${getFormattedEndOfSelectedWeek(1)}`
       );
 
       cy.wait(500);
       cy.get('[data-cy=btn-view-next]').click();
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
-        `${getFormattedDateAfter(
+        `${getFormattedBeginningOfSelectedWeek(
           'MMMM DD',
-          2,
-          'weeks'
-        )} – ${getFormattedDateAfter('DD', 20)}`
+          2
+        )} – ${getFormattedEndOfSelectedWeek(2)}`
       );
 
       cy.wait(500);
       cy.get('[data-cy=btn-view-prev]').click();
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
-        `${getFormattedDateAfter(
+        `${getFormattedBeginningOfSelectedWeek(
           'MMMM DD',
-          1,
-          'week'
-        )} – ${getFormattedDateAfter('DD', 13)}`
+          1
+        )} – ${getFormattedEndOfSelectedWeek(1)}`
       );
 
       cy.wait(500);
       cy.get('[data-cy=btn-view-today]').click();
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
-        `${getFormattedDateAfter('MMMM DD')} – ${getFormattedDateAfter(
-          'DD',
-          6
-        )}`
+        `${getFormattedBeginningOfSelectedWeek(
+          'MMMM DD'
+        )} – ${getFormattedEndOfSelectedWeek()}`
       );
 
       cy.wait(500);
       cy.get('[data-cy=btn-view-prev]').click();
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
-        `${getFormattedDateAfter(
+        `${getFormattedBeginningOfSelectedWeek(
           'MMMM DD',
-          -1,
-          'week'
-        )} – ${getFormattedDateAfter('MMMM DD', -1)}`
+          -1
+        )} – ${getFormattedEndOfSelectedWeek(-1)}`
       );
 
       cy.wait(500);
       cy.get('[data-cy=btn-view-prev]').click();
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
-        `${getFormattedDateAfter(
+        `${getFormattedBeginningOfSelectedWeek(
           'MMMM DD',
-          -2,
-          'weeks'
-        )} – ${getFormattedDateAfter('DD', -8)}`
+          -2
+        )} – ${getFormattedEndOfSelectedWeek(-2)}`
       );
 
       cy.wait(500);
       cy.get('[data-cy=btn-view-next]').click();
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
-        `${getFormattedDateAfter(
+        `${getFormattedBeginningOfSelectedWeek(
           'MMMM DD',
-          -1,
-          'week'
-        )} – ${getFormattedDateAfter('MMMM DD', -1)}`
+          -1
+        )} – ${getFormattedEndOfSelectedWeek(-1)}`
       );
 
       cy.wait(500);
       cy.get('[data-cy=btn-view-today]').click();
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
-        `${getFormattedDateAfter('MMMM DD')} – ${getFormattedDateAfter(
-          'DD',
-          6
-        )}`
+        `${getFormattedBeginningOfSelectedWeek(
+          'MMMM DD'
+        )} – ${getFormattedEndOfSelectedWeek()}`
       );
     });
 
@@ -289,6 +282,8 @@ context('Calendar tests', () => {
 
   describe('Viewing existing event', () => {
     it('should display a disabled form', () => {
+      cy.finishedLoading();
+
       cy.get('[data-cy=input-instrument-select]').click();
 
       cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')

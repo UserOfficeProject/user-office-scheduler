@@ -3,24 +3,36 @@ import { useState, useEffect } from 'react';
 import { GetEquipmentScheduledEventsQuery, Scalars } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 
-export default function useEquipmentScheduledEvents(
-  equipmentIds: (string | undefined)[],
-  startsAt: Scalars['TzLessDateTime'],
-  endsAt: Scalars['TzLessDateTime']
-) {
+export default function useEquipmentScheduledEvents({
+  equipmentIds,
+  startsAt,
+  endsAt,
+}: {
+  startsAt: Scalars['TzLessDateTime'];
+  endsAt: Scalars['TzLessDateTime'];
+  equipmentIds?: string[];
+}) {
   const [loading, setLoading] = useState(true);
   const [scheduledEvents, setScheduledEvents] = useState<
     GetEquipmentScheduledEventsQuery['equipments']
   >([]);
-  const [selectedEquipment, setSelectedEquipments] = useState<number[]>(
-    equipmentIds.flatMap((equipmentId) =>
-      equipmentId ? [parseInt(equipmentId)] : []
-    )
+  const equipmentIdsArray = equipmentIds?.flatMap((equipmentId) =>
+    equipmentId ? [parseInt(equipmentId)] : []
   );
+
+  const [selectedEquipment, setSelectedEquipments] = useState<
+    number[] | undefined
+  >(equipmentIdsArray);
   const api = useDataApi();
   useEffect(() => {
-    let unmount = false;
+    let unmounted = false;
     setLoading(true);
+
+    if (!selectedEquipment) {
+      setLoading(false);
+
+      return;
+    }
     api()
       .getEquipmentScheduledEvents({
         equipmentIds: selectedEquipment,
@@ -28,7 +40,7 @@ export default function useEquipmentScheduledEvents(
         endsAt,
       })
       .then((data) => {
-        if (unmount) {
+        if (unmounted) {
           return;
         }
 
@@ -41,7 +53,7 @@ export default function useEquipmentScheduledEvents(
       .catch(console.error);
 
     return () => {
-      unmount = true;
+      unmounted = true;
     };
   }, [selectedEquipment, api, startsAt, endsAt]);
 
@@ -50,5 +62,6 @@ export default function useEquipmentScheduledEvents(
     scheduledEvents,
     selectedEquipment,
     setSelectedEquipments,
+    setScheduledEvents,
   } as const;
 }

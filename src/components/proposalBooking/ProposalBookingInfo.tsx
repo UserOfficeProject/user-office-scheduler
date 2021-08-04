@@ -45,7 +45,10 @@ function ProposalBookingInfo({ booking }: ProposalBookingInfoProps) {
   }
 
   return (
-    <div className={classes.container}>
+    <div
+      className={classes.container}
+      data-cy={`proposal-event-${proposal.title}-${proposal.proposalId}`}
+    >
       <div className={classes.proposalId}>
         {isDraftEvent(booking) ? '[Draft] - ' : ''}
         {isClosedEvent(booking) ? '[Closed] - ' : ''}

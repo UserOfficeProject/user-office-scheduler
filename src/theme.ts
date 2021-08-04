@@ -1,12 +1,12 @@
 import {
-  createMuiTheme,
+  createTheme,
   Theme,
   responsiveFontSizes,
 } from '@material-ui/core/styles';
 
-const createTheme = (): Theme =>
+const createSchedulerTheme = (): Theme =>
   responsiveFontSizes(
-    createMuiTheme({
+    createTheme({
       palette: {
         primary: {
           dark: '#0081b0',
@@ -25,9 +25,9 @@ const createTheme = (): Theme =>
     })
   );
 
-const createDevelopTheme = (): Theme =>
+const createSchedulerDevelopTheme = (): Theme =>
   responsiveFontSizes(
-    createMuiTheme({
+    createTheme({
       palette: {
         primary: {
           dark: '#b33739',
@@ -58,5 +58,5 @@ const isDevelop = (): boolean => {
 };
 
 export function getTheme(): Theme {
-  return isDevelop() ? createDevelopTheme() : createTheme();
+  return isDevelop() ? createSchedulerDevelopTheme() : createSchedulerTheme();
 }

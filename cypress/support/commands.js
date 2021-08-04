@@ -12,21 +12,24 @@
 // -- This is a parent command --
 import { GraphQLClient } from 'graphql-request';
 
-Cypress.Commands.add('initializeSession', token => {
+Cypress.Commands.add('initializeSession', (token) => {
   cy.configureClock();
   cy.configureSession(token);
 });
 
 Cypress.Commands.add('configureClock', () => {
-  const now = new Date(Date.UTC(2020, 8, 21, 12, 0, 0)).getTime();
+  const now = new Date();
+  now.setMinutes(0);
+  now.setSeconds(0);
+  now.setMilliseconds(0);
 
   cy.clock(now, ['Date']);
 });
 
-Cypress.Commands.add('configureSession', token => {
+Cypress.Commands.add('configureSession', (token) => {
   cy.clearCookies();
 
-  cy.fixture('tokens').then(tokens => {
+  cy.fixture('tokens').then((tokens) => {
     cy.setCookie('token', tokens[token], {
       path: '/',
       secure: false,
@@ -40,6 +43,29 @@ Cypress.Commands.add('resetDB', () => {
       log
       rejection {
         reason
+      }
+    }
+  }`;
+  const authHeader = `Bearer ${Cypress.env('SVC_ACC_TOKEN')}`;
+  const request = new GraphQLClient('/gateway', {
+    headers: { authorization: authHeader },
+  }).rawRequest(query, null);
+
+  cy.wrap(request);
+});
+
+Cypress.Commands.add('createEvent', (newScheduledEvent) => {
+  const query = `mutation {
+    createScheduledEvent(newScheduledEvent: {
+      instrumentId: ${newScheduledEvent.instrumentId},
+      bookingType: ${newScheduledEvent.bookingType},
+      endsAt: "${newScheduledEvent.endsAt}",
+      startsAt: "${newScheduledEvent.startsAt}",
+      description: "${newScheduledEvent.description}"
+    }) {
+      error
+      scheduledEvent {
+        id
       }
     }
   }`;
@@ -68,9 +94,6 @@ const finishedLoading = () => {
 };
 
 Cypress.Commands.add('finishedLoading', finishedLoading);
-
-
-
 
 //
 //

@@ -15,19 +15,27 @@ import {
 import { Rejection, rejection } from '../rejection';
 import { Roles } from '../types/shared';
 
+const activateBookingValidationSchema = Yup.object().shape({
+  id: Yup.number().required(),
+});
+
+// NOTE: The action is validated by graphql
+const finalizeBookingValidationSchema = Yup.object().shape({
+  action: Yup.mixed().required(),
+  id: Yup.number().required(),
+});
+
 export default class ProposalBookingMutations {
   constructor(
     private proposalBookingDataSource: ProposalBookingDataSource,
     private equipmentDataSource: EquipmentDataSource
   ) {}
 
-  // the action is validated by graphql
-  @ValidateArgs(Yup.mixed().required(), Yup.number().required())
+  @ValidateArgs(finalizeBookingValidationSchema)
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
   async finalize(
     ctx: ResolverContext,
-    action: ProposalBookingFinalizeAction,
-    id: number
+    { action, id }: { action: ProposalBookingFinalizeAction; id: number }
   ): Promise<ProposalBooking | Rejection> {
     const proposalBooking = await this.proposalBookingDataSource.get(id);
 
@@ -48,11 +56,11 @@ export default class ProposalBookingMutations {
       });
   }
 
-  @ValidateArgs(Yup.number().required())
+  @ValidateArgs(activateBookingValidationSchema)
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
   async activate(
     ctx: ResolverContext,
-    id: number
+    { id }: { id: number }
   ): Promise<ProposalBooking | Rejection> {
     const proposalBooking = await this.proposalBookingDataSource.get(id);
     const allProposalBookingEquipmentEvents =

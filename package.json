@@ -36,7 +36,7 @@
     "@esss-swap/duo-localisation": "^1.1.15",
     "@esss-swap/duo-logger": "^1.1.0",
     "@esss-swap/duo-message-broker": "^1.0.4",
-    "@esss-swap/duo-validation": "^2.0.4",
+    "@esss-swap/duo-validation": "^2.0.8",
     "apollo-graphql": "^0.9.3",
     "apollo-server": "^2.25.1",
     "apollo-server-core": "^2.25.1",
@@ -57,7 +57,7 @@
     "pg": "^8.6.0",
     "reflect-metadata": "^0.1.13",
     "type-graphql": "^1.1.1",
-    "yup": "^0.31.1"
+    "yup": "^0.32.9"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^1.21.1",
@@ -69,7 +69,7 @@
     "@types/express-jwt": "0.0.42",
     "@types/jest": "^26.0.20",
     "@types/luxon": "^1.26.1",
-    "@types/yup": "^0.29.11",
+    "@types/yup": "^0.29.13",
     "@typescript-eslint/eslint-plugin": "^4.15.2",
     "@typescript-eslint/parser": "^4.15.2",
     "eslint": "^7.20.0",

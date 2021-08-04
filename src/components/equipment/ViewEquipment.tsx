@@ -112,7 +112,7 @@ const MaintenanceInfo = ({
 };
 
 type ViewEquipmentProps = {
-  equipmentId?: string;
+  equipmentId: string;
 };
 
 export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
@@ -128,11 +128,11 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
   >([]);
   const [showPeopleModal, setShowPeopleModal] = useState(false);
   const { loading: scheduledEventsLoading, scheduledEvents } =
-    useEquipmentScheduledEvents(
-      [id || equipmentId],
-      toTzLessDateTime(new Date()),
-      toTzLessDateTime(moment(new Date()).add(1, 'year'))
-    );
+    useEquipmentScheduledEvents({
+      equipmentIds: [id || equipmentId],
+      startsAt: toTzLessDateTime(new Date()),
+      endsAt: toTzLessDateTime(moment(new Date()).add(1, 'year')),
+    });
   const equipmentResponsible = equipment?.equipmentResponsible;
   useEffect(() => {
     if (equipmentResponsible) {

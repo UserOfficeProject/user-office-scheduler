@@ -1,3 +1,5 @@
+import { currentHourDateTime, getHourDateTimeAfter } from '../utils';
+
 context('Proposal booking tests ', () => {
   before(() => {
     cy.resetDB();
@@ -12,6 +14,8 @@ context('Proposal booking tests ', () => {
         url: '/calendar',
         timeout: 15000,
       });
+
+      cy.finishedLoading();
 
       cy.get('[data-cy=input-instrument-select]').click();
 
@@ -30,6 +34,8 @@ context('Proposal booking tests ', () => {
         url: '/calendar',
         timeout: 15000,
       });
+
+      cy.finishedLoading();
 
       cy.get('[data-cy=input-instrument-select]').click();
 
@@ -51,6 +57,8 @@ context('Proposal booking tests ', () => {
         timeout: 15000,
       });
 
+      cy.finishedLoading();
+
       cy.get('[data-cy=input-instrument-select]').click();
 
       cy.get('[aria-labelledby=input-instrument-select-label]')
@@ -71,6 +79,8 @@ context('Proposal booking tests ', () => {
         timeout: 15000,
       });
 
+      cy.finishedLoading();
+
       cy.get('[data-cy=input-instrument-select]').click();
 
       cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
@@ -90,8 +100,8 @@ context('Proposal booking tests ', () => {
       it('should be able to add new time slot', () => {
         cy.get('[data-cy=btn-add-time-slot]').click();
 
-        cy.contains(/2020-09-21 14:00:00/);
-        cy.contains(/2020-09-22 14:00:00/);
+        cy.contains(currentHourDateTime);
+        cy.contains(getHourDateTimeAfter(24));
 
         cy.get('[data-cy=btn-save]').click();
 
@@ -105,11 +115,12 @@ context('Proposal booking tests ', () => {
       it('Draft events should have opacity', () => {
         cy.get('[data-cy="btn-close-dialog"]').click();
 
-        cy.get('[title="14:00 – : User operations"]').should(
-          'have.css',
-          'opacity',
-          '0.6'
-        );
+        // NOTE: Using fixed proposal name and shortcode because they are inserted inside the database using a seeder and always will be the same for the test cases.
+        // .parent().parent() thing is because the react big calendar component always uses that structure around an event shown on the calendar.
+        cy.get('[data-cy="proposal-event-Test proposal-999999"]')
+          .parent()
+          .parent()
+          .should('have.css', 'opacity', '0.6');
       });
 
       it('should be able to edit time slot', () => {
@@ -121,23 +132,25 @@ context('Proposal booking tests ', () => {
 
         cy.get('[data-cy=btn-time-table-save-row]').click();
 
-        cy.get('[data-cy=startsAt] input').type('2020-08-23 12:00:00');
-        cy.get('[data-cy=endsAt] input').type('2020-08-23 13:00:00');
+        cy.get('[data-cy=startsAt] input').type(getHourDateTimeAfter(2));
+        cy.get('[data-cy=endsAt] input').type(getHourDateTimeAfter(3));
 
         cy.get('[data-cy=btn-time-table-save-row]').click();
 
-        cy.contains('2020-08-23 12:00:00');
-        cy.contains('2020-08-23 13:00:00');
+        cy.contains(getHourDateTimeAfter(2));
+        cy.contains(getHourDateTimeAfter(3));
 
         cy.get('[data-cy=btn-time-table-edit-row]').click();
 
-        cy.get('[data-cy=startsAt] input').clear().type('2020-08-25 12:00:00');
-        cy.get('[data-cy=endsAt] input').clear().type('2020-08-25 13:00:00');
+        cy.get('[data-cy=startsAt] input')
+          .clear()
+          .type(getHourDateTimeAfter(24));
+        cy.get('[data-cy=endsAt] input').clear().type(getHourDateTimeAfter(25));
 
         cy.get('[data-cy=btn-time-table-reset-row]').click();
 
-        cy.contains('2020-08-23 12:00:00');
-        cy.contains('2020-08-23 13:00:00');
+        cy.contains(getHourDateTimeAfter(2));
+        cy.contains(getHourDateTimeAfter(3));
       });
 
       it('should be able to open time slot by clicking on the calendar event', () => {
@@ -150,8 +163,9 @@ context('Proposal booking tests ', () => {
 
         cy.get('[data-cy=btn-time-table-edit-row]').should('exist');
 
-        cy.contains(/2020-09-21 14:00:00/);
-        cy.contains(/2020-09-22 14:00:00/);
+        cy.contains(currentHourDateTime);
+        cy.contains(getHourDateTimeAfter(24));
+
         cy.contains('Proposal title');
         cy.get('[data-cy="btn-next"]').should('exist');
       });
@@ -191,8 +205,10 @@ context('Proposal booking tests ', () => {
       it('should show warning when `startsAt` is after `endsAt`', () => {
         cy.get('[data-cy=btn-time-table-edit-row]').click();
 
-        cy.get('[data-cy=startsAt] input').clear().type('2020-08-25 12:00:00');
-        cy.get('[data-cy=endsAt] input').clear().type('2020-08-23 13:00:00');
+        cy.get('[data-cy=startsAt] input')
+          .clear()
+          .type(getHourDateTimeAfter(24));
+        cy.get('[data-cy=endsAt] input').clear().type(getHourDateTimeAfter(20));
 
         cy.get('[data-cy=btn-time-table-save-row]').click();
 
@@ -205,8 +221,8 @@ context('Proposal booking tests ', () => {
 
         cy.get('[data-cy=btn-time-table-edit-row]').last().click();
 
-        cy.get('[data-cy=startsAt] input').clear().type('2020-09-21 14:00:00');
-        cy.get('[data-cy=endsAt] input').clear().type('2020-09-21 15:00:00');
+        cy.get('[data-cy=startsAt] input').clear().type(currentHourDateTime);
+        cy.get('[data-cy=endsAt] input').clear().type(getHourDateTimeAfter(1));
 
         cy.get('[data-cy=btn-time-table-save-row]').click();
 
@@ -234,8 +250,8 @@ context('Proposal booking tests ', () => {
 
         cy.get('[data-cy=btn-book-equipment]').click();
 
-        cy.contains(/2020-09-21 14:00:00/);
-        cy.contains(/2020-09-22 14:00:00/);
+        cy.contains(currentHourDateTime);
+        cy.contains(getHourDateTimeAfter(24));
 
         cy.get('[data-cy=btn-assign-to-scheduled-event').click();
 
@@ -243,7 +259,6 @@ context('Proposal booking tests ', () => {
 
         cy.contains(/Available equipment 1 - no auto accept/i);
         cy.contains(/Available equipment 2 - auto accept/i);
-        cy.contains(/Under maintenance indefinitely 1 - not started yet/i);
         cy.contains(/Under maintenance 1 - not started yet/i);
         cy.contains(/Under maintenance 3 - finished/i);
 
@@ -251,8 +266,8 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy=enhanced-table-checkbox-1]').click();
         cy.get('[data-cy=btn-assign-equipment]').click();
 
-        cy.contains(/2020-09-21 14:00:00/);
-        cy.contains(/2020-09-22 14:00:00/);
+        cy.contains(currentHourDateTime);
+        cy.contains(getHourDateTimeAfter(24));
       });
 
       it('should show warning if some equipment is not accepted', () => {
@@ -275,8 +290,8 @@ context('Proposal booking tests ', () => {
       });
 
       it('should show the assignment status', () => {
-        cy.contains(/2020-09-21 14:00:00/);
-        cy.contains(/2020-09-22 14:00:00/);
+        cy.contains(currentHourDateTime);
+        cy.contains(getHourDateTimeAfter(24));
 
         cy.get('[data-cy=btn-expand-row]').click();
 
@@ -364,11 +379,11 @@ context('Proposal booking tests ', () => {
 
         cy.get('[data-cy="input-equipment-select"]').click();
         cy.get('[role="presentation"]')
-          .contains('Available equipment 1 - no auto accept')
+          .contains('Available equipment 2 - auto accept')
           .click();
 
         cy.get('.rbc-time-content .rbc-event')
-          .contains('Available equipment 1 - no auto accept')
+          .contains('Available equipment 2 - auto accept')
           .click({ force: true });
 
         cy.get('[role="dialog"] [data-cy="btn-edit-equipment"]').should(
@@ -392,10 +407,10 @@ context('Proposal booking tests ', () => {
 
         cy.contains(/Available equipment 1 - no auto accept/i)
           .parent()
-          .contains(/2020-09-21 14:00:00/);
+          .contains(currentHourDateTime);
         cy.contains(/Available equipment 1 - no auto accept/i)
           .parent()
-          .contains(/2020-09-22 14:00:00/);
+          .contains(getHourDateTimeAfter(24));
 
         cy.contains(/Available equipment 1 - no auto accept/i)
           .parent()
@@ -422,8 +437,8 @@ context('Proposal booking tests ', () => {
 
         cy.contains(/Available equipment 1 - no auto accept/i);
 
-        cy.contains(/2020-09-21 14:00:00/);
-        cy.contains(/2020-09-22 14:00:00/);
+        cy.contains(currentHourDateTime);
+        cy.contains(getHourDateTimeAfter(24));
 
         cy.get('[data-cy=btn-confirm-assignment-accept]').click();
 
@@ -494,8 +509,8 @@ context('Proposal booking tests ', () => {
 
         cy.finishedLoading();
 
-        cy.contains(/2020-09-21 14:00:00/);
-        cy.contains(/2020-09-22 14:00:00/);
+        cy.contains(currentHourDateTime);
+        cy.contains(getHourDateTimeAfter(24));
       });
     });
 
@@ -528,13 +543,13 @@ context('Proposal booking tests ', () => {
       it('should be able to log lost time', () => {
         cy.get('[data-cy=btn-add-lost-time]').click();
 
-        cy.contains(/2020-09-21 14:00:00/);
-        cy.contains(/2020-09-21 15:00:00/);
+        cy.contains(currentHourDateTime);
+        cy.contains(getHourDateTimeAfter(1));
 
         cy.get('[data-cy=btn-save]').click();
 
-        cy.contains(/2020-09-21 14:00:00/);
-        cy.contains(/2020-09-21 15:00:00/);
+        cy.contains(currentHourDateTime);
+        cy.contains(getHourDateTimeAfter(1));
       });
 
       it('should be able to restart the booking process', () => {
@@ -576,23 +591,25 @@ context('Proposal booking tests ', () => {
 
         cy.get('[data-cy=btn-time-table-save-row]').click();
 
-        cy.get('[data-cy=startsAt] input').type('2020-08-23 12:00:00');
-        cy.get('[data-cy=endsAt] input').type('2020-08-23 13:00:00');
+        cy.get('[data-cy=startsAt] input').type(getHourDateTimeAfter(24));
+        cy.get('[data-cy=endsAt] input').type(getHourDateTimeAfter(25));
 
         cy.get('[data-cy=btn-time-table-save-row]').click();
 
-        cy.contains('2020-08-23 12:00:00');
-        cy.contains('2020-08-23 13:00:00');
+        cy.contains(getHourDateTimeAfter(24));
+        cy.contains(getHourDateTimeAfter(25));
 
         cy.get('[data-cy=btn-time-table-edit-row]').click();
 
-        cy.get('[data-cy=startsAt] input').clear().type('2020-08-25 12:00:00');
-        cy.get('[data-cy=endsAt] input').clear().type('2020-08-25 13:00:00');
+        cy.get('[data-cy=startsAt] input')
+          .clear()
+          .type(getHourDateTimeAfter(48));
+        cy.get('[data-cy=endsAt] input').clear().type(getHourDateTimeAfter(49));
 
         cy.get('[data-cy=btn-time-table-reset-row]').click();
 
-        cy.contains('2020-08-23 12:00:00');
-        cy.contains('2020-08-23 13:00:00');
+        cy.contains(getHourDateTimeAfter(24));
+        cy.contains(getHourDateTimeAfter(25));
       });
 
       it('should be able to delete lost time', () => {
@@ -623,8 +640,8 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy=startsAt] input').clear();
         cy.get('[data-cy=endsAt] input').clear();
 
-        cy.get('[data-cy=startsAt] input').type('2020-08-25 12:00:00');
-        cy.get('[data-cy=endsAt] input').type('2020-08-23 13:00:00');
+        cy.get('[data-cy=startsAt] input').type(getHourDateTimeAfter(48));
+        cy.get('[data-cy=endsAt] input').type(getHourDateTimeAfter(24));
 
         cy.get('[data-cy=btn-time-table-save-row]').click();
 
@@ -657,11 +674,10 @@ context('Proposal booking tests ', () => {
       it('Closed events should have gray color and opacity', () => {
         cy.get('[data-cy="btn-close-dialog"]').click();
 
-        cy.get('[title="14:00 – : User operations"]').should(
-          'have.css',
-          'background-color',
-          'rgba(0, 0, 0, 0.5)'
-        );
+        cy.get('[data-cy="proposal-event-Test proposal-999999"]')
+          .parent()
+          .parent()
+          .should('have.css', 'background-color', 'rgba(0, 0, 0, 0.5)');
       });
     });
   });

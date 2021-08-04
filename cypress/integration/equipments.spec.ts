@@ -1,3 +1,5 @@
+import { getHourDateTimeAfter } from '../utils';
+
 context('Equipment tests', () => {
   before(() => {
     cy.resetDB();
@@ -69,12 +71,12 @@ context('Equipment tests', () => {
       cy.get('[data-cy=maintenanceTime-defined]').click();
 
       cy.get('[data-cy=maintenanceStartsAt] input').clear();
-      cy.get('[data-cy=maintenanceStartsAt]').type('2020-09-01 08:00');
-      cy.get('[data-cy=maintenanceEndsAt]').type('2020-10-01 08:00');
+      cy.get('[data-cy=maintenanceStartsAt]').type(getHourDateTimeAfter(-24));
+      cy.get('[data-cy=maintenanceEndsAt]').type(getHourDateTimeAfter(48));
 
       cy.get('[data-cy=btn-save-equipment]').click();
 
-      cy.contains(/2020-09-01 08:00:00 - 2020-10-01 08:00:00/i);
+      cy.contains(`${getHourDateTimeAfter(-24)} - ${getHourDateTimeAfter(48)}`);
     });
   });
 });

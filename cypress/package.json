@@ -6,6 +6,7 @@
     "dotenv": "^8.6.0",
     "graphql": "^15.5.1",
     "graphql-request": "^3.4.0",
+    "moment": "^2.29.1",
     "typescript": "^3.9.10"
   },
   "scripts": {

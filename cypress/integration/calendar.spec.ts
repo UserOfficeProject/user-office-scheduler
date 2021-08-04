@@ -1,5 +1,13 @@
+import {
+  currentHourDateTime,
+  getFormattedBeginningOfSelectedWeek,
+  getFormattedEndOfSelectedWeek,
+  getFormattedDateAfter,
+  getHourDateTimeAfter,
+} from '../utils';
+
 function clickOnEventSlot(slot: string) {
-  cy.get(`[data-cy='event-slot-${slot}']`).then(($el) => {
+  cy.get(`.rbc-day-slot [data-cy='event-slot-${slot}']`).then(($el) => {
     const el = $el[0] as HTMLDivElement;
     const elRect = el.getBoundingClientRect();
 
@@ -73,63 +81,87 @@ context('Calendar tests', () => {
     it('should show the selected day', () => {
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
-        'September 21 – 27'
+        `${getFormattedBeginningOfSelectedWeek(
+          'MMMM DD'
+        )} – ${getFormattedEndOfSelectedWeek()}`
       );
 
       cy.wait(500);
       cy.get('[data-cy=btn-view-next]').click();
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
-        'September 28 – October 04'
+        `${getFormattedBeginningOfSelectedWeek(
+          'MMMM DD',
+          1
+        )} – ${getFormattedEndOfSelectedWeek(1)}`
       );
 
       cy.wait(500);
       cy.get('[data-cy=btn-view-next]').click();
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
-        'October 05 – 11'
+        `${getFormattedBeginningOfSelectedWeek(
+          'MMMM DD',
+          2
+        )} – ${getFormattedEndOfSelectedWeek(2)}`
       );
 
       cy.wait(500);
       cy.get('[data-cy=btn-view-prev]').click();
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
-        'September 28 – October 04'
+        `${getFormattedBeginningOfSelectedWeek(
+          'MMMM DD',
+          1
+        )} – ${getFormattedEndOfSelectedWeek(1)}`
       );
 
       cy.wait(500);
       cy.get('[data-cy=btn-view-today]').click();
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
-        'September 21 – 27'
+        `${getFormattedBeginningOfSelectedWeek(
+          'MMMM DD'
+        )} – ${getFormattedEndOfSelectedWeek()}`
       );
 
       cy.wait(500);
       cy.get('[data-cy=btn-view-prev]').click();
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
-        'September 14 – 20'
+        `${getFormattedBeginningOfSelectedWeek(
+          'MMMM DD',
+          -1
+        )} – ${getFormattedEndOfSelectedWeek(-1)}`
       );
 
       cy.wait(500);
       cy.get('[data-cy=btn-view-prev]').click();
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
-        'September 07 – 13'
+        `${getFormattedBeginningOfSelectedWeek(
+          'MMMM DD',
+          -2
+        )} – ${getFormattedEndOfSelectedWeek(-2)}`
       );
 
       cy.wait(500);
       cy.get('[data-cy=btn-view-next]').click();
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
-        'September 14 – 20'
+        `${getFormattedBeginningOfSelectedWeek(
+          'MMMM DD',
+          -1
+        )} – ${getFormattedEndOfSelectedWeek(-1)}`
       );
 
       cy.wait(500);
       cy.get('[data-cy=btn-view-today]').click();
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
-        'September 21 – 27'
+        `${getFormattedBeginningOfSelectedWeek(
+          'MMMM DD'
+        )} – ${getFormattedEndOfSelectedWeek()}`
       );
     });
 
@@ -140,72 +172,72 @@ context('Calendar tests', () => {
 
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
-        'September 2020'
+        getFormattedDateAfter('MMMM YYYY')
       );
 
       cy.wait(500);
       cy.get('[data-cy=btn-view-next]').click();
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
-        'October 2020'
+        getFormattedDateAfter('MMMM YYYY', 1, 'month')
       );
 
       cy.wait(500);
       cy.get('[data-cy=btn-view-next]').click();
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
-        'November 2020'
+        getFormattedDateAfter('MMMM YYYY', 2, 'months')
       );
 
       cy.wait(500);
       cy.get('[data-cy=btn-view-prev]').click();
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
-        'October 2020'
+        getFormattedDateAfter('MMMM YYYY', 1, 'month')
       );
 
       cy.wait(500);
       cy.get('[data-cy=btn-view-today]').click();
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
-        'September'
+        getFormattedDateAfter('MMMM YYYY')
       );
 
       cy.wait(500);
       cy.get('[data-cy=btn-view-prev]').click();
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
-        'August 2020'
+        getFormattedDateAfter('MMMM YYYY', -1, 'month')
       );
 
       cy.wait(500);
       cy.get('[data-cy=btn-view-prev]').click();
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
-        'July'
+        getFormattedDateAfter('MMMM YYYY', -2, 'months')
       );
 
       cy.wait(500);
       cy.get('[data-cy=btn-view-next]').click();
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
-        'August 2020'
+        getFormattedDateAfter('MMMM YYYY', -1, 'month')
       );
 
       cy.wait(500);
       cy.get('[data-cy=btn-view-today]').click();
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',
-        'September'
+        getFormattedDateAfter('MMMM YYYY')
       );
     });
   });
 
   describe('Creating new event', () => {
     it('should show warning when no instrument selected', () => {
-      //
-      const slot = new Date(2020, 8, 25, 14, 0, 0).toISOString();
-      cy.get(`[data-cy='event-slot-${slot}']`).scrollIntoView();
+      cy.finishedLoading();
+      const slot = new Date(currentHourDateTime).toISOString();
+      cy.get(`.rbc-day-slot [data-cy='event-slot-${slot}']`).scrollIntoView();
 
       clickOnEventSlot(slot);
 
@@ -220,18 +252,18 @@ context('Calendar tests', () => {
         .first()
         .click();
 
-      const slot = new Date(2020, 8, 25, 14, 0, 0).toISOString();
-      cy.get(`[data-cy='event-slot-${slot}']`).scrollIntoView();
+      const slot = new Date(currentHourDateTime).toISOString();
+      cy.get(`.rbc-day-slot [data-cy='event-slot-${slot}']`).scrollIntoView();
 
       clickOnEventSlot(slot);
 
       cy.get('[data-cy=startsAt] input').should(
         'have.value',
-        '2020-09-25 14:00:00'
+        currentHourDateTime
       );
       cy.get('[data-cy=endsAt] input').should(
         'have.value',
-        '2020-09-25 15:00:00'
+        getHourDateTimeAfter(1)
       );
 
       cy.get('[data-cy=bookingType] input').should('have.value', '');
@@ -250,14 +282,16 @@ context('Calendar tests', () => {
 
   describe('Viewing existing event', () => {
     it('should display a disabled form', () => {
+      cy.finishedLoading();
+
       cy.get('[data-cy=input-instrument-select]').click();
 
       cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
         .first()
         .click();
 
-      const slot = new Date(2020, 8, 25, 14, 0, 0).toISOString();
-      cy.get(`[data-cy='event-slot-${slot}']`).scrollIntoView();
+      const slot = new Date(currentHourDateTime).toISOString();
+      cy.get(`.rbc-day-slot [data-cy='event-slot-${slot}']`).scrollIntoView();
 
       clickOnEventSlot(slot);
 

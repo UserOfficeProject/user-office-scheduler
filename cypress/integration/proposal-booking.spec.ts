@@ -15,6 +15,8 @@ context('Proposal booking tests ', () => {
         timeout: 15000,
       });
 
+      cy.finishedLoading();
+
       cy.get('[data-cy=input-instrument-select]').click();
 
       cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
@@ -32,6 +34,8 @@ context('Proposal booking tests ', () => {
         url: '/calendar',
         timeout: 15000,
       });
+
+      cy.finishedLoading();
 
       cy.get('[data-cy=input-instrument-select]').click();
 
@@ -52,6 +56,8 @@ context('Proposal booking tests ', () => {
         url: '/calendar',
         timeout: 15000,
       });
+
+      cy.finishedLoading();
 
       cy.get('[data-cy=input-instrument-select]').click();
 

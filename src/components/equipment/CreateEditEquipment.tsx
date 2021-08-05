@@ -52,26 +52,32 @@ export const equipmentValidationSchema = Yup.object().shape({
   maintenanceEndsAt: Yup.date()
     .nullable()
     .typeError(TYPE_ERR_INVALID_DATE)
-    .when('maintenanceStartsAt', (maintenanceStartsAt: Date) => {
-      if (!maintenanceStartsAt) {
-        return;
+    .when(
+      'maintenanceStartsAt',
+      (
+        maintenanceStartsAt: Date,
+        schema: Yup.DateSchema<Date | null | undefined>
+      ) => {
+        if (!maintenanceStartsAt) {
+          return schema;
+        }
+
+        const min = moment(maintenanceStartsAt).add(1, 'minute');
+
+        if (!min.isValid()) {
+          return schema;
+        }
+
+        return schema
+          .nullable()
+          .typeError(TYPE_ERR_INVALID_DATE)
+          .min(
+            min.toDate(),
+            atOrLaterThanMsg(min.format(TZ_LESS_DATE_TIME_FORMAT))
+          )
+          .notRequired();
       }
-
-      const min = moment(maintenanceStartsAt).add(1, 'minute');
-
-      if (!min.isValid()) {
-        return;
-      }
-
-      return Yup.date()
-        .nullable()
-        .typeError(TYPE_ERR_INVALID_DATE)
-        .min(
-          min.toDate(),
-          atOrLaterThanMsg(min.format(TZ_LESS_DATE_TIME_FORMAT))
-        )
-        .notRequired();
-    })
+    )
     .notRequired(),
 });
 

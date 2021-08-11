@@ -43,35 +43,6 @@ import { hasOverlappingEvents } from 'utils/scheduledEvent';
 import { ProposalBookingDialogStepProps } from '../ProposalBookingDialog';
 import TimeTable, { TimeTableRow } from '../TimeTable';
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    flexShrink: 0,
-    flexGrow: 0,
-  },
-  list: {
-    width: '100%',
-    backgroundColor: theme.palette.background.paper,
-  },
-  divider: {
-    marginLeft: theme.spacing(6),
-  },
-  allocatablePositive: {
-    color: theme.palette.success.main,
-  },
-  allocatableNegative: {
-    color: theme.palette.error.main,
-  },
-  flexColumn: {
-    flexGrow: 1,
-    maxWidth: '100%',
-    flexBasis: 0,
-    alignSelf: 'flex-start',
-  },
-  spacingLeft: {
-    marginLeft: theme.spacing(2),
-  },
-}));
-
 const formatDuration = (durSec: number) =>
   humanizeDuration(durSec * 1000, {
     conjunction: ' and ',
@@ -86,6 +57,30 @@ export default function BookingEventStep({
   handleNext,
   handleSetDirty,
 }: ProposalBookingDialogStepProps) {
+  const useStyles = makeStyles((theme) => ({
+    list: {
+      width: '100%',
+      backgroundColor: theme.palette.background.paper,
+    },
+    divider: {
+      marginLeft: theme.spacing(6),
+    },
+    allocatablePositive: {
+      color: theme.palette.success.main,
+    },
+    allocatableNegative: {
+      color: theme.palette.error.main,
+    },
+    flexColumn: {
+      flexGrow: 1,
+      maxWidth: '100%',
+      flexBasis: 0,
+      alignSelf: 'flex-start',
+    },
+    spacingLeft: {
+      marginLeft: theme.spacing(2),
+    },
+  }));
   const [isEditingTimeTable, setIsEditingTimeTable] = useState(false);
 
   const isStepReadOnly =
@@ -240,7 +235,7 @@ export default function BookingEventStep({
     <>
       {isLoading && <Loader />}
 
-      <DialogContent className={classes.root}>
+      <DialogContent>
         <Grid container spacing={2}>
           <Grid item xs={6}>
             <List className={classes.list} dense>
@@ -325,9 +320,6 @@ export default function BookingEventStep({
             </List>
           </Grid>
         </Grid>
-      </DialogContent>
-
-      <DialogContent>
         <TimeTable
           selectable={!isStepReadOnly}
           editable={!isStepReadOnly}
@@ -353,7 +345,6 @@ export default function BookingEventStep({
           }
         />
       </DialogContent>
-
       <DialogActions>
         <Button
           variant="contained"

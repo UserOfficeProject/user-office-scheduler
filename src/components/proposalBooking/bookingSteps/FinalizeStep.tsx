@@ -1,5 +1,10 @@
 import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
-import { Button, DialogContent, makeStyles } from '@material-ui/core';
+import {
+  Button,
+  DialogActions,
+  DialogContent,
+  makeStyles,
+} from '@material-ui/core';
 import { Add as AddIcon, Save as SaveIcon } from '@material-ui/icons';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import moment from 'moment';
@@ -41,6 +46,7 @@ export default function FinalizeStep({
   handleNext,
   handleResetSteps,
   handleSetActiveStepByStatus,
+  handleCloseDialog,
 }: ProposalBookingDialogStepProps) {
   const isStepReadOnly = activeStatus !== ProposalBookingStatus.BOOKED;
 
@@ -275,6 +281,15 @@ export default function FinalizeStep({
           </div>
         )}
       </DialogContent>
+      <DialogActions>
+        <Button
+          color="primary"
+          onClick={handleCloseDialog}
+          data-cy="btn-close-dialog"
+        >
+          Close
+        </Button>
+      </DialogActions>
     </>
   );
 }

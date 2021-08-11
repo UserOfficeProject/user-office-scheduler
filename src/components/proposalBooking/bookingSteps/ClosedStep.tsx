@@ -1,4 +1,9 @@
-import { DialogContent, makeStyles } from '@material-ui/core';
+import {
+  Button,
+  DialogActions,
+  DialogContent,
+  makeStyles,
+} from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import React, { useEffect, useState } from 'react';
 
@@ -18,6 +23,7 @@ const useStyles = makeStyles(() => ({
 
 export default function ClosedStep({
   proposalBooking,
+  handleCloseDialog,
 }: ProposalBookingDialogStepProps) {
   const classes = useStyles();
 
@@ -57,6 +63,15 @@ export default function ClosedStep({
           titleComponent="Logged lost time"
         />
       </DialogContent>
+      <DialogActions>
+        <Button
+          color="primary"
+          onClick={handleCloseDialog}
+          data-cy="btn-close-dialog"
+        >
+          Close
+        </Button>
+      </DialogActions>
     </>
   );
 }

@@ -56,6 +56,7 @@ export default function EquipmentBookingStep({
   handleNext,
   handleBack,
   handleSetActiveStepByStatus,
+  handleCloseDialog,
 }: ProposalBookingDialogStepProps) {
   const isStepReadOnly = activeStatus !== ProposalBookingStatus.DRAFT;
 
@@ -77,7 +78,7 @@ export default function EquipmentBookingStep({
     )
   );
 
-  const handleCloseDialog = () => {
+  const handleEquipmentCloseDialog = () => {
     setEquipmentDialog(false);
     refresh();
   };
@@ -166,7 +167,7 @@ export default function EquipmentBookingStep({
         <SelectTimeSlotsDialog
           isDialogOpen={equipmentDialog}
           proposalBooking={proposalBooking}
-          closeDialog={handleCloseDialog}
+          closeDialog={handleEquipmentCloseDialog}
         />
       )}
 
@@ -210,6 +211,13 @@ export default function EquipmentBookingStep({
       </DialogContent>
 
       <DialogActions>
+        <Button
+          color="primary"
+          onClick={handleCloseDialog}
+          data-cy="btn-close-dialog"
+        >
+          Close
+        </Button>
         <Button
           variant="contained"
           color="primary"

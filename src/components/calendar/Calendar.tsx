@@ -97,55 +97,75 @@ function slotPropGetter(date: Date): any {
   };
 }
 
+const useStyles = makeStyles((theme) => ({
+  fullHeight: {
+    height: '100%',
+    position: 'relative',
+  },
+  relative: {
+    position: 'relative',
+  },
+  eventDescription: {
+    marginTop: 5,
+  },
+  collapsibleGrid: {
+    overflow: 'hidden',
+  },
+  collapsibleGridMobile: {
+    position: 'absolute',
+    top: -16,
+    right: -16,
+    // NOTE: This calculation in height is mainly because of the different container paddings on different screen sizes
+    height: `calc(100% + 32px) !important`,
+    width: '200px',
+    background: 'white',
+    overflow: 'auto',
+    boxShadow: theme.shadows[1],
+    transition: theme.transitions.create('all', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    zIndex: 1000,
+  },
+  collapsibleGridNoWidth: {
+    width: '0',
+  },
+  collapsibleGridTablet: {
+    top: -24,
+    right: -24,
+    height: `calc(100% + 48px) !important`,
+  },
+  eventToolbarCloseButton: {
+    position: 'absolute',
+    right: -24,
+    top: -24,
+    background: theme.palette.grey[200],
+    borderRadius: 0,
+  },
+  eventToolbarCloseButtonMobile: {
+    right: 0,
+    top: 0,
+  },
+  eventToolbarOpenButton: {
+    position: 'absolute',
+    right: -24,
+    top: -24,
+    background: theme.palette.grey[200],
+    borderRadius: 0,
+  },
+  eventToolbarOpenButtonMobile: {
+    position: 'absolute',
+    right: -16,
+    top: -16,
+    background: theme.palette.grey[200],
+    borderRadius: 0,
+  },
+}));
+
 export default function Calendar() {
   const isTabletOrMobile = useMediaQuery('(max-width: 1224px)');
   const isTabletOrLarger = useMediaQuery('(min-width: 648px)');
-  const [showTodoBox, setShowTodoBox] = useState<boolean>(true);
-
-  const useStyles = makeStyles((theme) => ({
-    fullHeight: {
-      height: '100%',
-      position: 'relative',
-    },
-    relative: {
-      position: 'relative',
-    },
-    eventDescription: {
-      marginTop: 5,
-    },
-    collapsibleGrid: {
-      overflow: 'hidden',
-    },
-    responsiveCollapse: {
-      position: 'absolute',
-      top: isTabletOrLarger ? -24 : -16,
-      right: isTabletOrLarger ? -24 : -16,
-      height: `calc(100% + ${isTabletOrLarger ? '48px' : '32px'}) !important`,
-      width: showTodoBox ? '200px' : '0',
-      background: 'white',
-      overflow: 'auto',
-      boxShadow: theme.shadows[1],
-      transition: theme.transitions.create('all', {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-      }),
-    },
-    eventToolbarCloseButton: {
-      position: 'absolute',
-      right: isTabletOrMobile ? 0 : -24,
-      top: isTabletOrMobile ? 0 : -24,
-      background: theme.palette.grey[200],
-      borderRadius: 0,
-    },
-    eventToolbarOpenButton: {
-      position: 'absolute',
-      right: isTabletOrLarger ? -24 : -16,
-      top: isTabletOrLarger ? -24 : -16,
-      background: theme.palette.grey[200],
-      borderRadius: 0,
-    },
-  }));
-
+  const [showTodoBox, setShowTodoBox] = useState<boolean>(false);
   const classes = useStyles();
   const theme = useTheme();
 
@@ -175,6 +195,14 @@ export default function Calendar() {
   const [selectedEquipmentBooking, setSelectedEquipmentBooking] = useState<
     string | null
   >(null);
+
+  useEffect(() => {
+    if (isTabletOrMobile) {
+      setShowTodoBox(false);
+    } else {
+      setShowTodoBox(true);
+    }
+  }, [isTabletOrMobile]);
 
   const {
     proposalBookings,
@@ -379,6 +407,23 @@ export default function Calendar() {
               />
             )}
             <Grid container className={classes.fullHeight}>
+              {!showTodoBox && (
+                <Tooltip title="Open event toolbar">
+                  <IconButton
+                    onClick={() => setShowTodoBox(true)}
+                    aria-label="Open event toolbar"
+                    className={
+                      isTabletOrLarger
+                        ? classes.eventToolbarOpenButton
+                        : classes.eventToolbarOpenButtonMobile
+                    }
+                    size="small"
+                    data-cy="open-event-toolbar"
+                  >
+                    <ChevronLeft />
+                  </IconButton>
+                </Tooltip>
+              )}
               <Grid
                 item
                 xs={isTabletOrMobile ? 12 : showTodoBox ? 10 : 12}
@@ -390,19 +435,6 @@ export default function Calendar() {
                   }),
                 }}
               >
-                {!showTodoBox && (
-                  <Tooltip title="Open event toolbar">
-                    <IconButton
-                      onClick={() => setShowTodoBox(true)}
-                      aria-label="Open event toolbar"
-                      className={classes.eventToolbarOpenButton}
-                      size="small"
-                      data-cy="open-event-toolbar"
-                    >
-                      <ChevronLeft />
-                    </IconButton>
-                  </Tooltip>
-                )}
                 {
                   // @ts-expect-error test
                   <BigCalendar
@@ -456,20 +488,23 @@ export default function Calendar() {
                 item
                 xs
                 className={`${classes.collapsibleGrid} ${
-                  isTabletOrMobile ? classes.responsiveCollapse : ''
-                }`}
+                  isTabletOrMobile && classes.collapsibleGridMobile
+                } ${isTabletOrLarger && classes.collapsibleGridTablet}
+                ${!showTodoBox && classes.collapsibleGridNoWidth}`}
               >
-                <Collapse
-                  in={showTodoBox}
-                  data-cy="collapsible-event-toolbar"
-                  // className={isTabletOrMobile ? classes.responsiveCollapse : ''}
-                >
+                <Collapse in={showTodoBox} data-cy="collapsible-event-toolbar">
                   {showTodoBox && (
                     <Tooltip title="Close event toolbar">
                       <IconButton
                         onClick={() => setShowTodoBox(false)}
                         aria-label="Close event toolbar"
-                        className={classes.eventToolbarCloseButton}
+                        className={`
+                          ${classes.eventToolbarCloseButton}
+                          ${
+                            isTabletOrMobile &&
+                            classes.eventToolbarCloseButtonMobile
+                          }
+                        `}
                         size="small"
                         data-cy="close-event-toolbar"
                       >

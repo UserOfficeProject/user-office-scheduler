@@ -56,6 +56,7 @@ export default function BookingEventStep({
   isDirty,
   handleNext,
   handleSetDirty,
+  handleCloseDialog,
 }: ProposalBookingDialogStepProps) {
   const useStyles = makeStyles((theme) => ({
     list: {
@@ -346,6 +347,13 @@ export default function BookingEventStep({
         />
       </DialogContent>
       <DialogActions>
+        <Button
+          color="primary"
+          onClick={handleCloseDialog}
+          data-cy="btn-close-dialog"
+        >
+          Close
+        </Button>
         <Button
           variant="contained"
           color="primary"

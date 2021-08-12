@@ -1,7 +1,5 @@
 import {
-  Button,
   Dialog,
-  DialogActions,
   DialogContent,
   DialogTitle,
   makeStyles,
@@ -69,6 +67,7 @@ export type ProposalBookingDialogStepProps = {
   handleBack: () => void;
   handleResetSteps: () => void;
   handleSetDirty: (isDirty: boolean) => void;
+  handleCloseDialog: () => void;
   handleSetActiveStepByStatus: (status: ProposalBookingStatus) => void;
 };
 
@@ -244,16 +243,8 @@ export default function ProposalBookingDialog({
           handleSetDirty,
           handleResetSteps,
           handleSetActiveStepByStatus,
+          handleCloseDialog,
         })}
-      <DialogActions>
-        <Button
-          color="primary"
-          onClick={handleCloseDialog}
-          data-cy="btn-close-dialog"
-        >
-          Close
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 }

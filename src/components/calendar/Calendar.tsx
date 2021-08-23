@@ -21,11 +21,11 @@ import {
 
 import Loader from 'components/common/Loader';
 import EquipmentBookingDialog from 'components/equipment/EquipmentBookingDialog';
-import ProposalBookingDialog from 'components/proposalBooking/ProposalBookingDialog';
 import ScheduledEventDialog, {
   SlotInfo,
 } from 'components/scheduledEvent/ScheduledEventDialog';
 import { BookingTypesMap } from 'components/scheduledEvent/ScheduledEventForm';
+import TimeSlotBookingDialog from 'components/timeSlotBooking/TimeSlotBookingDialog';
 import { AppContext } from 'context/AppContext';
 import {
   ScheduledEvent,
@@ -143,9 +143,10 @@ export default function Calendar() {
   const [filter, setFilter] = useState(
     generateScheduledEventFilter(queryInstrument, startsAt, view)
   );
-  const [selectedProposalBooking, setSelectedProposalBooking] = useState<
-    string | null
-  >(null);
+  const [selectedProposalBooking, setSelectedProposalBooking] = useState<{
+    proposalBookingId: string | null;
+    scheduledEventId: string | null;
+  }>({ proposalBookingId: null, scheduledEventId: null });
   const [selectedEquipmentBooking, setSelectedEquipmentBooking] = useState<
     string | null
   >(null);
@@ -266,7 +267,10 @@ export default function Calendar() {
         );
 
         if (scheduledEvent?.proposalBooking) {
-          setSelectedProposalBooking(scheduledEvent.proposalBooking.id);
+          setSelectedProposalBooking({
+            proposalBookingId: scheduledEvent.proposalBooking.id,
+            scheduledEventId: scheduledEvent.id,
+          });
         }
         break;
       }
@@ -313,7 +317,10 @@ export default function Calendar() {
   };
 
   const handleCloseDialog = (shouldRefresh?: boolean) => {
-    setSelectedProposalBooking(null);
+    setSelectedProposalBooking({
+      scheduledEventId: null,
+      proposalBookingId: null,
+    });
     setSelectedEquipmentBooking(null);
 
     if (shouldRefresh) {
@@ -339,13 +346,19 @@ export default function Calendar() {
                 closeDialog={closeDialog}
               />
             )}
-            {selectedProposalBooking !== null && (
-              <ProposalBookingDialog
-                activeProposalBookingId={selectedProposalBooking}
-                isDialogOpen={true}
-                closeDialog={handleCloseDialog}
-              />
-            )}
+            {selectedProposalBooking.proposalBookingId !== null &&
+              selectedProposalBooking.scheduledEventId !== null && (
+                <TimeSlotBookingDialog
+                  activeTimeSlotScheduledEventId={
+                    selectedProposalBooking.scheduledEventId
+                  }
+                  activeProposalBookingId={
+                    selectedProposalBooking.proposalBookingId
+                  }
+                  isDialogOpen={true}
+                  closeDialog={handleCloseDialog}
+                />
+              )}
             {selectedEquipmentBooking !== null && (
               <EquipmentBookingDialog
                 activeEquipmentBookingId={selectedEquipmentBooking}

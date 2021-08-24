@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { ProposalBookingStatus } from '../../models/ProposalBooking';
 import {
   ScheduledEvent,
   ScheduledEventBookingType,
@@ -23,6 +24,7 @@ export const dummyScheduledEvents: ScheduledEvent[] = [
     null,
     { id: 0 },
     1,
+    ProposalBookingStatus.DRAFT,
     0
   ),
   new ScheduledEvent(
@@ -36,6 +38,7 @@ export const dummyScheduledEvents: ScheduledEvent[] = [
     'dummy',
     { id: 0 },
     2,
+    ProposalBookingStatus.DRAFT,
     0
   ),
 ];
@@ -58,6 +61,7 @@ export default class MockupScheduledEventDataSource
       newScheduledEvent.description,
       { id: newScheduledEvent.instrumentId },
       1,
+      ProposalBookingStatus.DRAFT,
       0
     );
   }

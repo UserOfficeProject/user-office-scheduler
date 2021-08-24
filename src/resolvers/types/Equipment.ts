@@ -4,7 +4,7 @@ import {
   Ctx,
   Field,
   FieldResolver,
-  ID,
+  Int,
   ObjectType,
   Resolver,
   Root,
@@ -21,7 +21,7 @@ import { User } from './User';
 
 @ObjectType()
 export class Equipment implements Partial<EquipmentBase> {
-  @Field(() => ID)
+  @Field(() => Int)
   id: number;
 
   // external type

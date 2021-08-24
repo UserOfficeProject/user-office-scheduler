@@ -1,3 +1,5 @@
+import { ProposalBookingStatus } from './ProposalBooking';
+
 export enum ScheduledEventBookingType {
   USER_OPERATIONS = 'USER_OPERATIONS',
   MAINTENANCE = 'MAINTENANCE',
@@ -28,6 +30,7 @@ export class ScheduledEvent {
     public description: string | null,
     public instrument: { id: number },
     public proposalBookingId: number | null,
+    public status: ProposalBookingStatus,
     public equipmentId: number
   ) {}
 }

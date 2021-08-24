@@ -2,8 +2,8 @@ import {
   Arg,
   Ctx,
   Field,
-  ID,
   InputType,
+  Int,
   Mutation,
   Resolver,
 } from 'type-graphql';
@@ -34,13 +34,13 @@ export class NewScheduledEventInput implements Partial<ScheduledEventBase> {
   @Field(() => String, { nullable: true })
   description: string | null;
 
-  @Field(() => ID)
+  @Field(() => Int)
   instrumentId: number;
 }
 
 @InputType()
 export class SimpleScheduledEventInput {
-  @Field(() => ID)
+  @Field(() => Int)
   id: number;
 
   @Field(() => TzLessDateTime)
@@ -55,7 +55,7 @@ export class SimpleScheduledEventInput {
 
 @InputType()
 export class BulkUpsertScheduledEventsInput {
-  @Field(() => ID)
+  @Field(() => Int)
   proposalBookingId: number;
 
   @Field(() => [SimpleScheduledEventInput])

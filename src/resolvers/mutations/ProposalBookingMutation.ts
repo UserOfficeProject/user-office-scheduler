@@ -1,4 +1,4 @@
-import { Arg, Ctx, ID, Mutation, Resolver } from 'type-graphql';
+import { Arg, Ctx, Int, Mutation, Resolver } from 'type-graphql';
 
 import { ResolverContext } from '../../context';
 import { ProposalBookingFinalizeAction } from '../../models/ProposalBooking';
@@ -12,7 +12,7 @@ export class ProposalBookingMutation {
     @Ctx() ctx: ResolverContext,
     @Arg('action', () => ProposalBookingFinalizeAction)
     action: ProposalBookingFinalizeAction,
-    @Arg('id', () => ID) id: number
+    @Arg('id', () => Int) id: number
   ) {
     return wrapResponse(
       ctx.mutations.proposalBooking.finalize(ctx, { action, id }),
@@ -23,7 +23,7 @@ export class ProposalBookingMutation {
   @Mutation(() => ProposalBookingResponseWrap)
   activateProposalBooking(
     @Ctx() ctx: ResolverContext,
-    @Arg('id', () => ID) id: number
+    @Arg('id', () => Int) id: number
   ) {
     return wrapResponse(
       ctx.mutations.proposalBooking.activate(ctx, { id }),

@@ -41,6 +41,7 @@ export default class PostgresLostTimeDataSource implements LostTimeDataSource {
           lostTimes.map((newObj) => ({
             lost_time_id: newObj.newlyCreated ? this.nextId : newObj.id,
             proposal_booking_id: bulkUpsertLostTimes.proposalBookingId,
+            scheduled_event_id: newObj.scheduledEventId,
             starts_at: newObj.startsAt,
             ends_at: newObj.endsAt,
           }))

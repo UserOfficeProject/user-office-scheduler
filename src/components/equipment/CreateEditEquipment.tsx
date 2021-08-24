@@ -89,7 +89,7 @@ export default function CreateEditEquipment() {
   const [indefiniteMaintenance, setIndefiniteMaintenance] = useState('1');
 
   const api = useDataApi();
-  const { loading, equipment } = useEquipment(id ?? '0');
+  const { loading, equipment } = useEquipment(id ? parseInt(id) : 0);
 
   useEffect(() => {
     if (loading) {
@@ -194,7 +194,7 @@ export default function CreateEditEquipment() {
                   const {
                     updateEquipment: { error },
                   } = await api().updateEquipment({
-                    id,
+                    id: parseInt(id),
                     updateEquipmentInput: input,
                   });
 

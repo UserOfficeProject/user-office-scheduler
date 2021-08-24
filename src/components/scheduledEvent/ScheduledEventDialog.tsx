@@ -41,7 +41,7 @@ type ScheduledEventDialogProps = {
     | SlotInfo
     | null;
   isDialogOpen: boolean;
-  selectedInstrumentId: string;
+  selectedInstrumentId: number;
   closeDialog: (shouldRefresh?: boolean) => void;
 };
 

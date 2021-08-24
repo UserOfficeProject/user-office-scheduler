@@ -20,7 +20,7 @@ export type DetailedProposalBooking = Pick<
   proposal: Pick<Proposal, 'primaryKey' | 'title' | 'proposalId'>;
 };
 
-export default function useProposalBooking(id: string) {
+export default function useProposalBooking(id: number) {
   const [loading, setLoading] = useState(true);
   const [proposalBooking, setProposalBooking] =
     useState<DetailedProposalBooking | null>(null);

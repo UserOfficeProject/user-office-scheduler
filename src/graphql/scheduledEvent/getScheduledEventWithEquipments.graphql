@@ -1,6 +1,6 @@
 query getScheduledEventWithEquipments(
-  $proposalBookingId: ID!
-  $scheduledEventId: ID!
+  $proposalBookingId: Int!
+  $scheduledEventId: Int!
 ) {
   proposalBookingScheduledEvent(
     proposalBookingId: $proposalBookingId
@@ -9,6 +9,23 @@ query getScheduledEventWithEquipments(
     id
     startsAt
     endsAt
+    status
+    proposalBooking {
+      status
+      proposal {
+        primaryKey
+        title
+        proposalId
+        proposer {
+          firstname
+          lastname
+        }
+      }
+    }
+    scheduledBy {
+      firstname
+      lastname
+    }
     equipments {
       id
       name

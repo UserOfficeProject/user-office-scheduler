@@ -108,7 +108,7 @@ export default function Toolbar({
       equipments
     ) {
       setSelectedEquipment(
-        equipments.filter((eq) => queryEquipment.includes(parseInt(eq.id)))
+        equipments.filter((eq) => queryEquipment.includes(eq.id))
       );
     }
   }, [equipments, queryEquipment, selectedEquipment]);

@@ -1,4 +1,4 @@
-query getScheduledEventsWithEquipments($proposalBookingId: ID!) {
+query getScheduledEventsWithEquipments($proposalBookingId: Int!) {
   proposalBookingScheduledEvents(proposalBookingId: $proposalBookingId) {
     id
     startsAt

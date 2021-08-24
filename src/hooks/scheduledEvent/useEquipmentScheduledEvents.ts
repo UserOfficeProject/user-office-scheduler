@@ -10,14 +10,14 @@ export default function useEquipmentScheduledEvents({
 }: {
   startsAt: Scalars['TzLessDateTime'];
   endsAt: Scalars['TzLessDateTime'];
-  equipmentIds?: string[];
+  equipmentIds?: number[];
 }) {
   const [loading, setLoading] = useState(true);
   const [scheduledEvents, setScheduledEvents] = useState<
     GetEquipmentScheduledEventsQuery['equipments']
   >([]);
   const equipmentIdsArray = equipmentIds?.flatMap((equipmentId) =>
-    equipmentId ? [parseInt(equipmentId)] : []
+    equipmentId ? [equipmentId] : []
   );
 
   const [selectedEquipment, setSelectedEquipments] = useState<

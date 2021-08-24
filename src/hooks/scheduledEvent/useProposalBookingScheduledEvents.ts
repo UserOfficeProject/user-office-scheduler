@@ -9,7 +9,7 @@ export type ProposalBookingScheduledEvent = Pick<
 >;
 
 export default function useProposalBookingScheduledEvents(
-  proposalBookingId: string
+  proposalBookingId: number
 ) {
   const [loading, setLoading] = useState(true);
   const [scheduledEvents, setScheduledEvents] = useState<

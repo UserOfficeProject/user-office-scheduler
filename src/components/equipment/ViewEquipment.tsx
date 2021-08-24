@@ -46,7 +46,7 @@ import { ContentContainer, StyledPaper } from 'styles/StyledComponents';
 import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
 
 type TableRow = {
-  id: string;
+  id: number;
   startsAt: Moment;
   endsAt: Moment;
 
@@ -112,24 +112,24 @@ const MaintenanceInfo = ({
 };
 
 type ViewEquipmentProps = {
-  equipmentId: string;
+  equipmentId: number;
 };
 
 export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
   const { enqueueSnackbar } = useSnackbar();
   const { showConfirmation } = useContext(AppContext);
   const { id } = useParams<{ id?: string }>();
+  const finalEquipmentId = id ? parseInt(id) : equipmentId;
   const classes = useStyles();
-  const { loading: equipmentLoading, equipment } = useEquipment(
-    id || equipmentId
-  );
+  const { loading: equipmentLoading, equipment } =
+    useEquipment(finalEquipmentId);
   const [selectedUsers, setSelectedUsers] = useState<
     Pick<User, 'id' | 'firstname' | 'lastname'>[]
   >([]);
   const [showPeopleModal, setShowPeopleModal] = useState(false);
   const { loading: scheduledEventsLoading, scheduledEvents } =
     useEquipmentScheduledEvents({
-      equipmentIds: [id || equipmentId],
+      equipmentIds: [finalEquipmentId],
       startsAt: toTzLessDateTime(new Date()),
       endsAt: toTzLessDateTime(moment(new Date()).add(1, 'year')),
     });
@@ -174,7 +174,7 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
     row: TableRow,
     status: 'accept' | 'reject'
   ) => {
-    const assignmentEquipmentId = id || equipmentId;
+    const assignmentEquipmentId = finalEquipmentId;
 
     if (!assignmentEquipmentId) {
       return;

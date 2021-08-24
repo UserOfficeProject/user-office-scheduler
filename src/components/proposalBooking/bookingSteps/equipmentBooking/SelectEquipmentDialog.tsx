@@ -16,7 +16,7 @@ import useAvailableEquipments from 'hooks/equipment/useAvailableEquipments';
 import { DetailedProposalBooking } from 'hooks/proposalBooking/useProposalBooking';
 
 export type EquipmentTableRow = {
-  id: string;
+  id: number;
   name: string;
   autoAccept: boolean;
 };
@@ -43,9 +43,9 @@ export default function SelectEquipmentDialog({
   const { enqueueSnackbar } = useSnackbar();
   const api = useDataApi();
   const { equipments, loading } = useAvailableEquipments(scheduledEvent.id);
-  const [selectedEquipments, setSelectedEquipments] = useState<string[]>([]);
+  const [selectedEquipments, setSelectedEquipments] = useState<number[]>([]);
 
-  const handleAssign = async (ids: string[]) => {
+  const handleAssign = async (ids: number[]) => {
     const { assignToScheduledEvents: success } =
       await api().assignEquipmentToScheduledEvent({
         assignEquipmentsToScheduledEventInput: {

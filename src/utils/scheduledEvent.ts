@@ -1,6 +1,6 @@
 import { Moment } from 'moment';
 
-type BaseEvent = { id: string; startsAt: Moment | Date; endsAt: Moment | Date };
+type BaseEvent = { id: number; startsAt: Moment | Date; endsAt: Moment | Date };
 
 export function isOverlapping<T extends BaseEvent>(eventA: T, eventB: T) {
   if (

@@ -10,7 +10,7 @@ export type ScheduledEventEquipment = Pick<
 
 export type ScheduledEventWithEquipments = Pick<
   ScheduledEvent,
-  'id' | 'startsAt' | 'endsAt'
+  'id' | 'startsAt' | 'endsAt' | 'status'
 > & {
   equipments: ScheduledEventEquipment[];
 };
@@ -19,8 +19,8 @@ export default function useScheduledEventWithEquipments({
   proposalBookingId,
   scheduledEventId,
 }: {
-  proposalBookingId: string;
-  scheduledEventId: string;
+  proposalBookingId: number;
+  scheduledEventId: number;
 }) {
   const [loading, setLoading] = useState(true);
   const [scheduledEvent, setScheduledEvent] =

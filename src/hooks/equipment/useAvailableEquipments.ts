@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Equipment } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 
-export default function useAvailableEquipments(scheduledEventId: string) {
+export default function useAvailableEquipments(scheduledEventId: number) {
   const [loading, setLoading] = useState(true);
   const [equipments, setEquipments] = useState<
     Pick<

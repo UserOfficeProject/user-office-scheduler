@@ -17,7 +17,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 type EquipmentBookingDialogProps = {
-  activeEquipmentBookingId: string;
+  activeEquipmentBookingId: number;
   isDialogOpen: boolean;
   closeDialog: (shouldRefresh?: boolean) => void;
 };

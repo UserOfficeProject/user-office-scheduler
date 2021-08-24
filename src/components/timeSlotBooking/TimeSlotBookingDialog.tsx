@@ -100,8 +100,8 @@ const getActiveStepByStatus = (
 };
 
 type ProposalBookingDialogProps = {
-  activeProposalBookingId: string;
-  activeTimeSlotScheduledEventId: string;
+  activeProposalBookingId: number;
+  activeTimeSlotScheduledEventId: number;
   isDialogOpen: boolean;
   closeDialog: (shouldRefresh?: boolean) => void;
 };
@@ -127,9 +127,8 @@ export default function ProposalBookingDialog({
 
   useEffect(() => {
     if (!loading && scheduledEvent) {
-      // TODO: Get status from scheduled event not from proposal booking globally when it is moved.
-      setActiveStep(0);
-      setActiveStatus(ProposalBookingStatus.DRAFT);
+      setActiveStep(getActiveStepByStatus(scheduledEvent.status));
+      setActiveStatus(scheduledEvent.status);
     }
   }, [loading, scheduledEvent]);
 

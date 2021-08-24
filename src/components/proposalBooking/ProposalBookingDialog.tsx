@@ -117,7 +117,7 @@ const getActiveStepByStatus = (
 };
 
 type ProposalBookingDialogProps = {
-  activeProposalBookingId: string;
+  activeProposalBookingId: number;
   isDialogOpen: boolean;
   closeDialog: (shouldRefresh?: boolean) => void;
 };

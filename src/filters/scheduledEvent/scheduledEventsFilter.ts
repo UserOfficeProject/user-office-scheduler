@@ -5,7 +5,7 @@ import { ScheduledEventFilter } from 'generated/sdk';
 import { toTzLessDateTime } from 'utils/date';
 
 export default function generateScheduledEventFilter(
-  instrumentId: string | null,
+  instrumentId: number | null,
   startsAt: Date,
   activeView: ExtendedView
 ): ScheduledEventFilter {

@@ -152,7 +152,7 @@ export default function BookingEventStep({
     handleRowsChange((rows) => [
       ...rows,
       {
-        id: `t-${Date.now()}`,
+        id: Date.now(),
         newlyCreated: true,
         startsAt: startsAt,
         endsAt: endsAt,
@@ -172,11 +172,14 @@ export default function BookingEventStep({
       } = await api().bulkUpsertScheduledEvents({
         input: {
           proposalBookingId: proposalBooking.id,
-          scheduledEvents: rows.map(({ startsAt, endsAt, ...rest }) => ({
-            ...rest,
-            startsAt: toTzLessDateTime(startsAt),
-            endsAt: toTzLessDateTime(endsAt),
-          })),
+          scheduledEvents: rows.map(
+            ({ startsAt, endsAt, id, newlyCreated }) => ({
+              newlyCreated,
+              id: newlyCreated ? 0 : id,
+              startsAt: toTzLessDateTime(startsAt),
+              endsAt: toTzLessDateTime(endsAt),
+            })
+          ),
         },
       });
 

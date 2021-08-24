@@ -123,8 +123,8 @@ export default function EquipmentBookingStep({
   };
 
   const handleDeleteAssignment = (
-    equipmentId: string,
-    scheduledEventId: string
+    equipmentId: number,
+    scheduledEventId: number
   ) => {
     showConfirmation({
       message: (

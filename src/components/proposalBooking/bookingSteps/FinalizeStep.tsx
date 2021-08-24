@@ -85,7 +85,7 @@ export default function FinalizeStep({
     handleRowsChange((rows) => [
       ...rows,
       {
-        id: `t-${Date.now()}`,
+        id: Date.now(),
         newlyCreated: true,
         startsAt: moment().startOf('hour'),
         endsAt: moment().startOf('hour').add(1, 'hour'),
@@ -102,9 +102,11 @@ export default function FinalizeStep({
       } = await api().bulkUpsertLostTimes({
         input: {
           proposalBookingId: proposalBooking.id,
-          lostTimes: rows.map(({ startsAt, endsAt, ...rest }) => ({
-            ...rest,
+          lostTimes: rows.map(({ startsAt, endsAt, id, newlyCreated }) => ({
+            id: id,
+            newlyCreated: newlyCreated,
             startsAt: toTzLessDateTime(startsAt),
+            scheduledEventId: id,
             endsAt: toTzLessDateTime(endsAt),
           })),
         },

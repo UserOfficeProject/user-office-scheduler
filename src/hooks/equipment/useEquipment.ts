@@ -17,7 +17,7 @@ export type DetailedEquipment = Pick<
   equipmentResponsible: Array<Pick<User, 'id' | 'firstname' | 'lastname'>>;
 };
 
-export default function useEquipment(id?: string) {
+export default function useEquipment(id?: number) {
   const [loading, setLoading] = useState(true);
   const [equipment, setEquipment] = useState<DetailedEquipment | null>(null);
 

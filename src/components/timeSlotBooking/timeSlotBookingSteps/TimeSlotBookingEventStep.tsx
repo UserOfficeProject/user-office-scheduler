@@ -1,3 +1,4 @@
+import MomentUtils from '@date-io/moment';
 import {
   Avatar,
   Button,
@@ -5,6 +6,7 @@ import {
   DialogContent,
   Divider,
   Grid,
+  IconButton,
   List,
   ListItem,
   ListItemAvatar,
@@ -15,18 +17,33 @@ import {
   CalendarToday as CalendarTodayIcon,
   HourglassEmpty as HourglassEmptyIcon,
   Save as SaveIcon,
+  People as PeopleIcon,
+  FolderOpen as FolderOpenIcon,
+  Check as CheckIcon,
+  Clear as ClearIcon,
 } from '@material-ui/icons';
+import {
+  KeyboardDateTimePicker,
+  MuiPickersUtilsProvider,
+} from '@material-ui/pickers';
+import clsx from 'clsx';
 import humanizeDuration from 'humanize-duration';
-import React, { useContext, useState } from 'react';
+import moment, { Moment } from 'moment';
+import { useSnackbar } from 'notistack';
+import React, { useContext, useMemo, useState } from 'react';
 
 import Loader from 'components/common/Loader';
 import { AppContext } from 'context/AppContext';
 import { ProposalBookingStatus } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
-// import useProposalBookingScheduledEvents from 'hooks/scheduledEvent/useProposalBookingScheduledEvents';
-import { toTzLessDateTime } from 'utils/date';
+import {
+  toTzLessDateTime,
+  TZ_LESS_DATE_TIME_LOW_PREC_FORMAT,
+} from 'utils/date';
+import { hasOverlappingEvents } from 'utils/scheduledEvent';
 
 import { ProposalBookingDialogStepProps } from '../TimeSlotBookingDialog';
+// import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -55,6 +72,9 @@ const useStyles = makeStyles((theme) => ({
   spacingLeft: {
     marginLeft: theme.spacing(2),
   },
+  smaller: {
+    fontSize: '0.875rem',
+  },
 }));
 
 const formatDuration = (durSec: number) =>
@@ -67,161 +87,136 @@ const formatDuration = (durSec: number) =>
 export default function BookingEventStep({
   activeStatus,
   scheduledEvent,
-
+  setScheduledEvent,
   isDirty,
   handleNext,
   handleSetDirty,
   handleCloseDialog,
 }: ProposalBookingDialogStepProps) {
   const [isEditingTimeTable, setIsEditingTimeTable] = useState(false);
+  const [editingStartDate, setEditingStartDate] = useState(false);
+  const [editingEndDate, setEditingEndDate] = useState(false);
 
   const isStepReadOnly =
     activeStatus !== ProposalBookingStatus.DRAFT || isEditingTimeTable;
 
-  // const {
-  //   call: { startCycle, endCycle, cycleComment },
-  //   proposal: { title },
-  // } = proposalBooking;
-
   const classes = useStyles();
 
-  // const { loading, scheduledEvents } = useProposalBookingScheduledEvents(
-  //   proposalBooking.id
-  // );
-
-  const { showConfirmation } = useContext(AppContext);
-  // const { enqueueSnackbar } = useSnackbar();
+  const { showAlert, showConfirmation } = useContext(AppContext);
+  const { enqueueSnackbar } = useSnackbar();
   const api = useDataApi();
-  // const [rows, setRows] = useState<TimeTableRow[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [startsAt, setStartsAt] = useState<Moment | null>(
+    moment(scheduledEvent.startsAt)
+  );
+  const [endsAt, setEndsAt] = useState<Moment | null>(
+    moment(scheduledEvent.endsAt)
+  );
 
-  // const { allocated, allocatable } = useMemo(() => {
-  //   const allocated = rows.reduce(
-  //     (total, curr) => total + curr.endsAt.diff(curr.startsAt, 'seconds'),
-  //     0
-  //   );
+  const handleOnSave = () => {
+    if (!startsAt || !endsAt || !startsAt.isValid() || !endsAt.isValid()) {
+      // when the value is empty or invalid it is quite obvious why we prevent save
+      return;
+    }
 
-  //   return {
-  //     allocated,
-  //     allocatable: proposalBooking.allocatedTime - allocated,
-  //   };
-  // }, [rows, proposalBooking]);
+    if (startsAt >= endsAt) {
+      // when the starting date is after ending date
+      // it may be less obvious for the user, show alert
+      showAlert({
+        message: 'The starting date needs to be before the ending date',
+      });
 
-  // const handleOnEditModeChanged = useCallback((isReadOnly: boolean) => {
-  //   setIsEditingTimeTable(isReadOnly);
-  // }, []);
+      return;
+    }
 
-  // useEffect(() => {
-  //   if (!loading) {
-  //     setRows(
-  //       scheduledEvents.map(({ startsAt, endsAt, ...rest }) => ({
-  //         ...rest,
-  //         startsAt: parseTzLessDateTime(startsAt),
-  //         endsAt: parseTzLessDateTime(endsAt),
-  //       }))
-  //     );
+    !isDirty && handleSetDirty(true);
 
-  //     setIsLoading(false);
-  //   }
-  // }, [loading, scheduledEvents]);
-
-  // const handleRowsChange = (cb: React.SetStateAction<TimeTableRow[]>) => {
-  //   !isDirty && handleSetDirty(true);
-  //   setRows(cb);
-  // };
-
-  // const handleAdd = () => {
-  //   const lastRow = rows.length > 0 ? rows[rows.length - 1] : undefined;
-  //   const startsAt = lastRow?.endsAt ?? moment().startOf('hour');
-  //   const endsAt = startsAt.clone().startOf('hour').add(1, 'day');
-
-  //   handleRowsChange((rows) => [
-  //     ...rows,
-  //     {
-  //       id: `t-${Date.now()}`,
-  //       newlyCreated: true,
-  //       startsAt: startsAt,
-  //       endsAt: endsAt,
-  //     },
-  //   ]);
-  // };
-
-  // const handleSubmit = async () => {
-  //   try {
-  //     setIsLoading(true);
-
-  //     const {
-  //       bulkUpsertScheduledEvents: {
-  //         error,
-  //         scheduledEvent: updatedScheduledEvents,
-  //       },
-  //     } = await api().bulkUpsertScheduledEvents({
-  //       input: {
-  //         proposalBookingId: proposalBooking.id,
-  //         scheduledEvents: rows.map(({ startsAt, endsAt, ...rest }) => ({
-  //           ...rest,
-  //           startsAt: toTzLessDateTime(startsAt),
-  //           endsAt: toTzLessDateTime(endsAt),
-  //         })),
-  //       },
-  //     });
-
-  //     if (error) {
-  //       enqueueSnackbar(getTranslation(error as ResourceId), {
-  //         variant: 'error',
-  //       });
-  //     } else {
-  //       updatedScheduledEvents &&
-  //         setRows(
-  //           updatedScheduledEvents.map(({ startsAt, endsAt, ...rest }) => ({
-  //             ...rest,
-  //             startsAt: parseTzLessDateTime(startsAt),
-  //             endsAt: parseTzLessDateTime(endsAt),
-  //           }))
-  //         );
-  //     }
-
-  //     handleSetDirty(false);
-  //   } catch (e) {
-  //     // TODO
-  //     console.error(e);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
-  const handleSaveDraft = () => {
-    // hasOverlappingEvents(rows)
-    //   ? showConfirmation({
-    //       message: (
-    //         <>
-    //           You have <strong>overlapping bookings</strong>, are you sure you
-    //           want to continue?
-    //         </>
-    //       ),
-    //       cb: handleSubmit,
-    //     })
-    //   : handleSubmit();
+    setEditingStartDate(false);
+    setEditingEndDate(false);
   };
 
-  // const saveAndContinue = async () => {
-  //   await handleSubmit();
-  //   handleNext();
-  // };
+  const { allocated, allocatable } = useMemo(() => {
+    const allocated = scheduledEvent.proposalBooking!.scheduledEvents.reduce(
+      (total, curr) =>
+        total + moment(curr.endsAt).diff(curr.startsAt, 'seconds'),
+      0
+    );
+
+    return {
+      allocated,
+      allocatable: scheduledEvent.proposalBooking!.allocatedTime - allocated,
+    };
+  }, [scheduledEvent.proposalBooking]);
+
+  const handleSubmit = async () => {
+    // TODO: Add updateScheduledEvent method on the backend and uncomment this.
+    // try {
+    //   setIsLoading(true);
+    //   const {
+    //     updateScheduledEvent: { error, scheduledEvent: updatedScheduledEvent },
+    //   } = await api().updateScheduledEvent({
+    //     input: {},
+    //   });
+    //   if (error) {
+    //     enqueueSnackbar(getTranslation(error as ResourceId), {
+    //       variant: 'error',
+    //     });
+    //   } else {
+    //     updatedScheduledEvent && setScheduledEvent(updatedScheduledEvent);
+    //   }
+    //   handleSetDirty(false);
+    // } catch (e) {
+    //   // TODO
+    //   console.error(e);
+    // } finally {
+    //   setIsLoading(false);
+    // }
+  };
+
+  const handleSaveDraft = () => {
+    hasOverlappingEvents(
+      scheduledEvent.proposalBooking!.scheduledEvents.map((event) => ({
+        id: event.id,
+        startsAt: moment(event.startsAt),
+        endsAt: moment(event.endsAt),
+      }))
+    )
+      ? showConfirmation({
+          message: (
+            <>
+              You have <strong>overlapping bookings</strong>, are you sure you
+              want to continue?
+            </>
+          ),
+          cb: handleSubmit,
+        })
+      : handleSubmit();
+  };
+
+  const saveAndContinue = async () => {
+    await handleSubmit();
+    handleNext();
+  };
 
   const handleSaveAndContinue = async () => {
-    // hasOverlappingEvents(rows)
-    //   ? showConfirmation({
-    //       message: (
-    //         <>
-    //           You have <strong>overlapping bookings</strong>, are you sure you
-    //           want to continue?
-    //         </>
-    //       ),
-    //       cb: saveAndContinue,
-    //     })
-    //   : saveAndContinue();
-    // await handleSubmit();
+    hasOverlappingEvents(
+      scheduledEvent.proposalBooking!.scheduledEvents.map((event) => ({
+        id: event.id,
+        startsAt: moment(event.startsAt),
+        endsAt: moment(event.endsAt),
+      }))
+    )
+      ? showConfirmation({
+          message: (
+            <>
+              You have <strong>overlapping bookings</strong>, are you sure you
+              want to continue?
+            </>
+          ),
+          cb: saveAndContinue,
+        })
+      : saveAndContinue();
+    await handleSubmit();
     handleNext();
   };
 
@@ -231,119 +226,189 @@ export default function BookingEventStep({
 
       <DialogContent className={classes.root}>
         <Grid container spacing={2}>
-          <Grid item xs={6}>
-            <List className={classes.list} dense>
-              <ListItem disableGutters>
-                <ListItemAvatar>
-                  <Avatar>
-                    <CalendarTodayIcon />
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                  primary="Starts at"
-                  secondary={toTzLessDateTime(scheduledEvent.startsAt)}
-                />
-              </ListItem>
-              <Divider
-                variant="inset"
-                component="li"
-                className={classes.divider}
-              />
-              {/* <ListItem disableGutters>
-                <ListItemAvatar>
-                  <Avatar>
-                    <CalendarTodayIcon />
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                  primary="Cycle starts"
-                  secondary={toTzLessDateTime()}
-                />
-                <ListItemText
-                  primary="Cycle ends"
-                  secondary={toTzLessDateTime(endCycle)}
-                />
-              </ListItem> */}
-            </List>
-          </Grid>
-          <Grid item xs={6}>
-            <List className={classes.list} dense>
-              <ListItem disableGutters>
-                <ListItemAvatar>
-                  <Avatar>
-                    <HourglassEmptyIcon />
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                  primary="Ends at"
-                  secondary={toTzLessDateTime(scheduledEvent.endsAt)}
-                />
-              </ListItem>
-              <Divider
-                variant="inset"
-                component="li"
-                className={classes.divider}
-              />
-              {/* <ListItem disableGutters>
-                <ListItemAvatar>
-                  <Avatar>
-                    <HourglassEmptyIcon />
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                  primary="Allocated time"
-                  secondary={formatDuration(allocated)}
-                  className={classes.flexColumn}
-                />
-                <ListItemText
-                  primary="Allocatable time"
-                  className={classes.flexColumn}
-                  secondary={
+          <MuiPickersUtilsProvider utils={MomentUtils}>
+            <Grid item xs={6}>
+              <List className={classes.list} dense>
+                <ListItem disableGutters>
+                  <ListItemAvatar>
+                    <Avatar>
+                      <CalendarTodayIcon />
+                    </Avatar>
+                  </ListItemAvatar>
+                  {!editingStartDate && (
+                    <ListItemText
+                      onClick={() => setEditingStartDate(true)}
+                      primary="Starts at"
+                      secondary={toTzLessDateTime(startsAt!)}
+                    />
+                  )}
+                  {editingStartDate && (
                     <>
-                      <span
-                        className={clsx({
-                          [classes.allocatablePositive]: allocatable > 0,
-                          [classes.allocatableNegative]: allocatable < 0,
-                        })}
+                      <KeyboardDateTimePicker
+                        required
+                        label="Starts at"
+                        name={`startsAt`}
+                        margin="none"
+                        size="small"
+                        format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
+                        ampm={false}
+                        minutesStep={60}
+                        fullWidth
+                        data-cy="startsAt"
+                        InputProps={{
+                          className: classes.smaller,
+                        }}
+                        value={startsAt}
+                        onChange={(newValue) => setStartsAt(newValue)}
+                      />
+                      <IconButton
+                        onClick={handleOnSave}
+                        data-cy="btn-time-table-save-row"
                       >
-                        {allocatable < 0
-                          ? `0 seconds (+${formatDuration(allocatable)})`
-                          : formatDuration(allocatable)}
-                      </span>
+                        <CheckIcon />
+                      </IconButton>
+                      <IconButton
+                        onClick={() => {
+                          setStartsAt(moment(scheduledEvent.startsAt));
+                          setEditingStartDate(false);
+                        }}
+                        data-cy="btn-time-table-reset-row"
+                      >
+                        <ClearIcon />
+                      </IconButton>
                     </>
-                  }
+                  )}
+                </ListItem>
+                <Divider
+                  variant="inset"
+                  component="li"
+                  className={classes.divider}
                 />
-              </ListItem> */}
-            </List>
-          </Grid>
+                <ListItem disableGutters>
+                  <ListItemAvatar>
+                    <Avatar>
+                      <PeopleIcon />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary="Scheduled by"
+                    secondary={`${scheduledEvent.scheduledBy?.firstname} ${scheduledEvent.scheduledBy?.lastname}`}
+                  />
+                </ListItem>
+                <Divider
+                  variant="inset"
+                  component="li"
+                  className={classes.divider}
+                />
+                <ListItem disableGutters>
+                  <ListItemAvatar>
+                    <Avatar>
+                      <HourglassEmptyIcon />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary="Proposal allocated time"
+                    secondary={formatDuration(allocated)}
+                    className={classes.flexColumn}
+                  />
+                  <ListItemText
+                    primary="Proposal allocatable time"
+                    className={classes.flexColumn}
+                    secondary={
+                      <>
+                        <span
+                          className={clsx({
+                            [classes.allocatablePositive]: allocatable > 0,
+                            [classes.allocatableNegative]: allocatable < 0,
+                          })}
+                        >
+                          {allocatable < 0
+                            ? `0 seconds (+${formatDuration(allocatable)})`
+                            : formatDuration(allocatable)}
+                        </span>
+                      </>
+                    }
+                  />
+                </ListItem>
+              </List>
+            </Grid>
+            <Grid item xs={6}>
+              <List className={classes.list} dense>
+                <ListItem disableGutters>
+                  <ListItemAvatar>
+                    <Avatar>
+                      <HourglassEmptyIcon />
+                    </Avatar>
+                  </ListItemAvatar>
+                  {!editingEndDate && (
+                    <ListItemText
+                      primary="Ends at"
+                      onClick={() => setEditingEndDate(true)}
+                      secondary={toTzLessDateTime(endsAt!)}
+                    />
+                  )}
+                  {editingEndDate && (
+                    <>
+                      <KeyboardDateTimePicker
+                        required
+                        label="Ends at"
+                        name="endsAt"
+                        margin="none"
+                        size="small"
+                        format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
+                        ampm={false}
+                        minutesStep={60}
+                        fullWidth
+                        data-cy="endsAt"
+                        InputProps={{
+                          className: classes.smaller,
+                        }}
+                        value={endsAt}
+                        onChange={(newValue) => setEndsAt(newValue)}
+                      />
+                      <IconButton
+                        onClick={handleOnSave}
+                        data-cy="btn-time-table-save-row"
+                      >
+                        <CheckIcon />
+                      </IconButton>
+                      <IconButton
+                        onClick={() => {
+                          setEndsAt(moment(scheduledEvent.endsAt));
+                          setEditingEndDate(false);
+                        }}
+                        data-cy="btn-time-table-reset-row"
+                      >
+                        <ClearIcon />
+                      </IconButton>
+                    </>
+                  )}
+                </ListItem>
+                <Divider
+                  variant="inset"
+                  component="li"
+                  className={classes.divider}
+                />
+                <ListItem disableGutters>
+                  <ListItemAvatar>
+                    <Avatar>
+                      <FolderOpenIcon />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary="Proposal"
+                    secondary={scheduledEvent.proposalBooking?.proposal?.title}
+                  />
+                </ListItem>
+                <Divider
+                  variant="inset"
+                  component="li"
+                  className={classes.divider}
+                />
+              </List>
+            </Grid>
+          </MuiPickersUtilsProvider>
         </Grid>
-      </DialogContent>
-
-      <DialogContent>
-        {/* <TimeTable
-          selectable={!isStepReadOnly}
-          editable={!isStepReadOnly}
-          maxHeight={380}
-          rows={rows}
-          handleRowsChange={handleRowsChange}
-          onEditModeToggled={handleOnEditModeChanged}
-          titleComponent={
-            <>
-              Time slots
-              <Button
-                variant="contained"
-                color="primary"
-                startIcon={<AddIcon />}
-                className={classes.spacingLeft}
-                onClick={handleAdd}
-                data-cy="btn-add-time-slot"
-                disabled={isStepReadOnly}
-              >
-                Add
-              </Button>
-            </>
-          }
-        /> */}
       </DialogContent>
 
       <DialogActions>

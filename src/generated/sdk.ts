@@ -3527,6 +3527,7 @@ export type GetProposalBookingScheduledEventsQuery = (
 export type GetScheduledEventWithEquipmentsQueryVariables = Exact<{
   proposalBookingId: Scalars['Int'];
   scheduledEventId: Scalars['Int'];
+  scheduledEventFilter: ProposalBookingScheduledEventFilter;
 }>;
 
 
@@ -3537,8 +3538,11 @@ export type GetScheduledEventWithEquipmentsQuery = (
     & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt' | 'status'>
     & { proposalBooking: Maybe<(
       { __typename?: 'ProposalBooking' }
-      & Pick<ProposalBooking, 'status'>
-      & { proposal: Maybe<(
+      & Pick<ProposalBooking, 'id' | 'status' | 'allocatedTime'>
+      & { scheduledEvents: Array<(
+        { __typename?: 'ScheduledEvent' }
+        & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
+      )>, proposal: Maybe<(
         { __typename?: 'Proposal' }
         & Pick<Proposal, 'primaryKey' | 'title' | 'proposalId'>
         & { proposer: Maybe<(
@@ -3965,7 +3969,7 @@ export const GetProposalBookingScheduledEventsDocument = gql`
 }
     `;
 export const GetScheduledEventWithEquipmentsDocument = gql`
-    query getScheduledEventWithEquipments($proposalBookingId: Int!, $scheduledEventId: Int!) {
+    query getScheduledEventWithEquipments($proposalBookingId: Int!, $scheduledEventId: Int!, $scheduledEventFilter: ProposalBookingScheduledEventFilter!) {
   proposalBookingScheduledEvent(
     proposalBookingId: $proposalBookingId
     scheduledEventId: $scheduledEventId
@@ -3975,7 +3979,14 @@ export const GetScheduledEventWithEquipmentsDocument = gql`
     endsAt
     status
     proposalBooking {
+      id
       status
+      allocatedTime
+      scheduledEvents(filter: $scheduledEventFilter) {
+        id
+        startsAt
+        endsAt
+      }
       proposal {
         primaryKey
         title

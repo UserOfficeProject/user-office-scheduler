@@ -10,7 +10,7 @@ export type ScheduledEventEquipment = Pick<
 
 export type ScheduledEventWithEquipments = Pick<
   ScheduledEvent,
-  'id' | 'startsAt' | 'endsAt' | 'status'
+  'id' | 'startsAt' | 'endsAt' | 'status' | 'scheduledBy' | 'proposalBooking'
 > & {
   equipments: ScheduledEventEquipment[];
 };
@@ -33,14 +33,20 @@ export default function useScheduledEventWithEquipments({
 
     setLoading(true);
     api()
-      .getScheduledEventWithEquipments({ proposalBookingId, scheduledEventId })
+      .getScheduledEventWithEquipments({
+        proposalBookingId,
+        scheduledEventId,
+        scheduledEventFilter: {},
+      })
       .then((data) => {
         if (unmount) {
           return;
         }
 
         if (data.proposalBookingScheduledEvent) {
-          setScheduledEvent(data.proposalBookingScheduledEvent);
+          setScheduledEvent(
+            data.proposalBookingScheduledEvent as ScheduledEventWithEquipments
+          );
         }
 
         setLoading(false);
@@ -52,5 +58,5 @@ export default function useScheduledEventWithEquipments({
     };
   }, [proposalBookingId, scheduledEventId, api]);
 
-  return { loading, scheduledEvent } as const;
+  return { loading, scheduledEvent, setScheduledEvent } as const;
 }

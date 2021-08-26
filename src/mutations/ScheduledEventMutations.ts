@@ -2,12 +2,14 @@ import { logger } from '@esss-swap/duo-logger';
 import { createScheduledEventValidationSchema } from '@esss-swap/duo-validation';
 
 import { ResolverContext } from '../context';
+import { EquipmentDataSource } from '../datasources/EquipmentDataSource';
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
 import { ScheduledEventDataSource } from '../datasources/ScheduledEventDataSource';
 import Authorized from '../decorators/Authorized';
 import ValidateArgs from '../decorators/ValidateArgs';
 import { instrumentScientistHasInstrument } from '../helpers/instrumentHelpers';
 import { instrumentScientistHasAccess } from '../helpers/permissionHelpers';
+import { EquipmentAssignmentStatus } from '../models/Equipment';
 import { ProposalBookingStatus } from '../models/ProposalBooking';
 import {
   ScheduledEvent,
@@ -15,16 +17,23 @@ import {
 } from '../models/ScheduledEvent';
 import { rejection, Rejection } from '../rejection';
 import {
+  ActivateScheduledEventInput,
   BulkUpsertScheduledEventsInput,
+  FinalizeScheduledEventInput,
   NewScheduledEventInput,
+  UpdateScheduledEventInput,
 } from '../resolvers/mutations/ScheduledEventMutation';
 import { Roles, User } from '../types/shared';
-import { bulkUpsertScheduledEventsValidationSchema } from '../validation/scheduledEvent';
+import {
+  bulkUpsertScheduledEventsValidationSchema,
+  updateScheduledEventValidationSchema,
+} from '../validation/scheduledEvent';
 
 export default class ScheduledEventMutations {
   constructor(
     private scheduledEventDataSource: ScheduledEventDataSource,
-    private proposalBookingDataSource: ProposalBookingDataSource
+    private proposalBookingDataSource: ProposalBookingDataSource,
+    private equipmentDataSource: EquipmentDataSource
   ) {}
 
   @ValidateArgs(
@@ -85,6 +94,118 @@ export default class ScheduledEventMutations {
         logger.logException('ScheduledEvent bulkUpsert failed', error, {
           bulkUpsertScheduledEvents,
         });
+
+        return rejection('INTERNAL_ERROR');
+      });
+  }
+
+  @ValidateArgs(updateScheduledEventValidationSchema)
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
+  async update(
+    ctx: ResolverContext,
+    updateScheduledEvent: UpdateScheduledEventInput
+  ): Promise<ScheduledEvent | Rejection> {
+    const scheduledEvent = await this.scheduledEventDataSource.get(
+      updateScheduledEvent.scheduledEventId
+    );
+
+    if (
+      !scheduledEvent ||
+      scheduledEvent.status !== ProposalBookingStatus.DRAFT ||
+      !scheduledEvent.proposalBookingId
+    ) {
+      return rejection('NOT_FOUND');
+    }
+
+    if (
+      !(await instrumentScientistHasAccess(
+        ctx,
+        scheduledEvent.proposalBookingId
+      ))
+    ) {
+      return rejection('NOT_ALLOWED');
+    }
+
+    return this.scheduledEventDataSource
+      .update(updateScheduledEvent)
+      .catch((error) => {
+        logger.logException('ScheduledEvent update failed', error, {
+          updateScheduledEvent,
+        });
+
+        return rejection('INTERNAL_ERROR');
+      });
+  }
+
+  // @ValidateArgs(activateBookingValidationSchema)
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
+  async activate(
+    ctx: ResolverContext,
+    { id }: ActivateScheduledEventInput
+  ): Promise<ScheduledEvent | Rejection> {
+    const scheduledEvent = await this.scheduledEventDataSource.get(id);
+    if (!scheduledEvent) {
+      return rejection('NOT_FOUND');
+    }
+
+    const allProposalBookingEquipmentEvents =
+      await this.equipmentDataSource.equipmentEventsByProposalBookingId(
+        scheduledEvent.proposalBookingId!
+      );
+
+    const allEquipmentsAccepted = allProposalBookingEquipmentEvents.every(
+      (event) => event.status === EquipmentAssignmentStatus.ACCEPTED
+    );
+
+    if (!scheduledEvent) {
+      return rejection('NOT_FOUND');
+    }
+
+    if (!allEquipmentsAccepted) {
+      return rejection('NOT_ALLOWED');
+    }
+
+    if (
+      !(await instrumentScientistHasAccess(
+        ctx,
+        scheduledEvent.proposalBookingId!
+      ))
+    ) {
+      return rejection('NOT_ALLOWED');
+    }
+
+    return this.scheduledEventDataSource.activate(id).catch((error: Error) => {
+      logger.logException('Scheduled event activate failed', error);
+
+      return rejection('INTERNAL_ERROR');
+    });
+  }
+
+  // @ValidateArgs(finalizeBookingValidationSchema)
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
+  async finalize(
+    ctx: ResolverContext,
+    { action, id }: FinalizeScheduledEventInput
+  ): Promise<ScheduledEvent | Rejection> {
+    const scheduledEvent = await this.scheduledEventDataSource.get(id);
+
+    if (!scheduledEvent) {
+      return rejection('NOT_FOUND');
+    }
+
+    if (
+      !(await instrumentScientistHasAccess(
+        ctx,
+        scheduledEvent.proposalBookingId!
+      ))
+    ) {
+      return rejection('NOT_ALLOWED');
+    }
+
+    return this.scheduledEventDataSource
+      .finalize(id, action)
+      .catch((error: Error) => {
+        logger.logException('Scheduled event finalize failed', error);
 
         return rejection('INTERNAL_ERROR');
       });

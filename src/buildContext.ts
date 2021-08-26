@@ -26,7 +26,8 @@ const scheduledEventQueries = new ScheduledEventQueries(
 );
 const scheduledEventMutations = new ScheduledEventMutations(
   scheduledEventDataSource,
-  proposalBookingDataSource
+  proposalBookingDataSource,
+  equipmentDataSource
 );
 
 const proposalBookingQueries = new ProposalBookingQueries(

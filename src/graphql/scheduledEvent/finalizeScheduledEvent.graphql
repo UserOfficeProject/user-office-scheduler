@@ -1,0 +1,5 @@
+mutation finalizeScheduledEvent($input: FinalizeScheduledEventInput!) {
+  finalizeScheduledEvent(finalizeScheduledEvent: $input) {
+    error
+  }
+}

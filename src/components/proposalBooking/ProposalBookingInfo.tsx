@@ -6,6 +6,7 @@ import {
   isDraftEvent,
   isClosedEvent,
 } from 'components/calendar/Event';
+import { ProposalBookingStatus } from 'generated/sdk';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -35,8 +36,12 @@ const useStyles = makeStyles(() => ({
 
 interface ProposalBookingInfoProps {
   booking?: BasicProposalBooking;
+  scheduledEventStatus: ProposalBookingStatus;
 }
-function ProposalBookingInfo({ booking }: ProposalBookingInfoProps) {
+function ProposalBookingInfo({
+  booking,
+  scheduledEventStatus,
+}: ProposalBookingInfoProps) {
   const classes = useStyles();
   const proposal = booking?.proposal;
 
@@ -50,8 +55,8 @@ function ProposalBookingInfo({ booking }: ProposalBookingInfoProps) {
       data-cy={`proposal-event-${proposal.title}-${proposal.proposalId}`}
     >
       <div className={classes.proposalId}>
-        {isDraftEvent(booking) ? '[Draft] - ' : ''}
-        {isClosedEvent(booking) ? '[Closed] - ' : ''}
+        {isDraftEvent({ status: scheduledEventStatus }) ? '[Draft] - ' : ''}
+        {isClosedEvent({ status: scheduledEventStatus }) ? '[Closed] - ' : ''}
         {proposal.proposalId}
       </div>
       <div className={classes.title}>{proposal.title}</div>

@@ -19,6 +19,10 @@ export type Scalars = {
   TzLessDateTime: string;
 };
 
+export type ActivateScheduledEventInput = {
+  id: Scalars['Int'];
+};
+
 export type AddProposalWorkflowStatusInput = {
   proposalWorkflowId: Scalars['Int'];
   sortOrder: Scalars['Int'];
@@ -526,6 +530,11 @@ export type FileUploadConfig = {
   max_files: Scalars['Int'];
 };
 
+export type FinalizeScheduledEventInput = {
+  id: Scalars['Int'];
+  action: ProposalBookingFinalizeAction;
+};
+
 export type HealthStats = {
   __typename?: 'HealthStats';
   message: Scalars['String'];
@@ -747,6 +756,9 @@ export type Mutation = {
   bulkUpsertLostTimes: LostTimesResponseWrap;
   createScheduledEvent: ScheduledEventResponseWrap;
   bulkUpsertScheduledEvents: ScheduledEventsResponseWrap;
+  updateScheduledEvent: ScheduledEventResponseWrap;
+  activateScheduledEvent: ScheduledEventResponseWrap;
+  finalizeScheduledEvent: ScheduledEventResponseWrap;
   finalizeProposalBooking: ProposalBookingResponseWrap;
   activateProposalBooking: ProposalBookingResponseWrap;
   resetSchedulerDb: Scalars['String'];
@@ -1526,6 +1538,21 @@ export type MutationCreateScheduledEventArgs = {
 
 export type MutationBulkUpsertScheduledEventsArgs = {
   bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput;
+};
+
+
+export type MutationUpdateScheduledEventArgs = {
+  updateScheduledEvent: UpdateScheduledEventInput;
+};
+
+
+export type MutationActivateScheduledEventArgs = {
+  activateScheduledEvent: ActivateScheduledEventInput;
+};
+
+
+export type MutationFinalizeScheduledEventArgs = {
+  finalizeScheduledEvent: FinalizeScheduledEventInput;
 };
 
 
@@ -3014,6 +3041,12 @@ export type UpdateProposalWorkflowInput = {
   description: Scalars['String'];
 };
 
+export type UpdateScheduledEventInput = {
+  scheduledEventId: Scalars['Int'];
+  startsAt: Scalars['TzLessDateTime'];
+  endsAt: Scalars['TzLessDateTime'];
+};
+
 export type User = {
   __typename?: 'User';
   id: Scalars['Int'];
@@ -3440,6 +3473,23 @@ export type GetProposalBookingQuery = (
   )> }
 );
 
+export type ActivateScheduledEventMutationVariables = Exact<{
+  input: ActivateScheduledEventInput;
+}>;
+
+
+export type ActivateScheduledEventMutation = (
+  { __typename?: 'Mutation' }
+  & { activateScheduledEvent: (
+    { __typename?: 'ScheduledEventResponseWrap' }
+    & Pick<ScheduledEventResponseWrap, 'error'>
+    & { scheduledEvent: Maybe<(
+      { __typename?: 'ScheduledEvent' }
+      & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
+    )> }
+  ) }
+);
+
 export type BulkUpsertScheduledEventsMutationVariables = Exact<{
   input: BulkUpsertScheduledEventsInput;
 }>;
@@ -3474,6 +3524,19 @@ export type CreateScheduledEventMutation = (
   ) }
 );
 
+export type FinalizeScheduledEventMutationVariables = Exact<{
+  input: FinalizeScheduledEventInput;
+}>;
+
+
+export type FinalizeScheduledEventMutation = (
+  { __typename?: 'Mutation' }
+  & { finalizeScheduledEvent: (
+    { __typename?: 'ScheduledEventResponseWrap' }
+    & Pick<ScheduledEventResponseWrap, 'error'>
+  ) }
+);
+
 export type GetEquipmentScheduledEventsQueryVariables = Exact<{
   equipmentIds: Array<Scalars['Int']> | Scalars['Int'];
   endsAt: Scalars['TzLessDateTime'];
@@ -3488,7 +3551,7 @@ export type GetEquipmentScheduledEventsQuery = (
     & Pick<Equipment, 'id' | 'name'>
     & { events: Array<(
       { __typename?: 'ScheduledEvent' }
-      & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt' | 'equipmentAssignmentStatus' | 'equipmentId'>
+      & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt' | 'status' | 'equipmentAssignmentStatus' | 'equipmentId'>
       & { proposalBooking: Maybe<(
         { __typename?: 'ProposalBooking' }
         & Pick<ProposalBooking, 'status'>
@@ -3549,6 +3612,9 @@ export type GetScheduledEventWithEquipmentsQuery = (
           { __typename?: 'BasicUserDetails' }
           & Pick<BasicUserDetails, 'firstname' | 'lastname'>
         )> }
+      )>, call: Maybe<(
+        { __typename?: 'Call' }
+        & Pick<Call, 'id' | 'shortCode' | 'startCycle' | 'endCycle' | 'cycleComment'>
       )> }
     )>, scheduledBy: Maybe<(
       { __typename?: 'User' }
@@ -3570,7 +3636,7 @@ export type GetScheduledEventsQuery = (
   { __typename?: 'Query' }
   & { scheduledEvents: Array<(
     { __typename?: 'ScheduledEvent' }
-    & Pick<ScheduledEvent, 'id' | 'bookingType' | 'equipmentId' | 'startsAt' | 'endsAt' | 'description'>
+    & Pick<ScheduledEvent, 'id' | 'bookingType' | 'equipmentId' | 'startsAt' | 'endsAt' | 'status' | 'description'>
     & { instrument: Maybe<(
       { __typename?: 'Instrument' }
       & Pick<Instrument, 'name'>
@@ -3607,12 +3673,29 @@ export type GetScheduledEventsWithEquipmentsQuery = (
   { __typename?: 'Query' }
   & { proposalBookingScheduledEvents: Array<(
     { __typename?: 'ScheduledEvent' }
-    & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
+    & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt' | 'status'>
     & { equipments: Array<(
       { __typename?: 'EquipmentWithAssignmentStatus' }
       & Pick<EquipmentWithAssignmentStatus, 'id' | 'name' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'status'>
     )> }
   )> }
+);
+
+export type UpdateScheduledEventMutationVariables = Exact<{
+  input: UpdateScheduledEventInput;
+}>;
+
+
+export type UpdateScheduledEventMutation = (
+  { __typename?: 'Mutation' }
+  & { updateScheduledEvent: (
+    { __typename?: 'ScheduledEventResponseWrap' }
+    & Pick<ScheduledEventResponseWrap, 'error'>
+    & { scheduledEvent: Maybe<(
+      { __typename?: 'ScheduledEvent' }
+      & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
+    )> }
+  ) }
 );
 
 export type BasicUserDetailsFragment = (
@@ -3897,6 +3980,18 @@ export const GetProposalBookingDocument = gql`
   }
 }
     `;
+export const ActivateScheduledEventDocument = gql`
+    mutation activateScheduledEvent($input: ActivateScheduledEventInput!) {
+  activateScheduledEvent(activateScheduledEvent: $input) {
+    error
+    scheduledEvent {
+      id
+      startsAt
+      endsAt
+    }
+  }
+}
+    `;
 export const BulkUpsertScheduledEventsDocument = gql`
     mutation bulkUpsertScheduledEvents($input: BulkUpsertScheduledEventsInput!) {
   bulkUpsertScheduledEvents(bulkUpsertScheduledEvents: $input) {
@@ -3923,6 +4018,13 @@ export const CreateScheduledEventDocument = gql`
   }
 }
     `;
+export const FinalizeScheduledEventDocument = gql`
+    mutation finalizeScheduledEvent($input: FinalizeScheduledEventInput!) {
+  finalizeScheduledEvent(finalizeScheduledEvent: $input) {
+    error
+  }
+}
+    `;
 export const GetEquipmentScheduledEventsDocument = gql`
     query getEquipmentScheduledEvents($equipmentIds: [Int!]!, $endsAt: TzLessDateTime!, $startsAt: TzLessDateTime!) {
   equipments(equipmentIds: $equipmentIds) {
@@ -3932,6 +4034,7 @@ export const GetEquipmentScheduledEventsDocument = gql`
       id
       startsAt
       endsAt
+      status
       equipmentAssignmentStatus
       equipmentId
       proposalBooking {
@@ -3996,6 +4099,13 @@ export const GetScheduledEventWithEquipmentsDocument = gql`
           lastname
         }
       }
+      call {
+        id
+        shortCode
+        startCycle
+        endCycle
+        cycleComment
+      }
     }
     scheduledBy {
       firstname
@@ -4019,6 +4129,7 @@ export const GetScheduledEventsDocument = gql`
     equipmentId
     startsAt
     endsAt
+    status
     description
     instrument {
       name
@@ -4064,12 +4175,25 @@ export const GetScheduledEventsWithEquipmentsDocument = gql`
     id
     startsAt
     endsAt
+    status
     equipments {
       id
       name
       maintenanceStartsAt
       maintenanceEndsAt
       status
+    }
+  }
+}
+    `;
+export const UpdateScheduledEventDocument = gql`
+    mutation updateScheduledEvent($input: UpdateScheduledEventInput!) {
+  updateScheduledEvent(updateScheduledEvent: $input) {
+    error
+    scheduledEvent {
+      id
+      startsAt
+      endsAt
     }
   }
 }
@@ -4157,11 +4281,17 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     getProposalBooking(variables: GetProposalBookingQueryVariables): Promise<GetProposalBookingQuery> {
       return withWrapper(() => client.request<GetProposalBookingQuery>(print(GetProposalBookingDocument), variables));
     },
+    activateScheduledEvent(variables: ActivateScheduledEventMutationVariables): Promise<ActivateScheduledEventMutation> {
+      return withWrapper(() => client.request<ActivateScheduledEventMutation>(print(ActivateScheduledEventDocument), variables));
+    },
     bulkUpsertScheduledEvents(variables: BulkUpsertScheduledEventsMutationVariables): Promise<BulkUpsertScheduledEventsMutation> {
       return withWrapper(() => client.request<BulkUpsertScheduledEventsMutation>(print(BulkUpsertScheduledEventsDocument), variables));
     },
     createScheduledEvent(variables: CreateScheduledEventMutationVariables): Promise<CreateScheduledEventMutation> {
       return withWrapper(() => client.request<CreateScheduledEventMutation>(print(CreateScheduledEventDocument), variables));
+    },
+    finalizeScheduledEvent(variables: FinalizeScheduledEventMutationVariables): Promise<FinalizeScheduledEventMutation> {
+      return withWrapper(() => client.request<FinalizeScheduledEventMutation>(print(FinalizeScheduledEventDocument), variables));
     },
     getEquipmentScheduledEvents(variables: GetEquipmentScheduledEventsQueryVariables): Promise<GetEquipmentScheduledEventsQuery> {
       return withWrapper(() => client.request<GetEquipmentScheduledEventsQuery>(print(GetEquipmentScheduledEventsDocument), variables));
@@ -4177,6 +4307,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     getScheduledEventsWithEquipments(variables: GetScheduledEventsWithEquipmentsQueryVariables): Promise<GetScheduledEventsWithEquipmentsQuery> {
       return withWrapper(() => client.request<GetScheduledEventsWithEquipmentsQuery>(print(GetScheduledEventsWithEquipmentsDocument), variables));
+    },
+    updateScheduledEvent(variables: UpdateScheduledEventMutationVariables): Promise<UpdateScheduledEventMutation> {
+      return withWrapper(() => client.request<UpdateScheduledEventMutation>(print(UpdateScheduledEventDocument), variables));
     },
     getUsers(variables?: GetUsersQueryVariables): Promise<GetUsersQuery> {
       return withWrapper(() => client.request<GetUsersQuery>(print(GetUsersDocument), variables));

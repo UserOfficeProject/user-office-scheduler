@@ -1,0 +1,10 @@
+mutation updateScheduledEvent($input: UpdateScheduledEventInput!) {
+  updateScheduledEvent(updateScheduledEvent: $input) {
+    error
+    scheduledEvent {
+      id
+      startsAt
+      endsAt
+    }
+  }
+}

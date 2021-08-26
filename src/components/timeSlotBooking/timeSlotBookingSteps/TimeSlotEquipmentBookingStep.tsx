@@ -14,15 +14,15 @@ import { useSnackbar } from 'notistack';
 import React, { useState, useContext } from 'react';
 
 import Loader from 'components/common/Loader';
+import SelectTimeSlotsDialog from 'components/proposalBooking/bookingSteps/equipmentBooking/SelectTimeSlotsDialog';
 import { AppContext } from 'context/AppContext';
 import {
   EquipmentAssignmentStatus,
   ProposalBookingStatus,
 } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
-import useScheduledEventsWithEquipments from 'hooks/scheduledEvent/useScheduledEventsWithEquipments';
+import { DetailedProposalBooking } from 'hooks/proposalBooking/useProposalBooking';
 
-// import SelectTimeSlotsDialog from '../../proposalBooking/bookingSteps/equipmentBooking/SelectTimeSlotsDialog';
 import TimeSlotEquipmentTable from '../../proposalBooking/bookingSteps/equipmentBooking/TimeSlotEquipmentTable';
 import { ProposalBookingDialogStepProps } from '../TimeSlotBookingDialog';
 
@@ -53,7 +53,9 @@ const useStyles = makeStyles((theme) => ({
 export default function EquipmentBookingStep({
   activeStatus,
   scheduledEvent,
+  setScheduledEvent,
   handleNext,
+  refreshScheduledEvent,
   handleBack,
   handleSetActiveStepByStatus,
   handleCloseDialog,
@@ -64,23 +66,16 @@ export default function EquipmentBookingStep({
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState(false);
   const [equipmentDialog, setEquipmentDialog] = useState(false);
-  const {
-    loading: scheduledEventsLoading,
-    scheduledEvents,
-    refresh,
-  } = useScheduledEventsWithEquipments(scheduledEvent.id);
 
-  const isLoading = scheduledEventsLoading || loading;
+  const isLoading = loading;
 
-  const allEquipmentsAccepted = scheduledEvents.every((event) =>
-    event.equipments.every(
-      (equipment) => equipment.status === EquipmentAssignmentStatus.ACCEPTED
-    )
+  const allEquipmentsAccepted = scheduledEvent.equipments.every(
+    (equipment) => equipment.status === EquipmentAssignmentStatus.ACCEPTED
   );
 
   const handleEquipmentCloseDialog = () => {
     setEquipmentDialog(false);
-    refresh();
+    refreshScheduledEvent();
   };
 
   const { showConfirmation } = useContext(AppContext);
@@ -98,9 +93,9 @@ export default function EquipmentBookingStep({
           setLoading(true);
 
           const {
-            activateProposalBooking: { error },
-          } = await api().activateProposalBooking({
-            id: scheduledEvent.id,
+            activateScheduledEvent: { error },
+          } = await api().activateScheduledEvent({
+            input: { id: scheduledEvent.id },
           });
 
           if (error) {
@@ -141,12 +136,12 @@ export default function EquipmentBookingStep({
             deleteEquipmentAssignmentInput: {
               equipmentId,
               scheduledEventId,
-              proposalBookingId: scheduledEvent.id,
+              proposalBookingId: scheduledEvent.proposalBooking!.id,
             },
           });
 
         if (success) {
-          refresh();
+          refreshScheduledEvent();
           enqueueSnackbar('Removed', { variant: 'success' });
         } else {
           enqueueSnackbar('Failed to remove selected assignment', {
@@ -163,13 +158,16 @@ export default function EquipmentBookingStep({
     <>
       {isLoading && <Loader />}
 
-      {/* {equipmentDialog && (
+      {equipmentDialog && (
         <SelectTimeSlotsDialog
           isDialogOpen={equipmentDialog}
-          proposalBooking={proposalBooking}
+          scheduledEvent={scheduledEvent}
+          proposalBooking={
+            scheduledEvent.proposalBooking as DetailedProposalBooking
+          }
           closeDialog={handleEquipmentCloseDialog}
         />
-      )} */}
+      )}
 
       <DialogContent>
         <Toolbar className={classes.toolbarRoot}>
@@ -194,7 +192,12 @@ export default function EquipmentBookingStep({
           </Typography>
         </Toolbar>
         <TimeSlotEquipmentTable
-          rows={scheduledEvents}
+          rows={scheduledEvent.equipments.map(() => ({
+            id: scheduledEvent.id,
+            startsAt: scheduledEvent.startsAt,
+            endsAt: scheduledEvent.endsAt,
+            equipments: scheduledEvent.equipments,
+          }))}
           onDeleteAssignment={handleDeleteAssignment}
           readOnly={isStepReadOnly}
         />

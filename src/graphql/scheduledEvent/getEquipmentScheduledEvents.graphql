@@ -10,6 +10,7 @@ query getEquipmentScheduledEvents(
       id
       startsAt
       endsAt
+      status
       equipmentAssignmentStatus
       equipmentId
       proposalBooking {

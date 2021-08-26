@@ -1,4 +1,5 @@
 import MomentUtils from '@date-io/moment';
+import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
 import {
   Avatar,
   Button,
@@ -43,13 +44,8 @@ import {
 import { hasOverlappingEvents } from 'utils/scheduledEvent';
 
 import { ProposalBookingDialogStepProps } from '../TimeSlotBookingDialog';
-// import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    flexShrink: 0,
-    flexGrow: 0,
-  },
   list: {
     width: '100%',
     backgroundColor: theme.palette.background.paper,
@@ -150,27 +146,40 @@ export default function BookingEventStep({
 
   const handleSubmit = async () => {
     // TODO: Add updateScheduledEvent method on the backend and uncomment this.
-    // try {
-    //   setIsLoading(true);
-    //   const {
-    //     updateScheduledEvent: { error, scheduledEvent: updatedScheduledEvent },
-    //   } = await api().updateScheduledEvent({
-    //     input: {},
-    //   });
-    //   if (error) {
-    //     enqueueSnackbar(getTranslation(error as ResourceId), {
-    //       variant: 'error',
-    //     });
-    //   } else {
-    //     updatedScheduledEvent && setScheduledEvent(updatedScheduledEvent);
-    //   }
-    //   handleSetDirty(false);
-    // } catch (e) {
-    //   // TODO
-    //   console.error(e);
-    // } finally {
-    //   setIsLoading(false);
-    // }
+    try {
+      setIsLoading(true);
+      if (!startsAt || !endsAt) {
+        return;
+      }
+
+      const {
+        updateScheduledEvent: { error, scheduledEvent: updatedScheduledEvent },
+      } = await api().updateScheduledEvent({
+        input: {
+          scheduledEventId: scheduledEvent.id,
+          startsAt: toTzLessDateTime(startsAt),
+          endsAt: toTzLessDateTime(endsAt),
+        },
+      });
+      if (error) {
+        enqueueSnackbar(getTranslation(error as ResourceId), {
+          variant: 'error',
+        });
+      } else {
+        updatedScheduledEvent &&
+          setScheduledEvent({
+            ...scheduledEvent,
+            startsAt: updatedScheduledEvent.startsAt,
+            endsAt: updatedScheduledEvent.endsAt,
+          });
+      }
+      handleSetDirty(false);
+    } catch (e) {
+      // TODO
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSaveDraft = () => {
@@ -216,15 +225,13 @@ export default function BookingEventStep({
           cb: saveAndContinue,
         })
       : saveAndContinue();
-    await handleSubmit();
-    handleNext();
   };
 
   return (
     <>
       {isLoading && <Loader />}
 
-      <DialogContent className={classes.root}>
+      <DialogContent>
         <Grid container spacing={2}>
           <MuiPickersUtilsProvider utils={MomentUtils}>
             <Grid item xs={6}>

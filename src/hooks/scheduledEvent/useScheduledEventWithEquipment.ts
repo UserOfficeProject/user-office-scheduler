@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import { ScheduledEvent, EquipmentWithAssignmentStatus } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
@@ -23,10 +23,15 @@ export default function useScheduledEventWithEquipments({
   scheduledEventId: number;
 }) {
   const [loading, setLoading] = useState(true);
+  const [counter, setCounter] = useState(0);
   const [scheduledEvent, setScheduledEvent] =
     useState<ScheduledEventWithEquipments | null>(null);
 
   const api = useDataApi();
+
+  const refresh = useCallback(() => {
+    setCounter((prev) => prev + 1);
+  }, [setCounter]);
 
   useEffect(() => {
     let unmount = false;
@@ -56,7 +61,7 @@ export default function useScheduledEventWithEquipments({
     return () => {
       unmount = true;
     };
-  }, [proposalBookingId, scheduledEventId, api]);
+  }, [proposalBookingId, scheduledEventId, api, counter]);
 
-  return { loading, scheduledEvent, setScheduledEvent } as const;
+  return { loading, scheduledEvent, setScheduledEvent, refresh } as const;
 }

@@ -29,6 +29,13 @@ query getScheduledEventWithEquipments(
           lastname
         }
       }
+      call {
+        id
+        shortCode
+        startCycle
+        endCycle
+        cycleComment
+      }
     }
     scheduledBy {
       firstname

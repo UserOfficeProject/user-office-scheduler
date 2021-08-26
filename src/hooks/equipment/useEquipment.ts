@@ -25,7 +25,7 @@ export default function useEquipment(id?: number) {
 
   useEffect(() => {
     let unmount = false;
-    if (id) {
+    if (id !== undefined) {
       setLoading(true);
       api()
         .getEquipment({ id })

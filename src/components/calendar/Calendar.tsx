@@ -93,6 +93,7 @@ const transformEvent = (
     proposalBooking: scheduledEvent.proposalBooking,
     instrument: scheduledEvent.instrument,
     scheduledBy: scheduledEvent.scheduledBy,
+    status: scheduledEvent.status,
   }));
 
 function isOverlapping(

@@ -169,10 +169,12 @@ export default function FinalizeStep({
           setIsLoading(true);
 
           const {
-            finalizeProposalBooking: { error },
-          } = await api().finalizeProposalBooking({
-            action: selectedKey,
-            id: scheduledEvent.id,
+            finalizeScheduledEvent: { error },
+          } = await api().finalizeScheduledEvent({
+            input: {
+              action: selectedKey,
+              id: scheduledEvent.id,
+            },
           });
 
           if (error) {

@@ -66,6 +66,7 @@ export type ProposalBookingDialogStepProps = {
   setScheduledEvent: Dispatch<
     SetStateAction<ScheduledEventWithEquipments | null>
   >;
+  refreshScheduledEvent: () => void;
   isDirty: boolean;
   handleNext: () => void;
   handleBack: () => void;
@@ -129,11 +130,15 @@ export default function ProposalBookingDialog({
     useState<ProposalBookingStatus | null>(null);
   const [isDirty, setIsDirty] = useState(false);
 
-  const { loading, scheduledEvent, setScheduledEvent } =
-    useScheduledEventWithEquipment({
-      proposalBookingId: activeProposalBookingId,
-      scheduledEventId: activeTimeSlotScheduledEventId,
-    });
+  const {
+    loading,
+    scheduledEvent,
+    setScheduledEvent,
+    refresh: refreshScheduledEvent,
+  } = useScheduledEventWithEquipment({
+    proposalBookingId: activeProposalBookingId,
+    scheduledEventId: activeTimeSlotScheduledEventId,
+  });
 
   useEffect(() => {
     if (!loading && scheduledEvent) {
@@ -234,6 +239,7 @@ export default function ProposalBookingDialog({
           activeStatus,
           scheduledEvent,
           setScheduledEvent,
+          refreshScheduledEvent,
           isDirty,
           handleNext,
           handleBack,

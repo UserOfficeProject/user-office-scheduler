@@ -3,6 +3,7 @@ query getScheduledEventsWithEquipments($proposalBookingId: Int!) {
     id
     startsAt
     endsAt
+    status
     equipments {
       id
       name

@@ -15,6 +15,7 @@ import Loader from 'components/common/Loader';
 import SplitButton from 'components/common/SplitButton';
 import { AppContext } from 'context/AppContext';
 import {
+  ProposalBooking,
   ProposalBookingFinalizeAction,
   ProposalBookingStatus,
 } from 'generated/sdk';
@@ -38,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function FinalizeStep({
+export default function TimeSlotFinalizeStep({
   activeStatus,
   scheduledEvent,
   setScheduledEvent,
@@ -49,13 +50,14 @@ export default function FinalizeStep({
   handleSetActiveStepByStatus,
   handleCloseDialog,
 }: ProposalBookingDialogStepProps) {
+  const proposalBooking = scheduledEvent.proposalBooking as ProposalBooking;
   const isStepReadOnly = activeStatus !== ProposalBookingStatus.BOOKED;
 
   const classes = useStyles();
 
   // TODO: Query lost times by scheduled event id as well.
   const { loading, lostTimes } = useProposalBookingLostTimes(
-    scheduledEvent.proposalBooking!.id,
+    proposalBooking.id,
     scheduledEvent.id
   );
 
@@ -104,7 +106,7 @@ export default function FinalizeStep({
         bulkUpsertLostTimes: { error, lostTime: updatedLostTime },
       } = await api().bulkUpsertLostTimes({
         input: {
-          proposalBookingId: scheduledEvent.proposalBooking!.id,
+          proposalBookingId: proposalBooking.id,
           lostTimes: rows.map(({ startsAt, endsAt, id, newlyCreated }) => ({
             newlyCreated: newlyCreated,
             id: newlyCreated ? 0 : id,

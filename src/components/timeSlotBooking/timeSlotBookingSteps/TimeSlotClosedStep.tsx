@@ -8,6 +8,7 @@ import { Alert } from '@material-ui/lab';
 import React, { useEffect, useState } from 'react';
 
 import Loader from 'components/common/Loader';
+import { ProposalBooking } from 'generated/sdk';
 import useProposalBookingLostTimes from 'hooks/lostTime/useProposalBookingLostTimes';
 import { parseTzLessDateTime } from 'utils/date';
 
@@ -21,14 +22,15 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-export default function ClosedStep({
+export default function TimeSlotClosedStep({
   scheduledEvent,
   handleCloseDialog,
 }: ProposalBookingDialogStepProps) {
   const classes = useStyles();
+  const proposalBooking = scheduledEvent.proposalBooking as ProposalBooking;
 
   const { loading, lostTimes } = useProposalBookingLostTimes(
-    scheduledEvent.proposalBooking!.id,
+    proposalBooking.id,
     scheduledEvent.id
   );
 

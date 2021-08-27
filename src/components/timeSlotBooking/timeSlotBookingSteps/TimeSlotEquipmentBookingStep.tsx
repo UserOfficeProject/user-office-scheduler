@@ -25,6 +25,7 @@ import SelectTimeSlotsDialog from 'components/proposalBooking/bookingSteps/equip
 import { AppContext } from 'context/AppContext';
 import {
   EquipmentAssignmentStatus,
+  ProposalBooking,
   ProposalBookingStatus,
 } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
@@ -58,7 +59,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function EquipmentBookingStep({
+export default function TimeSlotEquipmentBookingStep({
   activeStatus,
   scheduledEvent,
   handleNext,
@@ -66,6 +67,7 @@ export default function EquipmentBookingStep({
   handleSetActiveStepByStatus,
   handleCloseDialog,
 }: ProposalBookingDialogStepProps) {
+  const proposalBooking = scheduledEvent.proposalBooking as ProposalBooking;
   const isStepReadOnly = activeStatus !== ProposalBookingStatus.DRAFT;
 
   const classes = useStyles();
@@ -78,7 +80,7 @@ export default function EquipmentBookingStep({
     loading: loadingEquipments,
     refresh,
   } = useScheduledEventEquipments({
-    proposalBookingId: scheduledEvent.proposalBooking!.id,
+    proposalBookingId: proposalBooking.id,
     scheduledEventId: scheduledEvent.id,
   });
 
@@ -151,7 +153,7 @@ export default function EquipmentBookingStep({
             deleteEquipmentAssignmentInput: {
               equipmentId,
               scheduledEventId,
-              proposalBookingId: scheduledEvent.proposalBooking!.id,
+              proposalBookingId: proposalBooking.id,
             },
           });
 
@@ -177,9 +179,7 @@ export default function EquipmentBookingStep({
         <SelectTimeSlotsDialog
           isDialogOpen={equipmentDialog}
           scheduledEvent={scheduledEvent}
-          proposalBooking={
-            scheduledEvent.proposalBooking as DetailedProposalBooking
-          }
+          proposalBooking={proposalBooking as DetailedProposalBooking}
           closeDialog={handleEquipmentCloseDialog}
         />
       )}
@@ -249,18 +249,6 @@ export default function EquipmentBookingStep({
             </TableBody>
           </MuiTable>
         </Box>
-        {/* <TimeSlotEquipmentTable
-          rows={[
-            {
-              id: scheduledEvent.id,
-              startsAt: scheduledEvent.startsAt,
-              endsAt: scheduledEvent.endsAt,
-              equipments: scheduledEventEquipments,
-            },
-          ]}
-          onDeleteAssignment={handleDeleteAssignment}
-          readOnly={isStepReadOnly}
-        /> */}
         {!allEquipmentsAccepted && (
           <Alert
             severity="warning"

@@ -35,7 +35,7 @@ import React, { useContext, useMemo, useState } from 'react';
 
 import Loader from 'components/common/Loader';
 import { AppContext } from 'context/AppContext';
-import { ProposalBookingStatus } from 'generated/sdk';
+import { ProposalBooking, ProposalBookingStatus } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import {
   toTzLessDateTime,
@@ -80,7 +80,7 @@ const formatDuration = (durSec: number) =>
     largest: 3,
   });
 
-export default function BookingEventStep({
+export default function TimeSlotBookingEventStep({
   activeStatus,
   scheduledEvent,
   setScheduledEvent,
@@ -89,12 +89,11 @@ export default function BookingEventStep({
   handleSetDirty,
   handleCloseDialog,
 }: ProposalBookingDialogStepProps) {
-  const [isEditingTimeTable, setIsEditingTimeTable] = useState(false);
+  const proposalBooking = scheduledEvent.proposalBooking as ProposalBooking;
   const [editingStartDate, setEditingStartDate] = useState(false);
   const [editingEndDate, setEditingEndDate] = useState(false);
 
-  const isStepReadOnly =
-    activeStatus !== ProposalBookingStatus.DRAFT || isEditingTimeTable;
+  const isStepReadOnly = activeStatus !== ProposalBookingStatus.DRAFT;
 
   const classes = useStyles();
 
@@ -132,7 +131,7 @@ export default function BookingEventStep({
   };
 
   const { allocated, allocatable } = useMemo(() => {
-    const allocated = scheduledEvent.proposalBooking!.scheduledEvents.reduce(
+    const allocated = proposalBooking.scheduledEvents.reduce(
       (total, curr) =>
         total + moment(curr.endsAt).diff(curr.startsAt, 'seconds'),
       0
@@ -140,9 +139,9 @@ export default function BookingEventStep({
 
     return {
       allocated,
-      allocatable: scheduledEvent.proposalBooking!.allocatedTime - allocated,
+      allocatable: proposalBooking.allocatedTime - allocated,
     };
-  }, [scheduledEvent.proposalBooking]);
+  }, [proposalBooking]);
 
   const handleSubmit = async () => {
     // TODO: Add updateScheduledEvent method on the backend and uncomment this.
@@ -184,7 +183,7 @@ export default function BookingEventStep({
 
   const handleSaveDraft = () => {
     hasOverlappingEvents(
-      scheduledEvent.proposalBooking!.scheduledEvents.map((event) => ({
+      proposalBooking.scheduledEvents.map((event) => ({
         id: event.id,
         startsAt: moment(event.startsAt),
         endsAt: moment(event.endsAt),
@@ -209,7 +208,7 @@ export default function BookingEventStep({
 
   const handleSaveAndContinue = async () => {
     hasOverlappingEvents(
-      scheduledEvent.proposalBooking!.scheduledEvents.map((event) => ({
+      proposalBooking.scheduledEvents.map((event) => ({
         id: event.id,
         startsAt: moment(event.startsAt),
         endsAt: moment(event.endsAt),
@@ -246,7 +245,7 @@ export default function BookingEventStep({
                     <ListItemText
                       onClick={() => setEditingStartDate(true)}
                       primary="Starts at"
-                      secondary={toTzLessDateTime(startsAt!)}
+                      secondary={toTzLessDateTime(startsAt as Moment)}
                     />
                   )}
                   {editingStartDate && (
@@ -351,7 +350,7 @@ export default function BookingEventStep({
                     <ListItemText
                       primary="Ends at"
                       onClick={() => setEditingEndDate(true)}
-                      secondary={toTzLessDateTime(endsAt!)}
+                      secondary={toTzLessDateTime(endsAt as Moment)}
                     />
                   )}
                   {editingEndDate && (
@@ -403,8 +402,8 @@ export default function BookingEventStep({
                     </Avatar>
                   </ListItemAvatar>
                   <ListItemText
-                    primary="Proposal"
-                    secondary={scheduledEvent.proposalBooking?.proposal?.title}
+                    primary="Proposal title"
+                    secondary={proposalBooking.proposal?.title}
                   />
                 </ListItem>
                 <Divider

@@ -10,7 +10,10 @@ import ValidateArgs from '../decorators/ValidateArgs';
 import { instrumentScientistHasInstrument } from '../helpers/instrumentHelpers';
 import { instrumentScientistHasAccess } from '../helpers/permissionHelpers';
 import { EquipmentAssignmentStatus } from '../models/Equipment';
-import { ProposalBookingStatus } from '../models/ProposalBooking';
+import {
+  ProposalBookingFinalizeAction,
+  ProposalBookingStatus,
+} from '../models/ProposalBooking';
 import {
   ScheduledEvent,
   CalendarExplicitBookableTypes,
@@ -137,6 +140,40 @@ export default class ScheduledEventMutations {
       });
   }
 
+  async handleProposalBookingStatusChange(
+    proposalBookingId: number,
+    action?: ProposalBookingFinalizeAction
+  ) {
+    const scheduledEvents =
+      await this.scheduledEventDataSource.proposalBookingScheduledEvents(
+        proposalBookingId
+      );
+
+    const allProposalBookingEventsAreBooked = scheduledEvents.every(
+      (scheduledEventItem) =>
+        scheduledEventItem.status === ProposalBookingStatus.BOOKED
+    );
+
+    const allProposalBookingEventsAreClosed = scheduledEvents.every(
+      (scheduledEventItem) =>
+        scheduledEventItem.status === ProposalBookingStatus.CLOSED
+    );
+
+    if (allProposalBookingEventsAreClosed) {
+      await this.proposalBookingDataSource.finalize(
+        ProposalBookingFinalizeAction.CLOSE,
+        proposalBookingId
+      );
+    } else if (allProposalBookingEventsAreBooked) {
+      await this.proposalBookingDataSource.activate(proposalBookingId);
+    } else if (action && action === ProposalBookingFinalizeAction.RESTART) {
+      await this.proposalBookingDataSource.finalize(
+        ProposalBookingFinalizeAction.RESTART,
+        proposalBookingId
+      );
+    }
+  }
+
   // @ValidateArgs(activateBookingValidationSchema)
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
   async activate(
@@ -149,8 +186,8 @@ export default class ScheduledEventMutations {
     }
 
     const allProposalBookingEquipmentEvents =
-      await this.equipmentDataSource.equipmentEventsByProposalBookingId(
-        scheduledEvent.proposalBookingId!
+      await this.equipmentDataSource.equipmentEventsByScheduledEventId(
+        scheduledEvent.id
       );
 
     const allEquipmentsAccepted = allProposalBookingEquipmentEvents.every(
@@ -174,11 +211,19 @@ export default class ScheduledEventMutations {
       return rejection('NOT_ALLOWED');
     }
 
-    return this.scheduledEventDataSource.activate(id).catch((error: Error) => {
-      logger.logException('Scheduled event activate failed', error);
+    const result = await this.scheduledEventDataSource
+      .activate(id)
+      .catch((error: Error) => {
+        logger.logException('Scheduled event activate failed', error);
 
-      return rejection('INTERNAL_ERROR');
-    });
+        return rejection('INTERNAL_ERROR');
+      });
+
+    await this.handleProposalBookingStatusChange(
+      scheduledEvent.proposalBookingId!
+    );
+
+    return result;
   }
 
   // @ValidateArgs(finalizeBookingValidationSchema)
@@ -202,12 +247,19 @@ export default class ScheduledEventMutations {
       return rejection('NOT_ALLOWED');
     }
 
-    return this.scheduledEventDataSource
+    const result = await this.scheduledEventDataSource
       .finalize(id, action)
       .catch((error: Error) => {
         logger.logException('Scheduled event finalize failed', error);
 
         return rejection('INTERNAL_ERROR');
       });
+
+    await this.handleProposalBookingStatusChange(
+      scheduledEvent.proposalBookingId!,
+      action
+    );
+
+    return result;
   }
 }

@@ -41,7 +41,8 @@ const proposalBookingMutations = new ProposalBookingMutations(
 const lostTimeQueries = new LostTimeQueries(lostTimeDataSource);
 const lostTimeMutations = new LostTimeMutations(
   lostTimeDataSource,
-  proposalBookingDataSource
+  proposalBookingDataSource,
+  scheduledEventDataSource
 );
 
 const equipmentQueries = new EquipmentQueries(

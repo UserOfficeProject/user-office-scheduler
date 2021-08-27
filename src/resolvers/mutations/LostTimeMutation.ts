@@ -27,7 +27,7 @@ export class SimpleLostTimeInput {
   @Field(() => Boolean, { nullable: true })
   newlyCreated?: boolean;
 
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   scheduledEventId: number;
 }
 

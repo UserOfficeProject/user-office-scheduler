@@ -3,6 +3,7 @@ import { logger } from '@esss-swap/duo-logger';
 import { ResolverContext } from '../context';
 import { LostTimeDataSource } from '../datasources/LostTimeDataSource';
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
+import { ScheduledEventDataSource } from '../datasources/ScheduledEventDataSource';
 import Authorized from '../decorators/Authorized';
 import ValidateArgs from '../decorators/ValidateArgs';
 import { instrumentScientistHasAccess } from '../helpers/permissionHelpers';
@@ -16,7 +17,8 @@ import { bulkUpsertLostTimeValidationSchema } from '../validation/lostTime';
 export default class LostTimeMutations {
   constructor(
     private lostTimeDataSource: LostTimeDataSource,
-    private proposalBookingDataSource: ProposalBookingDataSource
+    private proposalBookingDataSource: ProposalBookingDataSource,
+    private scheduledEventDataSource: ScheduledEventDataSource
   ) {}
 
   @ValidateArgs(bulkUpsertLostTimeValidationSchema)

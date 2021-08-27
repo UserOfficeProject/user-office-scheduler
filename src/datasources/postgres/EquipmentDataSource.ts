@@ -340,4 +340,34 @@ export default class PostgresEquipmentDataSource
         )
     );
   }
+
+  async equipmentEventsByScheduledEventId(
+    scheduledEventId: number
+  ): Promise<Array<EquipmentsScheduledEvent>> {
+    const equipmentScheduledEvents = await database<
+      EquipmentsScheduledEventsRecord[]
+    >(this.scheduledEventsTable)
+      .select(
+        `${this.scheduledEventsTable}.*`,
+        `${this.scheduledEventsEquipmentsTable}.*`
+      )
+      .join(
+        this.scheduledEventsEquipmentsTable,
+        `${this.scheduledEventsTable}.scheduled_event_id`,
+        `${this.scheduledEventsEquipmentsTable}.scheduled_event_id`
+      )
+      .where(
+        `${this.scheduledEventsTable}.scheduled_event_id`,
+        scheduledEventId
+      );
+
+    return equipmentScheduledEvents.map(
+      (record) =>
+        new EquipmentsScheduledEvent(
+          record.equipment_id,
+          record.scheduled_event_id,
+          record.status
+        )
+    );
+  }
 }

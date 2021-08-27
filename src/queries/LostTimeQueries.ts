@@ -11,12 +11,21 @@ export default class LostTimeQueries {
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
   async proposalBookingLostTimes(
     ctx: ResolverContext,
-    proposalBookingId: number
+    {
+      proposalBookingId,
+      scheduledEventId,
+    }: {
+      proposalBookingId: number;
+      scheduledEventId?: number;
+    }
   ): Promise<LostTime[]> {
     if (!(await instrumentScientistHasAccess(ctx, proposalBookingId))) {
       return [];
     }
 
-    return this.lostTimeDataSource.proposalBookingLostTimes(proposalBookingId);
+    return this.lostTimeDataSource.proposalBookingLostTimes(
+      proposalBookingId,
+      scheduledEventId
+    );
   }
 }

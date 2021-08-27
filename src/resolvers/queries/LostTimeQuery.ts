@@ -8,11 +8,13 @@ export class LostTimeQuery {
   @Query(() => [LostTime])
   proposalBookingLostTimes(
     @Ctx() ctx: ResolverContext,
-    @Arg('proposalBookingId', () => Int) proposalBookingId: number
+    @Arg('proposalBookingId', () => Int) proposalBookingId: number,
+    @Arg('scheduledEventId', () => Int, { nullable: true })
+    scheduledEventId: number
   ) {
-    return ctx.queries.lostTime.proposalBookingLostTimes(
-      ctx,
-      proposalBookingId
-    );
+    return ctx.queries.lostTime.proposalBookingLostTimes(ctx, {
+      proposalBookingId,
+      scheduledEventId,
+    });
   }
 }

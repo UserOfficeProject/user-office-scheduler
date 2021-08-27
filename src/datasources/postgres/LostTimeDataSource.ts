@@ -22,6 +22,14 @@ export default class PostgresLostTimeDataSource implements LostTimeDataSource {
       // delete existing events that weren't included in the upsert
       await trx<LostTimeRecord>(this.tableName)
         .where('proposal_booking_id', '=', proposalBookingId)
+        .modify((query) => {
+          if (lostTimes.every((lostTime) => lostTime.scheduledEventId)) {
+            query.whereIn(
+              'scheduled_event_id',
+              lostTimes.map((lostTime) => lostTime.scheduledEventId)
+            );
+          }
+        })
         .whereNotIn(
           'lost_time_id',
           lostTimes
@@ -55,11 +63,17 @@ export default class PostgresLostTimeDataSource implements LostTimeDataSource {
   }
 
   async proposalBookingLostTimes(
-    proposalBookingId: number
+    proposalBookingId: number,
+    scheduledEventId?: number
   ): Promise<LostTime[]> {
     const lostTimeRecords = await database<LostTimeRecord>(this.tableName)
       .select()
-      .where('proposal_booking_id', '=', proposalBookingId);
+      .where('proposal_booking_id', '=', proposalBookingId)
+      .modify((query) => {
+        if (scheduledEventId) {
+          query.andWhere('scheduled_event_id', '=', scheduledEventId);
+        }
+      });
 
     return lostTimeRecords.map(createLostTimeObject);
   }

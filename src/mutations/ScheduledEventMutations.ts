@@ -159,6 +159,11 @@ export default class ScheduledEventMutations {
         scheduledEventItem.status === ProposalBookingStatus.CLOSED
     );
 
+    const allProposalBookingEventsNotDraft = scheduledEvents.every(
+      (scheduledEventItem) =>
+        scheduledEventItem.status !== ProposalBookingStatus.DRAFT
+    );
+
     if (allProposalBookingEventsAreClosed) {
       await this.proposalBookingDataSource.finalize(
         ProposalBookingFinalizeAction.CLOSE,
@@ -171,6 +176,8 @@ export default class ScheduledEventMutations {
         ProposalBookingFinalizeAction.RESTART,
         proposalBookingId
       );
+    } else if (allProposalBookingEventsNotDraft) {
+      await this.proposalBookingDataSource.activate(proposalBookingId);
     }
   }
 

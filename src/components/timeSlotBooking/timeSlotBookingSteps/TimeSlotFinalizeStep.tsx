@@ -41,6 +41,7 @@ const useStyles = makeStyles((theme) => ({
 export default function FinalizeStep({
   activeStatus,
   scheduledEvent,
+  setScheduledEvent,
   isDirty,
   handleSetDirty,
   handleNext,
@@ -52,8 +53,11 @@ export default function FinalizeStep({
 
   const classes = useStyles();
 
-  // TODO: We should introduce new connection between scheduled event time slot and lost time. Now the connection is between proposal booking globally and lost times.
-  const { loading, lostTimes } = useProposalBookingLostTimes(scheduledEvent.id);
+  // TODO: Query lost times by scheduled event id as well.
+  const { loading, lostTimes } = useProposalBookingLostTimes(
+    scheduledEvent.proposalBooking!.id,
+    scheduledEvent.id
+  );
 
   const { showConfirmation } = useContext(AppContext);
   const { enqueueSnackbar } = useSnackbar();
@@ -100,11 +104,11 @@ export default function FinalizeStep({
         bulkUpsertLostTimes: { error, lostTime: updatedLostTime },
       } = await api().bulkUpsertLostTimes({
         input: {
-          proposalBookingId: scheduledEvent.id,
-          lostTimes: rows.map(({ startsAt, endsAt, id, ...rest }) => ({
-            ...rest,
-            id: id,
-            scheduledEventId: id,
+          proposalBookingId: scheduledEvent.proposalBooking!.id,
+          lostTimes: rows.map(({ startsAt, endsAt, id, newlyCreated }) => ({
+            newlyCreated: newlyCreated,
+            id: newlyCreated ? 0 : id,
+            scheduledEventId: scheduledEvent.id,
             startsAt: toTzLessDateTime(startsAt),
             endsAt: toTzLessDateTime(endsAt),
           })),
@@ -184,9 +188,19 @@ export default function FinalizeStep({
 
             setIsLoading(false);
           } else {
-            selectedKey === ProposalBookingFinalizeAction.CLOSE
-              ? handleNext()
-              : handleResetSteps();
+            if (selectedKey === ProposalBookingFinalizeAction.CLOSE) {
+              setScheduledEvent({
+                ...scheduledEvent,
+                status: ProposalBookingStatus.CLOSED,
+              });
+              handleNext();
+            } else {
+              setScheduledEvent({
+                ...scheduledEvent,
+                status: ProposalBookingStatus.DRAFT,
+              });
+              handleResetSteps();
+            }
 
             handleSetActiveStepByStatus(
               selectedKey === ProposalBookingFinalizeAction.CLOSE

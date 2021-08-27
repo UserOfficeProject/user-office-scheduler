@@ -7,13 +7,7 @@ import {
   Stepper,
   StepButton,
 } from '@material-ui/core';
-import React, {
-  Dispatch,
-  SetStateAction,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import React, { Dispatch, useContext, useEffect, useState } from 'react';
 
 import Loader from 'components/common/Loader';
 import { AppContext } from 'context/AppContext';
@@ -64,9 +58,8 @@ export type ProposalBookingDialogStepProps = {
   activeStatus: ProposalBookingStatus | null;
   scheduledEvent: ScheduledEventWithEquipments;
   setScheduledEvent: Dispatch<
-    SetStateAction<ScheduledEventWithEquipments | null>
+    React.SetStateAction<ScheduledEventWithEquipments | null>
   >;
-  refreshScheduledEvent: () => void;
   isDirty: boolean;
   handleNext: () => void;
   handleBack: () => void;
@@ -130,15 +123,11 @@ export default function ProposalBookingDialog({
     useState<ProposalBookingStatus | null>(null);
   const [isDirty, setIsDirty] = useState(false);
 
-  const {
-    loading,
-    scheduledEvent,
-    setScheduledEvent,
-    refresh: refreshScheduledEvent,
-  } = useScheduledEventWithEquipment({
-    proposalBookingId: activeProposalBookingId,
-    scheduledEventId: activeTimeSlotScheduledEventId,
-  });
+  const { loading, scheduledEvent, setScheduledEvent } =
+    useScheduledEventWithEquipment({
+      proposalBookingId: activeProposalBookingId,
+      scheduledEventId: activeTimeSlotScheduledEventId,
+    });
 
   useEffect(() => {
     if (!loading && scheduledEvent) {
@@ -215,7 +204,10 @@ export default function ProposalBookingDialog({
         className: classes.fullHeight,
       }}
     >
-      <DialogTitle>Time slot booking</DialogTitle>
+      <DialogTitle>
+        Time slot booking - (
+        {`${scheduledEvent?.startsAt} - ${scheduledEvent?.endsAt}`})
+      </DialogTitle>
       <Stepper nonLinear activeStep={activeStep}>
         {steps.map((label, index) => (
           <Step key={label}>
@@ -239,7 +231,6 @@ export default function ProposalBookingDialog({
           activeStatus,
           scheduledEvent,
           setScheduledEvent,
-          refreshScheduledEvent,
           isDirty,
           handleNext,
           handleBack,

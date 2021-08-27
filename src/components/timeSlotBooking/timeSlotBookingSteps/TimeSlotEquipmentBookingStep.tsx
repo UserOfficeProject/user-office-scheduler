@@ -6,8 +6,15 @@ import {
   Button,
   makeStyles,
   Toolbar,
+  Box,
+  TableHead,
+  TableRow,
+  TableCell,
+  Table as MuiTable,
+  TableBody,
+  IconButton,
 } from '@material-ui/core';
-import { Add as AddIcon } from '@material-ui/icons';
+import { Add as AddIcon, Delete as DeleteIcon } from '@material-ui/icons';
 import Alert from '@material-ui/lab/Alert';
 import AlertTitle from '@material-ui/lab/AlertTitle';
 import { useSnackbar } from 'notistack';
@@ -22,8 +29,9 @@ import {
 } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import { DetailedProposalBooking } from 'hooks/proposalBooking/useProposalBooking';
+import useScheduledEventEquipments from 'hooks/scheduledEvent/useScheduledEventEquipments';
+import { ScheduledEventEquipment } from 'hooks/scheduledEvent/useScheduledEventWithEquipment';
 
-import TimeSlotEquipmentTable from '../../proposalBooking/bookingSteps/equipmentBooking/TimeSlotEquipmentTable';
 import { ProposalBookingDialogStepProps } from '../TimeSlotBookingDialog';
 
 export type EquipmentTableRow = {
@@ -53,9 +61,7 @@ const useStyles = makeStyles((theme) => ({
 export default function EquipmentBookingStep({
   activeStatus,
   scheduledEvent,
-  setScheduledEvent,
   handleNext,
-  refreshScheduledEvent,
   handleBack,
   handleSetActiveStepByStatus,
   handleCloseDialog,
@@ -67,7 +73,16 @@ export default function EquipmentBookingStep({
   const [loading, setLoading] = useState(false);
   const [equipmentDialog, setEquipmentDialog] = useState(false);
 
-  const isLoading = loading;
+  const {
+    equipments: scheduledEventEquipments,
+    loading: loadingEquipments,
+    refresh,
+  } = useScheduledEventEquipments({
+    proposalBookingId: scheduledEvent.proposalBooking!.id,
+    scheduledEventId: scheduledEvent.id,
+  });
+
+  const isLoading = loading || loadingEquipments;
 
   const allEquipmentsAccepted = scheduledEvent.equipments.every(
     (equipment) => equipment.status === EquipmentAssignmentStatus.ACCEPTED
@@ -75,7 +90,7 @@ export default function EquipmentBookingStep({
 
   const handleEquipmentCloseDialog = () => {
     setEquipmentDialog(false);
-    refreshScheduledEvent();
+    refresh();
   };
 
   const { showConfirmation } = useContext(AppContext);
@@ -141,7 +156,7 @@ export default function EquipmentBookingStep({
           });
 
         if (success) {
-          refreshScheduledEvent();
+          refresh();
           enqueueSnackbar('Removed', { variant: 'success' });
         } else {
           enqueueSnackbar('Failed to remove selected assignment', {
@@ -177,7 +192,7 @@ export default function EquipmentBookingStep({
             id="tableTitle"
             component="div"
           >
-            Time Slots with Equipments
+            Time Slot Equipments
             <Button
               variant="contained"
               color="primary"
@@ -191,16 +206,61 @@ export default function EquipmentBookingStep({
             </Button>
           </Typography>
         </Toolbar>
-        <TimeSlotEquipmentTable
-          rows={scheduledEvent.equipments.map(() => ({
-            id: scheduledEvent.id,
-            startsAt: scheduledEvent.startsAt,
-            endsAt: scheduledEvent.endsAt,
-            equipments: scheduledEvent.equipments,
-          }))}
+        <Box margin={1}>
+          <MuiTable size="small" aria-label="equipments">
+            <TableHead>
+              <TableRow role="row">
+                <TableCell>Actions</TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>Status</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {scheduledEventEquipments.map(
+                (equipment: ScheduledEventEquipment) => (
+                  <TableRow key={equipment.id} role="row">
+                    <TableCell component="th" scope="row">
+                      <IconButton
+                        size="small"
+                        data-cy="btn-delete-assignment"
+                        disabled={isStepReadOnly}
+                        onClick={() =>
+                          handleDeleteAssignment(
+                            equipment.id,
+                            scheduledEvent.id
+                          )
+                        }
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </TableCell>
+                    <TableCell>{equipment.name}</TableCell>
+                    <TableCell data-cy="equipment-row-status">
+                      {equipment.status}
+                    </TableCell>
+                  </TableRow>
+                )
+              )}
+              {scheduledEventEquipments.length === 0 && (
+                <TableCell colSpan={3} style={{ textAlign: 'center' }}>
+                  No records to show
+                </TableCell>
+              )}
+            </TableBody>
+          </MuiTable>
+        </Box>
+        {/* <TimeSlotEquipmentTable
+          rows={[
+            {
+              id: scheduledEvent.id,
+              startsAt: scheduledEvent.startsAt,
+              endsAt: scheduledEvent.endsAt,
+              equipments: scheduledEventEquipments,
+            },
+          ]}
           onDeleteAssignment={handleDeleteAssignment}
           readOnly={isStepReadOnly}
-        />
+        /> */}
         {!allEquipmentsAccepted && (
           <Alert
             severity="warning"

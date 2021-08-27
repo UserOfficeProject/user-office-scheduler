@@ -27,8 +27,10 @@ export default function ClosedStep({
 }: ProposalBookingDialogStepProps) {
   const classes = useStyles();
 
-  // TODO: We should introduce new connection between scheduled event time slot and lost time. Now the connection is between proposal booking globally and lost times.
-  const { loading, lostTimes } = useProposalBookingLostTimes(scheduledEvent.id);
+  const { loading, lostTimes } = useProposalBookingLostTimes(
+    scheduledEvent.proposalBooking!.id,
+    scheduledEvent.id
+  );
 
   const [rows, setRows] = useState<TimeTableRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);

@@ -2346,6 +2346,7 @@ export type QueryEquipmentArgs = {
 
 
 export type QueryProposalBookingLostTimesArgs = {
+  scheduledEventId?: Maybe<Scalars['Int']>;
   proposalBookingId: Scalars['Int'];
 };
 
@@ -2822,7 +2823,7 @@ export type SimpleLostTimeInput = {
   startsAt: Scalars['TzLessDateTime'];
   endsAt: Scalars['TzLessDateTime'];
   newlyCreated?: Maybe<Scalars['Boolean']>;
-  scheduledEventId: Scalars['Int'];
+  scheduledEventId?: Maybe<Scalars['Int']>;
 };
 
 export type SimpleScheduledEventInput = {
@@ -3327,6 +3328,7 @@ export type BulkUpsertLostTimesMutation = (
 
 export type GetProposalBookingLostTimesQueryVariables = Exact<{
   proposalBookingId: Scalars['Int'];
+  scheduledEventId?: Maybe<Scalars['Int']>;
 }>;
 
 
@@ -3584,6 +3586,23 @@ export type GetProposalBookingScheduledEventsQuery = (
   & { proposalBookingScheduledEvents: Array<(
     { __typename?: 'ScheduledEvent' }
     & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
+  )> }
+);
+
+export type GetScheduledEventEquipmentsQueryVariables = Exact<{
+  proposalBookingId: Scalars['Int'];
+  scheduledEventId: Scalars['Int'];
+}>;
+
+
+export type GetScheduledEventEquipmentsQuery = (
+  { __typename?: 'Query' }
+  & { proposalBookingScheduledEvent: Maybe<(
+    { __typename?: 'ScheduledEvent' }
+    & { equipments: Array<(
+      { __typename?: 'EquipmentWithAssignmentStatus' }
+      & Pick<EquipmentWithAssignmentStatus, 'id' | 'name' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'status'>
+    )> }
   )> }
 );
 
@@ -3863,8 +3882,11 @@ export const BulkUpsertLostTimesDocument = gql`
 }
     `;
 export const GetProposalBookingLostTimesDocument = gql`
-    query getProposalBookingLostTimes($proposalBookingId: Int!) {
-  proposalBookingLostTimes(proposalBookingId: $proposalBookingId) {
+    query getProposalBookingLostTimes($proposalBookingId: Int!, $scheduledEventId: Int) {
+  proposalBookingLostTimes(
+    proposalBookingId: $proposalBookingId
+    scheduledEventId: $scheduledEventId
+  ) {
     id
     startsAt
     scheduledEventId
@@ -4068,6 +4090,22 @@ export const GetProposalBookingScheduledEventsDocument = gql`
     id
     startsAt
     endsAt
+  }
+}
+    `;
+export const GetScheduledEventEquipmentsDocument = gql`
+    query getScheduledEventEquipments($proposalBookingId: Int!, $scheduledEventId: Int!) {
+  proposalBookingScheduledEvent(
+    proposalBookingId: $proposalBookingId
+    scheduledEventId: $scheduledEventId
+  ) {
+    equipments {
+      id
+      name
+      maintenanceStartsAt
+      maintenanceEndsAt
+      status
+    }
   }
 }
     `;
@@ -4298,6 +4336,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     getProposalBookingScheduledEvents(variables: GetProposalBookingScheduledEventsQueryVariables): Promise<GetProposalBookingScheduledEventsQuery> {
       return withWrapper(() => client.request<GetProposalBookingScheduledEventsQuery>(print(GetProposalBookingScheduledEventsDocument), variables));
+    },
+    getScheduledEventEquipments(variables: GetScheduledEventEquipmentsQueryVariables): Promise<GetScheduledEventEquipmentsQuery> {
+      return withWrapper(() => client.request<GetScheduledEventEquipmentsQuery>(print(GetScheduledEventEquipmentsDocument), variables));
     },
     getScheduledEventWithEquipments(variables: GetScheduledEventWithEquipmentsQueryVariables): Promise<GetScheduledEventWithEquipmentsQuery> {
       return withWrapper(() => client.request<GetScheduledEventWithEquipmentsQuery>(print(GetScheduledEventWithEquipmentsDocument), variables));

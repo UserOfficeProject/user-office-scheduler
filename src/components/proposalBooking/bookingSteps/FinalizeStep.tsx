@@ -103,10 +103,10 @@ export default function FinalizeStep({
         input: {
           proposalBookingId: proposalBooking.id,
           lostTimes: rows.map(({ startsAt, endsAt, id, newlyCreated }) => ({
-            id: id,
+            id: newlyCreated ? 0 : id,
             newlyCreated: newlyCreated,
             startsAt: toTzLessDateTime(startsAt),
-            scheduledEventId: id,
+            scheduledEventId: proposalBooking.scheduledEvents[0].id,
             endsAt: toTzLessDateTime(endsAt),
           })),
         },

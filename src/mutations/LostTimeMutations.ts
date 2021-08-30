@@ -1,4 +1,5 @@
 import { logger } from '@esss-swap/duo-logger';
+import { bulkUpsertLostTimeValidationSchema } from '@esss-swap/duo-validation';
 
 import { ResolverContext } from '../context';
 import { LostTimeDataSource } from '../datasources/LostTimeDataSource';
@@ -12,7 +13,6 @@ import { ProposalBookingStatus } from '../models/ProposalBooking';
 import { rejection, Rejection } from '../rejection';
 import { BulkUpsertLostTimesInput } from '../resolvers/mutations/LostTimeMutation';
 import { Roles } from '../types/shared';
-import { bulkUpsertLostTimeValidationSchema } from '../validation/lostTime';
 
 export default class LostTimeMutations {
   constructor(

@@ -1,5 +1,11 @@
 import { logger } from '@esss-swap/duo-logger';
-import { createScheduledEventValidationSchema } from '@esss-swap/duo-validation';
+import {
+  createScheduledEventValidationSchema,
+  bulkUpsertScheduledEventsValidationSchema,
+  updateScheduledEventValidationSchema,
+  activateBookingValidationSchema,
+  finalizeBookingValidationSchema,
+} from '@esss-swap/duo-validation';
 
 import { ResolverContext } from '../context';
 import { EquipmentDataSource } from '../datasources/EquipmentDataSource';
@@ -27,10 +33,6 @@ import {
   UpdateScheduledEventInput,
 } from '../resolvers/mutations/ScheduledEventMutation';
 import { Roles, User } from '../types/shared';
-import {
-  bulkUpsertScheduledEventsValidationSchema,
-  updateScheduledEventValidationSchema,
-} from '../validation/scheduledEvent';
 
 export default class ScheduledEventMutations {
   constructor(
@@ -181,7 +183,7 @@ export default class ScheduledEventMutations {
     }
   }
 
-  // @ValidateArgs(activateBookingValidationSchema)
+  @ValidateArgs(activateBookingValidationSchema)
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
   async activate(
     ctx: ResolverContext,
@@ -233,7 +235,7 @@ export default class ScheduledEventMutations {
     return result;
   }
 
-  // @ValidateArgs(finalizeBookingValidationSchema)
+  @ValidateArgs(finalizeBookingValidationSchema)
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
   async finalize(
     ctx: ResolverContext,

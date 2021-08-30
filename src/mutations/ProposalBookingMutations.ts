@@ -1,5 +1,8 @@
 import { logger } from '@esss-swap/duo-logger';
-import * as Yup from 'yup';
+import {
+  activateBookingValidationSchema,
+  finalizeBookingValidationSchema,
+} from '@esss-swap/duo-validation';
 
 import { ResolverContext } from '../context';
 import { EquipmentDataSource } from '../datasources/EquipmentDataSource';
@@ -15,16 +18,6 @@ import {
 } from '../models/ProposalBooking';
 import { Rejection, rejection } from '../rejection';
 import { Roles } from '../types/shared';
-
-const activateBookingValidationSchema = Yup.object().shape({
-  id: Yup.number().required(),
-});
-
-// NOTE: The action is validated by graphql
-const finalizeBookingValidationSchema = Yup.object().shape({
-  action: Yup.mixed().required(),
-  id: Yup.number().required(),
-});
 
 export default class ProposalBookingMutations {
   constructor(

@@ -144,7 +144,6 @@ export default function TimeSlotBookingEventStep({
   }, [proposalBooking]);
 
   const handleSubmit = async () => {
-    // TODO: Add updateScheduledEvent method on the backend and uncomment this.
     try {
       setIsLoading(true);
       if (!startsAt || !endsAt) {

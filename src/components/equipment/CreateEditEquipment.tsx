@@ -1,9 +1,6 @@
 import MomentUtils from '@date-io/moment';
 import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
-import {
-  TYPE_ERR_INVALID_DATE,
-  atOrLaterThanMsg,
-} from '@esss-swap/duo-validation/lib/util';
+import { equipmentValidationSchema } from '@esss-swap/duo-validation';
 import {
   Grid,
   FormControlLabel,
@@ -26,7 +23,6 @@ import moment, { Moment } from 'moment';
 import { useSnackbar } from 'notistack';
 import React, { useState, useEffect } from 'react';
 import { useParams, useHistory, generatePath } from 'react-router';
-import * as Yup from 'yup';
 
 import Loader from 'components/common/Loader';
 import { PATH_VIEW_EQUIPMENT } from 'components/paths';
@@ -37,49 +33,8 @@ import { ContentContainer, StyledPaper } from 'styles/StyledComponents';
 import {
   toTzLessDateTime,
   parseTzLessDateTime,
-  TZ_LESS_DATE_TIME_FORMAT,
   TZ_LESS_DATE_TIME_LOW_PREC_FORMAT,
 } from 'utils/date';
-
-export const equipmentValidationSchema = Yup.object().shape({
-  name: Yup.string().min(3).max(100).required(),
-
-  maintenanceStartsAt: Yup.date()
-    .nullable()
-    .typeError(TYPE_ERR_INVALID_DATE)
-    .notRequired(),
-
-  maintenanceEndsAt: Yup.date()
-    .nullable()
-    .typeError(TYPE_ERR_INVALID_DATE)
-    .when(
-      'maintenanceStartsAt',
-      (
-        maintenanceStartsAt: Date,
-        schema: Yup.DateSchema<Date | null | undefined>
-      ) => {
-        if (!maintenanceStartsAt) {
-          return schema;
-        }
-
-        const min = moment(maintenanceStartsAt).add(1, 'minute');
-
-        if (!min.isValid()) {
-          return schema;
-        }
-
-        return schema
-          .nullable()
-          .typeError(TYPE_ERR_INVALID_DATE)
-          .min(
-            min.toDate(),
-            atOrLaterThanMsg(min.format(TZ_LESS_DATE_TIME_FORMAT))
-          )
-          .notRequired();
-      }
-    )
-    .notRequired(),
-});
 
 export default function CreateEditEquipment() {
   const history = useHistory();

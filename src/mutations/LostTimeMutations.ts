@@ -4,7 +4,6 @@ import { bulkUpsertLostTimeValidationSchema } from '@esss-swap/duo-validation';
 import { ResolverContext } from '../context';
 import { LostTimeDataSource } from '../datasources/LostTimeDataSource';
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
-import { ScheduledEventDataSource } from '../datasources/ScheduledEventDataSource';
 import Authorized from '../decorators/Authorized';
 import ValidateArgs from '../decorators/ValidateArgs';
 import { instrumentScientistHasAccess } from '../helpers/permissionHelpers';
@@ -17,8 +16,7 @@ import { Roles } from '../types/shared';
 export default class LostTimeMutations {
   constructor(
     private lostTimeDataSource: LostTimeDataSource,
-    private proposalBookingDataSource: ProposalBookingDataSource,
-    private scheduledEventDataSource: ScheduledEventDataSource
+    private proposalBookingDataSource: ProposalBookingDataSource
   ) {}
 
   @ValidateArgs(bulkUpsertLostTimeValidationSchema)

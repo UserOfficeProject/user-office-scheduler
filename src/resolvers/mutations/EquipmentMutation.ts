@@ -99,7 +99,7 @@ export class EquipmentMutation {
     updateEquipmentInput: EquipmentInput
   ): Promise<ResponseWrapBase<EquipmentResponseWrap>> {
     return wrapResponse(
-      ctx.mutations.equipment.update(ctx, id, updateEquipmentInput),
+      ctx.mutations.equipment.update(ctx, { id, ...updateEquipmentInput }),
       EquipmentResponseWrap
     );
   }

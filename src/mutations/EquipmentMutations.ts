@@ -1,8 +1,11 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { equipmentValidationSchema } from '@esss-swap/duo-validation';
+
 import { ResolverContext } from '../context';
 import { EquipmentDataSource } from '../datasources/EquipmentDataSource';
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
 import Authorized from '../decorators/Authorized';
+import ValidateArgs from '../decorators/ValidateArgs';
 import { Equipment } from '../models/Equipment';
 import { ProposalBookingStatus } from '../models/ProposalBooking';
 import { Rejection, rejection } from '../rejection';
@@ -21,8 +24,9 @@ export default class EquipmentMutations {
     private proposalBookingDataSource: ProposalBookingDataSource
   ) {}
 
+  @ValidateArgs(equipmentValidationSchema)
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
-  create(
+  async create(
     ctx: ResolverContext,
     newEquipmentInput: EquipmentInput
   ): Promise<Equipment | Rejection> {
@@ -32,14 +36,16 @@ export default class EquipmentMutations {
     );
   }
 
+  @ValidateArgs(equipmentValidationSchema)
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
   async update(
     ctx: ResolverContext,
-    id: number,
-    updateEquipmentInput: EquipmentInput
+    updateEquipmentInput: EquipmentInput & {
+      id: number;
+    }
   ): Promise<Equipment | Rejection> {
     const updated = await this.equipmentDataSource.update(
-      id,
+      updateEquipmentInput.id,
       updateEquipmentInput
     );
 
@@ -101,7 +107,7 @@ export default class EquipmentMutations {
   }
 
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
-  confirmAssignment(
+  async confirmAssignment(
     ctx: ResolverContext,
     confirmEquipmentAssignmentInput: ConfirmEquipmentAssignmentInput
   ) {
@@ -114,7 +120,7 @@ export default class EquipmentMutations {
   }
 
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
-  addEquipmentResponsible(
+  async addEquipmentResponsible(
     ctx: ResolverContext,
     equipmentResponsibleInput: EquipmentResponsibleInput
   ) {

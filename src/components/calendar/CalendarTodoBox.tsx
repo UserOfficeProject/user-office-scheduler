@@ -1,4 +1,4 @@
-import { Button, makeStyles } from '@material-ui/core';
+import { Button, makeStyles, useMediaQuery } from '@material-ui/core';
 import { Add as AddIcon, Info as InfoIcon } from '@material-ui/icons';
 import clsx from 'clsx';
 import React from 'react';
@@ -7,29 +7,6 @@ import { useQuery } from 'hooks/common/useQuery';
 import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
 
 import ProposalBookingTree from '../proposalBooking/ProposalBookingTree';
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
-    height: '100%',
-    flexDirection: 'column',
-    paddingTop: theme.spacing(2),
-    paddingLeft: theme.spacing(2),
-  },
-  centered: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  textCenter: {
-    textAlign: 'center',
-  },
-  bottomSpacing: {
-    marginBottom: theme.spacing(2),
-  },
-  gray: {
-    color: theme.palette.grey[500],
-  },
-}));
 
 type CalendarTodoBoxProps = {
   onNewSimpleEvent: () => void;
@@ -42,6 +19,29 @@ export default function CalendarTodoBox({
   refreshCalendar,
   proposalBookings,
 }: CalendarTodoBoxProps) {
+  const isTabletOrMobile = useMediaQuery('(max-width: 1224px)');
+  const useStyles = makeStyles((theme) => ({
+    root: {
+      display: 'flex',
+      height: '100%',
+      flexDirection: 'column',
+      paddingTop: isTabletOrMobile ? theme.spacing(5) : theme.spacing(2),
+      paddingLeft: theme.spacing(2),
+    },
+    centered: {
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    textCenter: {
+      textAlign: 'center',
+    },
+    bottomSpacing: {
+      marginBottom: theme.spacing(2),
+    },
+    gray: {
+      color: theme.palette.grey[500],
+    },
+  }));
   const classes = useStyles();
   const query = useQuery();
 

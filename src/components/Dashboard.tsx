@@ -5,10 +5,11 @@ import {
   IconButton,
   List,
   makeStyles,
+  useMediaQuery,
 } from '@material-ui/core';
 import { ChevronLeft } from '@material-ui/icons';
 import clsx from 'clsx';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 
 import AppToolbar, { drawerWidth } from './appToolbar/AppToolbar';
@@ -51,6 +52,7 @@ const useStyles = makeStyles((theme) => ({
   },
   drawerOpen: {
     width: drawerWidth,
+    overflowX: 'hidden',
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
@@ -70,15 +72,27 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Dashboard() {
+  const isTabletOrMobile = useMediaQuery('(max-width: 1224px)');
   const classes = useStyles();
   const [open, setOpen] = React.useState(
-    localStorage.drawerOpen ? localStorage.drawerOpen === '1' : true
+    localStorage.drawerOpen
+      ? localStorage.drawerOpen === '1'
+      : !isTabletOrMobile
   );
+
+  useEffect(() => {
+    if (isTabletOrMobile) {
+      setOpen(false);
+    } else if (localStorage.getItem('drawerOpen') === '1') {
+      setOpen(true);
+    }
+  }, [isTabletOrMobile]);
 
   const handleDrawerOpen = () => {
     localStorage.setItem('drawerOpen', '1');
     setOpen(true);
   };
+
   const handleDrawerClose = () => {
     localStorage.setItem('drawerOpen', '0');
     setOpen(false);
@@ -89,7 +103,7 @@ export default function Dashboard() {
       <CssBaseline />
       <AppToolbar open={open} handleDrawerOpen={handleDrawerOpen} />
       <Drawer
-        variant="permanent"
+        variant={isTabletOrMobile ? 'temporary' : 'permanent'}
         className={clsx(classes.drawer, {
           [classes.drawerOpen]: open,
           [classes.drawerClose]: !open,

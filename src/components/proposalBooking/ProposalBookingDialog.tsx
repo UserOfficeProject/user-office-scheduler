@@ -26,6 +26,10 @@ const useStyles = makeStyles(() => ({
   fullHeight: {
     height: '100%',
   },
+  stepper: {
+    overflowX: 'auto',
+    overflowY: 'hidden',
+  },
 }));
 
 export enum ProposalBookingSteps {
@@ -215,7 +219,7 @@ export default function ProposalBookingDialog({
       }}
     >
       <DialogTitle>Proposal booking</DialogTitle>
-      <Stepper nonLinear activeStep={activeStep}>
+      <Stepper nonLinear activeStep={activeStep} className={classes.stepper}>
         {steps.map((label, index) => (
           <Step key={label}>
             <StepButton

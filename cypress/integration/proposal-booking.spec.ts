@@ -161,7 +161,8 @@ context('Proposal booking tests ', () => {
 
         cy.finishedLoading();
 
-        cy.get('[data-cy=btn-time-table-edit-row]').should('exist');
+        cy.contains('Proposal allocated time');
+        cy.contains('Proposal allocatable time');
 
         cy.contains(currentHourDateTime);
         cy.contains(getHourDateTimeAfter(24));

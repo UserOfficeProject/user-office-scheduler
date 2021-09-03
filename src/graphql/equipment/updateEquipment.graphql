@@ -1,4 +1,4 @@
-mutation updateEquipment($id: ID!, $updateEquipmentInput: EquipmentInput!) {
+mutation updateEquipment($id: Int!, $updateEquipmentInput: EquipmentInput!) {
   updateEquipment(id: $id, updateEquipmentInput: $updateEquipmentInput) {
     error
     equipment {

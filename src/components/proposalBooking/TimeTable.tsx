@@ -27,7 +27,7 @@ import {
 } from 'utils/date';
 
 export type TimeTableRow = {
-  id: string;
+  id: number;
   startsAt: Moment;
   endsAt: Moment;
   newlyCreated?: boolean;
@@ -51,7 +51,7 @@ function InlineTimeEdit({
 }: {
   row: TimeTableRow;
   onDiscard: () => void;
-  onSave: (id: string, startsAt: Moment, endsAt: Moment) => void;
+  onSave: (id: number, startsAt: Moment, endsAt: Moment) => void;
 }) {
   const classes = useStyles();
 
@@ -150,7 +150,7 @@ export default function TimeTable<T extends TimeTableRow>({
   onEditModeToggled,
   ...props
 }: TimeTableProps<T>) {
-  const [editing, setEditing] = useState<string | false>(false);
+  const [editing, setEditing] = useState<number | false>(false);
 
   // when the original list of rows change reset the current edit
   useEffect(() => {
@@ -161,7 +161,7 @@ export default function TimeTable<T extends TimeTableRow>({
     onEditModeToggled?.(!!editing);
   }, [editing, onEditModeToggled]);
 
-  const handleOnSave = (id: string, startsAt: Moment, endsAt: Moment) => {
+  const handleOnSave = (id: number, startsAt: Moment, endsAt: Moment) => {
     setEditing(false);
     handleRowsChange?.((rows) =>
       rows.map((row) => {
@@ -178,12 +178,12 @@ export default function TimeTable<T extends TimeTableRow>({
     );
   };
 
-  const handleDelete = (ids: string[]) => {
+  const handleDelete = (ids: number[]) => {
     setEditing(false);
     handleRowsChange?.((rows) => rows.filter((row) => !ids.includes(row.id)));
   };
 
-  const handleEditing = (id: string | false) => () => {
+  const handleEditing = (id: number | false) => () => {
     setEditing(id);
   };
 

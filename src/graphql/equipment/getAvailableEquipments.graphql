@@ -1,4 +1,4 @@
-query getAvailableEquipments($scheduledEventId: ID!) {
+query getAvailableEquipments($scheduledEventId: Int!) {
   availableEquipments(scheduledEventId: $scheduledEventId) {
     id
     createdAt

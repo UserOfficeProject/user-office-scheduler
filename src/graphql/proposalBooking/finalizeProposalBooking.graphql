@@ -1,6 +1,6 @@
 mutation finalizeProposalBooking(
   $action: ProposalBookingFinalizeAction!
-  $id: ID!
+  $id: Int!
 ) {
   finalizeProposalBooking(action: $action, id: $id) {
     error

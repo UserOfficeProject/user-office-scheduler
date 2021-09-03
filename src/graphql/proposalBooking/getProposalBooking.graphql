@@ -1,5 +1,5 @@
 query getProposalBooking(
-  $id: ID!
+  $id: Int!
   $filter: ProposalBookingScheduledEventFilter!
 ) {
   proposalBooking(id: $id) {

@@ -39,7 +39,7 @@ function Row({
 }: {
   row: ScheduledEventWithEquipments;
   readOnly?: boolean;
-  onDeleteAssignment: (equipmentId: string, scheduledEventId: string) => void;
+  onDeleteAssignment: (equipmentId: number, scheduledEventId: number) => void;
 }) {
   const [open, setOpen] = useState(false);
   const classes = useRowStyles();
@@ -122,7 +122,7 @@ export default function TimeSlotEquipmentTable({
 }: {
   rows: ScheduledEventWithEquipments[];
   readOnly?: boolean;
-  onDeleteAssignment: (equipmentId: string, scheduledEventId: string) => void;
+  onDeleteAssignment: (equipmentId: number, scheduledEventId: number) => void;
 }) {
   return (
     <TableContainer component={Paper}>

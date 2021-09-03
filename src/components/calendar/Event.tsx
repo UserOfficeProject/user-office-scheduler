@@ -17,7 +17,12 @@ export type BasicProposalBooking =
 
 export type CalendarScheduledEvent = Pick<
   ScheduledEvent,
-  'id' | 'bookingType' | 'description' | 'bookingType' | 'equipmentId'
+  | 'id'
+  | 'bookingType'
+  | 'description'
+  | 'bookingType'
+  | 'equipmentId'
+  | 'status'
 > & {
   start: Date;
   end: Date;
@@ -84,7 +89,7 @@ export function eventPropGetter(event: CalendarScheduledEvent): {
   className?: string;
   style?: CSSProperties;
 } {
-  const eventStyle = isClosedEvent(event.proposalBooking)
+  const eventStyle = isClosedEvent({ status: event.status })
     ? getClosedBookingStyle()
     : getBookingTypeStyle(event.bookingType);
 
@@ -92,7 +97,7 @@ export function eventPropGetter(event: CalendarScheduledEvent): {
     style: {
       borderRadius: 0,
       border: '1px solid #FFF',
-      opacity: isDraftEvent(event.proposalBooking) ? '0.6' : 'unset',
+      opacity: isDraftEvent({ status: event.status }) ? '0.6' : 'unset',
       ...eventStyle,
     },
   };
@@ -103,6 +108,7 @@ export default function Event({
     description,
     start,
     proposalBooking,
+    status,
     bookingType,
     instrument,
     scheduledBy,
@@ -112,7 +118,12 @@ export default function Event({
   const classes = useStyles();
   switch (bookingType) {
     case ScheduledEventBookingType.USER_OPERATIONS:
-      return <ProposalBookingInfo booking={proposalBooking} />;
+      return (
+        <ProposalBookingInfo
+          booking={proposalBooking}
+          scheduledEventStatus={status}
+        />
+      );
     case ScheduledEventBookingType.EQUIPMENT:
       return (
         <EquipmentBookingInfo
@@ -121,7 +132,7 @@ export default function Event({
           scheduledBy={
             `${scheduledBy?.firstname} ${scheduledBy?.lastname}` ?? 'NA'
           }
-          proposalBooking={proposalBooking}
+          proposalBooking={{ status }}
         />
       );
     default:

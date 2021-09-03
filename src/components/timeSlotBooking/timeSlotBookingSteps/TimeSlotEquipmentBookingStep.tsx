@@ -6,25 +6,34 @@ import {
   Button,
   makeStyles,
   Toolbar,
+  Box,
+  TableHead,
+  TableRow,
+  TableCell,
+  Table as MuiTable,
+  TableBody,
+  IconButton,
 } from '@material-ui/core';
-import { Add as AddIcon } from '@material-ui/icons';
+import { Add as AddIcon, Delete as DeleteIcon } from '@material-ui/icons';
 import Alert from '@material-ui/lab/Alert';
 import AlertTitle from '@material-ui/lab/AlertTitle';
 import { useSnackbar } from 'notistack';
 import React, { useState, useContext } from 'react';
 
 import Loader from 'components/common/Loader';
+import SelectTimeSlotsDialog from 'components/proposalBooking/bookingSteps/equipmentBooking/SelectTimeSlotsDialog';
 import { AppContext } from 'context/AppContext';
 import {
   EquipmentAssignmentStatus,
+  ProposalBooking,
   ProposalBookingStatus,
 } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
-import useScheduledEventsWithEquipments from 'hooks/scheduledEvent/useScheduledEventsWithEquipments';
+import { DetailedProposalBooking } from 'hooks/proposalBooking/useProposalBooking';
+import useScheduledEventEquipments from 'hooks/scheduledEvent/useScheduledEventEquipments';
+import { ScheduledEventEquipment } from 'hooks/scheduledEvent/useScheduledEventWithEquipment';
 
-import { ProposalBookingDialogStepProps } from '../ProposalBookingDialog';
-import SelectTimeSlotsDialog from './equipmentBooking/SelectTimeSlotsDialog';
-import TimeSlotEquipmentTable from './equipmentBooking/TimeSlotEquipmentTable';
+import { ProposalBookingDialogStepProps } from '../TimeSlotBookingDialog';
 
 export type EquipmentTableRow = {
   id: string;
@@ -50,32 +59,35 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function EquipmentBookingStep({
+export default function TimeSlotEquipmentBookingStep({
   activeStatus,
-  proposalBooking,
+  scheduledEvent,
   handleNext,
   handleBack,
   handleSetActiveStepByStatus,
   handleCloseDialog,
 }: ProposalBookingDialogStepProps) {
+  const proposalBooking = scheduledEvent.proposalBooking as ProposalBooking;
   const isStepReadOnly = activeStatus !== ProposalBookingStatus.DRAFT;
 
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState(false);
   const [equipmentDialog, setEquipmentDialog] = useState(false);
+
   const {
-    loading: scheduledEventsLoading,
-    scheduledEvents,
+    equipments: scheduledEventEquipments,
+    loading: loadingEquipments,
     refresh,
-  } = useScheduledEventsWithEquipments(proposalBooking.id);
+  } = useScheduledEventEquipments({
+    proposalBookingId: proposalBooking.id,
+    scheduledEventId: scheduledEvent.id,
+  });
 
-  const isLoading = scheduledEventsLoading || loading;
+  const isLoading = loading || loadingEquipments;
 
-  const allEquipmentsAccepted = scheduledEvents.every((event) =>
-    event.equipments.every(
-      (equipment) => equipment.status === EquipmentAssignmentStatus.ACCEPTED
-    )
+  const allEquipmentsAccepted = scheduledEvent.equipments.every(
+    (equipment) => equipment.status === EquipmentAssignmentStatus.ACCEPTED
   );
 
   const handleEquipmentCloseDialog = () => {
@@ -98,9 +110,9 @@ export default function EquipmentBookingStep({
           setLoading(true);
 
           const {
-            activateProposalBooking: { error },
-          } = await api().activateProposalBooking({
-            id: proposalBooking.id,
+            activateScheduledEvent: { error },
+          } = await api().activateScheduledEvent({
+            input: { id: scheduledEvent.id },
           });
 
           if (error) {
@@ -166,7 +178,8 @@ export default function EquipmentBookingStep({
       {equipmentDialog && (
         <SelectTimeSlotsDialog
           isDialogOpen={equipmentDialog}
-          proposalBooking={proposalBooking}
+          scheduledEvent={scheduledEvent}
+          proposalBooking={proposalBooking as DetailedProposalBooking}
           closeDialog={handleEquipmentCloseDialog}
         />
       )}
@@ -179,7 +192,7 @@ export default function EquipmentBookingStep({
             id="tableTitle"
             component="div"
           >
-            Time Slots with Equipments
+            Time Slot Equipments
             <Button
               variant="contained"
               color="primary"
@@ -193,11 +206,49 @@ export default function EquipmentBookingStep({
             </Button>
           </Typography>
         </Toolbar>
-        <TimeSlotEquipmentTable
-          rows={scheduledEvents}
-          onDeleteAssignment={handleDeleteAssignment}
-          readOnly={isStepReadOnly}
-        />
+        <Box margin={1}>
+          <MuiTable size="small" aria-label="equipments">
+            <TableHead>
+              <TableRow role="row">
+                <TableCell>Actions</TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>Status</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {scheduledEventEquipments.map(
+                (equipment: ScheduledEventEquipment) => (
+                  <TableRow key={equipment.id} role="row">
+                    <TableCell component="th" scope="row">
+                      <IconButton
+                        size="small"
+                        data-cy="btn-delete-assignment"
+                        disabled={isStepReadOnly}
+                        onClick={() =>
+                          handleDeleteAssignment(
+                            equipment.id,
+                            scheduledEvent.id
+                          )
+                        }
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </TableCell>
+                    <TableCell>{equipment.name}</TableCell>
+                    <TableCell data-cy="equipment-row-status">
+                      {equipment.status}
+                    </TableCell>
+                  </TableRow>
+                )
+              )}
+              {scheduledEventEquipments.length === 0 && (
+                <TableCell colSpan={3} style={{ textAlign: 'center' }}>
+                  No records to show
+                </TableCell>
+              )}
+            </TableBody>
+          </MuiTable>
+        </Box>
         {!allEquipmentsAccepted && (
           <Alert
             severity="warning"

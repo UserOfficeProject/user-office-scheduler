@@ -7,6 +7,7 @@ import {
   Dialog,
 } from '@material-ui/core';
 import { Add as AddIcon } from '@material-ui/icons';
+import moment from 'moment';
 import React, { useState, useEffect } from 'react';
 
 import Loader from 'components/common/Loader';
@@ -17,6 +18,7 @@ import {
 } from 'components/proposalBooking/TimeTable';
 import { DetailedProposalBooking } from 'hooks/proposalBooking/useProposalBooking';
 import useProposalBookingScheduledEvents from 'hooks/scheduledEvent/useProposalBookingScheduledEvents';
+import { ScheduledEventWithEquipments } from 'hooks/scheduledEvent/useScheduledEventsWithEquipments';
 import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
 
 import SelectEquipmentDialog from './SelectEquipmentDialog';
@@ -30,10 +32,12 @@ export type EquipmentTableRow = {
 export default function SelectTimeSlotsDialog({
   isDialogOpen,
   proposalBooking,
+  scheduledEvent,
   closeDialog,
 }: {
   isDialogOpen: boolean;
   proposalBooking: DetailedProposalBooking;
+  scheduledEvent?: ScheduledEventWithEquipments;
   closeDialog: () => void;
 }) {
   const { loading, scheduledEvents } = useProposalBookingScheduledEvents(
@@ -42,6 +46,20 @@ export default function SelectTimeSlotsDialog({
   const [rows, setRows] = useState<TimeTableRow[]>([]);
   const [selectedScheduledEvent, setSelectedScheduledEvent] =
     useState<TimeTableRow | null>(null);
+
+  useEffect(() => {
+    if (scheduledEvent) {
+      setSelectedScheduledEvent(
+        scheduledEvent
+          ? {
+              id: scheduledEvent.id,
+              startsAt: moment(scheduledEvent.startsAt),
+              endsAt: moment(scheduledEvent.endsAt),
+            }
+          : null
+      );
+    }
+  }, [scheduledEvent]);
 
   useEffect(() => {
     if (!loading) {
@@ -80,7 +98,7 @@ export default function SelectTimeSlotsDialog({
       {isDialogOpen && selectedScheduledEvent && (
         <SelectEquipmentDialog
           isDialogOpen={true}
-          closeDialog={handleCloseDialog}
+          closeDialog={() => handleCloseDialog(!!scheduledEvent)}
           proposalBooking={proposalBooking}
           scheduledEvent={selectedScheduledEvent}
         />

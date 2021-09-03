@@ -1,0 +1,17 @@
+query getScheduledEventEquipments(
+  $proposalBookingId: Int!
+  $scheduledEventId: Int!
+) {
+  proposalBookingScheduledEvent(
+    proposalBookingId: $proposalBookingId
+    scheduledEventId: $scheduledEventId
+  ) {
+    equipments {
+      id
+      name
+      maintenanceStartsAt
+      maintenanceEndsAt
+      status
+    }
+  }
+}

@@ -13,7 +13,7 @@ import useEquipments from 'hooks/equipment/useEquipments';
 import { ContentContainer, StyledPaper } from 'styles/StyledComponents';
 
 export type EquipmentTableRow = {
-  id: string;
+  id: number;
   name: string;
 };
 

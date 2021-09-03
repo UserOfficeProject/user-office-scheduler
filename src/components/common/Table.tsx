@@ -198,7 +198,7 @@ const useToolbarStyles = makeStyles((theme: Theme) => ({
 export type TooltipAction = {
   tooltip: string;
   icon: JSX.Element;
-  onClick: (rowIds: string[]) => void;
+  onClick: (rowIds: number[]) => void;
   clearSelect?: boolean;
 };
 
@@ -271,10 +271,10 @@ export type TableProps<T extends Record<string, unknown>> = {
   tooltipActions?: TooltipAction[];
   rowActions?: RowActions<T>;
   renderRow: (row: T) => JSX.Element;
-  extractKey: (obj: T) => string;
-  onDelete?: (ids: string[]) => void;
+  extractKey: (obj: T) => number;
+  onDelete?: (ids: number[]) => void;
   onPageChange?: (page: number) => void;
-  onSelectionChange?: (selected: string[]) => void;
+  onSelectionChange?: (selected: number[]) => void;
   'data-cy'?: string;
 };
 
@@ -313,7 +313,7 @@ export default function Table<T extends { [k: string]: any }>({
   const [orderBy, setOrderBy] = useState<keyof T | null>(
     defaultOrderBy ?? null
   );
-  const [selected, setSelected] = useState<string[]>([]);
+  const [selected, setSelected] = useState<number[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(5);
 
@@ -342,9 +342,9 @@ export default function Table<T extends { [k: string]: any }>({
     onSelectionChange?.([]);
   };
 
-  const handleClick = (_: React.MouseEvent<unknown>, key: string) => {
+  const handleClick = (_: React.MouseEvent<unknown>, key: number) => {
     const selectedIndex = selected.indexOf(key);
-    let newSelected: string[] = [];
+    let newSelected: number[] = [];
 
     if (selectedIndex === -1) {
       newSelected = newSelected.concat(selected, key);
@@ -377,7 +377,7 @@ export default function Table<T extends { [k: string]: any }>({
     setPage(0);
   };
 
-  const isSelected = (key: string) => selected.indexOf(key) !== -1;
+  const isSelected = (key: number) => selected.indexOf(key) !== -1;
 
   const emptyRows =
     rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);

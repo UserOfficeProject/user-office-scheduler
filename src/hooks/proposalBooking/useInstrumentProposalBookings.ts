@@ -21,7 +21,7 @@ export type InstrumentProposalBooking = Pick<
 };
 
 export default function useInstrumentProposalBookings(
-  instrumentId: string | null
+  instrumentId: number | null
 ) {
   const [loading, setLoading] = useState(false);
   const [proposalBookings, setProposalBookings] = useState<

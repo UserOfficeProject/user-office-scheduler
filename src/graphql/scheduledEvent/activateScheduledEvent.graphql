@@ -1,0 +1,10 @@
+mutation activateScheduledEvent($input: ActivateScheduledEventInput!) {
+  activateScheduledEvent(activateScheduledEvent: $input) {
+    error
+    scheduledEvent {
+      id
+      startsAt
+      endsAt
+    }
+  }
+}

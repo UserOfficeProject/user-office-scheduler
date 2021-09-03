@@ -5,10 +5,13 @@ import { useDataApi } from 'hooks/common/useDataApi';
 
 export type ProposalBookingLostTime = Pick<
   LostTime,
-  'id' | 'startsAt' | 'endsAt'
+  'id' | 'startsAt' | 'endsAt' | 'scheduledEventId'
 >;
 
-export default function useProposalBookingLostTimes(proposalBookingId: string) {
+export default function useProposalBookingLostTimes(
+  proposalBookingId: number,
+  scheduledEventId?: number
+) {
   const [loading, setLoading] = useState(true);
   const [lostTimes, setLostTimes] = useState<ProposalBookingLostTime[]>([]);
 
@@ -19,7 +22,7 @@ export default function useProposalBookingLostTimes(proposalBookingId: string) {
 
     setLoading(true);
     api()
-      .getProposalBookingLostTimes({ proposalBookingId })
+      .getProposalBookingLostTimes({ proposalBookingId, scheduledEventId })
       .then((data) => {
         if (unmount) {
           return;
@@ -36,7 +39,7 @@ export default function useProposalBookingLostTimes(proposalBookingId: string) {
     return () => {
       unmount = true;
     };
-  }, [proposalBookingId, api]);
+  }, [proposalBookingId, scheduledEventId, api]);
 
   return { loading, lostTimes } as const;
 }

@@ -1,4 +1,4 @@
-query getEquipment($id: ID!) {
+query getEquipment($id: Int!) {
   equipment(id: $id) {
     id
     createdAt

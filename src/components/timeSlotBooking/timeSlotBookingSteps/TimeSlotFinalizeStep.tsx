@@ -15,6 +15,7 @@ import Loader from 'components/common/Loader';
 import SplitButton from 'components/common/SplitButton';
 import { AppContext } from 'context/AppContext';
 import {
+  ProposalBooking,
   ProposalBookingFinalizeAction,
   ProposalBookingStatus,
 } from 'generated/sdk';
@@ -23,8 +24,8 @@ import useProposalBookingLostTimes from 'hooks/lostTime/useProposalBookingLostTi
 import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
 import { hasOverlappingEvents } from 'utils/scheduledEvent';
 
-import { ProposalBookingDialogStepProps } from '../ProposalBookingDialog';
-import TimeTable, { TimeTableRow } from '../TimeTable';
+import TimeTable, { TimeTableRow } from '../../proposalBooking/TimeTable';
+import { ProposalBookingDialogStepProps } from '../TimeSlotBookingDialog';
 
 const useStyles = makeStyles((theme) => ({
   spacing: {
@@ -38,9 +39,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function FinalizeStep({
+export default function TimeSlotFinalizeStep({
   activeStatus,
-  proposalBooking,
+  scheduledEvent,
+  setScheduledEvent,
   isDirty,
   handleSetDirty,
   handleNext,
@@ -48,12 +50,15 @@ export default function FinalizeStep({
   handleSetActiveStepByStatus,
   handleCloseDialog,
 }: ProposalBookingDialogStepProps) {
+  const proposalBooking = scheduledEvent.proposalBooking as ProposalBooking;
   const isStepReadOnly = activeStatus !== ProposalBookingStatus.BOOKED;
 
   const classes = useStyles();
 
+  // TODO: Query lost times by scheduled event id as well.
   const { loading, lostTimes } = useProposalBookingLostTimes(
-    proposalBooking.id
+    proposalBooking.id,
+    scheduledEvent.id
   );
 
   const { showConfirmation } = useContext(AppContext);
@@ -103,10 +108,10 @@ export default function FinalizeStep({
         input: {
           proposalBookingId: proposalBooking.id,
           lostTimes: rows.map(({ startsAt, endsAt, id, newlyCreated }) => ({
-            id: newlyCreated ? 0 : id,
             newlyCreated: newlyCreated,
+            id: newlyCreated ? 0 : id,
+            scheduledEventId: scheduledEvent.id,
             startsAt: toTzLessDateTime(startsAt),
-            scheduledEventId: proposalBooking.scheduledEvents[0].id,
             endsAt: toTzLessDateTime(endsAt),
           })),
         },
@@ -170,10 +175,12 @@ export default function FinalizeStep({
           setIsLoading(true);
 
           const {
-            finalizeProposalBooking: { error },
-          } = await api().finalizeProposalBooking({
-            action: selectedKey,
-            id: proposalBooking.id,
+            finalizeScheduledEvent: { error },
+          } = await api().finalizeScheduledEvent({
+            input: {
+              action: selectedKey,
+              id: scheduledEvent.id,
+            },
           });
 
           if (error) {
@@ -183,9 +190,19 @@ export default function FinalizeStep({
 
             setIsLoading(false);
           } else {
-            selectedKey === ProposalBookingFinalizeAction.CLOSE
-              ? handleNext()
-              : handleResetSteps();
+            if (selectedKey === ProposalBookingFinalizeAction.CLOSE) {
+              setScheduledEvent({
+                ...scheduledEvent,
+                status: ProposalBookingStatus.CLOSED,
+              });
+              handleNext();
+            } else {
+              setScheduledEvent({
+                ...scheduledEvent,
+                status: ProposalBookingStatus.DRAFT,
+              });
+              handleResetSteps();
+            }
 
             handleSetActiveStepByStatus(
               selectedKey === ProposalBookingFinalizeAction.CLOSE

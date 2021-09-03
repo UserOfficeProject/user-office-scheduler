@@ -7,36 +7,29 @@ import {
   Stepper,
   StepButton,
 } from '@material-ui/core';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { Dispatch, useContext, useEffect, useState } from 'react';
 
 import Loader from 'components/common/Loader';
 import { AppContext } from 'context/AppContext';
 import { ProposalBookingStatus } from 'generated/sdk';
-import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
-import useProposalBooking from 'hooks/proposalBooking/useProposalBooking';
+import useScheduledEventWithEquipment, {
+  ScheduledEventWithEquipments,
+} from 'hooks/scheduledEvent/useScheduledEventWithEquipment';
 
-import BookingEventStep from './bookingSteps/BookingEventStep';
-import ClosedStep from './bookingSteps/ClosedStep';
-import EquipmentBookingStep from './bookingSteps/EquipmentBookingStep';
-import FinalizeStep from './bookingSteps/FinalizeStep';
-// import RequestReviewStep from './bookingSteps/RequestReviewStep';
-// import ReviewFeedbackStep from './bookingSteps/ReviewFeedbackStep';
+import TimeSlotBookingEventStep from './timeSlotBookingSteps/TimeSlotBookingEventStep';
+import TimeSlotClosedStep from './timeSlotBookingSteps/TimeSlotClosedStep';
+import TimeSlotEquipmentBookingStep from './timeSlotBookingSteps/TimeSlotEquipmentBookingStep';
+import TimeSlotFinalizeStep from './timeSlotBookingSteps/TimeSlotFinalizeStep';
 
 const useStyles = makeStyles(() => ({
   fullHeight: {
     height: '100%',
-  },
-  stepper: {
-    overflowX: 'auto',
-    overflowY: 'hidden',
   },
 }));
 
 export enum ProposalBookingSteps {
   BOOK_EVENTS = 0,
   BOOK_EQUIPMENT,
-  // REQUEST_REVIEW,
-  // REVIEW_FEEDBACKS,
   FINALIZE,
 
   CLOSED,
@@ -46,10 +39,8 @@ const ProposalBookingStepNameMap: Record<
   keyof typeof ProposalBookingSteps,
   string
 > = {
-  BOOK_EVENTS: 'Book events',
+  BOOK_EVENTS: 'Scheduled event details',
   BOOK_EQUIPMENT: 'Equipment booking',
-  // REQUEST_REVIEW: 'Request review',
-  // REVIEW_FEEDBACKS: 'Review feedbacks',
   FINALIZE: 'Finalize',
   CLOSED: 'Closed',
 };
@@ -65,7 +56,10 @@ const maxSteps = steps.length;
 export type ProposalBookingDialogStepProps = {
   activeStep: number;
   activeStatus: ProposalBookingStatus | null;
-  proposalBooking: InstrumentProposalBooking;
+  scheduledEvent: ScheduledEventWithEquipments;
+  setScheduledEvent: Dispatch<
+    React.SetStateAction<ScheduledEventWithEquipments | null>
+  >;
   isDirty: boolean;
   handleNext: () => void;
   handleBack: () => void;
@@ -78,26 +72,14 @@ export type ProposalBookingDialogStepProps = {
 function getActiveStep(props: ProposalBookingDialogStepProps) {
   switch (props.activeStep) {
     case ProposalBookingSteps.BOOK_EVENTS:
-      return <BookingEventStep {...props} />;
+      return <TimeSlotBookingEventStep {...props} />;
     case ProposalBookingSteps.BOOK_EQUIPMENT:
-      return <EquipmentBookingStep {...props} />;
-    // case ProposalBookingSteps.REQUEST_REVIEW:
-    //   return (
-    //     <RequestReviewStep
-    //       {...props}
-    //     />
-    //   );
-    // case ProposalBookingSteps.REVIEW_FEEDBACKS:
-    //   return (
-    //     <ReviewFeedbackStep
-    //       {...props}
-    //     />
-    //   );
+      return <TimeSlotEquipmentBookingStep {...props} />;
     case ProposalBookingSteps.FINALIZE:
-      return <FinalizeStep {...props} />;
+      return <TimeSlotFinalizeStep {...props} />;
 
     case ProposalBookingSteps.CLOSED:
-      return <ClosedStep {...props} />;
+      return <TimeSlotClosedStep {...props} />;
 
     default:
       return <DialogContent>Unknown step</DialogContent>;
@@ -122,12 +104,14 @@ const getActiveStepByStatus = (
 
 type ProposalBookingDialogProps = {
   activeProposalBookingId: number;
+  activeTimeSlotScheduledEventId: number;
   isDialogOpen: boolean;
   closeDialog: (shouldRefresh?: boolean) => void;
 };
 
 export default function ProposalBookingDialog({
   activeProposalBookingId,
+  activeTimeSlotScheduledEventId,
   isDialogOpen,
   closeDialog,
 }: ProposalBookingDialogProps) {
@@ -139,16 +123,18 @@ export default function ProposalBookingDialog({
     useState<ProposalBookingStatus | null>(null);
   const [isDirty, setIsDirty] = useState(false);
 
-  const { loading, proposalBooking } = useProposalBooking(
-    activeProposalBookingId
-  );
+  const { loading, scheduledEvent, setScheduledEvent } =
+    useScheduledEventWithEquipment({
+      proposalBookingId: activeProposalBookingId,
+      scheduledEventId: activeTimeSlotScheduledEventId,
+    });
 
   useEffect(() => {
-    if (!loading && proposalBooking) {
-      setActiveStep(getActiveStepByStatus(proposalBooking.status));
-      setActiveStatus(proposalBooking.status);
+    if (!loading && scheduledEvent) {
+      setActiveStep(getActiveStepByStatus(scheduledEvent.status));
+      setActiveStatus(scheduledEvent.status);
     }
-  }, [loading, proposalBooking]);
+  }, [loading, scheduledEvent]);
 
   const handleResetSteps = () => {
     setActiveStep(ProposalBookingSteps.BOOK_EVENTS);
@@ -218,12 +204,15 @@ export default function ProposalBookingDialog({
         className: classes.fullHeight,
       }}
     >
-      <DialogTitle>Proposal booking</DialogTitle>
-      <Stepper nonLinear activeStep={activeStep} className={classes.stepper}>
+      <DialogTitle>
+        Time slot booking - (
+        {`${scheduledEvent?.startsAt} - ${scheduledEvent?.endsAt}`})
+      </DialogTitle>
+      <Stepper nonLinear activeStep={activeStep}>
         {steps.map((label, index) => (
           <Step key={label}>
             <StepButton
-              data-cy={`booking-step-${ProposalBookingSteps[index]}`}
+              data-cy={`time-slot-booking-step-${ProposalBookingSteps[index]}`}
               onClick={handleSetStep(index)}
               completed={
                 index <=
@@ -236,11 +225,12 @@ export default function ProposalBookingDialog({
           </Step>
         ))}
       </Stepper>
-      {proposalBooking &&
+      {scheduledEvent &&
         getActiveStep({
           activeStep,
           activeStatus,
-          proposalBooking,
+          scheduledEvent,
+          setScheduledEvent,
           isDirty,
           handleNext,
           handleBack,

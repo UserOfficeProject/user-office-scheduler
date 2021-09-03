@@ -16,7 +16,7 @@ export type ScheduledEventWithEquipments = Pick<
 };
 
 export default function useScheduledEventsWithEquipments(
-  proposalBookingId: string
+  proposalBookingId: number
 ) {
   const [loading, setLoading] = useState(true);
   const [scheduledEvents, setScheduledEvents] = useState<

@@ -17,7 +17,7 @@ export type DetailedEquipment = Pick<
   equipmentResponsible: Array<Pick<User, 'id' | 'firstname' | 'lastname'>>;
 };
 
-export default function useEquipment(id?: string) {
+export default function useEquipment(id?: number) {
   const [loading, setLoading] = useState(true);
   const [equipment, setEquipment] = useState<DetailedEquipment | null>(null);
 
@@ -25,7 +25,7 @@ export default function useEquipment(id?: string) {
 
   useEffect(() => {
     let unmount = false;
-    if (id) {
+    if (id !== undefined) {
       setLoading(true);
       api()
         .getEquipment({ id })

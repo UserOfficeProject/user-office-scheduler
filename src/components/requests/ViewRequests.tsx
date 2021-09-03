@@ -14,7 +14,7 @@ import { ContentContainer, StyledPaper } from 'styles/StyledComponents';
 import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
 
 type TableRow = {
-  id: string;
+  id: number;
   equipmentName: string;
   instrumentName?: string;
   proposalTitle?: string;
@@ -119,7 +119,7 @@ export default function ViewRequests() {
         const { confirmEquipmentAssignment: success } =
           await api().confirmEquipmentAssignment({
             confirmEquipmentAssignmentInput: {
-              equipmentId: row.equipmentId.toString(),
+              equipmentId: row.equipmentId,
               scheduledEventId: row.id,
               newStatus,
             },
@@ -188,7 +188,11 @@ export default function ViewRequests() {
                 rowActions={RowActions}
                 showEmptyRows
                 rows={rows}
-                extractKey={(el) => `${el.id}_${el.equipmentId}`}
+                extractKey={(el) => {
+                  const key = parseInt(`${el.id}${el.equipmentId}`);
+
+                  return key;
+                }}
                 renderRow={(row) => {
                   return (
                     <>

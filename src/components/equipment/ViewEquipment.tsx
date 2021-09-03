@@ -174,9 +174,7 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
     row: TableRow,
     status: 'accept' | 'reject'
   ) => {
-    const assignmentEquipmentId = finalEquipmentId;
-
-    if (!assignmentEquipmentId) {
+    if (!finalEquipmentId) {
       return;
     }
 
@@ -197,7 +195,7 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
         const { confirmEquipmentAssignment: success } =
           await api().confirmEquipmentAssignment({
             confirmEquipmentAssignmentInput: {
-              equipmentId: assignmentEquipmentId,
+              equipmentId: finalEquipmentId,
               scheduledEventId: row.id,
               newStatus,
             },

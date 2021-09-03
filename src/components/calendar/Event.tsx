@@ -46,9 +46,9 @@ export const isClosedEvent = (
   proposalBooking?: Pick<ProposalBooking, 'status'> | null
 ) => proposalBooking?.status === ProposalBookingStatus.CLOSED;
 
-function getBookingTypeStyle(
+export const getBookingTypeStyle = (
   bookingType: ScheduledEventBookingType
-): CSSProperties | undefined {
+): CSSProperties => {
   switch (bookingType) {
     case ScheduledEventBookingType.COMMISSIONING:
       return {
@@ -76,9 +76,9 @@ function getBookingTypeStyle(
         color: '#fff',
       };
     default:
-      return;
+      return {};
   }
-}
+};
 
 const getClosedBookingStyle = (): CSSProperties => ({
   backgroundColor: 'rgba(0, 0, 0, 0.5)',

@@ -6,6 +6,7 @@ import {
   useTheme,
   Tooltip,
   Switch,
+  FormControlLabel,
 } from '@material-ui/core';
 import ChevronLeft from '@material-ui/icons/ChevronLeft';
 import CloseIcon from '@material-ui/icons/Close';
@@ -79,6 +80,9 @@ const useStyles = makeStyles((theme) => ({
     top: -24,
     background: theme.palette.grey[200],
     borderRadius: 0,
+  },
+  switch: {
+    paddingLeft: 10,
   },
 }));
 
@@ -412,14 +416,6 @@ export default function Calendar() {
                     </IconButton>
                   </Tooltip>
                 )}
-                <Switch
-                  checked={isTableView}
-                  data-cy="toggle-table-view"
-                  onChange={() => {
-                    setIsTableView(!isTableView);
-                  }}
-                  color="primary"
-                />
                 {!isTableView && (
                   // @ts-expect-error test
                   <BigCalendar
@@ -500,6 +496,20 @@ export default function Calendar() {
                       </IconButton>
                     </Tooltip>
                   )}
+                  <FormControlLabel
+                    className={classes.switch}
+                    control={
+                      <Switch
+                        checked={isTableView}
+                        data-cy="toggle-table-view"
+                        onChange={() => {
+                          setIsTableView(!isTableView);
+                        }}
+                        color="primary"
+                      />
+                    }
+                    label="Table view"
+                  />
                   <CalendarTodoBox
                     refreshCalendar={refresh}
                     onNewSimpleEvent={handleNewSimpleEvent}

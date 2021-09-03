@@ -1,7 +1,6 @@
 import { Type } from 'class-transformer';
 import {
   Field,
-  ID,
   Int,
   ObjectType,
   Resolver,
@@ -26,7 +25,7 @@ import { ScheduledEvent } from './ScheduledEvent';
 
 @ObjectType()
 export class ProposalBooking implements Partial<ProposalBookingBase> {
-  @Field(() => ID)
+  @Field(() => Int)
   id: number;
 
   @Type(() => Call)

@@ -52,4 +52,7 @@ export interface EquipmentDataSource {
   equipmentEventsByProposalBookingId(
     proposalBookingId: number
   ): Promise<Array<EquipmentsScheduledEvent>>;
+  equipmentEventsByScheduledEventId(
+    scheduledEventId: number
+  ): Promise<Array<EquipmentsScheduledEvent>>;
 }

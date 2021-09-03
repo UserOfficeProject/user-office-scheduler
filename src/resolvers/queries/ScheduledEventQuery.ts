@@ -1,4 +1,4 @@
-import { Arg, Ctx, Field, ID, InputType, Query, Resolver } from 'type-graphql';
+import { Arg, Ctx, Field, InputType, Int, Query, Resolver } from 'type-graphql';
 
 import { ResolverContext } from '../../context';
 import { TzLessDateTime } from '../CustomScalars';
@@ -12,7 +12,7 @@ export class ScheduledEventFilter {
   @Field(() => TzLessDateTime)
   endsAt: Date | null;
 
-  @Field(() => ID, { nullable: true })
+  @Field(() => Int, { nullable: true })
   instrumentId?: number | null;
 }
 
@@ -30,7 +30,7 @@ export class ScheduledEventQuery {
   @Query(() => ScheduledEvent, { nullable: true })
   scheduledEvent(
     @Ctx() ctx: ResolverContext,
-    @Arg('id', () => ID)
+    @Arg('id', () => Int)
     id: number
   ): Promise<ScheduledEvent | null> {
     return ctx.queries.scheduledEvent.scheduledEvent(ctx, id);
@@ -39,7 +39,7 @@ export class ScheduledEventQuery {
   @Query(() => [ScheduledEvent])
   proposalBookingScheduledEvents(
     @Ctx() ctx: ResolverContext,
-    @Arg('proposalBookingId', () => ID) proposalBookingId: number
+    @Arg('proposalBookingId', () => Int) proposalBookingId: number
   ): Promise<ScheduledEvent[]> {
     return ctx.queries.scheduledEvent.proposalBookingScheduledEvents(
       ctx,
@@ -50,8 +50,8 @@ export class ScheduledEventQuery {
   @Query(() => ScheduledEvent, { nullable: true })
   proposalBookingScheduledEvent(
     @Ctx() ctx: ResolverContext,
-    @Arg('proposalBookingId', () => ID) proposalBookingId: number,
-    @Arg('scheduledEventId', () => ID) scheduledEventId: number
+    @Arg('proposalBookingId', () => Int) proposalBookingId: number,
+    @Arg('scheduledEventId', () => Int) scheduledEventId: number
   ): Promise<ScheduledEvent | null> {
     return ctx.queries.scheduledEvent.proposalBookingScheduledEvent(
       ctx,

@@ -1,9 +1,13 @@
 import { logger } from '@esss-swap/duo-logger';
-import * as Yup from 'yup';
+import {
+  activateBookingValidationSchema,
+  finalizeBookingValidationSchema,
+} from '@esss-swap/duo-validation';
 
 import { ResolverContext } from '../context';
 import { EquipmentDataSource } from '../datasources/EquipmentDataSource';
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
+import { ScheduledEventDataSource } from '../datasources/ScheduledEventDataSource';
 import Authorized from '../decorators/Authorized';
 import ValidateArgs from '../decorators/ValidateArgs';
 import { instrumentScientistHasAccess } from '../helpers/permissionHelpers';
@@ -15,20 +19,11 @@ import {
 import { Rejection, rejection } from '../rejection';
 import { Roles } from '../types/shared';
 
-const activateBookingValidationSchema = Yup.object().shape({
-  id: Yup.number().required(),
-});
-
-// NOTE: The action is validated by graphql
-const finalizeBookingValidationSchema = Yup.object().shape({
-  action: Yup.mixed().required(),
-  id: Yup.number().required(),
-});
-
 export default class ProposalBookingMutations {
   constructor(
     private proposalBookingDataSource: ProposalBookingDataSource,
-    private equipmentDataSource: EquipmentDataSource
+    private equipmentDataSource: EquipmentDataSource,
+    private scheduledEventDataSource: ScheduledEventDataSource
   ) {}
 
   @ValidateArgs(finalizeBookingValidationSchema)
@@ -47,13 +42,32 @@ export default class ProposalBookingMutations {
       return rejection('NOT_ALLOWED');
     }
 
-    return this.proposalBookingDataSource
+    const result = await this.proposalBookingDataSource
       .finalize(action, id)
       .catch((error: Error) => {
         logger.logException('ProposalBooking finalize failed', error);
 
         return rejection('INTERNAL_ERROR');
       });
+
+    if (result instanceof ProposalBooking) {
+      const allScheduledEvents =
+        await this.scheduledEventDataSource.proposalBookingScheduledEvents(
+          proposalBooking.id
+        );
+
+      await Promise.all(
+        allScheduledEvents.map(
+          async (scheduledEvent) =>
+            await this.scheduledEventDataSource.finalize(
+              scheduledEvent.id,
+              action
+            )
+        )
+      );
+    }
+
+    return result;
   }
 
   @ValidateArgs(activateBookingValidationSchema)
@@ -82,10 +96,28 @@ export default class ProposalBookingMutations {
       return rejection('NOT_ALLOWED');
     }
 
-    return this.proposalBookingDataSource.activate(id).catch((error: Error) => {
-      logger.logException('ProposalBooking activate failed', error);
+    const result = await this.proposalBookingDataSource
+      .activate(id)
+      .catch((error: Error) => {
+        logger.logException('ProposalBooking activate failed', error);
 
-      return rejection('INTERNAL_ERROR');
-    });
+        return rejection('INTERNAL_ERROR');
+      });
+
+    if (result instanceof ProposalBooking) {
+      const allScheduledEvents =
+        await this.scheduledEventDataSource.proposalBookingScheduledEvents(
+          proposalBooking.id
+        );
+
+      await Promise.all(
+        allScheduledEvents.map(
+          async (scheduledEvent) =>
+            await this.scheduledEventDataSource.activate(scheduledEvent.id)
+        )
+      );
+    }
+
+    return result;
   }
 }

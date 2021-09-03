@@ -1,10 +1,15 @@
 import {
+  ProposalBookingFinalizeAction,
+  ProposalBookingStatus,
+} from '../../models/ProposalBooking';
+import {
   ScheduledEvent,
   ScheduledEventBookingType,
 } from '../../models/ScheduledEvent';
 import {
   BulkUpsertScheduledEventsInput,
   NewScheduledEventInput,
+  UpdateScheduledEventInput,
 } from '../../resolvers/mutations/ScheduledEventMutation';
 import { ScheduledEventFilter } from '../../resolvers/queries/ScheduledEventQuery';
 import { ProposalBookingScheduledEventFilter } from '../../resolvers/types/ProposalBooking';
@@ -45,6 +50,62 @@ export default class PostgreScheduledEventDataSource
       .returning<ScheduledEventRecord[]>(['*']);
 
     return createScheduledEventObject(scheduledEvent);
+  }
+
+  async update(
+    updateScheduledEvent: UpdateScheduledEventInput
+  ): Promise<ScheduledEvent> {
+    const [updatedRecord] = await database<ScheduledEventRecord>(this.tableName)
+      .update({
+        starts_at: updateScheduledEvent.startsAt,
+        ends_at: updateScheduledEvent.endsAt,
+      })
+      .where('scheduled_event_id', updateScheduledEvent.scheduledEventId)
+      .returning<ScheduledEventRecord[]>(['*']);
+
+    if (!updatedRecord) {
+      throw new Error(
+        `Failed to update scheduled event '${updateScheduledEvent}'`
+      );
+    }
+
+    return createScheduledEventObject(updatedRecord);
+  }
+
+  async activate(id: number): Promise<ScheduledEvent> {
+    const [updatedRecord] = await database<ScheduledEventRecord>(this.tableName)
+      .update('status', ProposalBookingStatus.BOOKED)
+      .where('scheduled_event_id', id)
+      .where('status', ProposalBookingStatus.DRAFT)
+      .returning<ScheduledEventRecord[]>(['*']);
+
+    if (!updatedRecord) {
+      throw new Error(`Failed to activate proposal scheduled event '${id}'`);
+    }
+
+    return createScheduledEventObject(updatedRecord);
+  }
+
+  async finalize(
+    id: number,
+    action: ProposalBookingFinalizeAction
+  ): Promise<ScheduledEvent> {
+    const [updatedRecord] = await database<ScheduledEventRecord>(this.tableName)
+      .update(
+        'status',
+        action === ProposalBookingFinalizeAction.CLOSE
+          ? ProposalBookingStatus.CLOSED
+          : ProposalBookingStatus.DRAFT
+      )
+      .where('scheduled_event_id', id)
+      .where('status', ProposalBookingStatus.BOOKED)
+      .returning<ScheduledEventRecord[]>(['*']);
+
+    if (!updatedRecord) {
+      throw new Error(`Failed to finalize scheduled event '${id}'`);
+    }
+
+    return createScheduledEventObject(updatedRecord);
   }
 
   // technically we don't update anything
@@ -181,10 +242,14 @@ export default class PostgreScheduledEventDataSource
     startsAt: Date,
     endsAt: Date
   ): Promise<ScheduledEvent[]> {
-    const scheduledEventRecords = await database<ScheduledEventRecord>(
-      this.tableName
-    )
-      .select<ScheduledEventRecord[]>('*')
+    const scheduledEventRecords = await database<
+      ScheduledEventRecord & { scheduledEventStatus: ProposalBookingStatus }
+    >(this.tableName)
+      .select<
+        (ScheduledEventRecord & {
+          scheduledEventStatus: ProposalBookingStatus;
+        })[]
+      >(['*', 'scheduled_events.status as scheduledEventStatus'])
       .join(
         this.equipSchdEvTableName,
         `${this.tableName}.scheduled_event_id`,
@@ -194,6 +259,11 @@ export default class PostgreScheduledEventDataSource
       .where('starts_at', '<=', endsAt)
       .andWhere('ends_at', '>=', startsAt);
 
-    return scheduledEventRecords.map(createScheduledEventObject);
+    return scheduledEventRecords.map((scheduledEventRecord) =>
+      createScheduledEventObject({
+        ...scheduledEventRecord,
+        status: scheduledEventRecord.scheduledEventStatus,
+      })
+    );
   }
 }

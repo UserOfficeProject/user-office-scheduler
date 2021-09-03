@@ -1,7 +1,6 @@
 import {
   InputType,
   Field,
-  ID,
   Resolver,
   Mutation,
   Ctx,
@@ -35,34 +34,34 @@ export class EquipmentInput implements Partial<EquipmentBase> {
 
 @InputType()
 export class AssignEquipmentsToScheduledEventInput {
-  @Field(() => ID)
+  @Field(() => Int)
   scheduledEventId: number;
 
-  @Field(() => ID)
+  @Field(() => Int)
   proposalBookingId: number;
 
-  @Field(() => [ID])
+  @Field(() => [Int])
   equipmentIds: number[];
 }
 
 @InputType()
 export class DeleteEquipmentAssignmentInput {
-  @Field(() => ID)
+  @Field(() => Int)
   scheduledEventId: number;
 
-  @Field(() => ID)
+  @Field(() => Int)
   proposalBookingId: number;
 
-  @Field(() => ID)
+  @Field(() => Int)
   equipmentId: number;
 }
 
 @InputType()
 export class ConfirmEquipmentAssignmentInput {
-  @Field(() => ID)
+  @Field(() => Int)
   scheduledEventId: number;
 
-  @Field(() => ID)
+  @Field(() => Int)
   equipmentId: number;
 
   @Field(() => EquipmentAssignmentStatus)
@@ -71,7 +70,7 @@ export class ConfirmEquipmentAssignmentInput {
 
 @InputType()
 export class EquipmentResponsibleInput {
-  @Field(() => ID)
+  @Field(() => Int)
   equipmentId: number;
 
   @Field(() => [Int])
@@ -95,12 +94,12 @@ export class EquipmentMutation {
   @Mutation(() => EquipmentResponseWrap)
   updateEquipment(
     @Ctx() ctx: ResolverContext,
-    @Arg('id', () => ID) id: number,
+    @Arg('id', () => Int) id: number,
     @Arg('updateEquipmentInput', () => EquipmentInput)
     updateEquipmentInput: EquipmentInput
   ): Promise<ResponseWrapBase<EquipmentResponseWrap>> {
     return wrapResponse(
-      ctx.mutations.equipment.update(ctx, id, updateEquipmentInput),
+      ctx.mutations.equipment.update(ctx, { id, ...updateEquipmentInput }),
       EquipmentResponseWrap
     );
   }

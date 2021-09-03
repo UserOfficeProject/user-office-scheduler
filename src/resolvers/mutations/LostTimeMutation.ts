@@ -2,8 +2,8 @@ import {
   Arg,
   Ctx,
   Field,
-  ID,
   InputType,
+  Int,
   Mutation,
   Resolver,
 } from 'type-graphql';
@@ -15,7 +15,7 @@ import { wrapResponse } from '../wrapResponse';
 
 @InputType()
 export class SimpleLostTimeInput {
-  @Field(() => ID)
+  @Field(() => Int)
   id: number;
 
   @Field(() => TzLessDateTime)
@@ -26,11 +26,14 @@ export class SimpleLostTimeInput {
 
   @Field(() => Boolean, { nullable: true })
   newlyCreated?: boolean;
+
+  @Field(() => Int, { nullable: true })
+  scheduledEventId: number;
 }
 
 @InputType()
 export class BulkUpsertLostTimesInput {
-  @Field(() => ID)
+  @Field(() => Int)
   proposalBookingId: number;
 
   @Field(() => [SimpleLostTimeInput])

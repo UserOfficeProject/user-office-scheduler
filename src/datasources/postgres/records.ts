@@ -23,6 +23,7 @@ export interface ScheduledEventRecord {
   readonly scheduled_by: number;
   readonly description: string | null;
   readonly proposal_booking_id: number | null;
+  readonly status: ProposalBookingStatus;
   readonly instrument_id: number;
   readonly equipment_id: number;
 }
@@ -41,6 +42,7 @@ export const createScheduledEventObject = (
     scheduledEvent.description,
     { id: scheduledEvent.instrument_id },
     scheduledEvent.proposal_booking_id,
+    scheduledEvent.status,
     scheduledEvent.equipment_id
   );
 
@@ -72,6 +74,7 @@ export const createProposalBookingObject = (
 export interface LostTimeRecord {
   readonly lost_time_id: number;
   readonly proposal_booking_id: number;
+  readonly scheduled_event_id: number;
   readonly created_at: Date;
   readonly updated_at: Date;
   readonly starts_at: Date;
@@ -82,6 +85,7 @@ export const createLostTimeObject = (lostTime: LostTimeRecord) =>
   new LostTime(
     lostTime.lost_time_id,
     lostTime.proposal_booking_id,
+    lostTime.scheduled_event_id,
     lostTime.created_at,
     lostTime.updated_at,
     lostTime.starts_at,

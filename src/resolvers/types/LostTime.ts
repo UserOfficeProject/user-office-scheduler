@@ -1,15 +1,18 @@
-import { Field, ID, ObjectType } from 'type-graphql';
+import { Field, Int, ObjectType } from 'type-graphql';
 
 import { LostTime as LostTimeBase } from '../../models/LostTime';
 import { TzLessDateTime } from '../CustomScalars';
 
 @ObjectType()
 export class LostTime implements Partial<LostTimeBase> {
-  @Field(() => ID)
+  @Field(() => Int)
   id: number;
 
-  @Field(() => ID)
+  @Field(() => Int)
   proposalBookingId: number;
+
+  @Field(() => Int)
+  scheduledEventId: number;
 
   @Field(() => Date)
   createdAt: Date;

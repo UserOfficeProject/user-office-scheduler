@@ -5,5 +5,8 @@ export interface LostTimeDataSource {
   bulkUpsert(
     bulkUpsertLostTimes: BulkUpsertLostTimesInput
   ): Promise<LostTime[]>;
-  proposalBookingLostTimes(proposalBookingId: number): Promise<LostTime[]>;
+  proposalBookingLostTimes(
+    proposalBookingId: number,
+    scheduledEventId?: number
+  ): Promise<LostTime[]>;
 }

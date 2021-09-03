@@ -2,13 +2,14 @@ import {
   Arg,
   Ctx,
   Field,
-  ID,
   InputType,
+  Int,
   Mutation,
   Resolver,
 } from 'type-graphql';
 
 import { ResolverContext } from '../../context';
+import { ProposalBookingFinalizeAction } from '../../models/ProposalBooking';
 import {
   ScheduledEvent as ScheduledEventBase,
   ScheduledEventBookingType,
@@ -34,13 +35,13 @@ export class NewScheduledEventInput implements Partial<ScheduledEventBase> {
   @Field(() => String, { nullable: true })
   description: string | null;
 
-  @Field(() => ID)
+  @Field(() => Int)
   instrumentId: number;
 }
 
 @InputType()
 export class SimpleScheduledEventInput {
-  @Field(() => ID)
+  @Field(() => Int)
   id: number;
 
   @Field(() => TzLessDateTime)
@@ -55,11 +56,38 @@ export class SimpleScheduledEventInput {
 
 @InputType()
 export class BulkUpsertScheduledEventsInput {
-  @Field(() => ID)
+  @Field(() => Int)
   proposalBookingId: number;
 
   @Field(() => [SimpleScheduledEventInput])
   scheduledEvents: SimpleScheduledEventInput[];
+}
+
+@InputType()
+export class UpdateScheduledEventInput {
+  @Field(() => Int)
+  scheduledEventId: number;
+
+  @Field(() => TzLessDateTime)
+  startsAt: Date;
+
+  @Field(() => TzLessDateTime)
+  endsAt: Date;
+}
+
+@InputType()
+export class ActivateScheduledEventInput {
+  @Field(() => Int)
+  id: number;
+}
+
+@InputType()
+export class FinalizeScheduledEventInput {
+  @Field(() => Int)
+  id: number;
+
+  @Field(() => ProposalBookingFinalizeAction)
+  action: ProposalBookingFinalizeAction;
 }
 
 @Resolver()
@@ -84,6 +112,42 @@ export class ScheduledEventMutation {
   ) {
     return wrapResponse(
       ctx.mutations.scheduledEvent.bulkUpsert(ctx, bulkUpsertScheduledEvents),
+      ScheduledEventResponseWrap
+    );
+  }
+
+  @Mutation(() => ScheduledEventResponseWrap)
+  updateScheduledEvent(
+    @Ctx() ctx: ResolverContext,
+    @Arg('updateScheduledEvent', () => UpdateScheduledEventInput)
+    updateScheduledEvent: UpdateScheduledEventInput
+  ) {
+    return wrapResponse(
+      ctx.mutations.scheduledEvent.update(ctx, updateScheduledEvent),
+      ScheduledEventResponseWrap
+    );
+  }
+
+  @Mutation(() => ScheduledEventResponseWrap)
+  activateScheduledEvent(
+    @Ctx() ctx: ResolverContext,
+    @Arg('activateScheduledEvent', () => ActivateScheduledEventInput)
+    activateScheduledEvent: ActivateScheduledEventInput
+  ) {
+    return wrapResponse(
+      ctx.mutations.scheduledEvent.activate(ctx, activateScheduledEvent),
+      ScheduledEventResponseWrap
+    );
+  }
+
+  @Mutation(() => ScheduledEventResponseWrap)
+  finalizeScheduledEvent(
+    @Ctx() ctx: ResolverContext,
+    @Arg('finalizeScheduledEvent', () => FinalizeScheduledEventInput)
+    finalizeScheduledEvent: FinalizeScheduledEventInput
+  ) {
+    return wrapResponse(
+      ctx.mutations.scheduledEvent.finalize(ctx, finalizeScheduledEvent),
       ScheduledEventResponseWrap
     );
   }

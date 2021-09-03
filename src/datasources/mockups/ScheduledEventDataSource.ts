@@ -1,12 +1,17 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
+  ProposalBookingFinalizeAction,
+  ProposalBookingStatus,
+} from '../../models/ProposalBooking';
+import {
   ScheduledEvent,
   ScheduledEventBookingType,
 } from '../../models/ScheduledEvent';
 import {
   BulkUpsertScheduledEventsInput,
   NewScheduledEventInput,
+  UpdateScheduledEventInput,
 } from '../../resolvers/mutations/ScheduledEventMutation';
 import { ScheduledEventFilter } from '../../resolvers/queries/ScheduledEventQuery';
 import { ScheduledEventDataSource } from '../ScheduledEventDataSource';
@@ -23,6 +28,7 @@ export const dummyScheduledEvents: ScheduledEvent[] = [
     null,
     { id: 0 },
     1,
+    ProposalBookingStatus.DRAFT,
     0
   ),
   new ScheduledEvent(
@@ -36,6 +42,7 @@ export const dummyScheduledEvents: ScheduledEvent[] = [
     'dummy',
     { id: 0 },
     2,
+    ProposalBookingStatus.DRAFT,
     0
   ),
 ];
@@ -58,8 +65,26 @@ export default class MockupScheduledEventDataSource
       newScheduledEvent.description,
       { id: newScheduledEvent.instrumentId },
       1,
+      ProposalBookingStatus.DRAFT,
       0
     );
+  }
+
+  async update(
+    updateScheduledEvent: UpdateScheduledEventInput
+  ): Promise<ScheduledEvent> {
+    throw new Error('Method not implemented.');
+  }
+
+  async activate(id: number): Promise<ScheduledEvent> {
+    throw new Error('Method not implemented.');
+  }
+
+  async finalize(
+    id: number,
+    action: ProposalBookingFinalizeAction
+  ): Promise<ScheduledEvent> {
+    throw new Error('Method not implemented.');
   }
 
   bulkUpsert(

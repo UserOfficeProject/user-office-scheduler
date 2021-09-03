@@ -10,6 +10,7 @@ import {
   ClickAwayListener,
   CardHeader,
   Avatar,
+  useMediaQuery,
 } from '@material-ui/core';
 import {
   Menu as MenuIcon,
@@ -22,39 +23,6 @@ import { UserContext } from 'context/UserContext';
 
 export const drawerWidth = 240;
 
-const useStyles = makeStyles((theme) => ({
-  toolbar: {
-    paddingRight: 24, // keep right padding when drawer closed
-  },
-  appBar: {
-    zIndex: theme.zIndex.drawer + 1,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-  },
-  appBarShift: {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  menuButton: {
-    marginRight: 36,
-  },
-  menuButtonHidden: {
-    display: 'none',
-  },
-  title: {
-    flexGrow: 1,
-  },
-  profilePopper: {
-    zIndex: theme.zIndex.drawer + 2,
-  },
-}));
-
 type AppToolbarProps = {
   open: boolean;
   handleDrawerOpen: () => void;
@@ -64,6 +32,43 @@ export default function AppToolbar({
   open,
   handleDrawerOpen,
 }: AppToolbarProps) {
+  const isTabletOrMobile = useMediaQuery('(max-width: 1224px)');
+
+  const useStyles = makeStyles((theme) => ({
+    toolbar: {
+      paddingRight: 24, // keep right padding when drawer closed
+    },
+    appBar: {
+      zIndex: theme.zIndex.drawer + 1,
+      transition: theme.transitions.create(['width', 'margin'], {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.leavingScreen,
+      }),
+    },
+    appBarShift: {
+      marginLeft: isTabletOrMobile ? 0 : drawerWidth,
+      width: isTabletOrMobile ? '100%' : `calc(100% - ${drawerWidth}px)`,
+      transition: isTabletOrMobile
+        ? 'none'
+        : theme.transitions.create(['width', 'margin'], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.enteringScreen,
+          }),
+    },
+    menuButton: {
+      marginRight: 36,
+    },
+    menuButtonHidden: {
+      display: isTabletOrMobile ? 'inline-flex' : 'none',
+    },
+    title: {
+      flexGrow: 1,
+    },
+    profilePopper: {
+      zIndex: theme.zIndex.drawer + 2,
+    },
+  }));
+
   const classes = useStyles();
 
   const { user } = useContext(UserContext);

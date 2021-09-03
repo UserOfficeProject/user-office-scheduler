@@ -169,6 +169,7 @@ context('Calendar tests', () => {
       cy.get('[data-cy=select-active-view]').click();
 
       cy.get('[role=listbox] [role=option][data-value="month"]').click();
+      cy.get('[data-cy="btn-view-today"]').click();
 
       cy.get('[data-cy=content-calendar-toolbar]').should(
         'contain.text',

@@ -520,7 +520,7 @@ export default function Calendar() {
                       },
                     }}
                   />
-                )}
+                }
                 {isTableView && (
                   <div data-cy="scheduled-events-table">
                     <MaterialTable

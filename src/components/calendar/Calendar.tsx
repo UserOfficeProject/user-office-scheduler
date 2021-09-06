@@ -392,7 +392,11 @@ export default function Calendar() {
   };
 
   const columns = [
-    { title: 'Booking type', field: 'bookingType' },
+    {
+      title: 'Booking type',
+      render: (rowData: CalendarScheduledEvent | CalendarScheduledEvent[]) =>
+        BookingTypesMap[(rowData as CalendarScheduledEvent).bookingType],
+    },
     {
       title: 'Starts at',
       render: (rowData: CalendarScheduledEvent | CalendarScheduledEvent[]) =>
@@ -404,6 +408,9 @@ export default function Calendar() {
         toTzLessDateTime((rowData as CalendarScheduledEvent).end),
     },
     { title: 'Status', field: 'status' },
+    { title: 'Instrument', field: 'instrument.name' },
+    { title: 'Proposal', field: 'proposalBooking.proposal.title' },
+    { title: 'Proposal ID', field: 'proposalBooking.proposal.proposalId' },
   ];
 
   // 100% height needed for month view
@@ -473,7 +480,7 @@ export default function Calendar() {
                   }),
                 }}
               >
-                {
+                {!isTableView && (
                   // @ts-expect-error test
                   <BigCalendar
                     selectable
@@ -520,12 +527,12 @@ export default function Calendar() {
                       },
                     }}
                   />
-                }
+                )}
                 {isTableView && (
                   <div data-cy="scheduled-events-table">
                     <MaterialTable
                       icons={tableIcons}
-                      title="User roles"
+                      title="Scheduled events"
                       columns={columns}
                       data={events}
                       isLoading={loadingEvents || loadingBookings}

@@ -39,6 +39,8 @@ import {
   ProposalBooking,
 } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
+import useEquipments from 'hooks/equipment/useEquipments';
+import useUserInstruments from 'hooks/instrument/useUserInstruments';
 import useInstrumentProposalBookings from 'hooks/proposalBooking/useInstrumentProposalBookings';
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
 import useScheduledEvents from 'hooks/scheduledEvent/useScheduledEvents';
@@ -55,6 +57,7 @@ import Event, {
   getBookingTypeStyle,
   isDraftEvent,
 } from './Event';
+import TableToolbar from './TableViewToolbar';
 import Toolbar from './Toolbar';
 import YearView from './YearView';
 
@@ -213,6 +216,9 @@ export default function Calendar() {
     number | null
   >(null);
 
+  const { loading: instrumentsLoading, instruments } = useUserInstruments();
+  const { loading: equipmentsLoading, equipments } = useEquipments();
+
   useEffect(() => {
     if (isTabletOrMobile) {
       setShowTodoBox(false);
@@ -293,6 +299,8 @@ export default function Calendar() {
     () => transformEvent([...scheduledEvents, ...eqEventsTransformed]),
     [scheduledEvents, eqEventsTransformed]
   );
+
+  console.log('aaaaaaaaaa', filter);
 
   const onNavigate = (newDate: Date, newView: View) => {
     setStartAt(newDate);
@@ -541,7 +549,18 @@ export default function Calendar() {
                       title="Scheduled events"
                       columns={columns}
                       data={events}
-                      isLoading={loadingEvents || loadingBookings}
+                      components={{
+                        Toolbar: (data) =>
+                          TableToolbar(
+                            data,
+                            filter,
+                            setFilter,
+                            instruments,
+                            instrumentsLoading,
+                            equipments,
+                            equipmentsLoading
+                          ),
+                      }}
                       options={{
                         rowStyle: (rowData: CalendarScheduledEvent) => ({
                           ...getBookingTypeStyle(rowData.bookingType),

@@ -24,7 +24,10 @@ export default function useScheduledEvents(filter: ScheduledEventFilter) {
 
     setLoading(true);
     api()
-      .getScheduledEvents({ filter, scheduledEventFilter: {} })
+      .getScheduledEvents({
+        filter,
+        scheduledEventFilter: {},
+      })
       .then((data) => {
         if (unmount) {
           return;

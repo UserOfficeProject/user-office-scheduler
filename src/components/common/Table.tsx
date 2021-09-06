@@ -289,7 +289,7 @@ const labelDisplayedRows = ({ from, to, count }: LabelDisplayedRowsArgs) => {
 };
 
 /**
- * TODO: Maybe we should replace this Table component with material-table.
+ * TODO: Maybe we should replace this Table component with @material-table/core.
  * To be consistent with the core-frontend and because now it is included in the scheduler-frontend anyway.
  */
 export default function Table<T extends { [k: string]: any }>({

@@ -1,3 +1,4 @@
+import MaterialTable from '@material-table/core';
 import {
   IconButton,
   Collapse,
@@ -13,7 +14,6 @@ import ChevronLeft from '@material-ui/icons/ChevronLeft';
 import CloseIcon from '@material-ui/icons/Close';
 import clsx from 'clsx';
 import generateScheduledEventFilter from 'filters/scheduledEvent/scheduledEventsFilter';
-import MaterialTable from 'material-table';
 import moment from 'moment';
 import 'moment/locale/en-gb';
 import React, { useState, useMemo, useContext, useEffect } from 'react';

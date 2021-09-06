@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import MaterialTable, { Query, Options, Column } from '@material-table/core';
 import Button from '@material-ui/core/Button';
 import makeStyles from '@material-ui/core/styles/makeStyles';
-import MaterialTable, { Query, Options, Column } from 'material-table';
 import React, { useState, useEffect } from 'react';
 
 import { ActionButtonContainer } from 'components/common/ActionButtonContainer';
@@ -63,7 +63,7 @@ type PeopleTableProps<T extends BasicUserDetails = BasicUserDetails> = {
   onRemove?: (item: any) => void;
   onUpdate?: (item: any[]) => void;
   selectedUsers?: number[];
-  mtOptions?: Options;
+  mtOptions?: Options<BasicUserDetails>;
   columns?: Column<any>[];
   userRole?: UserRole;
 };

@@ -5,12 +5,15 @@ import {
   makeStyles,
   useTheme,
   Tooltip,
+  Switch,
+  FormControlLabel,
   useMediaQuery,
 } from '@material-ui/core';
 import ChevronLeft from '@material-ui/icons/ChevronLeft';
 import CloseIcon from '@material-ui/icons/Close';
 import clsx from 'clsx';
 import generateScheduledEventFilter from 'filters/scheduledEvent/scheduledEventsFilter';
+import MaterialTable from 'material-table';
 import moment from 'moment';
 import 'moment/locale/en-gb';
 import React, { useState, useMemo, useContext, useEffect } from 'react';
@@ -21,6 +24,7 @@ import {
 } from 'react-big-calendar';
 
 import Loader from 'components/common/Loader';
+import { tableIcons } from 'components/common/TableIcons';
 import EquipmentBookingDialog from 'components/equipment/EquipmentBookingDialog';
 import ScheduledEventDialog, {
   SlotInfo,
@@ -39,7 +43,7 @@ import useInstrumentProposalBookings from 'hooks/proposalBooking/useInstrumentPr
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
 import useScheduledEvents from 'hooks/scheduledEvent/useScheduledEvents';
 import { ContentContainer, StyledPaper } from 'styles/StyledComponents';
-import { parseTzLessDateTime } from 'utils/date';
+import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import 'styles/react-big-calendar.css';
@@ -161,6 +165,9 @@ const useStyles = makeStyles((theme) => ({
     background: theme.palette.grey[200],
     borderRadius: 0,
   },
+  switch: {
+    paddingLeft: 10,
+  },
 }));
 
 export default function Calendar() {
@@ -189,6 +196,7 @@ export default function Calendar() {
     moment().startOf(CALENDAR_DEFAULT_VIEW).toDate()
   );
   const [view, setView] = useState<ExtendedView>(CALENDAR_DEFAULT_VIEW);
+  const [isTableView, setIsTableView] = useState<boolean>(false);
   const [filter, setFilter] = useState(
     generateScheduledEventFilter(queryInstrumentId, startsAt, view)
   );
@@ -383,6 +391,21 @@ export default function Calendar() {
     }
   };
 
+  const columns = [
+    { title: 'Booking type', field: 'bookingType' },
+    {
+      title: 'Starts at',
+      render: (rowData: CalendarScheduledEvent | CalendarScheduledEvent[]) =>
+        toTzLessDateTime((rowData as CalendarScheduledEvent).start),
+    },
+    {
+      title: 'Ends at',
+      render: (rowData: CalendarScheduledEvent | CalendarScheduledEvent[]) =>
+        toTzLessDateTime((rowData as CalendarScheduledEvent).end),
+    },
+    { title: 'Status', field: 'status' },
+  ];
+
   // 100% height needed for month view
   // also the other components make whole page scrollable without it
   return (
@@ -498,6 +521,22 @@ export default function Calendar() {
                     }}
                   />
                 }
+                {isTableView && (
+                  <div data-cy="scheduled-events-table">
+                    <MaterialTable
+                      icons={tableIcons}
+                      title="User roles"
+                      columns={columns}
+                      data={events}
+                      isLoading={loadingEvents || loadingBookings}
+                      options={{
+                        search: false,
+                        paging: false,
+                        minBodyHeight: '350px',
+                      }}
+                    />
+                  </div>
+                )}
               </Grid>
               <Grid
                 item
@@ -527,6 +566,20 @@ export default function Calendar() {
                       </IconButton>
                     </Tooltip>
                   )}
+                  <FormControlLabel
+                    className={classes.switch}
+                    control={
+                      <Switch
+                        checked={isTableView}
+                        data-cy="toggle-table-view"
+                        onChange={() => {
+                          setIsTableView(!isTableView);
+                        }}
+                        color="primary"
+                      />
+                    }
+                    label="Table view"
+                  />
                   <CalendarTodoBox
                     refreshCalendar={refresh}
                     onNewSimpleEvent={handleNewSimpleEvent}

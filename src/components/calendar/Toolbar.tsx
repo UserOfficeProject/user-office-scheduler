@@ -18,10 +18,10 @@ import {
 } from 'react-big-calendar';
 import { useHistory } from 'react-router';
 
-import { Instrument, Equipment } from 'generated/sdk';
+import { Equipment } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
-import useEquipments from 'hooks/equipment/useEquipments';
-import useUserInstruments from 'hooks/instrument/useUserInstruments';
+import { PartialEquipment } from 'hooks/equipment/useEquipments';
+import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 
 const useStyles = makeStyles((theme) => ({
   flex: {
@@ -56,6 +56,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+export type ToolbarAdditionalProps = {
+  instruments: PartialInstrument[];
+  instrumentsLoading: boolean;
+  equipments: PartialEquipment[];
+  equipmentsLoading: boolean;
+};
+
 export default function Toolbar({
   localizer: { messages },
   label,
@@ -63,11 +70,13 @@ export default function Toolbar({
   onView,
   views,
   view,
-}: ToolbarProps) {
+  instruments,
+  instrumentsLoading,
+  equipments,
+  equipmentsLoading,
+}: ToolbarProps & ToolbarAdditionalProps) {
   const classes = useStyles();
   const history = useHistory();
-  const { loading: instrumentsLoading, instruments } = useUserInstruments();
-  const { loading: equipmentLoading, equipments } = useEquipments();
 
   const query = useQuery();
 
@@ -89,10 +98,8 @@ export default function Toolbar({
     !queryInstrument // if the link has query instrument query value when rendering this component
   );
 
-  const [selectedInstrument, setSelectedInstrument] = useState<Pick<
-    Instrument,
-    'id' | 'name'
-  > | null>(null);
+  const [selectedInstrument, setSelectedInstrument] =
+    useState<PartialInstrument | null>(null);
 
   const [selectedEquipment, setSelectedEquipment] = useState<
     Pick<Equipment, 'id' | 'name'>[] | undefined
@@ -153,9 +160,7 @@ export default function Toolbar({
 
   const onChangeView = (view: View) => onView(view);
 
-  const onInstrumentSelect = (
-    selectedInstrument: Pick<Instrument, 'id' | 'name'> | null
-  ) => {
+  const onInstrumentSelect = (selectedInstrument: PartialInstrument | null) => {
     setSelectedInstrument(selectedInstrument);
   };
 
@@ -223,8 +228,8 @@ export default function Toolbar({
         >
           <Autocomplete
             multiple
-            loading={equipmentLoading}
-            disabled={equipmentLoading}
+            loading={equipmentsLoading}
+            disabled={equipmentsLoading}
             selectOnFocus
             clearOnBlur
             fullWidth
@@ -237,12 +242,12 @@ export default function Toolbar({
               <TextField
                 {...params}
                 placeholder="Equipment"
-                disabled={equipmentLoading}
+                disabled={equipmentsLoading}
                 InputProps={{
                   ...params.InputProps,
                   endAdornment: (
                     <>
-                      {equipmentLoading ? (
+                      {equipmentsLoading ? (
                         <CircularProgress color="inherit" size={20} />
                       ) : null}
                       {params.InputProps.endAdornment}
@@ -312,7 +317,7 @@ export default function Toolbar({
             value={selectedInstrument}
             onChange={(
               event: React.ChangeEvent<unknown>,
-              newValue: Pick<Instrument, 'id' | 'name'> | null
+              newValue: PartialInstrument | null
             ) => {
               onInstrumentSelect(newValue);
             }}

@@ -300,8 +300,6 @@ export default function Calendar() {
     [scheduledEvents, eqEventsTransformed]
   );
 
-  console.log('aaaaaaaaaa', filter);
-
   const onNavigate = (newDate: Date, newView: View) => {
     setStartAt(newDate);
     setView(newView);
@@ -524,7 +522,14 @@ export default function Calendar() {
                     // TODO: This should be adjustable length but for now it is fixed amount of 3 months
                     messages={{ year: '3 months' }}
                     components={{
-                      toolbar: Toolbar,
+                      toolbar: (toolbarProps) =>
+                        Toolbar({
+                          ...toolbarProps,
+                          instruments,
+                          instrumentsLoading,
+                          equipments,
+                          equipmentsLoading,
+                        }),
                       event: Event,
                       header: ({ date, localizer }) => {
                         switch (view) {

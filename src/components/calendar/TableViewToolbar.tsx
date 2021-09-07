@@ -16,11 +16,14 @@ import moment, { Moment } from 'moment';
 import React, { Dispatch, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 
-import { Instrument, Equipment, ScheduledEventFilter } from 'generated/sdk';
+import { Equipment, ScheduledEventFilter } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
+import { PartialEquipment } from 'hooks/equipment/useEquipments';
+import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 import { toTzLessDateTime } from 'utils/date';
 
 import { CalendarScheduledEvent } from './Event';
+import { ToolbarAdditionalProps } from './Toolbar';
 
 const useStyles = makeStyles((theme) => ({
   flex: {
@@ -52,13 +55,6 @@ type TableViewToolbarProps = {
   onDateRangeChange: (startDate: Moment | null, endDate: Moment | null) => void;
   startsAtDate: string;
   endsAtDate: string;
-  instruments: Pick<Instrument, 'id' | 'name'>[];
-  instrumentsLoading: boolean;
-  equipments: Pick<
-    Equipment,
-    'id' | 'name' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'
-  >[];
-  equipmentsLoading: boolean;
 };
 
 function TableViewToolbar({
@@ -69,14 +65,12 @@ function TableViewToolbar({
   instrumentsLoading,
   equipments,
   equipmentsLoading,
-}: TableViewToolbarProps) {
+}: TableViewToolbarProps & ToolbarAdditionalProps) {
+  const query = useQuery();
   const classes = useStyles();
   const history = useHistory();
   const [startsAt, setStartsAt] = useState<Moment | null>(moment(startsAtDate));
   const [endsAt, setEndsAt] = useState<Moment | null>(moment(endsAtDate));
-
-  const query = useQuery();
-
   const [queryEquipment, setQueryEquipment] = useState<number[]>([]);
 
   const queryInstrument = query.get('instrument');
@@ -92,6 +86,7 @@ function TableViewToolbar({
   }, []);
 
   useEffect(() => {
+    // NOTE: If the initial start/end date is different than current start/end date then we should call onDateRangeChange
     if (
       moment(startsAtDate).diff(startsAt, 'hour') ||
       moment(endsAtDate).diff(endsAt, 'hour')
@@ -104,10 +99,8 @@ function TableViewToolbar({
     !queryInstrument // if the link has query instrument query value when rendering this component
   );
 
-  const [selectedInstrument, setSelectedInstrument] = useState<Pick<
-    Instrument,
-    'id' | 'name'
-  > | null>(null);
+  const [selectedInstrument, setSelectedInstrument] =
+    useState<PartialInstrument | null>(null);
 
   const [selectedEquipment, setSelectedEquipment] = useState<
     Pick<Equipment, 'id' | 'name'>[] | undefined
@@ -164,9 +157,7 @@ function TableViewToolbar({
     history,
   ]);
 
-  const onInstrumentSelect = (
-    selectedInstrument: Pick<Instrument, 'id' | 'name'> | null
-  ) => {
+  const onInstrumentSelect = (selectedInstrument: PartialInstrument | null) => {
     setSelectedInstrument(selectedInstrument);
   };
 
@@ -304,7 +295,7 @@ function TableViewToolbar({
             value={selectedInstrument}
             onChange={(
               event: React.ChangeEvent<unknown>,
-              newValue: Pick<Instrument, 'id' | 'name'> | null
+              newValue: PartialInstrument | null
             ) => {
               onInstrumentSelect(newValue);
             }}
@@ -319,12 +310,9 @@ const TableToolbar = (
   data: Options<CalendarScheduledEvent>,
   filter: ScheduledEventFilter,
   setFilter: Dispatch<ScheduledEventFilter>,
-  instruments: Pick<Instrument, 'id' | 'name'>[],
+  instruments: PartialInstrument[],
   instrumentsLoading: boolean,
-  equipments: Pick<
-    Equipment,
-    'id' | 'name' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'
-  >[],
+  equipments: PartialEquipment[],
   equipmentsLoading: boolean
 ): JSX.Element => {
   const onDateRangeChange = (
@@ -339,8 +327,6 @@ const TableToolbar = (
       });
     }
   };
-
-  console.log('asdasdasdasdasd');
 
   return (
     <>

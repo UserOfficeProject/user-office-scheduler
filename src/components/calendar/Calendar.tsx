@@ -200,10 +200,12 @@ export default function Calendar() {
     | SlotInfo
     | null
   >(null);
-  const [startsAt, setStartAt] = useState(
-    moment().startOf(CALENDAR_DEFAULT_VIEW).toDate()
-  );
   const [view, setView] = useState<ExtendedView>(CALENDAR_DEFAULT_VIEW);
+  const [startsAt, setStartAt] = useState(
+    moment()
+      .startOf(view as moment.unitOfTime.StartOf)
+      .toDate()
+  );
   const [isTableView, setIsTableView] = useState<boolean>(false);
   const [filter, setFilter] = useState(
     generateScheduledEventFilter(queryInstrumentId, startsAt, view)
@@ -500,7 +502,7 @@ export default function Calendar() {
                     // popup
                     localizer={localizer}
                     events={events}
-                    defaultView={CALENDAR_DEFAULT_VIEW}
+                    defaultView={view}
                     views={{
                       day: true,
                       week: true,

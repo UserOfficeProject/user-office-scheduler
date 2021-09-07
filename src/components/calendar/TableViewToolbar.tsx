@@ -174,7 +174,7 @@ function TableViewToolbar({
               size="small"
               format={'yyyy-MM-DD'}
               fullWidth
-              data-cy="startsAt"
+              data-cy="table-toolbar-startsAt"
               InputProps={{
                 className: classes.smaller,
               }}
@@ -189,7 +189,7 @@ function TableViewToolbar({
               size="small"
               format={'yyyy-MM-DD'}
               fullWidth
-              data-cy="endsAt"
+              data-cy="table-toolbar-endsAt"
               InputProps={{
                 className: classes.smaller,
               }}
@@ -215,8 +215,8 @@ function TableViewToolbar({
             handleHomeEndKeys
             options={equipments}
             getOptionLabel={(equipment) => equipment.name}
-            data-cy="input-equipment-select"
-            id="input-equipment-select"
+            data-cy="table-toolbar-equipment-select"
+            id="table-toolbar-equipment-select"
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -272,8 +272,8 @@ function TableViewToolbar({
             handleHomeEndKeys
             options={instruments}
             getOptionLabel={(instrument) => instrument.name}
-            data-cy="input-instrument-select"
-            id="input-instrument-select"
+            data-cy="table-toolbar-instrument-select"
+            id="table-toolbar-instrument-select"
             renderInput={(params) => (
               <TextField
                 {...params}

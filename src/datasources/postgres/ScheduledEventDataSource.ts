@@ -38,6 +38,10 @@ export default class PostgreScheduledEventDataSource
     scheduledById: number,
     newScheduledEvent: NewScheduledEventInput
   ): Promise<ScheduledEvent> {
+    const isUserOperationsEvent =
+      newScheduledEvent.bookingType ===
+      ScheduledEventBookingType.USER_OPERATIONS;
+
     const [scheduledEvent] = await database<CreateFields>(this.tableName)
       .insert({
         booking_type: newScheduledEvent.bookingType,
@@ -46,6 +50,9 @@ export default class PostgreScheduledEventDataSource
         scheduled_by: scheduledById,
         description: newScheduledEvent.description,
         instrument_id: newScheduledEvent.instrumentId,
+        status: isUserOperationsEvent
+          ? ProposalBookingStatus.DRAFT
+          : ProposalBookingStatus.BOOKED,
       })
       .returning<ScheduledEventRecord[]>(['*']);
 

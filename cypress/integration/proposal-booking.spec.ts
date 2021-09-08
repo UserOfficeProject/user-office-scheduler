@@ -120,7 +120,8 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy="proposal-event-Test proposal-999999"]')
           .parent()
           .parent()
-          .should('have.css', 'opacity', '0.6');
+          .should('have.attr', 'style')
+          .and('include', 'background-color: rgba(');
       });
 
       it('should be able to edit time slot', () => {
@@ -679,7 +680,7 @@ context('Proposal booking tests ', () => {
           .parent()
           .parent()
           .should('have.attr', 'style')
-          .and('include', 'background-color:');
+          .and('include', 'background-color: rgba(');
       });
     });
   });

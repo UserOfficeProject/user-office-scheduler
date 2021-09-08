@@ -12,6 +12,7 @@ import {
 } from '@material-ui/core';
 import ChevronLeft from '@material-ui/icons/ChevronLeft';
 import CloseIcon from '@material-ui/icons/Close';
+import ViewIcon from '@material-ui/icons/Visibility';
 import clsx from 'clsx';
 import generateScheduledEventFilter from 'filters/scheduledEvent/scheduledEventsFilter';
 import moment from 'moment';
@@ -55,7 +56,8 @@ import Event, {
   CalendarScheduledEvent,
   eventPropGetter,
   getBookingTypeStyle,
-  isDraftEvent,
+  getClosedBookingStyle,
+  isClosedEvent,
 } from './Event';
 import TableToolbar from './TableViewToolbar';
 import Toolbar from './Toolbar';
@@ -165,6 +167,7 @@ const useStyles = makeStyles((theme) => ({
     top: -24,
     background: theme.palette.grey[200],
     borderRadius: 0,
+    zIndex: 1000,
   },
   eventToolbarOpenButtonMobile: {
     position: 'absolute',
@@ -409,16 +412,22 @@ export default function Calendar() {
       title: 'Booking type',
       render: (rowData: CalendarScheduledEvent | CalendarScheduledEvent[]) =>
         BookingTypesMap[(rowData as CalendarScheduledEvent).bookingType],
+      customSort: (a: CalendarScheduledEvent, b: CalendarScheduledEvent) =>
+        a.bookingType.localeCompare(b.bookingType),
     },
     {
       title: 'Starts at',
       render: (rowData: CalendarScheduledEvent | CalendarScheduledEvent[]) =>
         toTzLessDateTime((rowData as CalendarScheduledEvent).start),
+      customSort: (a: CalendarScheduledEvent, b: CalendarScheduledEvent) =>
+        moment(a.start).isAfter(moment(b.start)) ? 1 : -1,
     },
     {
       title: 'Ends at',
       render: (rowData: CalendarScheduledEvent | CalendarScheduledEvent[]) =>
         toTzLessDateTime((rowData as CalendarScheduledEvent).end),
+      customSort: (a: CalendarScheduledEvent, b: CalendarScheduledEvent) =>
+        moment(a.end).isAfter(moment(b.end)) ? 1 : -1,
     },
     { title: 'Description', field: 'description' },
     { title: 'Status', field: 'status' },
@@ -430,7 +439,10 @@ export default function Calendar() {
   // 100% height needed for month view
   // also the other components make whole page scrollable without it
   return (
-    <ContentContainer maxWidth={false} className={classes.fullHeight}>
+    <ContentContainer
+      maxWidth={false}
+      className={!isTableView && classes.fullHeight}
+    >
       <Grid container className={classes.fullHeight}>
         <Grid item xs={12} className={classes.fullHeight}>
           <StyledPaper
@@ -569,13 +581,30 @@ export default function Calendar() {
                           ),
                       }}
                       options={{
-                        rowStyle: (rowData: CalendarScheduledEvent) => ({
-                          ...getBookingTypeStyle(rowData.bookingType),
-                          opacity: isDraftEvent({ status: rowData.status })
-                            ? '0.6'
-                            : 'unset',
-                        }),
+                        rowStyle: (rowData: CalendarScheduledEvent) => {
+                          const eventStyle = isClosedEvent({
+                            status: rowData.status,
+                          })
+                            ? getClosedBookingStyle()
+                            : getBookingTypeStyle(
+                                rowData.bookingType,
+                                rowData.status
+                              );
+
+                          return eventStyle;
+                        },
+                        pageSize: 10,
                       }}
+                      actions={[
+                        {
+                          icon: ViewIcon,
+                          tooltip: 'View event',
+                          onClick: (_event, rowData) => {
+                            onSelectEvent(rowData as CalendarScheduledEvent);
+                          },
+                          position: 'row',
+                        },
+                      ]}
                     />
                   </div>
                 )}

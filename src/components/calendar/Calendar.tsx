@@ -49,7 +49,12 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import 'styles/react-big-calendar.css';
 
 import CalendarTodoBox from './CalendarTodoBox';
-import Event, { CalendarScheduledEvent, eventPropGetter } from './Event';
+import Event, {
+  CalendarScheduledEvent,
+  eventPropGetter,
+  getBookingTypeStyle,
+  isDraftEvent,
+} from './Event';
 import Toolbar from './Toolbar';
 import YearView from './YearView';
 
@@ -407,6 +412,7 @@ export default function Calendar() {
       render: (rowData: CalendarScheduledEvent | CalendarScheduledEvent[]) =>
         toTzLessDateTime((rowData as CalendarScheduledEvent).end),
     },
+    { title: 'Description', field: 'description' },
     { title: 'Status', field: 'status' },
     { title: 'Instrument', field: 'instrument.name' },
     { title: 'Proposal', field: 'proposalBooking.proposal.title' },
@@ -537,9 +543,12 @@ export default function Calendar() {
                       data={events}
                       isLoading={loadingEvents || loadingBookings}
                       options={{
-                        search: false,
-                        paging: false,
-                        minBodyHeight: '350px',
+                        rowStyle: (rowData: CalendarScheduledEvent) => ({
+                          ...getBookingTypeStyle(rowData.bookingType),
+                          opacity: isDraftEvent({ status: rowData.status })
+                            ? '0.6'
+                            : 'unset',
+                        }),
                       }}
                     />
                   </div>

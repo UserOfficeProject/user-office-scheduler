@@ -71,6 +71,66 @@ context('Scheduled events table tests', () => {
         'contain',
         'User operations'
       );
+
+      cy.contains(currentHourDateTime)
+        .parent()
+        .should('have.attr', 'style')
+        .and('include', 'background-color:');
+      cy.contains(currentHourDateTime)
+        .parent()
+        .should('have.attr', 'style')
+        .and('not.include', 'opacity: unset');
+    });
+
+    it('should show table view of events in different colors depending on the event type', () => {
+      const newScheduledEvent = {
+        instrumentId: '1',
+        bookingType: 'MAINTENANCE',
+        endsAt: getHourDateTimeAfter(1),
+        startsAt: currentHourDateTime,
+        description: 'Test maintenance event',
+      };
+      const newScheduledEvent2 = {
+        instrumentId: '1',
+        bookingType: 'SHUTDOWN',
+        endsAt: getHourDateTimeAfter(-1),
+        startsAt: getHourDateTimeAfter(-2),
+        description: 'Test shutdown event',
+      };
+      cy.createEvent(newScheduledEvent);
+      cy.createEvent(newScheduledEvent2);
+
+      cy.get('[data-cy=input-instrument-select]').click();
+
+      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
+        .first()
+        .click();
+
+      cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
+
+      cy.get('[data-cy="toggle-table-view"]').click();
+
+      cy.get('[data-cy="scheduled-events-table"]').should('exist');
+
+      cy.contains(getHourDateTimeAfter(1))
+        .parent()
+        .should('have.attr', 'style')
+        .and('include', 'background-color:');
+
+      cy.contains(getHourDateTimeAfter(1))
+        .parent()
+        .should('have.attr', 'style')
+        .and('include', 'opacity: unset');
+
+      cy.contains(getHourDateTimeAfter(-1))
+        .parent()
+        .should('have.attr', 'style')
+        .and('include', 'background-color:');
+
+      cy.contains(getHourDateTimeAfter(-1))
+        .parent()
+        .should('have.attr', 'style')
+        .and('include', 'opacity: unset');
     });
   });
 });

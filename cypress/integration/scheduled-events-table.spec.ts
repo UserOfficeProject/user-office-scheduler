@@ -74,10 +74,12 @@ context('Scheduled events table tests', () => {
 
       cy.contains(currentHourDateTime)
         .parent()
-        .should('have.css', 'backgroundColor', 'rgb(145, 70, 175)');
+        .should('have.attr', 'style')
+        .and('include', 'background-color:');
       cy.contains(currentHourDateTime)
         .parent()
-        .should('have.css', 'opacity', '0.6');
+        .should('have.attr', 'style')
+        .and('not.include', 'opacity: unset');
     });
 
     it('should show table view of events in different colors depending on the event type', () => {
@@ -112,11 +114,23 @@ context('Scheduled events table tests', () => {
 
       cy.contains(getHourDateTimeAfter(1))
         .parent()
-        .should('have.css', 'backgroundColor', 'rgb(255, 166, 158)');
+        .should('have.attr', 'style')
+        .and('include', 'background-color:');
+
+      cy.contains(getHourDateTimeAfter(1))
+        .parent()
+        .should('have.attr', 'style')
+        .and('include', 'opacity: unset');
 
       cy.contains(getHourDateTimeAfter(-1))
         .parent()
-        .should('have.css', 'backgroundColor', 'rgb(170, 68, 101)');
+        .should('have.attr', 'style')
+        .and('include', 'background-color:');
+
+      cy.contains(getHourDateTimeAfter(-1))
+        .parent()
+        .should('have.attr', 'style')
+        .and('include', 'opacity: unset');
     });
   });
 });

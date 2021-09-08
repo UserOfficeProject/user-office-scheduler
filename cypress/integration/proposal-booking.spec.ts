@@ -678,7 +678,8 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy="proposal-event-Test proposal-999999"]')
           .parent()
           .parent()
-          .should('have.css', 'background-color', 'rgba(0, 0, 0, 0.5)');
+          .should('have.attr', 'style')
+          .and('include', 'background-color:');
       });
     });
   });

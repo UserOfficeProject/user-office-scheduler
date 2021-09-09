@@ -1,4 +1,4 @@
-import MaterialTable from '@material-table/core';
+import MaterialTable, { Column } from '@material-table/core';
 import {
   IconButton,
   Collapse,
@@ -407,27 +407,21 @@ export default function Calendar() {
     }
   };
 
-  const columns = [
+  const columns: Column<CalendarScheduledEvent>[] = [
     {
       title: 'Booking type',
-      render: (rowData: CalendarScheduledEvent | CalendarScheduledEvent[]) =>
-        BookingTypesMap[(rowData as CalendarScheduledEvent).bookingType],
-      customSort: (a: CalendarScheduledEvent, b: CalendarScheduledEvent) =>
-        a.bookingType.localeCompare(b.bookingType),
+      render: (rowData) => BookingTypesMap[rowData.bookingType],
+      customSort: (a, b) => a.bookingType.localeCompare(b.bookingType),
     },
     {
       title: 'Starts at',
-      render: (rowData: CalendarScheduledEvent | CalendarScheduledEvent[]) =>
-        toTzLessDateTime((rowData as CalendarScheduledEvent).start),
-      customSort: (a: CalendarScheduledEvent, b: CalendarScheduledEvent) =>
-        moment(a.start).isAfter(moment(b.start)) ? 1 : -1,
+      render: (rowData) => toTzLessDateTime(rowData.start),
+      customSort: (a, b) => (moment(a.start).isAfter(moment(b.start)) ? 1 : -1),
     },
     {
       title: 'Ends at',
-      render: (rowData: CalendarScheduledEvent | CalendarScheduledEvent[]) =>
-        toTzLessDateTime((rowData as CalendarScheduledEvent).end),
-      customSort: (a: CalendarScheduledEvent, b: CalendarScheduledEvent) =>
-        moment(a.end).isAfter(moment(b.end)) ? 1 : -1,
+      render: (rowData) => toTzLessDateTime(rowData.end),
+      customSort: (a, b) => (moment(a.end).isAfter(moment(b.end)) ? 1 : -1),
     },
     { title: 'Description', field: 'description' },
     { title: 'Status', field: 'status' },

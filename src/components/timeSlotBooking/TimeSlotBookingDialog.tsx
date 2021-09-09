@@ -104,9 +104,10 @@ const getActiveStepByStatus = (
 
 type ProposalBookingDialogProps = {
   activeProposalBookingId: number;
-  activeTimeSlotScheduledEventId: number;
+  activeTimeSlotScheduledEventId?: number;
   isDialogOpen: boolean;
   closeDialog: (shouldRefresh?: boolean) => void;
+  isOpenedOverProposalBookingDialog?: boolean;
 };
 
 export default function ProposalBookingDialog({
@@ -114,6 +115,7 @@ export default function ProposalBookingDialog({
   activeTimeSlotScheduledEventId,
   isDialogOpen,
   closeDialog,
+  isOpenedOverProposalBookingDialog = false,
 }: ProposalBookingDialogProps) {
   const classes = useStyles();
 
@@ -199,6 +201,7 @@ export default function ProposalBookingDialog({
       open={isDialogOpen}
       onClose={handleCloseDialog}
       fullWidth
+      hideBackdrop={isOpenedOverProposalBookingDialog}
       maxWidth="lg"
       PaperProps={{
         className: classes.fullHeight,

@@ -21,7 +21,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-export default function ClosedStep({
+export default function CompletedStep({
   proposalBooking,
   handleCloseDialog,
 }: ProposalBookingDialogStepProps) {
@@ -53,7 +53,7 @@ export default function ClosedStep({
       {isLoading && <Loader />}
       <DialogContent className={classes.resetFlex}>
         <Alert severity="info">
-          Proposal booking is already closed, you can not edit it.
+          Proposal booking is already completed, you can not edit it.
         </Alert>
       </DialogContent>
       <DialogContent>

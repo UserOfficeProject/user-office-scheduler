@@ -185,7 +185,8 @@ export default class PostgreScheduledEventDataSource
 
     const qb = database<ScheduledEventRecord>(this.tableName)
       .select()
-      .where('instrument_id', filter.instrumentId);
+      .where('instrument_id', filter.instrumentId)
+      .orderBy('starts_at');
 
     if (filter.startsAt && filter.endsAt) {
       qb.where('starts_at', '<=', filter.endsAt).andWhere(

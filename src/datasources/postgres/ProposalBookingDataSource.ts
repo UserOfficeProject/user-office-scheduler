@@ -96,12 +96,13 @@ export default class PostgresProposalBookingDataSource
     )
       .update(
         'status',
-        action === ProposalBookingFinalizeAction.CLOSE
-          ? ProposalBookingStatus.CLOSED
+        action === ProposalBookingFinalizeAction.COMPLETE
+          ? ProposalBookingStatus.COMPLETED
           : ProposalBookingStatus.DRAFT
       )
       .where('proposal_booking_id', id)
-      .where('status', ProposalBookingStatus.BOOKED)
+      .andWhere('status', ProposalBookingStatus.ACTIVE)
+      .orWhere('status', ProposalBookingStatus.DRAFT)
       .returning<ProposalBookingRecord[]>(['*']);
 
     if (!updatedRecord) {
@@ -115,7 +116,7 @@ export default class PostgresProposalBookingDataSource
     const [updatedRecord] = await database<ProposalBookingRecord>(
       this.tableName
     )
-      .update('status', ProposalBookingStatus.BOOKED)
+      .update('status', ProposalBookingStatus.ACTIVE)
       .where('proposal_booking_id', id)
       .where('status', ProposalBookingStatus.DRAFT)
       .returning<ProposalBookingRecord[]>(['*']);

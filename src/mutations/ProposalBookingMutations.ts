@@ -15,6 +15,7 @@ import { EquipmentAssignmentStatus } from '../models/Equipment';
 import {
   ProposalBooking,
   ProposalBookingFinalizeAction,
+  ProposalBookingStatus,
 } from '../models/ProposalBooking';
 import { Rejection, rejection } from '../rejection';
 import { Roles } from '../types/shared';
@@ -56,14 +57,18 @@ export default class ProposalBookingMutations {
           proposalBooking.id
         );
 
+      console.log(allScheduledEvents);
+
       await Promise.all(
-        allScheduledEvents.map(
-          async (scheduledEvent) =>
-            await this.scheduledEventDataSource.finalize(
-              scheduledEvent.id,
-              action
-            )
-        )
+        allScheduledEvents
+          .filter((event) => event.status !== ProposalBookingStatus.COMPLETED)
+          .map(
+            async (scheduledEvent) =>
+              await this.scheduledEventDataSource.finalize(
+                scheduledEvent.id,
+                action
+              )
+          )
       );
     }
 

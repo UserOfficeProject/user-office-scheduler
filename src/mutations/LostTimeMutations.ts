@@ -31,7 +31,7 @@ export default class LostTimeMutations {
 
     if (
       !proposalBooking ||
-      proposalBooking.status !== ProposalBookingStatus.BOOKED
+      proposalBooking.status !== ProposalBookingStatus.ACTIVE
     ) {
       return rejection('NOT_FOUND');
     }

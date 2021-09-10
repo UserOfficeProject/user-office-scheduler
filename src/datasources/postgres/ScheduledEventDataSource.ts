@@ -52,7 +52,7 @@ export default class PostgreScheduledEventDataSource
         instrument_id: newScheduledEvent.instrumentId,
         status: isUserOperationsEvent
           ? ProposalBookingStatus.DRAFT
-          : ProposalBookingStatus.BOOKED,
+          : ProposalBookingStatus.ACTIVE,
       })
       .returning<ScheduledEventRecord[]>(['*']);
 
@@ -81,7 +81,7 @@ export default class PostgreScheduledEventDataSource
 
   async activate(id: number): Promise<ScheduledEvent> {
     const [updatedRecord] = await database<ScheduledEventRecord>(this.tableName)
-      .update('status', ProposalBookingStatus.BOOKED)
+      .update('status', ProposalBookingStatus.ACTIVE)
       .where('scheduled_event_id', id)
       .where('status', ProposalBookingStatus.DRAFT)
       .returning<ScheduledEventRecord[]>(['*']);
@@ -100,12 +100,13 @@ export default class PostgreScheduledEventDataSource
     const [updatedRecord] = await database<ScheduledEventRecord>(this.tableName)
       .update(
         'status',
-        action === ProposalBookingFinalizeAction.CLOSE
-          ? ProposalBookingStatus.CLOSED
+        action === ProposalBookingFinalizeAction.COMPLETE
+          ? ProposalBookingStatus.COMPLETED
           : ProposalBookingStatus.DRAFT
       )
       .where('scheduled_event_id', id)
-      .where('status', ProposalBookingStatus.BOOKED)
+      .andWhere('status', ProposalBookingStatus.ACTIVE)
+      .orWhere('status', ProposalBookingStatus.DRAFT)
       .returning<ScheduledEventRecord[]>(['*']);
 
     if (!updatedRecord) {

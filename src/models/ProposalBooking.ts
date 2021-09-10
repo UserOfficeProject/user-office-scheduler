@@ -1,11 +1,11 @@
 export enum ProposalBookingStatus {
   DRAFT = 'DRAFT',
-  BOOKED = 'BOOKED',
-  CLOSED = 'CLOSED',
+  ACTIVE = 'ACTIVE',
+  COMPLETED = 'COMPLETED',
 }
 
 export enum ProposalBookingFinalizeAction {
-  CLOSE = 'CLOSE',
+  COMPLETE = 'COMPLETE',
   RESTART = 'RESTART',
 }
 

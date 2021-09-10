@@ -477,7 +477,8 @@ export type Feature = {
 export enum FeatureId {
   SHIPPING = 'SHIPPING',
   SCHEDULER = 'SCHEDULER',
-  EXTERNAL_AUTH = 'EXTERNAL_AUTH'
+  EXTERNAL_AUTH = 'EXTERNAL_AUTH',
+  RISK_ASSESSMENT = 'RISK_ASSESSMENT'
 }
 
 export type FieldCondition = {
@@ -1721,7 +1722,7 @@ export type ProposalBookingScheduledEventsArgs = {
 };
 
 export enum ProposalBookingFinalizeAction {
-  CLOSE = 'CLOSE',
+  COMPLETE = 'COMPLETE',
   RESTART = 'RESTART'
 }
 
@@ -1739,8 +1740,8 @@ export type ProposalBookingScheduledEventFilter = {
 
 export enum ProposalBookingStatus {
   DRAFT = 'DRAFT',
-  BOOKED = 'BOOKED',
-  CLOSED = 'CLOSED'
+  ACTIVE = 'ACTIVE',
+  COMPLETED = 'COMPLETED'
 }
 
 export enum ProposalEndStatus {

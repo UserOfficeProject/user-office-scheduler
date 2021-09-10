@@ -22,7 +22,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-export default function TimeSlotClosedStep({
+export default function TimeSlotCompletedStep({
   scheduledEvent,
   handleCloseDialog,
 }: ProposalBookingDialogStepProps) {
@@ -56,7 +56,7 @@ export default function TimeSlotClosedStep({
       {isLoading && <Loader />}
       <DialogContent className={classes.resetFlex}>
         <Alert severity="info">
-          Proposal booking is already closed, you can not edit it.
+          Proposal booking is already completed, you can not edit it.
         </Alert>
       </DialogContent>
       <DialogContent>
@@ -70,7 +70,7 @@ export default function TimeSlotClosedStep({
         <Button
           color="primary"
           onClick={handleCloseDialog}
-          data-cy="btn-close-dialog"
+          data-cy="btn-close-event-dialog"
         >
           Close
         </Button>

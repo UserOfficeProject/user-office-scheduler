@@ -9,7 +9,7 @@ import {
   CircularProgress,
 } from '@material-ui/core';
 import { Formik, Form } from 'formik';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 import { useSnackbar } from 'notistack';
 import React from 'react';
 
@@ -22,9 +22,9 @@ import ScheduledEventForm, {
 } from './ScheduledEventForm';
 
 export type SlotInfo = {
-  start: Date | string;
-  end: Date | string;
-  slots: Date[] | string[];
+  start: Moment;
+  end: Moment;
+  slots: Moment[];
   action: 'select' | 'click' | 'doubleClick';
 };
 

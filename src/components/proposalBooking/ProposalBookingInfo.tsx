@@ -4,7 +4,7 @@ import React from 'react';
 import {
   BasicProposalBooking,
   isDraftEvent,
-  isClosedEvent,
+  isCompletedEvent,
 } from 'components/calendar/Event';
 import { ProposalBookingStatus } from 'generated/sdk';
 
@@ -56,7 +56,9 @@ function ProposalBookingInfo({
     >
       <div className={classes.proposalId}>
         {isDraftEvent({ status: scheduledEventStatus }) ? '[Draft] - ' : ''}
-        {isClosedEvent({ status: scheduledEventStatus }) ? '[Closed] - ' : ''}
+        {isCompletedEvent({ status: scheduledEventStatus })
+          ? '[Completed] - '
+          : ''}
         {proposal.proposalId}
       </div>
       <div className={classes.title}>{proposal.title}</div>

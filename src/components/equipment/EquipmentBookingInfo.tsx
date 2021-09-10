@@ -1,7 +1,7 @@
 import { makeStyles } from '@material-ui/core';
 import React from 'react';
 
-import { isClosedEvent, isDraftEvent } from 'components/calendar/Event';
+import { isCompletedEvent, isDraftEvent } from 'components/calendar/Event';
 import { ProposalBooking } from 'generated/sdk';
 
 const useStyles = makeStyles(() => ({
@@ -47,7 +47,7 @@ function EquipmentBookingInfo({
     <div className={classes.container}>
       <div className={classes.name}>
         {isDraftEvent(proposalBooking) ? '[Draft] - ' : ''}
-        {isClosedEvent(proposalBooking) ? '[Closed] - ' : ''}
+        {isCompletedEvent(proposalBooking) ? '[Completed] - ' : ''}
         {name}
       </div>
       <div className={classes.title}>{instrument}</div>

@@ -6,7 +6,10 @@ import { useDataApi } from 'hooks/common/useDataApi';
 export type ProposalBookingScheduledEvent = Pick<
   ScheduledEvent,
   'id' | 'startsAt' | 'endsAt' | 'bookingType' | 'status' | 'description'
-> & { scheduledBy?: Pick<User, 'id' | 'firstname' | 'lastname'> | null };
+> & {
+  scheduledBy?: Pick<User, 'id' | 'firstname' | 'lastname'> | null;
+  newlyCreated?: boolean;
+};
 
 export default function useProposalBookingScheduledEvents(
   proposalBookingId: number
@@ -48,5 +51,5 @@ export default function useProposalBookingScheduledEvents(
     };
   }, [proposalBookingId, api, counter]);
 
-  return { loading, scheduledEvents, refresh } as const;
+  return { loading, scheduledEvents, setScheduledEvents, refresh } as const;
 }

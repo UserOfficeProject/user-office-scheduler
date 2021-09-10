@@ -51,7 +51,7 @@ export default function TimeSlotFinalizeStep({
   handleCloseDialog,
 }: ProposalBookingDialogStepProps) {
   const proposalBooking = scheduledEvent.proposalBooking as ProposalBooking;
-  const isStepReadOnly = activeStatus !== ProposalBookingStatus.BOOKED;
+  const isStepReadOnly = activeStatus !== ProposalBookingStatus.ACTIVE;
 
   const classes = useStyles();
 
@@ -163,7 +163,7 @@ export default function TimeSlotFinalizeStep({
         <>
           Are you sure you want to{' '}
           <strong>
-            {selectedKey === ProposalBookingFinalizeAction.CLOSE
+            {selectedKey === ProposalBookingFinalizeAction.COMPLETE
               ? 'close'
               : 'restart'}
           </strong>{' '}
@@ -190,10 +190,10 @@ export default function TimeSlotFinalizeStep({
 
             setIsLoading(false);
           } else {
-            if (selectedKey === ProposalBookingFinalizeAction.CLOSE) {
+            if (selectedKey === ProposalBookingFinalizeAction.COMPLETE) {
               setScheduledEvent({
                 ...scheduledEvent,
-                status: ProposalBookingStatus.CLOSED,
+                status: ProposalBookingStatus.COMPLETED,
               });
               handleNext();
             } else {
@@ -205,8 +205,8 @@ export default function TimeSlotFinalizeStep({
             }
 
             handleSetActiveStepByStatus(
-              selectedKey === ProposalBookingFinalizeAction.CLOSE
-                ? ProposalBookingStatus.CLOSED
+              selectedKey === ProposalBookingFinalizeAction.COMPLETE
+                ? ProposalBookingStatus.COMPLETED
                 : ProposalBookingStatus.DRAFT
             );
           }
@@ -277,8 +277,8 @@ export default function TimeSlotFinalizeStep({
             label="proposal-booking-finalization-strategy"
             options={[
               {
-                key: ProposalBookingFinalizeAction.CLOSE,
-                label: 'Close proposal booking',
+                key: ProposalBookingFinalizeAction.COMPLETE,
+                label: 'Complete proposal booking',
               },
               {
                 key: ProposalBookingFinalizeAction.RESTART,
@@ -304,7 +304,7 @@ export default function TimeSlotFinalizeStep({
         <Button
           color="primary"
           onClick={handleCloseDialog}
-          data-cy="btn-close-dialog"
+          data-cy="btn-close-event-dialog"
         >
           Close
         </Button>

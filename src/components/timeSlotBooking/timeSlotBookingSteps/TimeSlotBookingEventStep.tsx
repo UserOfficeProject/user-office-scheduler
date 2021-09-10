@@ -244,6 +244,7 @@ export default function TimeSlotBookingEventStep({
                     <ListItemText
                       onClick={() => setEditingStartDate(true)}
                       primary="Starts at"
+                      data-cy="startsAtInfo"
                       secondary={toTzLessDateTime(startsAt as Moment)}
                     />
                   )}
@@ -348,6 +349,7 @@ export default function TimeSlotBookingEventStep({
                   {!editingEndDate && (
                     <ListItemText
                       primary="Ends at"
+                      data-cy="endsAtInfo"
                       onClick={() => setEditingEndDate(true)}
                       secondary={toTzLessDateTime(endsAt as Moment)}
                     />
@@ -420,7 +422,7 @@ export default function TimeSlotBookingEventStep({
         <Button
           color="primary"
           onClick={handleCloseDialog}
-          data-cy="btn-close-dialog"
+          data-cy="btn-close-event-dialog"
         >
           Close
         </Button>

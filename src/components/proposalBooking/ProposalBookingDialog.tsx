@@ -78,7 +78,7 @@ const getActiveStepByStatus = (
   switch (status) {
     case ProposalBookingStatus.DRAFT:
       return ProposalBookingSteps.BOOK_EVENTS;
-    case ProposalBookingStatus.CLOSED:
+    case ProposalBookingStatus.COMPLETED:
       return ProposalBookingSteps.COMPLETED;
 
     default:

@@ -15,7 +15,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import ViewIcon from '@material-ui/icons/Visibility';
 import clsx from 'clsx';
 import generateScheduledEventFilter from 'filters/scheduledEvent/scheduledEventsFilter';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 import 'moment/locale/en-gb';
 import React, { useState, useMemo, useContext, useEffect } from 'react';
 import {
@@ -56,8 +56,8 @@ import Event, {
   CalendarScheduledEvent,
   eventPropGetter,
   getBookingTypeStyle,
-  getClosedBookingStyle,
-  isClosedEvent,
+  getCompletedBookingStyle,
+  isCompletedEvent,
 } from './Event';
 import TableToolbar from './TableViewToolbar';
 import Toolbar from './Toolbar';
@@ -71,15 +71,19 @@ const CALENDAR_DEFAULT_VIEW = 'week';
 
 export type ExtendedView = View | 'year';
 
+// NOTE: It is better practice to convert some values here for table rendering instead of using render function which adds additional complexity for sorting and stuff like that.
 const transformEvent = (
   scheduledEvents: GetScheduledEventsQuery['scheduledEvents']
 ): CalendarScheduledEvent[] =>
   scheduledEvents.map((scheduledEvent) => ({
     id: scheduledEvent.id,
     start: parseTzLessDateTime(scheduledEvent.startsAt).toDate(),
+    startTableRenderValue: toTzLessDateTime(scheduledEvent.startsAt),
     end: parseTzLessDateTime(scheduledEvent.endsAt).toDate(),
+    endTableRenderValue: toTzLessDateTime(scheduledEvent.endsAt),
     title: BookingTypesMap[scheduledEvent.bookingType],
     bookingType: scheduledEvent.bookingType,
+    bookingTypeTableRenderValue: BookingTypesMap[scheduledEvent.bookingType],
     equipmentId: scheduledEvent.equipmentId,
     description: scheduledEvent.description,
     proposalBooking: scheduledEvent.proposalBooking,
@@ -89,14 +93,15 @@ const transformEvent = (
   }));
 
 function isOverlapping(
-  { start, end }: { start: Date | string; end: Date | string },
+  { start, end }: { start: Moment; end: Moment },
   calendarEvents: CalendarScheduledEvent[]
 ): boolean {
   return calendarEvents.some((calendarEvent) => {
     if (
-      (calendarEvent.start >= start && calendarEvent.end <= end) ||
-      //
-      (calendarEvent.start < end && calendarEvent.end > start)
+      (moment(calendarEvent.start).isSameOrAfter(start) &&
+        moment(calendarEvent.end).isSameOrBefore(end)) ||
+      (moment(calendarEvent.start).isBefore(end) &&
+        moment(calendarEvent.end).isAfter(start))
     ) {
       return true;
     }
@@ -300,7 +305,11 @@ export default function Calendar() {
       )
       .flat(1);
 
-  const events = useMemo(
+  const calendarEvents = useMemo(
+    () => transformEvent([...scheduledEvents, ...eqEventsTransformed]),
+    [scheduledEvents, eqEventsTransformed]
+  );
+  const tableEvents = useMemo(
     () => transformEvent([...scheduledEvents, ...eqEventsTransformed]),
     [scheduledEvents, eqEventsTransformed]
   );
@@ -315,7 +324,12 @@ export default function Calendar() {
   };
 
   const onSelectSlot = (slotInfo: SlotInfo) => {
-    if (isOverlapping({ start: slotInfo.start, end: slotInfo.end }, events)) {
+    if (
+      isOverlapping(
+        { start: slotInfo.start, end: slotInfo.end },
+        calendarEvents
+      )
+    ) {
       return;
     }
 
@@ -328,8 +342,8 @@ export default function Calendar() {
     setSelectedEvent(slotInfo);
   };
 
-  const onSelecting = (range: { start: Date | string; end: Date | string }) => {
-    return !isOverlapping(range, events);
+  const onSelecting = (range: { start: Moment; end: Moment }) => {
+    return !isOverlapping(range, calendarEvents);
   };
 
   const closeDialog = (shouldRefresh?: boolean) => {
@@ -383,9 +397,8 @@ export default function Calendar() {
   };
 
   const handleNewSimpleEvent = () => {
-    const start = moment().startOf('hour').toDate();
-
-    const end = moment().startOf('hour').add(1, 'hour').toDate();
+    const start = moment().startOf('hour');
+    const end = moment().startOf('hour').add(1, 'hour');
 
     setSelectedEvent({
       action: 'click',
@@ -410,18 +423,15 @@ export default function Calendar() {
   const columns: Column<CalendarScheduledEvent>[] = [
     {
       title: 'Booking type',
-      render: (rowData) => BookingTypesMap[rowData.bookingType],
-      customSort: (a, b) => a.bookingType.localeCompare(b.bookingType),
+      field: 'bookingTypeTableRenderValue',
     },
     {
       title: 'Starts at',
-      render: (rowData) => toTzLessDateTime(rowData.start),
-      customSort: (a, b) => (moment(a.start).isAfter(moment(b.start)) ? 1 : -1),
+      field: 'startTableRenderValue',
     },
     {
       title: 'Ends at',
-      render: (rowData) => toTzLessDateTime(rowData.end),
-      customSort: (a, b) => (moment(a.end).isAfter(moment(b.end)) ? 1 : -1),
+      field: 'endTableRenderValue',
     },
     { title: 'Description', field: 'description' },
     { title: 'Status', field: 'status' },
@@ -435,7 +445,7 @@ export default function Calendar() {
   return (
     <ContentContainer
       maxWidth={false}
-      className={!isTableView && classes.fullHeight}
+      className={!isTableView ? classes.fullHeight : ''}
     >
       <Grid container className={classes.fullHeight}>
         <Grid item xs={12} className={classes.fullHeight}>
@@ -507,7 +517,7 @@ export default function Calendar() {
                     // TODO: needs some position fixing
                     // popup
                     localizer={localizer}
-                    events={events}
+                    events={calendarEvents}
                     defaultView={view}
                     views={{
                       day: true,
@@ -561,7 +571,7 @@ export default function Calendar() {
                       icons={tableIcons}
                       title="Scheduled events"
                       columns={columns}
-                      data={events}
+                      data={tableEvents}
                       components={{
                         Toolbar: (data) =>
                           TableToolbar(
@@ -576,10 +586,10 @@ export default function Calendar() {
                       }}
                       options={{
                         rowStyle: (rowData: CalendarScheduledEvent) => {
-                          const eventStyle = isClosedEvent({
+                          const eventStyle = isCompletedEvent({
                             status: rowData.status,
                           })
-                            ? getClosedBookingStyle()
+                            ? getCompletedBookingStyle()
                             : getBookingTypeStyle(
                                 rowData.bookingType,
                                 rowData.status

@@ -38,12 +38,15 @@ import Loader from 'components/common/Loader';
 import { tableIcons } from 'components/common/TableIcons';
 import TimeSlotBookingDialog from 'components/timeSlotBooking/TimeSlotBookingDialog';
 import { AppContext } from 'context/AppContext';
-import { ProposalBookingStatus } from 'generated/sdk';
+import {
+  ProposalBookingFinalizeAction,
+  ProposalBookingStatus,
+} from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import useProposalBookingScheduledEvents, {
   ProposalBookingScheduledEvent,
 } from 'hooks/scheduledEvent/useProposalBookingScheduledEvents';
-import { toTzLessDateTime } from 'utils/date';
+import { toTzLessDateTime, TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
 
 import { ProposalBookingDialogStepProps } from '../ProposalBookingDialog';
 
@@ -80,6 +83,8 @@ export default function BookingEventStep({
   activeStatus,
   proposalBooking,
   handleCloseDialog,
+  handleSetActiveStepByStatus,
+  handleNext,
 }: ProposalBookingDialogStepProps) {
   const isStepReadOnly = activeStatus !== ProposalBookingStatus.DRAFT;
 
@@ -90,21 +95,18 @@ export default function BookingEventStep({
 
   const classes = useStyles();
 
-  const { loading, scheduledEvents, refresh } =
+  const { loading, scheduledEvents, setScheduledEvents, refresh } =
     useProposalBookingScheduledEvents(proposalBooking.id);
 
   const { showConfirmation } = useContext(AppContext);
   const { enqueueSnackbar } = useSnackbar();
   const api = useDataApi();
-  const [rows, setRows] = useState<
-    (ProposalBookingScheduledEvent & { newlyCreated?: boolean })[]
-  >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] =
     useState<ProposalBookingScheduledEvent | null>(null);
 
   const { allocated, allocatable } = useMemo(() => {
-    const allocated = rows.reduce(
+    const allocated = scheduledEvents.reduce(
       (total, curr) =>
         total + moment(curr.endsAt).diff(curr.startsAt, 'seconds'),
       0
@@ -114,11 +116,11 @@ export default function BookingEventStep({
       allocated,
       allocatable: proposalBooking.allocatedTime - allocated,
     };
-  }, [rows, proposalBooking]);
+  }, [scheduledEvents, proposalBooking]);
 
   const handleOnEditModeChanged = useCallback(
     (editingEventId: number) => {
-      const editingEvent = proposalBooking.scheduledEvents.find(
+      const editingEvent = scheduledEvents.find(
         (scheduledEvent) => scheduledEvent.id === editingEventId
       );
 
@@ -126,20 +128,23 @@ export default function BookingEventStep({
         setSelectedEvent(editingEvent);
       }
     },
-    [proposalBooking.scheduledEvents]
+    [scheduledEvents]
   );
 
   useEffect(() => {
     if (!loading) {
-      setRows(scheduledEvents);
+      setScheduledEvents(scheduledEvents);
 
       setIsLoading(false);
     }
-  }, [loading, scheduledEvents]);
+  }, [loading, scheduledEvents, setScheduledEvents]);
 
   const handleAdd = async () => {
     setIsLoading(true);
-    const lastRow = rows.length > 0 ? rows[rows.length - 1] : undefined;
+    const lastRow =
+      scheduledEvents.length > 0
+        ? scheduledEvents[scheduledEvents.length - 1]
+        : undefined;
     const startsAt = lastRow?.endsAt
       ? moment(lastRow?.endsAt)
       : moment().startOf('hour');
@@ -154,18 +159,18 @@ export default function BookingEventStep({
       input: {
         proposalBookingId: proposalBooking.id,
         scheduledEvents: [
-          ...rows,
+          ...scheduledEvents,
           {
             id: 0,
             newlyCreated: true,
-            startsAt: startsAt.toString(),
-            endsAt: endsAt.toString(),
+            startsAt: startsAt.format(TZ_LESS_DATE_TIME_FORMAT),
+            endsAt: endsAt.format(TZ_LESS_DATE_TIME_FORMAT),
           },
         ].map(({ id, startsAt, endsAt, newlyCreated = false }) => ({
           newlyCreated,
-          id: id,
-          startsAt: toTzLessDateTime(startsAt),
-          endsAt: toTzLessDateTime(endsAt),
+          id,
+          startsAt,
+          endsAt,
         })),
       },
     });
@@ -175,7 +180,7 @@ export default function BookingEventStep({
         variant: 'error',
       });
     } else {
-      updatedScheduledEvents && setRows(updatedScheduledEvents);
+      updatedScheduledEvents && setScheduledEvents(updatedScheduledEvents);
     }
 
     setIsLoading(false);
@@ -184,8 +189,9 @@ export default function BookingEventStep({
   const handleDelete = async (data: ProposalBookingScheduledEvent[]) => {
     setIsLoading(true);
 
-    const newEvents = rows.filter(
-      (row) => !data.map((item) => item.id).includes(row.id)
+    const newEvents = scheduledEvents.filter(
+      (scheduledEvent) =>
+        !data.map((item) => item.id).includes(scheduledEvent.id)
     );
 
     // TODO: Create proper functionality for removing an event/s.
@@ -212,13 +218,51 @@ export default function BookingEventStep({
         variant: 'error',
       });
     } else {
-      updatedScheduledEvents && setRows(newEvents);
+      updatedScheduledEvents && setScheduledEvents(newEvents);
     }
 
     setIsLoading(false);
   };
 
-  const completeBooking = () => {};
+  const completeBooking = () => {
+    showConfirmation({
+      message: (
+        <>
+          Are you sure you want to <strong>complete</strong> the selected
+          booking with all the events?
+        </>
+      ),
+      cb: async () => {
+        try {
+          setIsLoading(true);
+
+          const {
+            finalizeProposalBooking: { error },
+          } = await api().finalizeProposalBooking({
+            action: ProposalBookingFinalizeAction.COMPLETE,
+            id: proposalBooking.id,
+          });
+
+          if (error) {
+            enqueueSnackbar(getTranslation(error as ResourceId), {
+              variant: 'error',
+            });
+
+            setIsLoading(false);
+          } else {
+            handleNext();
+
+            handleSetActiveStepByStatus(ProposalBookingStatus.COMPLETED);
+          }
+        } catch (e) {
+          // TODO
+
+          setIsLoading(false);
+          console.error(e);
+        }
+      },
+    });
+  };
 
   const closeDialog = () => {
     setSelectedEvent(null);
@@ -230,15 +274,11 @@ export default function BookingEventStep({
   const columns: Column<ProposalBookingScheduledEvent>[] = [
     {
       title: 'Starts at',
-      render: (rowData) => toTzLessDateTime(rowData.startsAt),
-      customSort: (a, b) =>
-        moment(a.startsAt).isAfter(moment(b.startsAt)) ? 1 : -1,
+      field: 'startsAt',
     },
     {
       title: 'Ends at',
-      render: (rowData) => toTzLessDateTime(rowData.endsAt),
-      customSort: (a, b) =>
-        moment(a.endsAt).isAfter(moment(b.endsAt)) ? 1 : -1,
+      field: 'endsAt',
     },
     { title: 'Status', field: 'status', editable: 'never' },
   ];
@@ -344,7 +384,7 @@ export default function BookingEventStep({
           icons={tableIcons}
           title="Time slots"
           columns={columns}
-          data={rows}
+          data={scheduledEvents}
           options={{
             selection: !isStepReadOnly,
           }}
@@ -396,10 +436,10 @@ export default function BookingEventStep({
           variant="contained"
           color="primary"
           onClick={completeBooking}
-          data-cy="btn-next"
+          data-cy="btn-complete-booking"
           disabled={isStepReadOnly}
         >
-          Complete booking
+          Complete proposal booking
         </Button>
       </DialogActions>
     </>

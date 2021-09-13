@@ -154,7 +154,7 @@ export default function ProposalBookingDialog({
   };
 
   const handleNext = () => {
-    setActiveStep((prevStep) => Math.min(prevStep + 1, maxSteps));
+    setActiveStep(Math.min(activeStep + 1, maxSteps));
     setIsDirty(false);
   };
 

@@ -283,6 +283,7 @@ export default function TimeSlotEquipmentBookingStep({
         <Button
           variant="contained"
           color="primary"
+          data-cy="activate-time-slot-booking"
           disabled={isStepReadOnly || !allEquipmentsAccepted}
           onClick={handleActivateSubmit}
         >

@@ -8,7 +8,6 @@ import Authorized from '../decorators/Authorized';
 import ValidateArgs from '../decorators/ValidateArgs';
 import { instrumentScientistHasAccess } from '../helpers/permissionHelpers';
 import { LostTime } from '../models/LostTime';
-import { ProposalBookingStatus } from '../models/ProposalBooking';
 import { rejection, Rejection } from '../rejection';
 import { BulkUpsertLostTimesInput } from '../resolvers/mutations/LostTimeMutation';
 import { Roles } from '../types/shared';
@@ -29,10 +28,7 @@ export default class LostTimeMutations {
       bulkUpsertLostTimes.proposalBookingId
     );
 
-    if (
-      !proposalBooking ||
-      proposalBooking.status !== ProposalBookingStatus.ACTIVE
-    ) {
+    if (!proposalBooking) {
       return rejection('NOT_FOUND');
     }
 

@@ -142,7 +142,7 @@ export default function Event({
       );
     default:
       return (
-        <div data-cy={`event-${start}`}>
+        <div data-cy={`event-${new Date(start).toISOString()}`}>
           <strong>{title}</strong>
           <div className={classes.eventDescription} data-cy="test-test">
             {description}

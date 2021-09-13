@@ -66,18 +66,13 @@ context('Scheduled events table tests', () => {
         .first()
         .click();
 
-      cy.get('[data-cy=btn-add-time-slot]').click();
+      cy.get('[title="Add time slot"]').click();
 
       cy.contains(currentHourDateTime);
       cy.contains(getHourDateTimeAfter(24));
 
-      cy.get('[data-cy=btn-save]').click();
-
       cy.wait(100);
 
-      cy.get('[data-cy=btn-next]').click();
-
-      cy.contains(/time slots with equipments/i);
       cy.get('[data-cy="btn-close-dialog"]').click();
 
       cy.get('[data-cy="toggle-table-view"]').click();
@@ -214,7 +209,7 @@ context('Scheduled events table tests', () => {
         'exist'
       );
 
-      cy.get('[data-cy="btn-close-dialog"]').click();
+      cy.get('[data-cy="btn-close-event-dialog"]').click();
 
       cy.contains('User operations')
         .first()
@@ -222,9 +217,9 @@ context('Scheduled events table tests', () => {
         .find('[title="View event"]')
         .click();
 
-      cy.get('[role="none presentation"] [data-cy="btn-close-dialog"]').should(
-        'exist'
-      );
+      cy.get(
+        '[role="none presentation"] [data-cy="btn-close-event-dialog"]'
+      ).should('exist');
       cy.get('[role="none presentation"] [data-cy="btn-save"]').should('exist');
       cy.get('[role="none presentation"] [data-cy="btn-next"]').should('exist');
     });

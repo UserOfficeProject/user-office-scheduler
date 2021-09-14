@@ -278,11 +278,11 @@ export default function TimeSlotFinalizeStep({
             options={[
               {
                 key: ProposalBookingFinalizeAction.COMPLETE,
-                label: 'Complete proposal booking',
+                label: 'Complete time slot booking',
               },
               {
                 key: ProposalBookingFinalizeAction.RESTART,
-                label: 'Restart the booking process',
+                label: 'Restart time slot booking process',
               },
             ]}
             onClick={handleFinalize}

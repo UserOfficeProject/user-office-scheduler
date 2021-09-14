@@ -56,7 +56,7 @@ export default function TimeSlotCompletedStep({
       {isLoading && <Loader />}
       <DialogContent className={classes.resetFlex}>
         <Alert severity="info">
-          Proposal booking is already completed, you can not edit it.
+          Time slot booking is already completed, you can not edit it.
         </Alert>
       </DialogContent>
       <DialogContent>

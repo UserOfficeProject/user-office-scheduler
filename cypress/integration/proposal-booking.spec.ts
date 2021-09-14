@@ -599,17 +599,17 @@ context('Proposal booking tests ', () => {
         cy.contains(getHourDateTimeAfter(1));
       });
 
-      it('should be able to restart the booking process', () => {
+      it('should be able to restart time slot booking process', () => {
         cy.finishedLoading();
         cy.get('[title="Edit event"]').first().click();
         cy.contains(/warning/i);
 
         cy.get('[aria-label=proposal-booking-finalization-strategy]').click();
 
-        cy.contains(/restart the booking process/i).click();
+        cy.contains(/restart time slot booking process/i).click();
         cy.wait(100);
 
-        cy.contains(/restart the booking process/i).as('restartBooking');
+        cy.contains(/restart time slot booking process/i).as('restartBooking');
 
         cy.get('@restartBooking').should('not.be.disabled').click();
 
@@ -725,7 +725,7 @@ context('Proposal booking tests ', () => {
         cy.get('[title="Edit event"]').first().click();
         cy.contains(/warning/i);
 
-        cy.contains(/complete proposal booking/i).as('completeBooking');
+        cy.contains(/complete time slot booking/i).as('completeBooking');
 
         cy.finishedLoading();
 
@@ -735,7 +735,7 @@ context('Proposal booking tests ', () => {
         cy.wait(500);
 
         cy.contains(
-          /Proposal booking is already completed, you can not edit it/i
+          /Time slot booking is already completed, you can not edit it/i
         );
       });
 

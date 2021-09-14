@@ -209,7 +209,7 @@ context('Scheduled events table tests', () => {
         'exist'
       );
 
-      cy.get('[data-cy="btn-close-event-dialog"]').click();
+      cy.get('[data-cy="btn-close-dialog"]').click();
 
       cy.contains('User operations')
         .first()

@@ -22,8 +22,8 @@ import useScheduledEventWithEquipment, {
   ScheduledEventWithEquipments,
 } from 'hooks/scheduledEvent/useScheduledEventWithEquipment';
 
-import TimeSlotBookingEventStep from './timeSlotBookingSteps/TimeSlotBookingEventStep';
 import TimeSlotCompletedStep from './timeSlotBookingSteps/TimeSlotCompletedStep';
+import TimeSlotDetailsStep from './timeSlotBookingSteps/TimeSlotDetailsStep';
 import TimeSlotEquipmentBookingStep from './timeSlotBookingSteps/TimeSlotEquipmentBookingStep';
 import TimeSlotFinalizeStep from './timeSlotBookingSteps/TimeSlotFinalizeStep';
 
@@ -58,7 +58,7 @@ const steps = [
 ];
 const maxSteps = steps.length;
 
-export type ProposalBookingDialogStepProps = {
+export type TimeSlotBookingDialogStepProps = {
   activeStep: number;
   activeStatus: ProposalBookingStatus | null;
   scheduledEvent: ScheduledEventWithEquipments;
@@ -74,10 +74,10 @@ export type ProposalBookingDialogStepProps = {
   handleSetActiveStepByStatus: (status: ProposalBookingStatus) => void;
 };
 
-function getActiveStep(props: ProposalBookingDialogStepProps) {
+function getActiveStep(props: TimeSlotBookingDialogStepProps) {
   switch (props.activeStep) {
     case ProposalBookingSteps.BOOK_EVENTS:
-      return <TimeSlotBookingEventStep {...props} />;
+      return <TimeSlotDetailsStep {...props} />;
     case ProposalBookingSteps.BOOK_EQUIPMENT:
       return <TimeSlotEquipmentBookingStep {...props} />;
     case ProposalBookingSteps.FINALIZE:

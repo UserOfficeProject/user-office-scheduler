@@ -25,7 +25,7 @@ import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
 import { hasOverlappingEvents } from 'utils/scheduledEvent';
 
 import TimeTable, { TimeTableRow } from '../../proposalBooking/TimeTable';
-import { ProposalBookingDialogStepProps } from '../TimeSlotBookingDialog';
+import { TimeSlotBookingDialogStepProps } from '../TimeSlotBookingDialog';
 
 const useStyles = makeStyles((theme) => ({
   spacing: {
@@ -49,7 +49,7 @@ export default function TimeSlotFinalizeStep({
   handleResetSteps,
   handleSetActiveStepByStatus,
   handleCloseDialog,
-}: ProposalBookingDialogStepProps) {
+}: TimeSlotBookingDialogStepProps) {
   const proposalBooking = scheduledEvent.proposalBooking as ProposalBooking;
   const isStepReadOnly = activeStatus !== ProposalBookingStatus.ACTIVE;
 

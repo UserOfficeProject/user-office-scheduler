@@ -27,13 +27,15 @@ context('Permission tests', () => {
   });
 
   describe('Users with right roles', () => {
-    it('should show every every instruments for user with `User officer` role', () => {
+    it('should show all instruments for user with `User officer` role', () => {
       cy.configureSession('UserOfficer');
 
       cy.visit({
         url: '/calendar',
         timeout: 15000,
       });
+
+      cy.finishedLoading();
 
       cy.get('[data-cy=input-instrument-select]').click();
 
@@ -61,6 +63,8 @@ context('Permission tests', () => {
         timeout: 15000,
       });
 
+      cy.finishedLoading();
+
       cy.get('[data-cy=input-instrument-select]').click();
 
       cy.get('[aria-labelledby=input-instrument-select-label]').as(
@@ -77,6 +81,8 @@ context('Permission tests', () => {
         url: '/calendar',
         timeout: 15000,
       });
+
+      cy.finishedLoading();
 
       cy.get('[data-cy=input-instrument-select]').click();
 

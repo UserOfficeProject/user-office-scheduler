@@ -1,3 +1,4 @@
+import MaterialTable from '@material-table/core';
 import {
   IconButton,
   Collapse,
@@ -13,7 +14,6 @@ import ChevronLeft from '@material-ui/icons/ChevronLeft';
 import CloseIcon from '@material-ui/icons/Close';
 import clsx from 'clsx';
 import generateScheduledEventFilter from 'filters/scheduledEvent/scheduledEventsFilter';
-import MaterialTable from 'material-table';
 import moment from 'moment';
 import 'moment/locale/en-gb';
 import React, { useState, useMemo, useContext, useEffect } from 'react';
@@ -39,6 +39,8 @@ import {
   ProposalBooking,
 } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
+import useEquipments from 'hooks/equipment/useEquipments';
+import useUserInstruments from 'hooks/instrument/useUserInstruments';
 import useInstrumentProposalBookings from 'hooks/proposalBooking/useInstrumentProposalBookings';
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
 import useScheduledEvents from 'hooks/scheduledEvent/useScheduledEvents';
@@ -55,6 +57,7 @@ import Event, {
   getBookingTypeStyle,
   isDraftEvent,
 } from './Event';
+import TableToolbar from './TableViewToolbar';
 import Toolbar from './Toolbar';
 import YearView from './YearView';
 
@@ -197,10 +200,12 @@ export default function Calendar() {
     | SlotInfo
     | null
   >(null);
-  const [startsAt, setStartAt] = useState(
-    moment().startOf(CALENDAR_DEFAULT_VIEW).toDate()
-  );
   const [view, setView] = useState<ExtendedView>(CALENDAR_DEFAULT_VIEW);
+  const [startsAt, setStartAt] = useState(
+    moment()
+      .startOf(view as moment.unitOfTime.StartOf)
+      .toDate()
+  );
   const [isTableView, setIsTableView] = useState<boolean>(false);
   const [filter, setFilter] = useState(
     generateScheduledEventFilter(queryInstrumentId, startsAt, view)
@@ -212,6 +217,9 @@ export default function Calendar() {
   const [selectedEquipmentBooking, setSelectedEquipmentBooking] = useState<
     number | null
   >(null);
+
+  const { loading: instrumentsLoading, instruments } = useUserInstruments();
+  const { loading: equipmentsLoading, equipments } = useEquipments();
 
   useEffect(() => {
     if (isTabletOrMobile) {
@@ -494,7 +502,7 @@ export default function Calendar() {
                     // popup
                     localizer={localizer}
                     events={events}
-                    defaultView={CALENDAR_DEFAULT_VIEW}
+                    defaultView={view}
                     views={{
                       day: true,
                       week: true,
@@ -516,7 +524,14 @@ export default function Calendar() {
                     // TODO: This should be adjustable length but for now it is fixed amount of 3 months
                     messages={{ year: '3 months' }}
                     components={{
-                      toolbar: Toolbar,
+                      toolbar: (toolbarProps) =>
+                        Toolbar({
+                          ...toolbarProps,
+                          instruments,
+                          instrumentsLoading,
+                          equipments,
+                          equipmentsLoading,
+                        }),
                       event: Event,
                       header: ({ date, localizer }) => {
                         switch (view) {
@@ -541,7 +556,18 @@ export default function Calendar() {
                       title="Scheduled events"
                       columns={columns}
                       data={events}
-                      isLoading={loadingEvents || loadingBookings}
+                      components={{
+                        Toolbar: (data) =>
+                          TableToolbar(
+                            data,
+                            filter,
+                            setFilter,
+                            instruments,
+                            instrumentsLoading,
+                            equipments,
+                            equipmentsLoading
+                          ),
+                      }}
                       options={{
                         rowStyle: (rowData: CalendarScheduledEvent) => ({
                           ...getBookingTypeStyle(rowData.bookingType),

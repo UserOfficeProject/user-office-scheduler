@@ -23,7 +23,9 @@ export default function useEquipmentScheduledEvents({
   const [selectedEquipment, setSelectedEquipments] = useState<
     number[] | undefined
   >(equipmentIdsArray);
+
   const api = useDataApi();
+
   useEffect(() => {
     let unmounted = false;
     setLoading(true);

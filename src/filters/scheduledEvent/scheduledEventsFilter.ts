@@ -12,6 +12,15 @@ export default function generateScheduledEventFilter(
   instrumentId = instrumentId ?? null;
 
   switch (activeView) {
+    case 'day': {
+      const newStartsAt = moment(startsAt).startOf('day');
+
+      return {
+        instrumentId,
+        startsAt: toTzLessDateTime(newStartsAt),
+        endsAt: toTzLessDateTime(newStartsAt.add(1, 'day')),
+      };
+    }
     case 'week': {
       const newStartsAt = moment(startsAt).startOf('week');
 

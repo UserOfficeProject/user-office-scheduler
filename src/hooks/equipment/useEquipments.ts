@@ -3,14 +3,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { Equipment } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 
+export type PartialEquipment = Pick<
+  Equipment,
+  'id' | 'name' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'
+>;
+
 export default function useEquipments() {
   const [loading, setLoading] = useState(true);
-  const [equipments, setEquipments] = useState<
-    Pick<
-      Equipment,
-      'id' | 'name' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'
-    >[]
-  >([]);
+  const [equipments, setEquipments] = useState<PartialEquipment[]>([]);
 
   // may look stupid, but basically lets us provide a refresh option
   // and we won't get a warning when the component gets unmounted while

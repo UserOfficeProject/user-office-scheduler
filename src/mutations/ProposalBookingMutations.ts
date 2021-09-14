@@ -57,8 +57,6 @@ export default class ProposalBookingMutations {
           proposalBooking.id
         );
 
-      console.log(allScheduledEvents);
-
       await Promise.all(
         allScheduledEvents
           .filter((event) => event.status !== ProposalBookingStatus.COMPLETED)

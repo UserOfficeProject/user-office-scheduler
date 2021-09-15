@@ -151,14 +151,14 @@ export default class ScheduledEventMutations {
         proposalBookingId
       );
 
-    const allProposalBookingEventsAreBooked = scheduledEvents.every(
+    const allProposalBookingEventsAreActive = scheduledEvents.every(
       (scheduledEventItem) =>
-        scheduledEventItem.status === ProposalBookingStatus.BOOKED
+        scheduledEventItem.status === ProposalBookingStatus.ACTIVE
     );
 
-    const allProposalBookingEventsAreClosed = scheduledEvents.every(
+    const allProposalBookingEventsAreCompleted = scheduledEvents.every(
       (scheduledEventItem) =>
-        scheduledEventItem.status === ProposalBookingStatus.CLOSED
+        scheduledEventItem.status === ProposalBookingStatus.COMPLETED
     );
 
     const allProposalBookingEventsNotDraft = scheduledEvents.every(
@@ -166,12 +166,12 @@ export default class ScheduledEventMutations {
         scheduledEventItem.status !== ProposalBookingStatus.DRAFT
     );
 
-    if (allProposalBookingEventsAreClosed) {
+    if (allProposalBookingEventsAreCompleted) {
       await this.proposalBookingDataSource.finalize(
-        ProposalBookingFinalizeAction.CLOSE,
+        ProposalBookingFinalizeAction.COMPLETE,
         proposalBookingId
       );
-    } else if (allProposalBookingEventsAreBooked) {
+    } else if (allProposalBookingEventsAreActive) {
       await this.proposalBookingDataSource.activate(proposalBookingId);
     } else if (action && action === ProposalBookingFinalizeAction.RESTART) {
       await this.proposalBookingDataSource.finalize(

@@ -61,7 +61,7 @@ export default class ProposalBookingQueries {
       !hasRole([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST], ctx.roles!)
     ) {
       filter = {
-        status: [ProposalBookingStatus.BOOKED, ProposalBookingStatus.CLOSED],
+        status: [ProposalBookingStatus.ACTIVE, ProposalBookingStatus.COMPLETED],
       };
     }
 

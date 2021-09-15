@@ -220,6 +220,7 @@ context('Scheduled events table tests', () => {
       cy.get(
         '[role="none presentation"] [data-cy="btn-close-event-dialog"]'
       ).should('exist');
+
       cy.get('[role="none presentation"] [data-cy="btn-save"]').should('exist');
       cy.get('[role="none presentation"] [data-cy="btn-next"]').should('exist');
     });

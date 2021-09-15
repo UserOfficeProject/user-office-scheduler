@@ -47,32 +47,35 @@ export const isClosedEvent = (
 ) => proposalBooking?.status === ProposalBookingStatus.CLOSED;
 
 export const getBookingTypeStyle = (
-  bookingType: ScheduledEventBookingType
+  bookingType: ScheduledEventBookingType,
+  status: ProposalBookingStatus
 ): CSSProperties => {
+  const opacity = isDraftEvent({ status }) ? '0.6' : '1';
+
   switch (bookingType) {
     case ScheduledEventBookingType.COMMISSIONING:
       return {
-        backgroundColor: '#93E1D8',
+        backgroundColor: `rgba(147, 225, 216, ${opacity})`,
         color: '#000',
       };
     case ScheduledEventBookingType.MAINTENANCE:
       return {
-        backgroundColor: '#FFA69E',
+        backgroundColor: `rgba(255, 166, 158, ${opacity})`,
         color: '#000',
       };
     case ScheduledEventBookingType.SHUTDOWN:
       return {
-        backgroundColor: '#AA4465',
+        backgroundColor: `rgba(170, 68, 101, ${opacity})`,
         color: '#fff',
       };
     case ScheduledEventBookingType.USER_OPERATIONS:
       return {
-        backgroundColor: '#9146AF',
+        backgroundColor: `rgba(145, 70, 175, ${opacity})`,
         color: '#fff',
       };
     case ScheduledEventBookingType.EQUIPMENT:
       return {
-        backgroundColor: '#7CB5EC',
+        backgroundColor: `rgba(124, 181, 236, ${opacity})`,
         color: '#fff',
       };
     default:
@@ -80,7 +83,7 @@ export const getBookingTypeStyle = (
   }
 };
 
-const getClosedBookingStyle = (): CSSProperties => ({
+export const getClosedBookingStyle = (): CSSProperties => ({
   backgroundColor: 'rgba(0, 0, 0, 0.5)',
   color: '#fff',
 });
@@ -91,13 +94,12 @@ export function eventPropGetter(event: CalendarScheduledEvent): {
 } {
   const eventStyle = isClosedEvent({ status: event.status })
     ? getClosedBookingStyle()
-    : getBookingTypeStyle(event.bookingType);
+    : getBookingTypeStyle(event.bookingType, event.status);
 
   return {
     style: {
       borderRadius: 0,
       border: '1px solid #FFF',
-      opacity: isDraftEvent({ status: event.status }) ? '0.6' : 'unset',
       ...eventStyle,
     },
   };

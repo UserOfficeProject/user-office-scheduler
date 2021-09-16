@@ -606,10 +606,10 @@ context('Proposal booking tests ', () => {
 
         cy.get('[aria-label=proposal-booking-finalization-strategy]').click();
 
-        cy.contains(/restart time slot booking process/i).click();
+        cy.contains(/restart the time slot booking/i).click();
         cy.wait(100);
 
-        cy.contains(/restart time slot booking process/i).as('restartBooking');
+        cy.contains(/restart the time slot booking/i).as('restartBooking');
 
         cy.get('@restartBooking').should('not.be.disabled').click();
 
@@ -725,7 +725,7 @@ context('Proposal booking tests ', () => {
         cy.get('[title="Edit event"]').first().click();
         cy.contains(/warning/i);
 
-        cy.contains(/complete time slot booking/i).as('completeBooking');
+        cy.contains(/complete the time slot booking/i).as('completeBooking');
 
         cy.finishedLoading();
 

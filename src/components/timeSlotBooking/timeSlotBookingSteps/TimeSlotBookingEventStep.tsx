@@ -126,6 +126,12 @@ export default function TimeSlotBookingEventStep({
 
     !isDirty && handleSetDirty(true);
 
+    setScheduledEvent({
+      ...scheduledEvent,
+      startsAt: toTzLessDateTime(startsAt),
+      endsAt: toTzLessDateTime(endsAt),
+    });
+
     setEditingStartDate(false);
     setEditingEndDate(false);
   };
@@ -180,14 +186,25 @@ export default function TimeSlotBookingEventStep({
     }
   };
 
+  const getProposalBookingEventsForOverlapCheck = () =>
+    proposalBooking.scheduledEvents.map((event) => {
+      if (event.id === scheduledEvent.id && startsAt && endsAt) {
+        return {
+          id: event.id,
+          startsAt: startsAt,
+          endsAt: endsAt,
+        };
+      } else {
+        return {
+          id: event.id,
+          startsAt: moment(event.startsAt),
+          endsAt: moment(event.endsAt),
+        };
+      }
+    });
+
   const handleSaveDraft = () => {
-    hasOverlappingEvents(
-      proposalBooking.scheduledEvents.map((event) => ({
-        id: event.id,
-        startsAt: moment(event.startsAt),
-        endsAt: moment(event.endsAt),
-      }))
-    )
+    hasOverlappingEvents(getProposalBookingEventsForOverlapCheck())
       ? showConfirmation({
           message: (
             <>
@@ -206,13 +223,7 @@ export default function TimeSlotBookingEventStep({
   };
 
   const handleSaveAndContinue = async () => {
-    hasOverlappingEvents(
-      proposalBooking.scheduledEvents.map((event) => ({
-        id: event.id,
-        startsAt: moment(event.startsAt),
-        endsAt: moment(event.endsAt),
-      }))
-    )
+    hasOverlappingEvents(getProposalBookingEventsForOverlapCheck())
       ? showConfirmation({
           message: (
             <>
@@ -244,6 +255,7 @@ export default function TimeSlotBookingEventStep({
                     <ListItemText
                       onClick={() => setEditingStartDate(true)}
                       primary="Starts at"
+                      data-cy="startsAtInfo"
                       secondary={toTzLessDateTime(startsAt as Moment)}
                     />
                   )}
@@ -348,6 +360,7 @@ export default function TimeSlotBookingEventStep({
                   {!editingEndDate && (
                     <ListItemText
                       primary="Ends at"
+                      data-cy="endsAtInfo"
                       onClick={() => setEditingEndDate(true)}
                       secondary={toTzLessDateTime(endsAt as Moment)}
                     />
@@ -420,7 +433,7 @@ export default function TimeSlotBookingEventStep({
         <Button
           color="primary"
           onClick={handleCloseDialog}
-          data-cy="btn-close-dialog"
+          data-cy="btn-close-event-dialog"
         >
           Close
         </Button>
@@ -430,7 +443,7 @@ export default function TimeSlotBookingEventStep({
           startIcon={<SaveIcon />}
           onClick={handleSaveDraft}
           data-cy="btn-save"
-          disabled={isStepReadOnly}
+          disabled={isStepReadOnly || editingStartDate || editingEndDate}
         >
           Save draft
         </Button>
@@ -439,7 +452,7 @@ export default function TimeSlotBookingEventStep({
           color="primary"
           onClick={handleSaveAndContinue}
           data-cy="btn-next"
-          disabled={isStepReadOnly}
+          disabled={isStepReadOnly || editingStartDate || editingEndDate}
         >
           Save and continue
         </Button>

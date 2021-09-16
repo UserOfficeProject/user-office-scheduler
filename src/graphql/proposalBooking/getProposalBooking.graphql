@@ -21,6 +21,10 @@ query getProposalBooking(
       startsAt
       endsAt
     }
+    instrument {
+      id
+      name
+    }
     createdAt
     updatedAt
     status

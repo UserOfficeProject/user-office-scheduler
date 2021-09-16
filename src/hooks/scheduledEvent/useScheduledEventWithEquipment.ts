@@ -20,7 +20,7 @@ export default function useScheduledEventWithEquipments({
   scheduledEventId,
 }: {
   proposalBookingId: number;
-  scheduledEventId: number;
+  scheduledEventId?: number;
 }) {
   const [loading, setLoading] = useState(true);
   const [counter, setCounter] = useState(0);
@@ -34,6 +34,9 @@ export default function useScheduledEventWithEquipments({
   }, [setCounter]);
 
   useEffect(() => {
+    if (!scheduledEventId) {
+      return;
+    }
     let unmount = false;
 
     setLoading(true);

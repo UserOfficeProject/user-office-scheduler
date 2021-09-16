@@ -86,7 +86,7 @@ export default function TimeSlotEquipmentBookingStep({
 
   const isLoading = loading || loadingEquipments;
 
-  const allEquipmentsAccepted = scheduledEvent.equipments.every(
+  const allEquipmentsAccepted = scheduledEventEquipments.every(
     (equipment) => equipment.status === EquipmentAssignmentStatus.ACCEPTED
   );
 
@@ -123,7 +123,7 @@ export default function TimeSlotEquipmentBookingStep({
             setLoading(false);
           } else {
             handleNext();
-            handleSetActiveStepByStatus(ProposalBookingStatus.BOOKED);
+            handleSetActiveStepByStatus(ProposalBookingStatus.ACTIVE);
           }
         } catch (e) {
           // TODO
@@ -242,9 +242,11 @@ export default function TimeSlotEquipmentBookingStep({
                 )
               )}
               {scheduledEventEquipments.length === 0 && (
-                <TableCell colSpan={3} style={{ textAlign: 'center' }}>
-                  No records to show
-                </TableCell>
+                <TableRow>
+                  <TableCell colSpan={3} style={{ textAlign: 'center' }}>
+                    No records to show
+                  </TableCell>
+                </TableRow>
               )}
             </TableBody>
           </MuiTable>
@@ -265,7 +267,7 @@ export default function TimeSlotEquipmentBookingStep({
         <Button
           color="primary"
           onClick={handleCloseDialog}
-          data-cy="btn-close-dialog"
+          data-cy="btn-close-event-dialog"
         >
           Close
         </Button>
@@ -281,6 +283,7 @@ export default function TimeSlotEquipmentBookingStep({
         <Button
           variant="contained"
           color="primary"
+          data-cy="activate-time-slot-booking"
           disabled={isStepReadOnly || !allEquipmentsAccepted}
           onClick={handleActivateSubmit}
         >

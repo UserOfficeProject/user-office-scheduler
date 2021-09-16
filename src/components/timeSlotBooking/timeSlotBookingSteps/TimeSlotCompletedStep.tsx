@@ -8,11 +8,12 @@ import { Alert } from '@material-ui/lab';
 import React, { useEffect, useState } from 'react';
 
 import Loader from 'components/common/Loader';
+import { ProposalBooking } from 'generated/sdk';
 import useProposalBookingLostTimes from 'hooks/lostTime/useProposalBookingLostTimes';
 import { parseTzLessDateTime } from 'utils/date';
 
-import { ProposalBookingDialogStepProps } from '../ProposalBookingDialog';
-import TimeTable, { TimeTableRow } from '../TimeTable';
+import TimeTable, { TimeTableRow } from '../../proposalBooking/TimeTable';
+import { ProposalBookingDialogStepProps } from '../TimeSlotBookingDialog';
 
 const useStyles = makeStyles(() => ({
   resetFlex: {
@@ -21,14 +22,16 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-export default function ClosedStep({
-  proposalBooking,
+export default function TimeSlotCompletedStep({
+  scheduledEvent,
   handleCloseDialog,
 }: ProposalBookingDialogStepProps) {
   const classes = useStyles();
+  const proposalBooking = scheduledEvent.proposalBooking as ProposalBooking;
 
   const { loading, lostTimes } = useProposalBookingLostTimes(
-    proposalBooking.id
+    proposalBooking.id,
+    scheduledEvent.id
   );
 
   const [rows, setRows] = useState<TimeTableRow[]>([]);
@@ -53,7 +56,7 @@ export default function ClosedStep({
       {isLoading && <Loader />}
       <DialogContent className={classes.resetFlex}>
         <Alert severity="info">
-          Proposal booking is already closed, you can not edit it.
+          Time slot booking is already completed, you can not edit it.
         </Alert>
       </DialogContent>
       <DialogContent>
@@ -67,7 +70,7 @@ export default function ClosedStep({
         <Button
           color="primary"
           onClick={handleCloseDialog}
-          data-cy="btn-close-dialog"
+          data-cy="btn-close-event-dialog"
         >
           Close
         </Button>

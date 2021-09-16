@@ -7,7 +7,13 @@ import {
   Stepper,
   StepButton,
 } from '@material-ui/core';
-import React, { Dispatch, useContext, useEffect, useState } from 'react';
+import React, {
+  Dispatch,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 
 import Loader from 'components/common/Loader';
 import { AppContext } from 'context/AppContext';
@@ -17,7 +23,7 @@ import useScheduledEventWithEquipment, {
 } from 'hooks/scheduledEvent/useScheduledEventWithEquipment';
 
 import TimeSlotBookingEventStep from './timeSlotBookingSteps/TimeSlotBookingEventStep';
-import TimeSlotClosedStep from './timeSlotBookingSteps/TimeSlotClosedStep';
+import TimeSlotCompletedStep from './timeSlotBookingSteps/TimeSlotCompletedStep';
 import TimeSlotEquipmentBookingStep from './timeSlotBookingSteps/TimeSlotEquipmentBookingStep';
 import TimeSlotFinalizeStep from './timeSlotBookingSteps/TimeSlotFinalizeStep';
 
@@ -31,8 +37,7 @@ export enum ProposalBookingSteps {
   BOOK_EVENTS = 0,
   BOOK_EQUIPMENT,
   FINALIZE,
-
-  CLOSED,
+  COMPLETED,
 }
 
 const ProposalBookingStepNameMap: Record<
@@ -42,14 +47,14 @@ const ProposalBookingStepNameMap: Record<
   BOOK_EVENTS: 'Scheduled event details',
   BOOK_EQUIPMENT: 'Equipment booking',
   FINALIZE: 'Finalize',
-  CLOSED: 'Closed',
+  COMPLETED: 'Completed',
 };
 
 const steps = [
   ProposalBookingStepNameMap.BOOK_EVENTS,
   ProposalBookingStepNameMap.BOOK_EQUIPMENT,
   ProposalBookingStepNameMap.FINALIZE,
-  ProposalBookingStepNameMap.CLOSED,
+  ProposalBookingStepNameMap.COMPLETED,
 ];
 const maxSteps = steps.length;
 
@@ -78,35 +83,20 @@ function getActiveStep(props: ProposalBookingDialogStepProps) {
     case ProposalBookingSteps.FINALIZE:
       return <TimeSlotFinalizeStep {...props} />;
 
-    case ProposalBookingSteps.CLOSED:
-      return <TimeSlotClosedStep {...props} />;
+    case ProposalBookingSteps.COMPLETED:
+      return <TimeSlotCompletedStep {...props} />;
 
     default:
       return <DialogContent>Unknown step</DialogContent>;
   }
 }
 
-const getActiveStepByStatus = (
-  status: ProposalBookingStatus | null
-): number => {
-  switch (status) {
-    case ProposalBookingStatus.DRAFT:
-      return ProposalBookingSteps.BOOK_EVENTS;
-    case ProposalBookingStatus.BOOKED:
-      return ProposalBookingSteps.FINALIZE;
-    case ProposalBookingStatus.CLOSED:
-      return ProposalBookingSteps.CLOSED;
-
-    default:
-      return -1;
-  }
-};
-
 type ProposalBookingDialogProps = {
   activeProposalBookingId: number;
-  activeTimeSlotScheduledEventId: number;
+  activeTimeSlotScheduledEventId?: number;
   isDialogOpen: boolean;
   closeDialog: (shouldRefresh?: boolean) => void;
+  isOpenedOverProposalBookingDialog?: boolean;
 };
 
 export default function ProposalBookingDialog({
@@ -114,6 +104,7 @@ export default function ProposalBookingDialog({
   activeTimeSlotScheduledEventId,
   isDialogOpen,
   closeDialog,
+  isOpenedOverProposalBookingDialog = false,
 }: ProposalBookingDialogProps) {
   const classes = useStyles();
 
@@ -129,12 +120,33 @@ export default function ProposalBookingDialog({
       scheduledEventId: activeTimeSlotScheduledEventId,
     });
 
+  const getActiveStepByStatus = useCallback(
+    (status: ProposalBookingStatus | null): number => {
+      switch (status) {
+        case ProposalBookingStatus.DRAFT:
+          if (scheduledEvent?.equipments?.length) {
+            return ProposalBookingSteps.BOOK_EQUIPMENT;
+          }
+
+          return ProposalBookingSteps.BOOK_EVENTS;
+        case ProposalBookingStatus.ACTIVE:
+          return ProposalBookingSteps.FINALIZE;
+        case ProposalBookingStatus.COMPLETED:
+          return ProposalBookingSteps.COMPLETED;
+
+        default:
+          return -1;
+      }
+    },
+    [scheduledEvent?.equipments?.length]
+  );
+
   useEffect(() => {
     if (!loading && scheduledEvent) {
       setActiveStep(getActiveStepByStatus(scheduledEvent.status));
       setActiveStatus(scheduledEvent.status);
     }
-  }, [loading, scheduledEvent]);
+  }, [loading, scheduledEvent, getActiveStepByStatus]);
 
   const handleResetSteps = () => {
     setActiveStep(ProposalBookingSteps.BOOK_EVENTS);
@@ -142,7 +154,7 @@ export default function ProposalBookingDialog({
   };
 
   const handleNext = () => {
-    setActiveStep((prevStep) => Math.min(prevStep + 1, maxSteps));
+    setActiveStep(Math.min(activeStep + 1, maxSteps));
     setIsDirty(false);
   };
 
@@ -199,6 +211,7 @@ export default function ProposalBookingDialog({
       open={isDialogOpen}
       onClose={handleCloseDialog}
       fullWidth
+      hideBackdrop={isOpenedOverProposalBookingDialog}
       maxWidth="lg"
       PaperProps={{
         className: classes.fullHeight,

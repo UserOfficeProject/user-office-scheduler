@@ -1,12 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
-import { ScheduledEvent } from 'generated/sdk';
+import { ScheduledEvent, User } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 
 export type ProposalBookingScheduledEvent = Pick<
   ScheduledEvent,
-  'id' | 'startsAt' | 'endsAt'
->;
+  'id' | 'startsAt' | 'endsAt' | 'bookingType' | 'status' | 'description'
+> & {
+  scheduledBy?: Pick<User, 'id' | 'firstname' | 'lastname'> | null;
+  newlyCreated?: boolean;
+};
 
 export default function useProposalBookingScheduledEvents(
   proposalBookingId: number
@@ -17,6 +20,12 @@ export default function useProposalBookingScheduledEvents(
   >([]);
 
   const api = useDataApi();
+
+  const [counter, setCounter] = useState<number>(0);
+
+  const refresh = useCallback(() => {
+    setCounter((prev) => prev + 1);
+  }, [setCounter]);
 
   useEffect(() => {
     let unmount = false;
@@ -40,7 +49,7 @@ export default function useProposalBookingScheduledEvents(
     return () => {
       unmount = true;
     };
-  }, [proposalBookingId, api]);
+  }, [proposalBookingId, api, counter]);
 
-  return { loading, scheduledEvents } as const;
+  return { loading, scheduledEvents, setScheduledEvents, refresh } as const;
 }

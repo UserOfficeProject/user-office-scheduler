@@ -16,11 +16,7 @@ import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentPr
 import useProposalBooking from 'hooks/proposalBooking/useProposalBooking';
 
 import BookingEventStep from './bookingSteps/BookingEventStep';
-import ClosedStep from './bookingSteps/ClosedStep';
-import EquipmentBookingStep from './bookingSteps/EquipmentBookingStep';
-import FinalizeStep from './bookingSteps/FinalizeStep';
-// import RequestReviewStep from './bookingSteps/RequestReviewStep';
-// import ReviewFeedbackStep from './bookingSteps/ReviewFeedbackStep';
+import CompletedStep from './bookingSteps/CompletedStep';
 
 const useStyles = makeStyles(() => ({
   fullHeight: {
@@ -34,12 +30,7 @@ const useStyles = makeStyles(() => ({
 
 export enum ProposalBookingSteps {
   BOOK_EVENTS = 0,
-  BOOK_EQUIPMENT,
-  // REQUEST_REVIEW,
-  // REVIEW_FEEDBACKS,
-  FINALIZE,
-
-  CLOSED,
+  COMPLETED,
 }
 
 const ProposalBookingStepNameMap: Record<
@@ -47,18 +38,12 @@ const ProposalBookingStepNameMap: Record<
   string
 > = {
   BOOK_EVENTS: 'Book events',
-  BOOK_EQUIPMENT: 'Equipment booking',
-  // REQUEST_REVIEW: 'Request review',
-  // REVIEW_FEEDBACKS: 'Review feedbacks',
-  FINALIZE: 'Finalize',
-  CLOSED: 'Closed',
+  COMPLETED: 'Completed',
 };
 
 const steps = [
   ProposalBookingStepNameMap.BOOK_EVENTS,
-  ProposalBookingStepNameMap.BOOK_EQUIPMENT,
-  ProposalBookingStepNameMap.FINALIZE,
-  ProposalBookingStepNameMap.CLOSED,
+  ProposalBookingStepNameMap.COMPLETED,
 ];
 const maxSteps = steps.length;
 
@@ -79,25 +64,8 @@ function getActiveStep(props: ProposalBookingDialogStepProps) {
   switch (props.activeStep) {
     case ProposalBookingSteps.BOOK_EVENTS:
       return <BookingEventStep {...props} />;
-    case ProposalBookingSteps.BOOK_EQUIPMENT:
-      return <EquipmentBookingStep {...props} />;
-    // case ProposalBookingSteps.REQUEST_REVIEW:
-    //   return (
-    //     <RequestReviewStep
-    //       {...props}
-    //     />
-    //   );
-    // case ProposalBookingSteps.REVIEW_FEEDBACKS:
-    //   return (
-    //     <ReviewFeedbackStep
-    //       {...props}
-    //     />
-    //   );
-    case ProposalBookingSteps.FINALIZE:
-      return <FinalizeStep {...props} />;
-
-    case ProposalBookingSteps.CLOSED:
-      return <ClosedStep {...props} />;
+    case ProposalBookingSteps.COMPLETED:
+      return <CompletedStep {...props} />;
 
     default:
       return <DialogContent>Unknown step</DialogContent>;
@@ -110,10 +78,8 @@ const getActiveStepByStatus = (
   switch (status) {
     case ProposalBookingStatus.DRAFT:
       return ProposalBookingSteps.BOOK_EVENTS;
-    case ProposalBookingStatus.BOOKED:
-      return ProposalBookingSteps.FINALIZE;
-    case ProposalBookingStatus.CLOSED:
-      return ProposalBookingSteps.CLOSED;
+    case ProposalBookingStatus.COMPLETED:
+      return ProposalBookingSteps.COMPLETED;
 
     default:
       return -1;

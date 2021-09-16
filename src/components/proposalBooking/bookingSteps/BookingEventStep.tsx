@@ -1,4 +1,5 @@
 import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
+import MaterialTable, { Column } from '@material-table/core';
 import {
   Avatar,
   Button,
@@ -17,8 +18,9 @@ import {
   CalendarToday as CalendarTodayIcon,
   HourglassEmpty as HourglassEmptyIcon,
   Description as DescriptionIcon,
+  Edit as EditIcon,
   Add as AddIcon,
-  Save as SaveIcon,
+  Delete as DeleteIcon,
 } from '@material-ui/icons';
 import clsx from 'clsx';
 import humanizeDuration from 'humanize-duration';
@@ -33,15 +35,20 @@ import React, {
 } from 'react';
 
 import Loader from 'components/common/Loader';
+import { tableIcons } from 'components/common/TableIcons';
+import TimeSlotBookingDialog from 'components/timeSlotBooking/TimeSlotBookingDialog';
 import { AppContext } from 'context/AppContext';
-import { ProposalBookingStatus } from 'generated/sdk';
+import {
+  ProposalBookingFinalizeAction,
+  ProposalBookingStatus,
+} from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
-import useProposalBookingScheduledEvents from 'hooks/scheduledEvent/useProposalBookingScheduledEvents';
-import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
-import { hasOverlappingEvents } from 'utils/scheduledEvent';
+import useProposalBookingScheduledEvents, {
+  ProposalBookingScheduledEvent,
+} from 'hooks/scheduledEvent/useProposalBookingScheduledEvents';
+import { toTzLessDateTime, TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
 
 import { ProposalBookingDialogStepProps } from '../ProposalBookingDialog';
-import TimeTable, { TimeTableRow } from '../TimeTable';
 
 const formatDuration = (durSec: number) =>
   humanizeDuration(durSec * 1000, {
@@ -50,42 +57,36 @@ const formatDuration = (durSec: number) =>
     largest: 3,
   });
 
+const useStyles = makeStyles((theme) => ({
+  list: {
+    width: '100%',
+    backgroundColor: theme.palette.background.paper,
+  },
+  divider: {
+    marginLeft: theme.spacing(6),
+  },
+  allocatablePositive: {
+    color: theme.palette.success.main,
+  },
+  allocatableNegative: {
+    color: theme.palette.error.main,
+  },
+  flexColumn: {
+    flexGrow: 1,
+    maxWidth: '100%',
+    flexBasis: 0,
+    alignSelf: 'flex-start',
+  },
+}));
+
 export default function BookingEventStep({
   activeStatus,
   proposalBooking,
-  isDirty,
-  handleNext,
-  handleSetDirty,
   handleCloseDialog,
+  handleSetActiveStepByStatus,
+  handleNext,
 }: ProposalBookingDialogStepProps) {
-  const useStyles = makeStyles((theme) => ({
-    list: {
-      width: '100%',
-      backgroundColor: theme.palette.background.paper,
-    },
-    divider: {
-      marginLeft: theme.spacing(6),
-    },
-    allocatablePositive: {
-      color: theme.palette.success.main,
-    },
-    allocatableNegative: {
-      color: theme.palette.error.main,
-    },
-    flexColumn: {
-      flexGrow: 1,
-      maxWidth: '100%',
-      flexBasis: 0,
-      alignSelf: 'flex-start',
-    },
-    spacingLeft: {
-      marginLeft: theme.spacing(2),
-    },
-  }));
-  const [isEditingTimeTable, setIsEditingTimeTable] = useState(false);
-
-  const isStepReadOnly =
-    activeStatus !== ProposalBookingStatus.DRAFT || isEditingTimeTable;
+  const isStepReadOnly = activeStatus !== ProposalBookingStatus.DRAFT;
 
   const {
     call: { startCycle, endCycle, cycleComment },
@@ -94,19 +95,20 @@ export default function BookingEventStep({
 
   const classes = useStyles();
 
-  const { loading, scheduledEvents } = useProposalBookingScheduledEvents(
-    proposalBooking.id
-  );
+  const { loading, scheduledEvents, setScheduledEvents, refresh } =
+    useProposalBookingScheduledEvents(proposalBooking.id);
 
   const { showConfirmation } = useContext(AppContext);
   const { enqueueSnackbar } = useSnackbar();
   const api = useDataApi();
-  const [rows, setRows] = useState<TimeTableRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedEvent, setSelectedEvent] =
+    useState<ProposalBookingScheduledEvent | null>(null);
 
   const { allocated, allocatable } = useMemo(() => {
-    const allocated = rows.reduce(
-      (total, curr) => total + curr.endsAt.diff(curr.startsAt, 'seconds'),
+    const allocated = scheduledEvents.reduce(
+      (total, curr) =>
+        total + moment(curr.endsAt).diff(curr.startsAt, 'seconds'),
       0
     );
 
@@ -114,126 +116,172 @@ export default function BookingEventStep({
       allocated,
       allocatable: proposalBooking.allocatedTime - allocated,
     };
-  }, [rows, proposalBooking]);
+  }, [scheduledEvents, proposalBooking]);
 
-  const handleOnEditModeChanged = useCallback((isReadOnly: boolean) => {
-    setIsEditingTimeTable(isReadOnly);
-  }, []);
+  const handleOnEditModeChanged = useCallback(
+    (editingEventId: number) => {
+      const editingEvent = scheduledEvents.find(
+        (scheduledEvent) => scheduledEvent.id === editingEventId
+      );
+
+      if (editingEvent) {
+        setSelectedEvent(editingEvent);
+      }
+    },
+    [scheduledEvents]
+  );
 
   useEffect(() => {
     if (!loading) {
-      setRows(
-        scheduledEvents.map(({ startsAt, endsAt, ...rest }) => ({
-          ...rest,
-          startsAt: parseTzLessDateTime(startsAt),
-          endsAt: parseTzLessDateTime(endsAt),
-        }))
-      );
+      setScheduledEvents(scheduledEvents);
 
       setIsLoading(false);
     }
-  }, [loading, scheduledEvents]);
+  }, [loading, scheduledEvents, setScheduledEvents]);
 
-  const handleRowsChange = (cb: React.SetStateAction<TimeTableRow[]>) => {
-    !isDirty && handleSetDirty(true);
-    setRows(cb);
-  };
-
-  const handleAdd = () => {
-    const lastRow = rows.length > 0 ? rows[rows.length - 1] : undefined;
-    const startsAt = lastRow?.endsAt ?? moment().startOf('hour');
+  const handleAdd = async () => {
+    setIsLoading(true);
+    const lastRow =
+      scheduledEvents.length > 0
+        ? scheduledEvents[scheduledEvents.length - 1]
+        : undefined;
+    const startsAt = lastRow?.endsAt
+      ? moment(lastRow?.endsAt)
+      : moment().startOf('hour');
     const endsAt = startsAt.clone().startOf('hour').add(1, 'day');
 
-    handleRowsChange((rows) => [
-      ...rows,
-      {
-        id: Date.now(),
-        newlyCreated: true,
-        startsAt: startsAt,
-        endsAt: endsAt,
+    const {
+      bulkUpsertScheduledEvents: {
+        error,
+        scheduledEvent: updatedScheduledEvents,
       },
-    ]);
-  };
+    } = await api().bulkUpsertScheduledEvents({
+      input: {
+        proposalBookingId: proposalBooking.id,
+        scheduledEvents: [
+          ...scheduledEvents,
+          {
+            id: 0,
+            newlyCreated: true,
+            startsAt: startsAt.format(TZ_LESS_DATE_TIME_FORMAT),
+            endsAt: endsAt.format(TZ_LESS_DATE_TIME_FORMAT),
+          },
+        ].map(({ id, startsAt, endsAt, newlyCreated = false }) => ({
+          newlyCreated,
+          id,
+          startsAt,
+          endsAt,
+        })),
+      },
+    });
 
-  const handleSubmit = async () => {
-    try {
-      setIsLoading(true);
-
-      const {
-        bulkUpsertScheduledEvents: {
-          error,
-          scheduledEvent: updatedScheduledEvents,
-        },
-      } = await api().bulkUpsertScheduledEvents({
-        input: {
-          proposalBookingId: proposalBooking.id,
-          scheduledEvents: rows.map(
-            ({ startsAt, endsAt, id, newlyCreated }) => ({
-              newlyCreated,
-              id: newlyCreated ? 0 : id,
-              startsAt: toTzLessDateTime(startsAt),
-              endsAt: toTzLessDateTime(endsAt),
-            })
-          ),
-        },
+    if (error) {
+      enqueueSnackbar(getTranslation(error as ResourceId), {
+        variant: 'error',
       });
-
-      if (error) {
-        enqueueSnackbar(getTranslation(error as ResourceId), {
-          variant: 'error',
-        });
-      } else {
-        updatedScheduledEvents &&
-          setRows(
-            updatedScheduledEvents.map(({ startsAt, endsAt, ...rest }) => ({
-              ...rest,
-              startsAt: parseTzLessDateTime(startsAt),
-              endsAt: parseTzLessDateTime(endsAt),
-            }))
-          );
-      }
-
-      handleSetDirty(false);
-    } catch (e) {
-      // TODO
-      console.error(e);
-    } finally {
-      setIsLoading(false);
+    } else {
+      updatedScheduledEvents && setScheduledEvents(updatedScheduledEvents);
     }
+
+    setIsLoading(false);
   };
 
-  const handleSaveDraft = () => {
-    hasOverlappingEvents(rows)
-      ? showConfirmation({
-          message: (
-            <>
-              You have <strong>overlapping bookings</strong>, are you sure you
-              want to continue?
-            </>
-          ),
-          cb: handleSubmit,
-        })
-      : handleSubmit();
+  const handleDelete = async (data: ProposalBookingScheduledEvent[]) => {
+    setIsLoading(true);
+
+    const newEvents = scheduledEvents.filter(
+      (scheduledEvent) =>
+        !data.map((item) => item.id).includes(scheduledEvent.id)
+    );
+
+    // TODO: Create proper functionality for removing an event/s.
+    // Delete selected events
+    const {
+      bulkUpsertScheduledEvents: {
+        error,
+        scheduledEvent: updatedScheduledEvents,
+      },
+    } = await api().bulkUpsertScheduledEvents({
+      input: {
+        proposalBookingId: proposalBooking.id,
+        scheduledEvents: newEvents.map((newEvent) => ({
+          id: newEvent.id,
+          startsAt: newEvent.startsAt,
+          endsAt: newEvent.endsAt,
+          newlyCreated: false,
+        })),
+      },
+    });
+
+    if (error) {
+      enqueueSnackbar(getTranslation(error as ResourceId), {
+        variant: 'error',
+      });
+    } else {
+      updatedScheduledEvents && setScheduledEvents(newEvents);
+    }
+
+    setIsLoading(false);
   };
 
-  const saveAndContinue = async () => {
-    await handleSubmit();
-    handleNext();
+  const completeBooking = () => {
+    showConfirmation({
+      message: (
+        <>
+          Are you sure you want to <strong>complete</strong> the selected
+          booking with all the events?
+        </>
+      ),
+      cb: async () => {
+        try {
+          setIsLoading(true);
+
+          const {
+            finalizeProposalBooking: { error },
+          } = await api().finalizeProposalBooking({
+            action: ProposalBookingFinalizeAction.COMPLETE,
+            id: proposalBooking.id,
+          });
+
+          if (error) {
+            enqueueSnackbar(getTranslation(error as ResourceId), {
+              variant: 'error',
+            });
+
+            setIsLoading(false);
+          } else {
+            handleNext();
+
+            handleSetActiveStepByStatus(ProposalBookingStatus.COMPLETED);
+          }
+        } catch (e) {
+          // TODO
+
+          setIsLoading(false);
+          console.error(e);
+        }
+      },
+    });
   };
 
-  const handleSaveAndContinue = () => {
-    hasOverlappingEvents(rows)
-      ? showConfirmation({
-          message: (
-            <>
-              You have <strong>overlapping bookings</strong>, are you sure you
-              want to continue?
-            </>
-          ),
-          cb: saveAndContinue,
-        })
-      : saveAndContinue();
+  const closeDialog = () => {
+    setSelectedEvent(null);
+
+    // TODO: This could be improved instead of refreshing(re-calling the endpoint) the scheduled events we could try to manage that on the frontend
+    refresh();
   };
+
+  const columns: Column<ProposalBookingScheduledEvent>[] = [
+    {
+      title: 'Starts at',
+      field: 'startsAt',
+    },
+    {
+      title: 'Ends at',
+      field: 'endsAt',
+    },
+    { title: 'Status', field: 'status', editable: 'never' },
+  ];
 
   return (
     <>
@@ -324,29 +372,56 @@ export default function BookingEventStep({
             </List>
           </Grid>
         </Grid>
-        <TimeTable
-          selectable={!isStepReadOnly}
-          editable={!isStepReadOnly}
-          maxHeight={380}
-          rows={rows}
-          handleRowsChange={handleRowsChange}
-          onEditModeToggled={handleOnEditModeChanged}
-          titleComponent={
-            <>
-              Time slots
-              <Button
-                variant="contained"
-                color="primary"
-                startIcon={<AddIcon />}
-                className={classes.spacingLeft}
-                onClick={handleAdd}
-                data-cy="btn-add-time-slot"
-                disabled={isStepReadOnly}
-              >
-                Add
-              </Button>
-            </>
-          }
+
+        <TimeSlotBookingDialog
+          activeTimeSlotScheduledEventId={selectedEvent?.id}
+          activeProposalBookingId={proposalBooking.id}
+          isDialogOpen={!!selectedEvent}
+          closeDialog={closeDialog}
+          isOpenedOverProposalBookingDialog={true}
+        />
+        <MaterialTable
+          icons={tableIcons}
+          title="Time slots"
+          columns={columns}
+          data={scheduledEvents}
+          options={{
+            selection: !isStepReadOnly,
+          }}
+          actions={[
+            {
+              icon: EditIcon,
+              tooltip: 'Edit event',
+              onClick: (_event, rowData) => {
+                handleOnEditModeChanged(
+                  (rowData as ProposalBookingScheduledEvent).id
+                );
+              },
+              position: 'row',
+            },
+            {
+              icon: DeleteIcon,
+              tooltip: 'Delete time slots',
+              onClick: (event, data) => {
+                showConfirmation({
+                  message: (
+                    <>Are you sure you want to remove selected time slots?</>
+                  ),
+                  cb: () =>
+                    handleDelete(data as ProposalBookingScheduledEvent[]),
+                });
+              },
+              position: 'toolbarOnSelect',
+            },
+            {
+              icon: AddIcon,
+              onClick: () => {
+                handleAdd();
+              },
+              isFreeAction: true,
+              tooltip: 'Add time slot',
+            },
+          ]}
         />
       </DialogContent>
       <DialogActions>
@@ -360,21 +435,11 @@ export default function BookingEventStep({
         <Button
           variant="contained"
           color="primary"
-          startIcon={<SaveIcon />}
-          onClick={handleSaveDraft}
-          data-cy="btn-save"
+          onClick={completeBooking}
+          data-cy="btn-complete-booking"
           disabled={isStepReadOnly}
         >
-          Save draft
-        </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSaveAndContinue}
-          data-cy="btn-next"
-          disabled={isStepReadOnly}
-        >
-          Save and continue
+          Complete proposal booking
         </Button>
       </DialogActions>
     </>

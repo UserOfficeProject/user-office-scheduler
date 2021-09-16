@@ -98,18 +98,16 @@ context('Proposal booking tests ', () => {
 
     describe('Book events step', () => {
       it('should be able to add new time slot', () => {
-        cy.get('[data-cy=btn-add-time-slot]').click();
+        cy.get('[title="Add time slot"]').click();
 
         cy.contains(currentHourDateTime);
         cy.contains(getHourDateTimeAfter(24));
 
-        cy.get('[data-cy=btn-save]').click();
+        cy.get('[title="Edit event"]').click();
 
-        cy.wait(100);
+        cy.contains(/Time slot booking/i);
 
-        cy.get('[data-cy=btn-next]').click();
-
-        cy.contains(/time slots with equipments/i);
+        cy.get('[data-cy="btn-next"]').should('exist');
       });
 
       it('Draft events should have opacity', () => {
@@ -126,14 +124,17 @@ context('Proposal booking tests ', () => {
 
       it('should be able to edit time slot', () => {
         cy.finishedLoading();
-        cy.get('[data-cy=btn-time-table-edit-row]').click();
+        cy.get('[title="Edit event"]').click();
 
-        cy.get('[data-cy=startsAt] input').clear();
-        cy.get('[data-cy=endsAt] input').clear();
+        cy.get('[data-cy="startsAtInfo"]').click();
+        cy.get('[data-cy="startsAt"] input').clear();
+
+        cy.get('[data-cy=startsAt] input').type(getHourDateTimeAfter(2));
 
         cy.get('[data-cy=btn-time-table-save-row]').click();
 
-        cy.get('[data-cy=startsAt] input').type(getHourDateTimeAfter(2));
+        cy.get('[data-cy="endsAtInfo"]').click();
+        cy.get('[data-cy="endsAt"] input').clear();
         cy.get('[data-cy=endsAt] input').type(getHourDateTimeAfter(3));
 
         cy.get('[data-cy=btn-time-table-save-row]').click();
@@ -141,12 +142,35 @@ context('Proposal booking tests ', () => {
         cy.contains(getHourDateTimeAfter(2));
         cy.contains(getHourDateTimeAfter(3));
 
-        cy.get('[data-cy=btn-time-table-edit-row]').click();
+        cy.get('[data-cy="btn-next"]').click();
+        cy.finishedLoading();
+        cy.get('[data-cy="btn-close-event-dialog"]').click();
+        cy.wait(100);
+        cy.get('[data-cy="btn-close-dialog"]').click();
 
-        cy.get('[data-cy=startsAt] input')
-          .clear()
-          .type(getHourDateTimeAfter(24));
-        cy.get('[data-cy=endsAt] input').clear().type(getHourDateTimeAfter(25));
+        cy.finishedLoading();
+
+        cy.get(
+          '#instrument-calls-tree-view [role=treeitem] [role=group] [role=treeitem]'
+        )
+          .first()
+          .click();
+
+        cy.get('[title="Edit event"]').click();
+
+        cy.contains(getHourDateTimeAfter(2));
+        cy.contains(getHourDateTimeAfter(3));
+
+        cy.get('[data-cy="startsAtInfo"]').click();
+        cy.get('[data-cy="startsAt"] input').clear();
+
+        cy.get('[data-cy=startsAt] input').type(getHourDateTimeAfter(24));
+
+        cy.get('[data-cy=btn-time-table-reset-row]').click();
+
+        cy.get('[data-cy="endsAtInfo"]').click();
+        cy.get('[data-cy="endsAt"] input').clear();
+        cy.get('[data-cy=endsAt] input').type(getHourDateTimeAfter(25));
 
         cy.get('[data-cy=btn-time-table-reset-row]').click();
 
@@ -165,17 +189,11 @@ context('Proposal booking tests ', () => {
         cy.contains('Proposal allocated time');
         cy.contains('Proposal allocatable time');
 
-        cy.contains(currentHourDateTime);
-        cy.contains(getHourDateTimeAfter(24));
+        cy.contains(getHourDateTimeAfter(2));
+        cy.contains(getHourDateTimeAfter(3));
 
         cy.contains('Proposal title');
         cy.get('[data-cy="btn-next"]').should('exist');
-      });
-
-      it('should not be able to navigate while editing time slot', () => {
-        cy.get('[data-cy=btn-time-table-edit-row]').click();
-        cy.get('[data-cy=btn-save]').should('be.disabled');
-        cy.get('[data-cy=btn-next]').should('be.disabled');
       });
 
       it('should display time allocation left', () => {
@@ -183,34 +201,50 @@ context('Proposal booking tests ', () => {
       });
 
       it('should be able to delete time slot', () => {
-        cy.get('[data-cy=enhanced-table-checkbox-0]').click();
+        cy.finishedLoading();
+        cy.get('[title="Add time slot"]').click();
+        cy.finishedLoading();
 
-        cy.get('[data-cy=btn-delete]').click();
+        cy.get('.MuiTable-root input[type="checkbox"]').first().click();
 
-        cy.contains(/no records to show/i);
+        cy.contains('2 row(s) selected');
 
-        cy.get('[data-cy=btn-add-time-slot]').click();
-        cy.get('[data-cy=btn-add-time-slot]').click();
+        cy.get('[title="Delete time slots"]').click();
 
-        cy.get('[data-cy=enhanced-table-checkbox-0]').should('exist');
-        cy.get('[data-cy=enhanced-table-checkbox-1]').should('exist');
+        cy.get('[data-cy="btn-ok"]').click();
 
-        cy.get('[aria-label="select all"]').click();
+        cy.finishedLoading();
 
-        cy.contains(/2 selected/i);
-
-        cy.get('[data-cy=btn-delete]').click();
-
-        cy.contains(/no records to show/i);
+        cy.contains(/No records to display/i);
       });
 
       it('should show warning when `startsAt` is after `endsAt`', () => {
-        cy.get('[data-cy=btn-time-table-edit-row]').click();
+        cy.finishedLoading();
+        cy.get('[title="Add time slot"]').click();
+        cy.finishedLoading();
+        cy.get('[title="Edit event"]').click();
 
-        cy.get('[data-cy=startsAt] input')
+        cy.get('[data-cy="startsAtInfo"]').click();
+        cy.get('[data-cy="startsAt"] input')
           .clear()
           .type(getHourDateTimeAfter(24));
-        cy.get('[data-cy=endsAt] input').clear().type(getHourDateTimeAfter(20));
+
+        cy.get('[data-cy=btn-time-table-save-row]').click();
+
+        cy.contains(/warning/i);
+        cy.contains(/the starting date needs to be before the ending date/i);
+        cy.get('[data-cy="btn-back"]').click();
+
+        cy.get('[data-cy="startsAt"] input')
+          .clear()
+          .type(getHourDateTimeAfter(23));
+
+        cy.get('[data-cy=btn-time-table-save-row]').click();
+
+        cy.get('[data-cy="endsAtInfo"]').click();
+        cy.get('[data-cy="endsAt"] input')
+          .clear()
+          .type(getHourDateTimeAfter(20));
 
         cy.get('[data-cy=btn-time-table-save-row]').click();
 
@@ -219,16 +253,25 @@ context('Proposal booking tests ', () => {
       });
 
       it('should show confirmation when there are overlapping events', () => {
-        cy.get('[data-cy=btn-add-time-slot]').click();
+        cy.finishedLoading();
+        cy.get('[title="Add time slot"]').click();
+        cy.finishedLoading();
 
-        cy.get('[data-cy=btn-time-table-edit-row]').last().click();
+        cy.get('[title="Edit event"]').last().click();
 
-        cy.get('[data-cy=startsAt] input').clear().type(currentHourDateTime);
-        cy.get('[data-cy=endsAt] input').clear().type(getHourDateTimeAfter(1));
+        cy.get('[data-cy="startsAtInfo"]').click();
+        cy.get('[data-cy="startsAt"] input').clear().type(currentHourDateTime);
 
         cy.get('[data-cy=btn-time-table-save-row]').click();
 
-        cy.get('[data-cy=btn-save]').click();
+        cy.get('[data-cy="endsAtInfo"]').click();
+        cy.get('[data-cy="endsAt"] input')
+          .clear()
+          .type(getHourDateTimeAfter(1));
+
+        cy.get('[data-cy=btn-time-table-save-row]').click();
+
+        cy.get('[data-cy="btn-next"]').click();
 
         cy.contains(/confirmation/i);
         cy.contains(/you have overlapping bookings/i);
@@ -237,27 +280,23 @@ context('Proposal booking tests ', () => {
 
     describe('Equipment booking step', () => {
       beforeEach(() => {
-        cy.get('[data-cy=btn-next]').click();
-
-        cy.contains(/time slots with equipments/i);
+        cy.finishedLoading();
+        cy.get('[title="Edit event"]').first().click();
       });
 
       it('should be able to navigate using tabs', () => {
-        cy.get('[data-cy="booking-step-BOOK_EVENTS"]').click();
+        cy.get('[data-cy="btn-next"]').click();
+        cy.get('[data-cy="time-slot-booking-step-BOOK_EVENTS"]').click();
         cy.contains('Save draft');
       });
 
       it('should be able to assign available equipments to time slot', () => {
+        cy.get('[data-cy="btn-next"]').click();
         cy.contains(/no records to show/i);
 
         cy.get('[data-cy=btn-book-equipment]').click();
 
-        cy.contains(currentHourDateTime);
-        cy.contains(getHourDateTimeAfter(24));
-
-        cy.get('[data-cy=btn-assign-to-scheduled-event').click();
-
-        cy.contains(/1-5 of 5/i);
+        cy.finishedLoading();
 
         cy.contains(/Available equipment 1 - no auto accept/i);
         cy.contains(/Available equipment 2 - auto accept/i);
@@ -268,11 +307,18 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy=enhanced-table-checkbox-1]').click();
         cy.get('[data-cy=btn-assign-equipment]').click();
 
-        cy.contains(currentHourDateTime);
-        cy.contains(getHourDateTimeAfter(24));
+        cy.get('[aria-label="equipments"]').should(
+          'include.text',
+          'Available equipment 1 - no auto accept'
+        );
+        cy.get('[aria-label="equipments"]').should(
+          'include.text',
+          'Available equipment 2 - auto accept'
+        );
       });
 
       it('should show warning if some equipment is not accepted', () => {
+        cy.contains(/Time Slot Equipments/i);
         cy.get('[data-cy="accepted-equipment-warning"]').should(
           'contain.text',
           'Warning'
@@ -286,17 +332,10 @@ context('Proposal booking tests ', () => {
       it('should not show already assigned equipments', () => {
         cy.get('[data-cy=btn-book-equipment]').click();
 
-        cy.get('[data-cy=btn-assign-to-scheduled-event').click();
-
         cy.contains(/1-3 of 3/i);
       });
 
       it('should show the assignment status', () => {
-        cy.contains(currentHourDateTime);
-        cy.contains(getHourDateTimeAfter(24));
-
-        cy.get('[data-cy=btn-expand-row]').click();
-
         cy.contains(/Available equipment 1 - no auto accept/i);
         cy.contains(/Available equipment 2 - auto accept/i);
 
@@ -314,6 +353,9 @@ context('Proposal booking tests ', () => {
       });
 
       it('should show available equipments that are booked by proposals that instrument scientist is part of even if he/she is not equipment owner or responsible', () => {
+        cy.finishedLoading();
+        cy.get('[data-cy="btn-close-event-dialog"]').click();
+        cy.wait(100);
         cy.get('[data-cy="btn-close-dialog"]').click();
         cy.finishedLoading();
 
@@ -376,6 +418,9 @@ context('Proposal booking tests ', () => {
       });
 
       it('should be able to open time slot by clicking on the calendar equipment event', () => {
+        cy.finishedLoading();
+        cy.get('[data-cy="btn-close-event-dialog"]').click();
+        cy.wait(100);
         cy.get('[data-cy="btn-close-dialog"]').click();
         cy.finishedLoading();
 
@@ -458,8 +503,6 @@ context('Proposal booking tests ', () => {
       });
 
       it('should be able to remove assigned equipment', () => {
-        cy.get('[data-cy=btn-expand-row]').click();
-
         cy.get('[aria-label=equipments] tbody [role=row]').as('row');
 
         cy.get('@row')
@@ -518,11 +561,8 @@ context('Proposal booking tests ', () => {
 
     describe('Review step', () => {
       it('should request confirmation to activate proposal booking', () => {
-        cy.get('[data-cy=btn-next]').click();
-
-        cy.contains(/activate booking/i).as('activateBookingBtn');
-
-        cy.get('@activateBookingBtn').should('not.be.disabled').click();
+        cy.get('[title="Edit event"]').first().click();
+        cy.get('[data-cy="activate-time-slot-booking"]').click();
 
         cy.get('[data-cy="btn-ok"]').click();
 
@@ -534,15 +574,20 @@ context('Proposal booking tests ', () => {
 
     describe('Final step', () => {
       it('should be able to navigate using tabs', () => {
-        cy.get('[data-cy="booking-step-BOOK_EVENTS"]').click();
+        cy.finishedLoading();
+        cy.get('[title="Edit event"]').first().click();
+        cy.get('[data-cy="time-slot-booking-step-BOOK_EVENTS"]').click();
         cy.contains(/save draft/i);
-        cy.get('[data-cy="booking-step-BOOK_EQUIPMENT"]').click();
-        cy.contains(/time slots with equipments/i);
-        cy.get('[data-cy="booking-step-FINALIZE"]').click();
+        cy.get('[data-cy="time-slot-booking-step-BOOK_EQUIPMENT"]').click();
+        cy.contains('Time Slot Equipments');
+        cy.get('[data-cy="time-slot-booking-step-FINALIZE"]').click();
         cy.contains(/save lost time/i);
       });
 
       it('should be able to log lost time', () => {
+        cy.finishedLoading();
+        cy.get('[title="Edit event"]').first().click();
+        cy.finishedLoading();
         cy.get('[data-cy=btn-add-lost-time]').click();
 
         cy.contains(currentHourDateTime);
@@ -554,15 +599,17 @@ context('Proposal booking tests ', () => {
         cy.contains(getHourDateTimeAfter(1));
       });
 
-      it('should be able to restart the booking process', () => {
+      it('should be able to restart time slot booking process', () => {
+        cy.finishedLoading();
+        cy.get('[title="Edit event"]').first().click();
         cy.contains(/warning/i);
 
         cy.get('[aria-label=proposal-booking-finalization-strategy]').click();
 
-        cy.contains(/restart the booking process/i).click();
+        cy.contains(/restart the time slot booking/i).click();
         cy.wait(100);
 
-        cy.contains(/restart the booking process/i).as('restartBooking');
+        cy.contains(/restart the time slot booking/i).as('restartBooking');
 
         cy.get('@restartBooking').should('not.be.disabled').click();
 
@@ -570,11 +617,16 @@ context('Proposal booking tests ', () => {
 
         cy.wait(500);
 
-        cy.get('[data-cy=btn-add-time-slot]').should('exist');
+        cy.get('[data-cy="btn-book-equipment"]').should('exist');
       });
 
       it('should be able to go through the process again after restarting', () => {
-        cy.get('[data-cy=btn-next]').click();
+        cy.finishedLoading();
+        cy.get('[title="Edit event"]').first().click();
+
+        cy.get('[data-cy="time-slot-booking-step-BOOK_EVENTS"]').click();
+
+        cy.get('[data-cy="btn-next"]').click();
 
         cy.contains(/activate booking/i).as('activateBookingBtn');
 
@@ -586,6 +638,8 @@ context('Proposal booking tests ', () => {
       });
 
       it('should be able to edit lost time', () => {
+        cy.finishedLoading();
+        cy.get('[title="Edit event"]').first().click();
         cy.get('[data-cy=btn-time-table-edit-row]').click();
 
         cy.get('[data-cy=startsAt] input').clear();
@@ -615,6 +669,8 @@ context('Proposal booking tests ', () => {
       });
 
       it('should be able to delete lost time', () => {
+        cy.finishedLoading();
+        cy.get('[title="Edit event"]').first().click();
         cy.get('[data-cy=enhanced-table-checkbox-0]').click();
 
         cy.get('[data-cy=btn-delete]').click();
@@ -637,6 +693,8 @@ context('Proposal booking tests ', () => {
       });
 
       it('should show warning when `startsAt` is after `endsAt`', () => {
+        cy.finishedLoading();
+        cy.get('[title="Edit event"]').first().click();
         cy.get('[data-cy=btn-time-table-edit-row]').click();
 
         cy.get('[data-cy=startsAt] input').clear();
@@ -652,6 +710,8 @@ context('Proposal booking tests ', () => {
       });
 
       it('should show confirmation when there are overlapping lost time events', () => {
+        cy.finishedLoading();
+        cy.get('[title="Edit event"]').first().click();
         cy.get('[data-cy=btn-add-lost-time]').click();
 
         cy.get('[data-cy=btn-save]').click();
@@ -660,20 +720,26 @@ context('Proposal booking tests ', () => {
         cy.contains(/you have overlapping events/i);
       });
 
-      it('should be able to close the booking process', () => {
+      it('should be able to complete the booking process', () => {
+        cy.finishedLoading();
+        cy.get('[title="Edit event"]').first().click();
         cy.contains(/warning/i);
 
-        cy.contains(/close proposal booking/i).as('closeBooking');
+        cy.contains(/complete the time slot booking/i).as('completeBooking');
 
-        cy.get('@closeBooking').should('not.be.disabled').click();
+        cy.finishedLoading();
+
+        cy.get('@completeBooking').should('not.be.disabled').click();
         cy.get('[data-cy="btn-ok"]').click();
 
         cy.wait(500);
 
-        cy.contains(/Proposal booking is already closed, you can not edit it/i);
+        cy.contains(
+          /Time slot booking is already completed, you can not edit it/i
+        );
       });
 
-      it('Closed events should have gray color and opacity', () => {
+      it('Completed events should have gray color and opacity', () => {
         cy.get('[data-cy="btn-close-dialog"]').click();
 
         cy.get('[data-cy="proposal-event-Test proposal-999999"]')

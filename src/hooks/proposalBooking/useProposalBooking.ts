@@ -11,6 +11,7 @@ export type DetailedProposalBooking = Pick<
   | 'status'
   | 'allocatedTime'
   | 'scheduledEvents'
+  | 'instrument'
 > & {
   call: Pick<
     Call,

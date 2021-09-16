@@ -3,5 +3,13 @@ query getProposalBookingScheduledEvents($proposalBookingId: Int!) {
     id
     startsAt
     endsAt
+    bookingType
+    scheduledBy {
+      id
+      firstname
+      lastname
+    }
+    status
+    description
   }
 }

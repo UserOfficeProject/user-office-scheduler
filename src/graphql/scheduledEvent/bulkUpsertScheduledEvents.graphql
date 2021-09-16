@@ -5,6 +5,14 @@ mutation bulkUpsertScheduledEvents($input: BulkUpsertScheduledEventsInput!) {
       id
       startsAt
       endsAt
+      bookingType
+      scheduledBy {
+        id
+        firstname
+        lastname
+      }
+      status
+      description
     }
   }
 }

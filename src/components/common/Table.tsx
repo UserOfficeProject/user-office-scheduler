@@ -151,7 +151,7 @@ function EnhancedTableHead<T>(props: EnhancedTableProps<T>) {
           <TableCell
             key={`${headCell.id}`}
             align={headCell.numeric ? 'right' : 'left'}
-            padding={headCell.padding ? headCell.padding : 'default'}
+            padding={headCell.padding ? headCell.padding : 'normal'}
             sortDirection={orderBy === headCell.id ? order : false}
           >
             <TableSortLabel

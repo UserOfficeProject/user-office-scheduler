@@ -25,8 +25,11 @@ export type CalendarScheduledEvent = Pick<
   | 'status'
 > & {
   start: Date;
+  startTableRenderValue: string;
   end: Date;
+  endTableRenderValue: string;
   title: string;
+  bookingTypeTableRenderValue: string;
   proposalBooking: BasicProposalBooking;
   instrument: GetScheduledEventsQuery['scheduledEvents'][number]['instrument'];
   scheduledBy: GetScheduledEventsQuery['scheduledEvents'][number]['scheduledBy'];
@@ -42,9 +45,9 @@ export const isDraftEvent = (
   proposalBooking?: Pick<ProposalBooking, 'status'> | null
 ) => proposalBooking?.status === ProposalBookingStatus.DRAFT;
 
-export const isClosedEvent = (
+export const isCompletedEvent = (
   proposalBooking?: Pick<ProposalBooking, 'status'> | null
-) => proposalBooking?.status === ProposalBookingStatus.CLOSED;
+) => proposalBooking?.status === ProposalBookingStatus.COMPLETED;
 
 export const getBookingTypeStyle = (
   bookingType: ScheduledEventBookingType,
@@ -83,7 +86,7 @@ export const getBookingTypeStyle = (
   }
 };
 
-export const getClosedBookingStyle = (): CSSProperties => ({
+export const getCompletedBookingStyle = (): CSSProperties => ({
   backgroundColor: 'rgba(0, 0, 0, 0.5)',
   color: '#fff',
 });
@@ -92,8 +95,8 @@ export function eventPropGetter(event: CalendarScheduledEvent): {
   className?: string;
   style?: CSSProperties;
 } {
-  const eventStyle = isClosedEvent({ status: event.status })
-    ? getClosedBookingStyle()
+  const eventStyle = isCompletedEvent({ status: event.status })
+    ? getCompletedBookingStyle()
     : getBookingTypeStyle(event.bookingType, event.status);
 
   return {
@@ -139,7 +142,7 @@ export default function Event({
       );
     default:
       return (
-        <div data-cy={`event-${start.toISOString()}`}>
+        <div data-cy={`event-${new Date(start).toISOString()}`}>
           <strong>{title}</strong>
           <div className={classes.eventDescription} data-cy="test-test">
             {description}

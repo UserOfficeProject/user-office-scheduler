@@ -477,7 +477,8 @@ export type Feature = {
 export enum FeatureId {
   SHIPPING = 'SHIPPING',
   SCHEDULER = 'SCHEDULER',
-  EXTERNAL_AUTH = 'EXTERNAL_AUTH'
+  EXTERNAL_AUTH = 'EXTERNAL_AUTH',
+  RISK_ASSESSMENT = 'RISK_ASSESSMENT'
 }
 
 export type FieldCondition = {
@@ -990,12 +991,14 @@ export type MutationUpdateTechnicalReviewAssigneeArgs = {
 
 export type MutationCreateRiskAssessmentArgs = {
   proposalPk: Scalars['Int'];
+  scheduledEventId: Scalars['Int'];
 };
 
 
 export type MutationUpdateRiskAssessmentArgs = {
   riskAssessmentId: Scalars['Int'];
   status?: Maybe<RiskAssessmentStatus>;
+  sampleIds?: Maybe<Array<Scalars['Int']>>;
 };
 
 
@@ -1719,7 +1722,7 @@ export type ProposalBookingScheduledEventsArgs = {
 };
 
 export enum ProposalBookingFinalizeAction {
-  CLOSE = 'CLOSE',
+  COMPLETE = 'COMPLETE',
   RESTART = 'RESTART'
 }
 
@@ -1737,8 +1740,8 @@ export type ProposalBookingScheduledEventFilter = {
 
 export enum ProposalBookingStatus {
   DRAFT = 'DRAFT',
-  BOOKED = 'BOOKED',
-  CLOSED = 'CLOSED'
+  ACTIVE = 'ACTIVE',
+  COMPLETED = 'COMPLETED'
 }
 
 export enum ProposalEndStatus {
@@ -2523,10 +2526,12 @@ export type RiskAssessment = {
   __typename?: 'RiskAssessment';
   riskAssessmentId: Scalars['Int'];
   proposalPk: Scalars['Int'];
+  scheduledEventId: Scalars['Int'];
   creatorUserId: Scalars['Int'];
   questionaryId: Scalars['Int'];
   status: RiskAssessmentStatus;
   questionary: Questionary;
+  samples: Array<Sample>;
 };
 
 export type RiskAssessmentBasisConfig = {
@@ -3471,6 +3476,9 @@ export type GetProposalBookingQuery = (
     )>, scheduledEvents: Array<(
       { __typename?: 'ScheduledEvent' }
       & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
+    )>, instrument: Maybe<(
+      { __typename?: 'Instrument' }
+      & Pick<Instrument, 'id' | 'name'>
     )> }
   )> }
 );
@@ -3504,7 +3512,11 @@ export type BulkUpsertScheduledEventsMutation = (
     & Pick<ScheduledEventsResponseWrap, 'error'>
     & { scheduledEvent: Maybe<Array<(
       { __typename?: 'ScheduledEvent' }
-      & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
+      & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt' | 'bookingType' | 'status' | 'description'>
+      & { scheduledBy: Maybe<(
+        { __typename?: 'User' }
+        & Pick<User, 'id' | 'firstname' | 'lastname'>
+      )> }
     )>> }
   ) }
 );
@@ -3585,7 +3597,11 @@ export type GetProposalBookingScheduledEventsQuery = (
   { __typename?: 'Query' }
   & { proposalBookingScheduledEvents: Array<(
     { __typename?: 'ScheduledEvent' }
-    & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
+    & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt' | 'bookingType' | 'status' | 'description'>
+    & { scheduledBy: Maybe<(
+      { __typename?: 'User' }
+      & Pick<User, 'id' | 'firstname' | 'lastname'>
+    )> }
   )> }
 );
 
@@ -3995,6 +4011,10 @@ export const GetProposalBookingDocument = gql`
       startsAt
       endsAt
     }
+    instrument {
+      id
+      name
+    }
     createdAt
     updatedAt
     status
@@ -4022,6 +4042,14 @@ export const BulkUpsertScheduledEventsDocument = gql`
       id
       startsAt
       endsAt
+      bookingType
+      scheduledBy {
+        id
+        firstname
+        lastname
+      }
+      status
+      description
     }
   }
 }
@@ -4090,6 +4118,14 @@ export const GetProposalBookingScheduledEventsDocument = gql`
     id
     startsAt
     endsAt
+    bookingType
+    scheduledBy {
+      id
+      firstname
+      lastname
+    }
+    status
+    description
   }
 }
     `;

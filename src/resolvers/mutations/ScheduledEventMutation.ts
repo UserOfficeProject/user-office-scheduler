@@ -37,30 +37,21 @@ export class NewScheduledEventInput implements Partial<ScheduledEventBase> {
 
   @Field(() => Int)
   instrumentId: number;
+
+  @Field(() => Int, { nullable: true })
+  proposalBookingId?: number;
 }
 
 @InputType()
-export class SimpleScheduledEventInput {
-  @Field(() => Int)
-  id: number;
+export class DeleteScheduledEventsInput {
+  @Field(() => [Int])
+  ids: number[];
 
-  @Field(() => TzLessDateTime)
-  startsAt: Date;
-
-  @Field(() => TzLessDateTime)
-  endsAt: Date;
-
-  @Field(() => Boolean, { nullable: true })
-  newlyCreated?: boolean;
-}
-
-@InputType()
-export class BulkUpsertScheduledEventsInput {
   @Field(() => Int)
   proposalBookingId: number;
 
-  @Field(() => [SimpleScheduledEventInput])
-  scheduledEvents: SimpleScheduledEventInput[];
+  @Field(() => Int)
+  instrumentId: number;
 }
 
 @InputType()
@@ -105,14 +96,14 @@ export class ScheduledEventMutation {
   }
 
   @Mutation(() => ScheduledEventsResponseWrap)
-  bulkUpsertScheduledEvents(
+  deleteScheduledEvents(
     @Ctx() ctx: ResolverContext,
-    @Arg('bulkUpsertScheduledEvents', () => BulkUpsertScheduledEventsInput)
-    bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput
+    @Arg('deleteScheduledEventsInput', () => DeleteScheduledEventsInput)
+    deleteScheduledEvents: DeleteScheduledEventsInput
   ) {
     return wrapResponse(
-      ctx.mutations.scheduledEvent.bulkUpsert(ctx, bulkUpsertScheduledEvents),
-      ScheduledEventResponseWrap
+      ctx.mutations.scheduledEvent.delete(ctx, deleteScheduledEvents),
+      ScheduledEventsResponseWrap
     );
   }
 

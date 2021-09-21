@@ -1,4 +1,5 @@
 import { Proposal, Event } from '../generated/sdk';
+import { ScheduledEvent } from '../models/ScheduledEvent';
 
 interface GeneralEvent {
   type: Event;
@@ -17,6 +18,18 @@ interface ProposalStatusChangedByUserEvent extends GeneralEvent {
   proposal: Proposal;
 }
 
+interface ProposalBookingTimeSlotAddedEvent extends GeneralEvent {
+  type: Event.PROPOSAL_BOOKING_TIME_SLOT_ADDED;
+  scheduledevent: ScheduledEvent;
+}
+
+interface ProposalBookingTimeSlotsRemovedEvent extends GeneralEvent {
+  type: Event.PROPOSAL_BOOKING_TIME_SLOTS_REMOVED;
+  scheduledevents: ScheduledEvent[];
+}
+
 export type ApplicationEvent =
   | ProposalStatusChangedByWorkflowEvent
-  | ProposalStatusChangedByUserEvent;
+  | ProposalStatusChangedByUserEvent
+  | ProposalBookingTimeSlotAddedEvent
+  | ProposalBookingTimeSlotsRemovedEvent;

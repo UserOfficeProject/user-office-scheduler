@@ -7,7 +7,7 @@ import {
   ScheduledEventBookingType,
 } from '../../models/ScheduledEvent';
 import {
-  BulkUpsertScheduledEventsInput,
+  DeleteScheduledEventsInput,
   NewScheduledEventInput,
   UpdateScheduledEventInput,
 } from '../../resolvers/mutations/ScheduledEventMutation';
@@ -47,6 +47,7 @@ export default class PostgreScheduledEventDataSource
         booking_type: newScheduledEvent.bookingType,
         starts_at: newScheduledEvent.startsAt,
         ends_at: newScheduledEvent.endsAt,
+        proposal_booking_id: newScheduledEvent.proposalBookingId,
         scheduled_by: scheduledById,
         description: newScheduledEvent.description,
         instrument_id: newScheduledEvent.instrumentId,
@@ -116,58 +117,25 @@ export default class PostgreScheduledEventDataSource
     return createScheduledEventObject(updatedRecord);
   }
 
-  // technically we don't update anything
-  // we only delete and (re)create
-  bulkUpsert(
-    scheduledById: number,
-    instrumentId: number,
-    bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput
+  async delete(
+    deleteScheduledEvents: DeleteScheduledEventsInput
   ): Promise<ScheduledEvent[]> {
-    return database.transaction(async (trx) => {
-      const { proposalBookingId, scheduledEvents } = bulkUpsertScheduledEvents;
+    const deletedRecord = await database<ScheduledEventRecord>(this.tableName)
+      .del()
+      .whereIn('scheduled_event_id', deleteScheduledEvents.ids)
+      .andWhere('proposal_booking_id', deleteScheduledEvents.proposalBookingId)
+      .andWhere('instrument_id', deleteScheduledEvents.instrumentId)
+      .returning('*');
 
-      // delete existing events that weren't included in the upsert
-      await trx<ScheduledEventRecord>(this.tableName)
-        .where('proposal_booking_id', proposalBookingId)
-        .whereNotIn(
-          'scheduled_event_id',
-          scheduledEvents
-            .filter(({ newlyCreated }) => !newlyCreated)
-            .map(({ id }) => id)
-        )
-        .delete();
+    if (!deletedRecord.length) {
+      throw new Error(
+        `Scheduled event ${deleteScheduledEvents.ids.join(
+          ', '
+        )} could not be removed`
+      );
+    }
 
-      // when the insert has empty array as param it
-      // returns an object instead of an empty record array
-      if (scheduledEvents.length === 0) {
-        return [];
-      }
-
-      const newlyCreatedRecords = await trx<ScheduledEventRecord>(
-        this.tableName
-      )
-        .insert(
-          scheduledEvents.map((newObj) => ({
-            scheduled_event_id: newObj.newlyCreated ? this.nextId : newObj.id,
-            proposal_booking_id: proposalBookingId,
-            booking_type: ScheduledEventBookingType.USER_OPERATIONS,
-            scheduled_by: scheduledById,
-            starts_at: newObj.startsAt,
-            ends_at: newObj.endsAt,
-            instrument_id: instrumentId,
-          }))
-        )
-        .onConflict('scheduled_event_id')
-        .merge()
-        .returning<ScheduledEventRecord[]>(['*']);
-
-      return newlyCreatedRecords.map(createScheduledEventObject);
-    });
-  }
-
-  async delete(): Promise<null> {
-    // TODO: decide if we can delete scheduled events or not (maybe want to treat them as canceled)
-    throw new Error('not implemented yet');
+    return deletedRecord.map(createScheduledEventObject);
   }
 
   async get(id: number): Promise<ScheduledEvent | null> {

@@ -95,6 +95,7 @@ export default class ScheduledEventMutations {
       });
   }
 
+  @EventBus(Event.PROPOSAL_BOOKING_TIME_UPDATED)
   @ValidateArgs(updateScheduledEventValidationSchema)
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
   async update(
@@ -174,6 +175,7 @@ export default class ScheduledEventMutations {
     }
   }
 
+  @EventBus(Event.PROPOSAL_BOOKING_TIME_ACTIVATED)
   @ValidateArgs(activateBookingValidationSchema)
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
   async activate(
@@ -226,6 +228,7 @@ export default class ScheduledEventMutations {
     return result;
   }
 
+  @EventBus(Event.PROPOSAL_BOOKING_TIME_COMPLETED)
   @ValidateArgs(finalizeBookingValidationSchema)
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
   async finalize(

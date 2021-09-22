@@ -1,10 +1,12 @@
 import { logger } from '@esss-swap/duo-logger';
 import { Queue, RabbitMQMessageBroker } from '@esss-swap/duo-message-broker';
+import { DateTime } from 'luxon';
 
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
 import { ApplicationEvent } from '../events/applicationEvents';
 import { Event } from '../generated/sdk';
 import { ScheduledEvent } from '../models/ScheduledEvent';
+import { TZ_LESS_DATE_TIME } from '../resolvers/CustomScalars';
 
 const rabbitMQ = new RabbitMQMessageBroker();
 
@@ -100,8 +102,12 @@ export function createPostToRabbitMQHandler({
         const message = {
           id: scheduledevent.id,
           bookingType: scheduledevent.bookingType,
-          startsAt: scheduledevent.startsAt,
-          endsAt: scheduledevent.endsAt,
+          startsAt: DateTime.fromJSDate(scheduledevent.startsAt).toFormat(
+            TZ_LESS_DATE_TIME
+          ),
+          endsAt: DateTime.fromJSDate(scheduledevent.endsAt).toFormat(
+            TZ_LESS_DATE_TIME
+          ),
           proposalBookingId: scheduledevent.proposalBookingId,
           status: scheduledevent.status,
           proposalPk: proposalBooking?.proposal.primaryKey,
@@ -169,6 +175,53 @@ export function createPostToRabbitMQHandler({
         }
 
         return;
+      case Event.PROPOSAL_BOOKING_TIME_ACTIVATED:
+      case Event.PROPOSAL_BOOKING_TIME_UPDATED:
+      case Event.PROPOSAL_BOOKING_TIME_COMPLETED: {
+        const { scheduledevent } = event;
+
+        if (!scheduledevent) {
+          logger.logWarn('Scheduled event not found', {
+            event,
+          });
+
+          return;
+        }
+
+        if (!scheduledevent.proposalBookingId) {
+          logger.logWarn(
+            `Scheduled event '${scheduledevent.id}' has no proposal booking`,
+            {
+              scheduledevent,
+            }
+          );
+
+          return;
+        }
+
+        const message = {
+          id: scheduledevent.id,
+          proposalBookingId: scheduledevent.proposalBookingId,
+          startsAt: DateTime.fromJSDate(scheduledevent.startsAt).toFormat(
+            TZ_LESS_DATE_TIME
+          ),
+          endsAt: DateTime.fromJSDate(scheduledevent.endsAt).toFormat(
+            TZ_LESS_DATE_TIME
+          ),
+          status: scheduledevent.status,
+        };
+
+        const json = JSON.stringify(message);
+
+        await rabbitMQ.sendMessage(Queue.SCHEDULED_EVENTS, event.type, json);
+
+        logger.logDebug(
+          'Proposal booking scheduled event successfully sent to the message broker',
+          { eventType: event.type, json }
+        );
+
+        return;
+      }
       default:
         // captured and logged by duo-message-broker
         // message forwarded to dead-letter queue (DL__SCHEDULED_EVENTS)

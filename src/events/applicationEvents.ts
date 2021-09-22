@@ -28,8 +28,26 @@ interface ProposalBookingTimeSlotsRemovedEvent extends GeneralEvent {
   scheduledevents: ScheduledEvent[];
 }
 
+interface ProposalBookingTimeSlotActivatedEvent extends GeneralEvent {
+  type: Event.PROPOSAL_BOOKING_TIME_ACTIVATED;
+  scheduledevent: ScheduledEvent;
+}
+
+interface ProposalBookingTimeSlotCompletedEvent extends GeneralEvent {
+  type: Event.PROPOSAL_BOOKING_TIME_COMPLETED;
+  scheduledevent: ScheduledEvent;
+}
+
+interface ProposalBookingTimeSlotUpdatedEvent extends GeneralEvent {
+  type: Event.PROPOSAL_BOOKING_TIME_UPDATED;
+  scheduledevent: ScheduledEvent;
+}
+
 export type ApplicationEvent =
   | ProposalStatusChangedByWorkflowEvent
   | ProposalStatusChangedByUserEvent
   | ProposalBookingTimeSlotAddedEvent
-  | ProposalBookingTimeSlotsRemovedEvent;
+  | ProposalBookingTimeSlotsRemovedEvent
+  | ProposalBookingTimeSlotActivatedEvent
+  | ProposalBookingTimeSlotCompletedEvent
+  | ProposalBookingTimeSlotUpdatedEvent;

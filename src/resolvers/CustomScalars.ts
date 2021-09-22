@@ -1,7 +1,7 @@
 import { GraphQLScalarType, Kind } from 'graphql';
 import { DateTime } from 'luxon';
 
-const TZ_LESS_DATE_TIME = 'yyyy-MM-dd HH:mm:ss';
+export const TZ_LESS_DATE_TIME = 'yyyy-MM-dd HH:mm:ss';
 
 function parseTzLessDateTime(value: string) {
   const parsed = DateTime.fromFormat(value, TZ_LESS_DATE_TIME);

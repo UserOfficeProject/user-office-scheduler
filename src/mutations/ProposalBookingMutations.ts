@@ -10,6 +10,8 @@ import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSou
 import { ScheduledEventDataSource } from '../datasources/ScheduledEventDataSource';
 import Authorized from '../decorators/Authorized';
 import ValidateArgs from '../decorators/ValidateArgs';
+import { eventBus } from '../events';
+import { Event } from '../generated/sdk';
 import { instrumentScientistHasAccess } from '../helpers/permissionHelpers';
 import { EquipmentAssignmentStatus } from '../models/Equipment';
 import {
@@ -57,7 +59,7 @@ export default class ProposalBookingMutations {
           proposalBooking.id
         );
 
-      await Promise.all(
+      const result = await Promise.all(
         allScheduledEvents
           .filter((event) => event.status !== ProposalBookingStatus.COMPLETED)
           .map(
@@ -68,6 +70,18 @@ export default class ProposalBookingMutations {
               )
           )
       );
+
+      if (result.length === allScheduledEvents.length) {
+        result.map((scheduledEvent) => {
+          eventBus.publish({
+            type: Event.PROPOSAL_BOOKING_TIME_COMPLETED,
+            isRejection: false,
+            key: 'scheduledevent',
+            loggedInUserId: +ctx.user!.id,
+            scheduledevent: scheduledEvent,
+          });
+        });
+      }
     }
 
     return result;

@@ -4,6 +4,7 @@ mutation updateEquipment($id: Int!, $updateEquipmentInput: EquipmentInput!) {
     equipment {
       id
       name
+      description
       maintenanceStartsAt
       maintenanceEndsAt
       autoAccept

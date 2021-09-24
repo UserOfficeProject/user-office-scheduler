@@ -5,7 +5,12 @@ import { useDataApi } from 'hooks/common/useDataApi';
 
 export type PartialEquipment = Pick<
   Equipment,
-  'id' | 'name' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'
+  | 'id'
+  | 'name'
+  | 'description'
+  | 'maintenanceStartsAt'
+  | 'maintenanceEndsAt'
+  | 'autoAccept'
 >;
 
 export default function useEquipments() {

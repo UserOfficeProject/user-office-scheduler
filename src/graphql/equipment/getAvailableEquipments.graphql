@@ -4,6 +4,7 @@ query getAvailableEquipments($scheduledEventId: Int!) {
     createdAt
     updatedAt
     name
+    description
     maintenanceStartsAt
     maintenanceEndsAt
     autoAccept

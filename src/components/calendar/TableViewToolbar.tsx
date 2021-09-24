@@ -69,8 +69,15 @@ function TableViewToolbar({
   const query = useQuery();
   const classes = useStyles();
   const history = useHistory();
-  const [startsAt, setStartsAt] = useState<Moment | null>(moment(startsAtDate));
-  const [endsAt, setEndsAt] = useState<Moment | null>(moment(endsAtDate));
+  const queryStartsAt = query.get('startsAt');
+  const queryEndsAt = query.get('endsAt');
+
+  const [startsAt, setStartsAt] = useState<Moment | null>(
+    moment(queryStartsAt || startsAtDate)
+  );
+  const [endsAt, setEndsAt] = useState<Moment | null>(
+    moment(queryEndsAt || endsAtDate)
+  );
   const [queryEquipment, setQueryEquipment] = useState<number[]>([]);
 
   const queryInstrument = query.get('instrument');
@@ -92,8 +99,20 @@ function TableViewToolbar({
       moment(endsAtDate).diff(endsAt, 'hour')
     ) {
       onDateRangeChange(startsAt, endsAt);
+      query.set('startsAt', `${startsAt}`);
+      query.set('endsAt', `${endsAt}`);
+
+      history.push(`?${query}`);
     }
-  }, [startsAt, startsAtDate, endsAt, endsAtDate, onDateRangeChange]);
+  }, [
+    startsAt,
+    startsAtDate,
+    endsAt,
+    endsAtDate,
+    onDateRangeChange,
+    history,
+    query,
+  ]);
 
   const [queryValueInitialized, setQueryValueInitialized] = useState(
     !queryInstrument // if the link has query instrument query value when rendering this component

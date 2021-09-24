@@ -293,5 +293,55 @@ context('Scheduled events table tests', () => {
         'No records to display'
       );
     });
+
+    it('should not reset dates if instrument is changed in filters', () => {
+      cy.initializeSession('UserOfficer');
+      cy.finishedLoading();
+
+      cy.get('[data-cy=input-instrument-select]').click();
+
+      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
+        .first()
+        .click();
+
+      cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
+
+      cy.get('[data-cy="toggle-table-view"]').click();
+
+      cy.get('[data-cy="scheduled-events-table"]').should('exist');
+
+      cy.get('[data-cy=table-toolbar-endsAt] input').clear();
+
+      cy.get('[data-cy=table-toolbar-endsAt] input').type(
+        getHourDateTimeAfter(9, 'days')
+      );
+
+      cy.finishedLoading();
+
+      cy.get('[data-cy=table-toolbar-instrument-select]').click();
+      cy.get(
+        '[aria-labelledby=table-toolbar-instrument-select-label] [role=option]'
+      )
+        .last()
+        .click();
+
+      cy.finishedLoading();
+
+      cy.get('[data-cy=table-toolbar-endsAt] input').should(
+        'have.value',
+        getHourDateTimeAfter(9, 'days').split(' ')[0]
+      );
+
+      cy.reload();
+
+      cy.finishedLoading();
+
+      cy.get('[data-cy="toggle-table-view"]').click();
+
+      cy.get('[data-cy=table-toolbar-endsAt] input').should(
+        'have.value',
+        getHourDateTimeAfter(9, 'days').split(' ')[0]
+      );
+    });
   });
 });

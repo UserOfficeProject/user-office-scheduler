@@ -65,7 +65,14 @@ export default function SelectEquipmentDialog({
   };
 
   return (
-    <Dialog open={isDialogOpen} maxWidth="md" fullWidth>
+    <Dialog
+      open={isDialogOpen}
+      onClose={() => {
+        closeDialog(true);
+      }}
+      maxWidth="md"
+      fullWidth
+    >
       {loading && <Loader />}
       <DialogContent>
         <Table

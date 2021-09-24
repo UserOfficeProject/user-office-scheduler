@@ -444,6 +444,15 @@ export default function Calendar() {
     { title: 'Proposal ID', field: 'proposalBooking.proposal.proposalId' },
   ];
 
+  const ViewTableRowIcon = (rowData: CalendarScheduledEvent) => (
+    <ViewIcon
+      style={{
+        ...getBookingTypeStyle(rowData.bookingType, rowData.status),
+        backgroundColor: 'inherit',
+      }}
+    />
+  );
+
   // 100% height needed for month view
   // also the other components make whole page scrollable without it
   return (
@@ -604,14 +613,14 @@ export default function Calendar() {
                         pageSize: 10,
                       }}
                       actions={[
-                        {
-                          icon: ViewIcon,
+                        (rowData) => ({
+                          icon: () => ViewTableRowIcon(rowData),
                           tooltip: 'View event',
                           onClick: (_event, rowData) => {
                             onSelectEvent(rowData as CalendarScheduledEvent);
                           },
                           position: 'row',
-                        },
+                        }),
                       ]}
                     />
                   </div>

@@ -30,7 +30,10 @@ import EquipmentBookingDialog from 'components/equipment/EquipmentBookingDialog'
 import ScheduledEventDialog, {
   SlotInfo,
 } from 'components/scheduledEvent/ScheduledEventDialog';
-import { BookingTypesMap } from 'components/scheduledEvent/ScheduledEventForm';
+import {
+  BookingTypesMap,
+  ScheduledEventStatusMap,
+} from 'components/scheduledEvent/ScheduledEventForm';
 import TimeSlotBookingDialog from 'components/timeSlotBooking/TimeSlotBookingDialog';
 import { AppContext } from 'context/AppContext';
 import {
@@ -90,6 +93,7 @@ const transformEvent = (
     instrument: scheduledEvent.instrument,
     scheduledBy: scheduledEvent.scheduledBy,
     status: scheduledEvent.status,
+    statusTableRenderValue: ScheduledEventStatusMap[scheduledEvent.status],
   }));
 
 function isOverlapping(
@@ -434,7 +438,7 @@ export default function Calendar() {
       field: 'endTableRenderValue',
     },
     { title: 'Description', field: 'description' },
-    { title: 'Status', field: 'status' },
+    { title: 'Status', field: 'statusTableRenderValue' },
     { title: 'Instrument', field: 'instrument.name' },
     { title: 'Proposal', field: 'proposalBooking.proposal.title' },
     { title: 'Proposal ID', field: 'proposalBooking.proposal.proposalId' },

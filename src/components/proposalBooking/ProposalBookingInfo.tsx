@@ -1,11 +1,8 @@
 import { makeStyles } from '@material-ui/core';
 import React from 'react';
 
-import {
-  BasicProposalBooking,
-  isDraftEvent,
-  isCompletedEvent,
-} from 'components/calendar/Event';
+import { BasicProposalBooking } from 'components/calendar/Event';
+import { ScheduledEventStatusMap } from 'components/scheduledEvent/ScheduledEventForm';
 import { ProposalBookingStatus } from 'generated/sdk';
 
 const useStyles = makeStyles(() => ({
@@ -55,10 +52,7 @@ function ProposalBookingInfo({
       data-cy={`proposal-event-${proposal.title}-${proposal.proposalId}`}
     >
       <div className={classes.proposalId}>
-        {isDraftEvent({ status: scheduledEventStatus }) ? '[Draft] - ' : ''}
-        {isCompletedEvent({ status: scheduledEventStatus })
-          ? '[Completed] - '
-          : ''}
+        [{ScheduledEventStatusMap[scheduledEventStatus]}] -{' '}
         {proposal.proposalId}
       </div>
       <div className={classes.title}>{proposal.title}</div>

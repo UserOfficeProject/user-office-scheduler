@@ -98,6 +98,7 @@ context('Proposal booking tests ', () => {
 
     describe('Book events step', () => {
       it('should be able to add new time slot', () => {
+        cy.contains('Proposal ID');
         cy.get('[title="Add time slot"]').click();
 
         cy.contains(currentHourDateTime);
@@ -193,6 +194,7 @@ context('Proposal booking tests ', () => {
         cy.contains(getHourDateTimeAfter(3));
 
         cy.contains('Proposal title');
+        cy.contains('Proposal ID');
         cy.get('[data-cy="btn-next"]').should('exist');
       });
 
@@ -741,6 +743,17 @@ context('Proposal booking tests ', () => {
 
       it('Completed events should have gray color and opacity', () => {
         cy.get('[data-cy="btn-close-dialog"]').click();
+
+        cy.get('[data-cy="proposal-event-Test proposal-999999"]').should(
+          'contain.text',
+          '[Completed]'
+        );
+
+        cy.get(
+          '#instrument-calls-tree-view [role=treeitem] [role=group] [role=treeitem]'
+        )
+          .first()
+          .should('contain.text', '[Completed]');
 
         cy.get('[data-cy="proposal-event-Test proposal-999999"]')
           .parent()

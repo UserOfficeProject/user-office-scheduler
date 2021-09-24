@@ -13,7 +13,7 @@ import useProposalBookingLostTimes from 'hooks/lostTime/useProposalBookingLostTi
 import { parseTzLessDateTime } from 'utils/date';
 
 import TimeTable, { TimeTableRow } from '../../proposalBooking/TimeTable';
-import { ProposalBookingDialogStepProps } from '../TimeSlotBookingDialog';
+import { TimeSlotBookingDialogStepProps } from '../TimeSlotBookingDialog';
 
 const useStyles = makeStyles(() => ({
   resetFlex: {
@@ -25,7 +25,7 @@ const useStyles = makeStyles(() => ({
 export default function TimeSlotCompletedStep({
   scheduledEvent,
   handleCloseDialog,
-}: ProposalBookingDialogStepProps) {
+}: TimeSlotBookingDialogStepProps) {
   const classes = useStyles();
   const proposalBooking = scheduledEvent.proposalBooking as ProposalBooking;
 

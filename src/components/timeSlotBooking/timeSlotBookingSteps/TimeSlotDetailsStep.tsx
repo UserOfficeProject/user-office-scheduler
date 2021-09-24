@@ -22,6 +22,7 @@ import {
   FolderOpen as FolderOpenIcon,
   Check as CheckIcon,
   Clear as ClearIcon,
+  Edit,
 } from '@material-ui/icons';
 import {
   KeyboardDateTimePicker,
@@ -33,6 +34,7 @@ import moment, { Moment } from 'moment';
 import { useSnackbar } from 'notistack';
 import React, { useContext, useMemo, useState } from 'react';
 
+import IdentifierIcon from 'components/common/icons/IdentifierIcon';
 import Loader from 'components/common/Loader';
 import { AppContext } from 'context/AppContext';
 import { ProposalBooking, ProposalBookingStatus } from 'generated/sdk';
@@ -43,7 +45,7 @@ import {
 } from 'utils/date';
 import { hasOverlappingEvents } from 'utils/scheduledEvent';
 
-import { ProposalBookingDialogStepProps } from '../TimeSlotBookingDialog';
+import { TimeSlotBookingDialogStepProps } from '../TimeSlotBookingDialog';
 
 const useStyles = makeStyles((theme) => ({
   list: {
@@ -71,6 +73,11 @@ const useStyles = makeStyles((theme) => ({
   smaller: {
     fontSize: '0.875rem',
   },
+  editIcon: {
+    marginLeft: theme.spacing(1),
+    cursor: 'pointer',
+    position: 'absolute',
+  },
 }));
 
 const formatDuration = (durSec: number) =>
@@ -80,7 +87,7 @@ const formatDuration = (durSec: number) =>
     largest: 3,
   });
 
-export default function TimeSlotBookingEventStep({
+export default function TimeSlotDetailsStep({
   activeStatus,
   scheduledEvent,
   setScheduledEvent,
@@ -88,10 +95,12 @@ export default function TimeSlotBookingEventStep({
   handleNext,
   handleSetDirty,
   handleCloseDialog,
-}: ProposalBookingDialogStepProps) {
+}: TimeSlotBookingDialogStepProps) {
   const proposalBooking = scheduledEvent.proposalBooking as ProposalBooking;
   const [editingStartDate, setEditingStartDate] = useState(false);
   const [editingEndDate, setEditingEndDate] = useState(false);
+  const [showStartsAtEditIcon, setShowStartsAtEditIcon] = useState(false);
+  const [showEndsAtEditIcon, setShowEndsAtEditIcon] = useState(false);
 
   const isStepReadOnly = activeStatus !== ProposalBookingStatus.DRAFT;
 
@@ -252,12 +261,28 @@ export default function TimeSlotBookingEventStep({
                     </Avatar>
                   </ListItemAvatar>
                   {!editingStartDate && (
-                    <ListItemText
-                      onClick={() => setEditingStartDate(true)}
-                      primary="Starts at"
-                      data-cy="startsAtInfo"
-                      secondary={toTzLessDateTime(startsAt as Moment)}
-                    />
+                    <>
+                      <ListItemText
+                        onClick={() => setEditingStartDate(!isStepReadOnly)}
+                        onMouseOver={() =>
+                          setShowStartsAtEditIcon(!isStepReadOnly)
+                        }
+                        onMouseLeave={() => setShowStartsAtEditIcon(false)}
+                        primary="Starts at"
+                        data-cy="startsAtInfo"
+                        secondary={
+                          <>
+                            {toTzLessDateTime(startsAt as Moment)}
+                            {showStartsAtEditIcon && (
+                              <Edit
+                                fontSize="small"
+                                className={classes.editIcon}
+                              />
+                            )}
+                          </>
+                        }
+                      />
+                    </>
                   )}
                   {editingStartDate && (
                     <>
@@ -361,8 +386,20 @@ export default function TimeSlotBookingEventStep({
                     <ListItemText
                       primary="Ends at"
                       data-cy="endsAtInfo"
-                      onClick={() => setEditingEndDate(true)}
-                      secondary={toTzLessDateTime(endsAt as Moment)}
+                      onMouseOver={() => setShowEndsAtEditIcon(!isStepReadOnly)}
+                      onMouseLeave={() => setShowEndsAtEditIcon(false)}
+                      onClick={() => setEditingEndDate(!isStepReadOnly)}
+                      secondary={
+                        <>
+                          {toTzLessDateTime(endsAt as Moment)}
+                          {showEndsAtEditIcon && (
+                            <Edit
+                              fontSize="small"
+                              className={classes.editIcon}
+                            />
+                          )}
+                        </>
+                      }
                     />
                   )}
                   {editingEndDate && (
@@ -423,6 +460,17 @@ export default function TimeSlotBookingEventStep({
                   component="li"
                   className={classes.divider}
                 />
+                <ListItem disableGutters>
+                  <ListItemAvatar>
+                    <Avatar>
+                      <IdentifierIcon />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary="Proposal ID"
+                    secondary={proposalBooking.proposal?.proposalId}
+                  />
+                </ListItem>
               </List>
             </Grid>
           </MuiPickersUtilsProvider>

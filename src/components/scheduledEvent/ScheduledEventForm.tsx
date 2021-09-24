@@ -6,7 +6,10 @@ import { TextField } from 'formik-material-ui';
 import { KeyboardDateTimePicker } from 'formik-material-ui-pickers';
 import React from 'react';
 
-import { ScheduledEventBookingType } from 'generated/sdk';
+import {
+  ProposalBookingStatus,
+  ScheduledEventBookingType,
+} from 'generated/sdk';
 import { TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
 
 export type BookingTypes = typeof ScheduledEventBookingType;
@@ -25,6 +28,17 @@ export const CalendarExplicitBookableTypes: Record<
 > = {
   MAINTENANCE: 'Maintenance',
   SHUTDOWN: 'Shutdown',
+};
+
+export type ProposalBookingStatusType = typeof ProposalBookingStatus;
+
+export const ScheduledEventStatusMap: Record<
+  keyof ProposalBookingStatusType,
+  string
+> = {
+  DRAFT: 'Draft',
+  ACTIVE: 'Active',
+  COMPLETED: 'Completed',
 };
 
 export default function ScheduledEventForm() {

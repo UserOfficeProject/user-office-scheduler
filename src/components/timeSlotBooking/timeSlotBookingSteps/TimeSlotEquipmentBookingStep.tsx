@@ -33,7 +33,7 @@ import { DetailedProposalBooking } from 'hooks/proposalBooking/useProposalBookin
 import useScheduledEventEquipments from 'hooks/scheduledEvent/useScheduledEventEquipments';
 import { ScheduledEventEquipment } from 'hooks/scheduledEvent/useScheduledEventWithEquipment';
 
-import { ProposalBookingDialogStepProps } from '../TimeSlotBookingDialog';
+import { TimeSlotBookingDialogStepProps } from '../TimeSlotBookingDialog';
 
 export type EquipmentTableRow = {
   id: string;
@@ -66,7 +66,7 @@ export default function TimeSlotEquipmentBookingStep({
   handleBack,
   handleSetActiveStepByStatus,
   handleCloseDialog,
-}: ProposalBookingDialogStepProps) {
+}: TimeSlotBookingDialogStepProps) {
   const proposalBooking = scheduledEvent.proposalBooking as ProposalBooking;
   const isStepReadOnly = activeStatus !== ProposalBookingStatus.DRAFT;
 

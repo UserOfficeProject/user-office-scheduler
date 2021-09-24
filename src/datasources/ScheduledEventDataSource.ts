@@ -28,7 +28,10 @@ export interface ScheduledEventDataSource {
   ): Promise<ScheduledEvent>;
   delete(): Promise<null>;
   get(id: number): Promise<ScheduledEvent | null>;
-  getAll(filter: ScheduledEventFilter): Promise<ScheduledEvent[]>;
+  getAll(
+    filter: ScheduledEventFilter,
+    userInstrumentIds?: number[]
+  ): Promise<ScheduledEvent[]>;
   proposalBookingScheduledEvents(
     proposalBookingId: number,
     filter?: ProposalBookingScheduledEventFilter

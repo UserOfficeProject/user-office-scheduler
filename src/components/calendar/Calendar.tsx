@@ -23,6 +23,7 @@ import {
   momentLocalizer,
   View,
 } from 'react-big-calendar';
+import { useHistory } from 'react-router';
 
 import Loader from 'components/common/Loader';
 import { tableIcons } from 'components/common/TableIcons';
@@ -196,9 +197,11 @@ export default function Calendar() {
   const [showTodoBox, setShowTodoBox] = useState<boolean>(false);
   const classes = useStyles();
   const theme = useTheme();
+  const history = useHistory();
 
   const query = useQuery();
   const queryInstrument = query.get('instrument');
+  const shouldLoadAll = query.get('shouldLoadAll');
   const queryInstrumentId = queryInstrument ? parseInt(queryInstrument) : 0;
   const queryEquipment = query.get('equipment')?.split(',');
   const queryEquipmentNumbers = queryEquipment?.map((item) => parseInt(item));
@@ -220,7 +223,12 @@ export default function Calendar() {
   );
   const [isTableView, setIsTableView] = useState<boolean>(false);
   const [filter, setFilter] = useState(
-    generateScheduledEventFilter(queryInstrumentId, startsAt, view)
+    generateScheduledEventFilter(
+      queryInstrumentId,
+      !!shouldLoadAll,
+      startsAt,
+      view
+    )
   );
   const [selectedProposalBooking, setSelectedProposalBooking] = useState<{
     proposalBookingId: number | null;
@@ -240,6 +248,19 @@ export default function Calendar() {
       setShowTodoBox(true);
     }
   }, [isTabletOrMobile]);
+
+  useEffect(() => {
+    if (isTableView) {
+      if (!queryInstrument) {
+        query.set('shouldLoadAll', 'true');
+      }
+    } else {
+      query.delete('shouldLoadAll');
+    }
+
+    history.push(`?${query}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isTableView]);
 
   const {
     proposalBookings,
@@ -291,8 +312,15 @@ export default function Calendar() {
   ]);
 
   useEffect(() => {
-    setFilter(generateScheduledEventFilter(queryInstrumentId, startsAt, view));
-  }, [queryInstrumentId, startsAt, view]);
+    setFilter(
+      generateScheduledEventFilter(
+        queryInstrumentId,
+        !!shouldLoadAll,
+        startsAt,
+        view
+      )
+    );
+  }, [queryInstrumentId, shouldLoadAll, startsAt, view]);
 
   const eqEventsTransformed: GetScheduledEventsQuery['scheduledEvents'] =
     eqEvents

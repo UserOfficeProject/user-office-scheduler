@@ -34,6 +34,7 @@ import React, {
   useState,
 } from 'react';
 
+import IdentifierIcon from 'components/common/icons/IdentifierIcon';
 import Loader from 'components/common/Loader';
 import { tableIcons } from 'components/common/TableIcons';
 import TimeSlotBookingDialog from 'components/timeSlotBooking/TimeSlotBookingDialog';
@@ -87,11 +88,11 @@ export default function BookingEventStep({
   handleSetActiveStepByStatus,
   handleNext,
 }: ProposalBookingDialogStepProps) {
-  const isStepReadOnly = activeStatus !== ProposalBookingStatus.DRAFT;
+  const isStepReadOnly = activeStatus === ProposalBookingStatus.COMPLETED;
 
   const {
     call: { startCycle, endCycle, cycleComment },
-    proposal: { title },
+    proposal: { title, proposalId },
   } = proposalBooking;
 
   const classes = useStyles();
@@ -322,6 +323,12 @@ export default function BookingEventStep({
                   </Avatar>
                 </ListItemAvatar>
                 <ListItemText primary="Proposal title" secondary={title} />
+                <ListItemAvatar>
+                  <Avatar>
+                    <IdentifierIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText primary="Proposal ID" secondary={proposalId} />
               </ListItem>
               <Divider
                 variant="inset"

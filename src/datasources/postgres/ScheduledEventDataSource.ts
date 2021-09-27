@@ -179,21 +179,14 @@ export default class PostgreScheduledEventDataSource
     return scheduledEvent ? createScheduledEventObject(scheduledEvent) : null;
   }
 
-  async getAll(
-    filter: ScheduledEventFilter,
-    userInstrumentIds?: number[]
-  ): Promise<ScheduledEvent[]> {
+  async getAll(filter: ScheduledEventFilter): Promise<ScheduledEvent[]> {
+    if (!filter.instrumentId) {
+      return [];
+    }
+
     const qb = database<ScheduledEventRecord>(this.tableName)
       .select()
-      .modify((query) => {
-        if (filter.instrumentId) {
-          query.where('instrument_id', filter.instrumentId);
-        }
-
-        if (userInstrumentIds?.length) {
-          query.whereIn('instrument_id', userInstrumentIds);
-        }
-      })
+      .where('instrument_id', filter.instrumentId)
       .orderBy('starts_at');
 
     if (filter.startsAt && filter.endsAt) {

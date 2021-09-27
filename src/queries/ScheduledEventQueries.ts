@@ -1,10 +1,7 @@
 import { ResolverContext } from '../context';
 import { ScheduledEventDataSource } from '../datasources/ScheduledEventDataSource';
 import Authorized from '../decorators/Authorized';
-import {
-  getUserInstruments,
-  instrumentScientistHasInstrument,
-} from '../helpers/instrumentHelpers';
+import { instrumentScientistHasInstrument } from '../helpers/instrumentHelpers';
 import {
   instrumentScientistHasAccess,
   userHacAccess,
@@ -30,26 +27,12 @@ export default class ScheduledEventQueries {
     ctx: ResolverContext,
     filter: ScheduledEventFilter
   ): Promise<ScheduledEvent[]> {
-    if (!filter.instrumentId && !filter.shouldLoadAll) {
+    if (!filter.instrumentId) {
       return [];
     }
 
-    if (
-      !(await instrumentScientistHasInstrument(ctx, filter.instrumentId!)) &&
-      !filter.shouldLoadAll
-    ) {
+    if (!(await instrumentScientistHasInstrument(ctx, filter.instrumentId))) {
       return [];
-    } else {
-      const userInstruments = await getUserInstruments(ctx);
-      const userInstrumentIds = userInstruments.map(
-        (instrument) => instrument.id
-      );
-
-      if (!userInstrumentIds?.length) {
-        return [];
-      }
-
-      return this.scheduledEventDataSource.getAll(filter, userInstrumentIds);
     }
 
     return this.scheduledEventDataSource.getAll(filter);

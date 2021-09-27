@@ -14,9 +14,6 @@ export class ScheduledEventFilter {
 
   @Field(() => Int, { nullable: true })
   instrumentId?: number | null;
-
-  @Field(() => Boolean, { nullable: true })
-  shouldLoadAll?: boolean;
 }
 
 @Resolver()

@@ -1,10 +1,16 @@
 import MaterialTable, { Column } from '@material-table/core';
-import { Grid } from '@material-ui/core';
-import { Visibility as VisibilityIcon } from '@material-ui/icons';
+import { Button, Grid } from '@material-ui/core';
+import {
+  Visibility as VisibilityIcon,
+  Add as AddIcon,
+} from '@material-ui/icons';
 import React, { useState } from 'react';
 import { Redirect } from 'react-router';
+import { Link } from 'react-router-dom';
 
+import { ActionButtonContainer } from 'components/common/ActionButtonContainer';
 import { tableIcons } from 'components/common/TableIcons';
+import { PATH_CREATE_EQUIPMENT } from 'components/paths';
 import useEquipments from 'hooks/equipment/useEquipments';
 import { ContentContainer, StyledPaper } from 'styles/StyledComponents';
 
@@ -48,6 +54,18 @@ export default function Equipments() {
                 },
               ]}
             />
+            <ActionButtonContainer>
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<AddIcon />}
+                component={Link}
+                to={PATH_CREATE_EQUIPMENT}
+                data-cy="btn-new-equipment"
+              >
+                New equipment
+              </Button>
+            </ActionButtonContainer>
           </StyledPaper>
         </Grid>
       </Grid>

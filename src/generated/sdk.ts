@@ -2713,7 +2713,6 @@ export enum ScheduledEventBookingType {
 export type ScheduledEventFilter = {
   endsAt: Scalars['TzLessDateTime'];
   instrumentId?: Maybe<Scalars['Int']>;
-  shouldLoadAll?: Maybe<Scalars['Boolean']>;
   startsAt: Scalars['TzLessDateTime'];
 };
 

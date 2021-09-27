@@ -71,7 +71,6 @@ function TableViewToolbar({
   const history = useHistory();
   const queryStartsAt = query.get('startsAt');
   const queryEndsAt = query.get('endsAt');
-  const shouldLoadAll = query.get('shouldLoadAll');
 
   const [startsAt, setStartsAt] = useState<Moment | null>(
     moment(queryStartsAt || startsAtDate)
@@ -158,13 +157,11 @@ function TableViewToolbar({
 
     if (!selectedInstrument && queryInstrument) {
       query.delete('instrument');
-      query.set('shouldLoadAll', 'true');
     } else if (
       selectedInstrument &&
       queryInstrument !== `${selectedInstrument.id}`
     ) {
       query.set('instrument', `${selectedInstrument.id}`);
-      query.delete('shouldLoadAll');
     } else {
       return;
     }
@@ -175,7 +172,6 @@ function TableViewToolbar({
     instrumentsLoading,
     selectedInstrument,
     queryInstrument,
-    shouldLoadAll,
     query,
     history,
   ]);

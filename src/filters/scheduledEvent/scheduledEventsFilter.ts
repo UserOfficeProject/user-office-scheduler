@@ -6,7 +6,6 @@ import { toTzLessDateTime } from 'utils/date';
 
 export default function generateScheduledEventFilter(
   instrumentId: number | null,
-  shouldLoadAll: boolean | null,
   startsAt: Date,
   activeView: ExtendedView
 ): ScheduledEventFilter {
@@ -18,7 +17,6 @@ export default function generateScheduledEventFilter(
 
       return {
         instrumentId,
-        shouldLoadAll,
         startsAt: toTzLessDateTime(newStartsAt),
         endsAt: toTzLessDateTime(newStartsAt.add(1, 'day')),
       };
@@ -28,7 +26,6 @@ export default function generateScheduledEventFilter(
 
       return {
         instrumentId,
-        shouldLoadAll,
         startsAt: toTzLessDateTime(newStartsAt),
         endsAt: toTzLessDateTime(newStartsAt.add(1, 'week')),
       };
@@ -38,7 +35,6 @@ export default function generateScheduledEventFilter(
 
       return {
         instrumentId,
-        shouldLoadAll,
         startsAt: toTzLessDateTime(newStartsAt),
         endsAt: toTzLessDateTime(newStartsAt.add(1, 'month')),
       };
@@ -48,7 +44,6 @@ export default function generateScheduledEventFilter(
 
       return {
         instrumentId,
-        shouldLoadAll,
         startsAt: toTzLessDateTime(newStartsAt),
         endsAt: toTzLessDateTime(newStartsAt.add(3, 'month')),
       };
@@ -61,7 +56,6 @@ export default function generateScheduledEventFilter(
         startsAt: toTzLessDateTime(newStartsAt),
         endsAt: toTzLessDateTime(newStartsAt.add(1, 'week')),
         instrumentId,
-        shouldLoadAll,
       };
   }
 }

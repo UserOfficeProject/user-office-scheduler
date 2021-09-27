@@ -195,8 +195,8 @@ export default function CreateEditEquipment() {
                       margin="normal"
                       fullWidth
                       multiline
-                      rows="3"
-                      rowsMax="16"
+                      minRows="3"
+                      maxRows="16"
                       data-cy="description"
                     />
 

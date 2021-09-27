@@ -83,7 +83,6 @@ export default function Toolbar({
   const [queryEquipment, setQueryEquipment] = useState<number[]>([]);
 
   const queryInstrument = query.get('instrument');
-  const shouldLoadAll = query.get('shouldLoadAll');
 
   useEffect(() => {
     setQueryEquipment(
@@ -138,7 +137,6 @@ export default function Toolbar({
 
     if (!selectedInstrument && queryInstrument) {
       query.delete('instrument');
-      query.delete('shouldLoadAll');
     } else if (
       selectedInstrument &&
       queryInstrument !== `${selectedInstrument.id}`
@@ -154,7 +152,6 @@ export default function Toolbar({
     instrumentsLoading,
     selectedInstrument,
     queryInstrument,
-    shouldLoadAll,
     query,
     history,
   ]);

@@ -28,13 +28,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
   },
   tooltip: {
-    margin: theme.spacing(0, 0, 2, 0),
-  },
-  justifyContentFlexEnd: {
-    justifyContent: 'flex-end',
-  },
-  verticalCenter: {
-    alignItems: 'center',
+    margin: theme.spacing(0, 0, 3, 0),
   },
   centered: {
     justifyContent: 'center',
@@ -204,6 +198,7 @@ export default function Toolbar({
           <Select
             className={classes.calendarViewSelect}
             value={view}
+            margin="dense"
             onChange={(e) => onChangeView(e.target.value as View)}
             data-cy="select-active-view"
           >
@@ -221,11 +216,48 @@ export default function Toolbar({
         </Grid>
         <Grid
           item
-          sm={4}
+          sm={6}
           xs={12}
-          className={clsx(classes.flex, classes.centered)}
-          data-cy="content-calendar-toolbar-equipment"
+          data-cy="content-calendar-toolbar-instrument-equipment"
         >
+          <Autocomplete
+            loading={instrumentsLoading}
+            disabled={instrumentsLoading}
+            selectOnFocus
+            clearOnBlur
+            fullWidth
+            handleHomeEndKeys
+            options={instruments}
+            getOptionLabel={(instrument) => instrument.name}
+            data-cy="input-instrument-select"
+            id="input-instrument-select"
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Instrument"
+                margin="dense"
+                disabled={instrumentsLoading}
+                InputProps={{
+                  ...params.InputProps,
+                  endAdornment: (
+                    <>
+                      {instrumentsLoading ? (
+                        <CircularProgress color="inherit" size={20} />
+                      ) : null}
+                      {params.InputProps.endAdornment}
+                    </>
+                  ),
+                }}
+              />
+            )}
+            value={selectedInstrument}
+            onChange={(
+              event: React.ChangeEvent<unknown>,
+              newValue: PartialInstrument | null
+            ) => {
+              onInstrumentSelect(newValue);
+            }}
+          />
           <Autocomplete
             multiple
             loading={equipmentsLoading}
@@ -241,7 +273,8 @@ export default function Toolbar({
             renderInput={(params) => (
               <TextField
                 {...params}
-                placeholder="Equipment"
+                label="Equipment"
+                margin="dense"
                 disabled={equipmentsLoading}
                 InputProps={{
                   ...params.InputProps,
@@ -271,55 +304,6 @@ export default function Toolbar({
               }
               setSelectedEquipment(newValue);
               history.push(`?${query}`);
-            }}
-          />
-        </Grid>
-        <Grid
-          item
-          sm={2}
-          xs={12}
-          className={clsx(
-            classes.flex,
-            classes.justifyContentFlexEnd,
-            classes.buttonGrp,
-            classes.verticalCenter
-          )}
-        >
-          <Autocomplete
-            loading={instrumentsLoading}
-            disabled={instrumentsLoading}
-            selectOnFocus
-            clearOnBlur
-            fullWidth
-            handleHomeEndKeys
-            options={instruments}
-            getOptionLabel={(instrument) => instrument.name}
-            data-cy="input-instrument-select"
-            id="input-instrument-select"
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                placeholder="Instrument"
-                disabled={instrumentsLoading}
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: (
-                    <>
-                      {instrumentsLoading ? (
-                        <CircularProgress color="inherit" size={20} />
-                      ) : null}
-                      {params.InputProps.endAdornment}
-                    </>
-                  ),
-                }}
-              />
-            )}
-            value={selectedInstrument}
-            onChange={(
-              event: React.ChangeEvent<unknown>,
-              newValue: PartialInstrument | null
-            ) => {
-              onInstrumentSelect(newValue);
             }}
           />
         </Grid>

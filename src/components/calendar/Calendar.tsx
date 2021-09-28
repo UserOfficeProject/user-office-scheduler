@@ -184,6 +184,7 @@ const useStyles = makeStyles((theme) => ({
     top: -16,
     background: theme.palette.grey[200],
     borderRadius: 0,
+    zIndex: 1000,
   },
   switch: {
     paddingLeft: 10,

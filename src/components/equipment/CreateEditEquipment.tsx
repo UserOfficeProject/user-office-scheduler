@@ -81,6 +81,7 @@ export default function CreateEditEquipment() {
   const initialValues = equipment
     ? {
         name: equipment.name,
+        description: equipment.description || '',
         maintenanceStartsAt: equipment.maintenanceStartsAt
           ? parseTzLessDateTime(equipment.maintenanceStartsAt)
           : null,
@@ -91,6 +92,7 @@ export default function CreateEditEquipment() {
       }
     : {
         name: '',
+        description: '',
         maintenanceStartsAt: null,
         maintenanceEndsAt: null,
         autoAccept: false,
@@ -122,6 +124,7 @@ export default function CreateEditEquipment() {
                 const input: EquipmentInput = {
                   autoAccept: values.autoAccept,
                   name: values.name,
+                  description: values.description || '',
                   maintenanceStartsAt: null,
                   maintenanceEndsAt: null,
                 };
@@ -183,6 +186,18 @@ export default function CreateEditEquipment() {
                       margin="normal"
                       fullWidth
                       data-cy="name"
+                    />
+
+                    <Field
+                      component={TextField}
+                      name="description"
+                      label="Equipment description"
+                      margin="normal"
+                      fullWidth
+                      multiline
+                      minRows="3"
+                      maxRows="16"
+                      data-cy="description"
                     />
 
                     <Field

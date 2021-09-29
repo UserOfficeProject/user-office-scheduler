@@ -354,6 +354,19 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
                   <ListItem disableGutters>
                     <ListItemAvatar>
                       <Avatar>
+                        <CommentIcon />
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary="Description"
+                      secondary={
+                        equipment.description ? equipment.description : '-'
+                      }
+                    />
+                  </ListItem>
+                  <ListItem disableGutters>
+                    <ListItemAvatar>
+                      <Avatar>
                         <CalendarTodayIcon />
                       </Avatar>
                     </ListItemAvatar>

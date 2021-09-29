@@ -4,6 +4,7 @@ query getEquipments {
     createdAt
     updatedAt
     name
+    description
     maintenanceStartsAt
     maintenanceEndsAt
     autoAccept

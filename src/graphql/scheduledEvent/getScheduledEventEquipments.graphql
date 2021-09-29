@@ -9,6 +9,7 @@ query getScheduledEventEquipments(
     equipments {
       id
       name
+      description
       maintenanceStartsAt
       maintenanceEndsAt
       status

@@ -5,7 +5,12 @@ import { useDataApi } from 'hooks/common/useDataApi';
 
 export type ScheduledEventEquipment = Pick<
   EquipmentWithAssignmentStatus,
-  'id' | 'name' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'status'
+  | 'id'
+  | 'name'
+  | 'description'
+  | 'maintenanceStartsAt'
+  | 'maintenanceEndsAt'
+  | 'status'
 >;
 
 export type ScheduledEventWithEquipments = Pick<

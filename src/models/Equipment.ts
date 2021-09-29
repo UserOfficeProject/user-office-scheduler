@@ -10,6 +10,7 @@ export class Equipment {
     public createdAt: Date,
     public updatedAt: Date,
     public name: string,
+    public description: string,
     public maintenanceStartsAt: Date,
     public maintenanceEndsAt: Date,
     public autoAccept: boolean

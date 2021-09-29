@@ -8,7 +8,6 @@ import {
   TextField,
 } from '@material-ui/core';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import clsx from 'clsx';
 import React, { useEffect, useState } from 'react';
 import {
   Messages,
@@ -24,14 +23,10 @@ import { PartialEquipment } from 'hooks/equipment/useEquipments';
 import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 
 const useStyles = makeStyles((theme) => ({
-  flex: {
-    display: 'flex',
-  },
   tooltip: {
     margin: theme.spacing(0, 0, 3, 0),
   },
   centered: {
-    justifyContent: 'center',
     alignItems: 'center',
   },
   calendarViewSelect: {
@@ -172,7 +167,7 @@ export default function Toolbar({
 
   return (
     <div className={classes.tooltip}>
-      <Grid container>
+      <Grid container className={classes.centered} spacing={1}>
         <Grid item sm={4} xs={12} className={classes.buttonGrp}>
           <Button
             variant="contained"
@@ -205,13 +200,7 @@ export default function Toolbar({
             {viewNamesGroup(messages)}
           </Select>
         </Grid>
-        <Grid
-          item
-          sm={2}
-          xs={12}
-          className={clsx(classes.flex, classes.centered)}
-          data-cy="content-calendar-toolbar"
-        >
+        <Grid item sm={2} xs={12} data-cy="content-calendar-toolbar">
           {label}
         </Grid>
         <Grid

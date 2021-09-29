@@ -37,6 +37,7 @@ export default class PostgresEquipmentDataSource
       .insert({
         owner_id: userId,
         name: input.name,
+        description: input.description,
         maintenance_starts_at: input.maintenanceStartsAt,
         maintenance_ends_at: input.maintenanceEndsAt,
         auto_accept: input.autoAccept,
@@ -50,6 +51,7 @@ export default class PostgresEquipmentDataSource
     const [equipmentRecord] = await database<EquipmentRecord>(this.tableName)
       .update({
         name: input.name,
+        description: input.description,
         maintenance_starts_at: input.maintenanceStartsAt,
         maintenance_ends_at: input.maintenanceEndsAt,
         auto_accept: input.autoAccept,

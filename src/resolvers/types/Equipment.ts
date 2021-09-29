@@ -38,6 +38,9 @@ export class Equipment implements Partial<EquipmentBase> {
   @Field(() => String)
   name: string;
 
+  @Field(() => String, { nullable: true })
+  description: string;
+
   @Field(() => TzLessDateTime, { nullable: true })
   maintenanceStartsAt?: Date;
 

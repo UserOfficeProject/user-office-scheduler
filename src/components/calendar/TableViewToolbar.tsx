@@ -11,7 +11,6 @@ import {
   KeyboardDatePicker,
   MuiPickersUtilsProvider,
 } from '@material-ui/pickers';
-import clsx from 'clsx';
 import moment, { Moment } from 'moment';
 import React, { Dispatch, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
@@ -26,17 +25,8 @@ import { CalendarScheduledEvent } from './Event';
 import { ToolbarAdditionalProps } from './Toolbar';
 
 const useStyles = makeStyles((theme) => ({
-  flex: {
-    display: 'flex',
-  },
   tooltip: {
     margin: theme.spacing(0, 0, 2, 0),
-  },
-  justifyContentFlexEnd: {
-    justifyContent: 'flex-end',
-  },
-  verticalCenter: {
-    alignItems: 'center',
   },
   centered: {
     justifyContent: 'center',
@@ -44,10 +34,6 @@ const useStyles = makeStyles((theme) => ({
   },
   calendarViewSelect: {
     minWidth: 120,
-  },
-  smaller: {
-    fontSize: '0.875rem',
-    marginBottom: theme.spacing(1),
   },
 }));
 
@@ -182,21 +168,17 @@ function TableViewToolbar({
 
   return (
     <div className={classes.tooltip}>
-      <Grid container>
-        <MuiPickersUtilsProvider utils={MomentUtils}>
-          <Grid item sm={4} xs={12}>
+      <Grid container spacing={2}>
+        <Grid item sm={6} xs={12}>
+          <MuiPickersUtilsProvider utils={MomentUtils}>
             <KeyboardDatePicker
               required
               label="From date"
               name={`startsAt`}
-              margin="none"
-              size="small"
+              margin="dense"
               format={'yyyy-MM-DD'}
               fullWidth
               data-cy="table-toolbar-startsAt"
-              InputProps={{
-                className: classes.smaller,
-              }}
               value={startsAt}
               onChange={(newValue) => setStartsAt(newValue)}
             />
@@ -204,26 +186,54 @@ function TableViewToolbar({
               required
               label="To date"
               name={`endsAt`}
-              margin="none"
-              size="small"
+              margin="dense"
               format={'yyyy-MM-DD'}
               fullWidth
               data-cy="table-toolbar-endsAt"
-              InputProps={{
-                className: classes.smaller,
-              }}
               value={endsAt}
               onChange={(newValue) => setEndsAt(newValue)}
             />
-          </Grid>
-        </MuiPickersUtilsProvider>
-        <Grid
-          item
-          sm={4}
-          xs={12}
-          className={clsx(classes.flex, classes.centered)}
-          data-cy="content-calendar-toolbar-equipment"
-        >
+          </MuiPickersUtilsProvider>
+        </Grid>
+        <Grid item sm={6} xs={12}>
+          <Autocomplete
+            loading={instrumentsLoading}
+            disabled={instrumentsLoading}
+            selectOnFocus
+            fullWidth
+            clearOnBlur
+            handleHomeEndKeys
+            options={instruments}
+            getOptionLabel={(instrument) => instrument.name}
+            data-cy="table-toolbar-instrument-select"
+            id="table-toolbar-instrument-select"
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Instrument"
+                disabled={instrumentsLoading}
+                margin="dense"
+                InputProps={{
+                  ...params.InputProps,
+                  endAdornment: (
+                    <>
+                      {instrumentsLoading ? (
+                        <CircularProgress color="inherit" size={20} />
+                      ) : null}
+                      {params.InputProps.endAdornment}
+                    </>
+                  ),
+                }}
+              />
+            )}
+            value={selectedInstrument}
+            onChange={(
+              event: React.ChangeEvent<unknown>,
+              newValue: PartialInstrument | null
+            ) => {
+              onInstrumentSelect(newValue);
+            }}
+          />
           <Autocomplete
             multiple
             loading={equipmentsLoading}
@@ -239,7 +249,8 @@ function TableViewToolbar({
             renderInput={(params) => (
               <TextField
                 {...params}
-                placeholder="Equipment"
+                label="Equipment"
+                margin="dense"
                 disabled={equipmentsLoading}
                 InputProps={{
                   ...params.InputProps,
@@ -269,54 +280,6 @@ function TableViewToolbar({
               }
               setSelectedEquipment(newValue);
               history.push(`?${query}`);
-            }}
-          />
-        </Grid>
-        <Grid
-          item
-          sm={4}
-          xs={12}
-          className={clsx(
-            classes.flex,
-            classes.justifyContentFlexEnd,
-            classes.verticalCenter
-          )}
-        >
-          <Autocomplete
-            loading={instrumentsLoading}
-            disabled={instrumentsLoading}
-            selectOnFocus
-            fullWidth
-            clearOnBlur
-            handleHomeEndKeys
-            options={instruments}
-            getOptionLabel={(instrument) => instrument.name}
-            data-cy="table-toolbar-instrument-select"
-            id="table-toolbar-instrument-select"
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                placeholder="Instrument"
-                disabled={instrumentsLoading}
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: (
-                    <>
-                      {instrumentsLoading ? (
-                        <CircularProgress color="inherit" size={20} />
-                      ) : null}
-                      {params.InputProps.endAdornment}
-                    </>
-                  ),
-                }}
-              />
-            )}
-            value={selectedInstrument}
-            onChange={(
-              event: React.ChangeEvent<unknown>,
-              newValue: PartialInstrument | null
-            ) => {
-              onInstrumentSelect(newValue);
             }}
           />
         </Grid>

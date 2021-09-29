@@ -212,6 +212,7 @@ export default function TimeSlotEquipmentBookingStep({
               <TableRow role="row">
                 <TableCell>Actions</TableCell>
                 <TableCell>Name</TableCell>
+                <TableCell>Description</TableCell>
                 <TableCell>Status</TableCell>
               </TableRow>
             </TableHead>
@@ -235,6 +236,7 @@ export default function TimeSlotEquipmentBookingStep({
                       </IconButton>
                     </TableCell>
                     <TableCell>{equipment.name}</TableCell>
+                    <TableCell>{equipment.description}</TableCell>
                     <TableCell data-cy="equipment-row-status">
                       {equipment.status}
                     </TableCell>

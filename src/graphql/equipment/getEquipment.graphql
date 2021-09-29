@@ -4,6 +4,7 @@ query getEquipment($id: Int!) {
     createdAt
     updatedAt
     name
+    description
     maintenanceStartsAt
     maintenanceEndsAt
     autoAccept

@@ -9,6 +9,7 @@ export type DetailedEquipment = Pick<
   | 'createdAt'
   | 'updatedAt'
   | 'name'
+  | 'description'
   | 'maintenanceStartsAt'
   | 'maintenanceEndsAt'
   | 'autoAccept'

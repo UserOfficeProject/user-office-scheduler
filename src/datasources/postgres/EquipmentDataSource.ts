@@ -259,7 +259,7 @@ export default class PostgresEquipmentDataSource
         .returning('*');
 
       return records.length === input.equipmentIds.length;
-    } catch (e) {
+    } catch (e: any) {
       if ('code' in e && e.code === UNIQUE_CONSTRAINT_VIOLATION) {
         return false;
       }

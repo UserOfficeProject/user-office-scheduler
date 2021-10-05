@@ -1,5 +1,5 @@
 import { GraphQLClient } from 'graphql-request';
-import * as Dom from 'graphql-request/dist/types.dom';
+import { print } from 'graphql';
 import gql from 'graphql-tag';
 export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -17,6 +17,11 @@ export type Scalars = {
   IntStringDateBoolArray: any;
   _Any: any;
 };
+
+
+
+
+
 
 export type AddProposalWorkflowStatusInput = {
   proposalWorkflowId: Scalars['Int'];
@@ -267,6 +272,7 @@ export type DateConfig = {
   includeTime: Scalars['Boolean'];
 };
 
+
 export type DeleteApiAccessTokenInput = {
   accessTokenId: Scalars['String'];
 };
@@ -485,6 +491,7 @@ export type InstrumentsQueryResult = {
   totalCount: Scalars['Int'];
   instruments: Array<Instrument>;
 };
+
 
 export type IntervalConfig = {
   __typename?: 'IntervalConfig';
@@ -2777,6 +2784,7 @@ export type VisitsFilter = {
   scheduledEventId?: Maybe<Scalars['Int']>;
 };
 
+
 export type Entity = ScheduledEvent | Proposal | Instrument | Call | User;
 
 export type Service = {
@@ -2791,26 +2799,44 @@ export type InstrumentScientistHasAccessQueryVariables = Exact<{
 }>;
 
 
-export type InstrumentScientistHasAccessQuery = { __typename?: 'Query', instrumentScientistHasAccess: boolean | null | undefined };
+export type InstrumentScientistHasAccessQuery = (
+  { __typename?: 'Query' }
+  & Pick<Query, 'instrumentScientistHasAccess'>
+);
 
 export type InstrumentScientistHasInstrumentQueryVariables = Exact<{
   instrumentId: Scalars['Int'];
 }>;
 
 
-export type InstrumentScientistHasInstrumentQuery = { __typename?: 'Query', instrumentScientistHasInstrument: boolean | null | undefined };
+export type InstrumentScientistHasInstrumentQuery = (
+  { __typename?: 'Query' }
+  & Pick<Query, 'instrumentScientistHasInstrument'>
+);
 
 export type UserInstrumentsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UserInstrumentsQuery = { __typename?: 'Query', userInstruments: { __typename?: 'InstrumentsQueryResult', instruments: Array<{ __typename?: 'Instrument', id: number }> } | null | undefined };
+export type UserInstrumentsQuery = (
+  { __typename?: 'Query' }
+  & { userInstruments: Maybe<(
+    { __typename?: 'InstrumentsQueryResult' }
+    & { instruments: Array<(
+      { __typename?: 'Instrument' }
+      & Pick<Instrument, 'id'>
+    )> }
+  )> }
+);
 
 export type UserHasAccessQueryVariables = Exact<{
   proposalPk: Scalars['Int'];
 }>;
 
 
-export type UserHasAccessQuery = { __typename?: 'Query', userHasAccessToProposal: boolean | null | undefined };
+export type UserHasAccessQuery = (
+  { __typename?: 'Query' }
+  & Pick<Query, 'userHasAccessToProposal'>
+);
 
 
 export const InstrumentScientistHasAccessDocument = gql`
@@ -2841,24 +2867,23 @@ export const UserHasAccessDocument = gql`
 }
     `;
 
-export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string) => Promise<T>;
+export type SdkFunctionWrapper = <T>(action: () => Promise<T>) => Promise<T>;
 
 
-const defaultWrapper: SdkFunctionWrapper = (action, _operationName) => action();
-
+const defaultWrapper: SdkFunctionWrapper = sdkFunction => sdkFunction();
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
-    instrumentScientistHasAccess(variables: InstrumentScientistHasAccessQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<InstrumentScientistHasAccessQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<InstrumentScientistHasAccessQuery>(InstrumentScientistHasAccessDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'instrumentScientistHasAccess');
+    instrumentScientistHasAccess(variables: InstrumentScientistHasAccessQueryVariables): Promise<InstrumentScientistHasAccessQuery> {
+      return withWrapper(() => client.request<InstrumentScientistHasAccessQuery>(print(InstrumentScientistHasAccessDocument), variables));
     },
-    instrumentScientistHasInstrument(variables: InstrumentScientistHasInstrumentQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<InstrumentScientistHasInstrumentQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<InstrumentScientistHasInstrumentQuery>(InstrumentScientistHasInstrumentDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'instrumentScientistHasInstrument');
+    instrumentScientistHasInstrument(variables: InstrumentScientistHasInstrumentQueryVariables): Promise<InstrumentScientistHasInstrumentQuery> {
+      return withWrapper(() => client.request<InstrumentScientistHasInstrumentQuery>(print(InstrumentScientistHasInstrumentDocument), variables));
     },
-    userInstruments(variables?: UserInstrumentsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<UserInstrumentsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<UserInstrumentsQuery>(UserInstrumentsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'userInstruments');
+    userInstruments(variables?: UserInstrumentsQueryVariables): Promise<UserInstrumentsQuery> {
+      return withWrapper(() => client.request<UserInstrumentsQuery>(print(UserInstrumentsDocument), variables));
     },
-    userHasAccess(variables: UserHasAccessQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<UserHasAccessQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<UserHasAccessQuery>(UserHasAccessDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'userHasAccess');
+    userHasAccess(variables: UserHasAccessQueryVariables): Promise<UserHasAccessQuery> {
+      return withWrapper(() => client.request<UserHasAccessQuery>(print(UserHasAccessDocument), variables));
     }
   };
 }

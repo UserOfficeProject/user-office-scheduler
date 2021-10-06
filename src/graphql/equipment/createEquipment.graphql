@@ -6,6 +6,7 @@ mutation createEquipment($newEquipmentInput: EquipmentInput!) {
       createdAt
       updatedAt
       name
+      description
       maintenanceStartsAt
       maintenanceEndsAt
       autoAccept

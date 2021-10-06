@@ -153,6 +153,7 @@ export type Call = {
   __typename?: 'Call';
   allocationTimeUnit: AllocationTimeUnits;
   cycleComment: Scalars['String'];
+  description: Maybe<Scalars['String']>;
   endCall: Scalars['DateTime'];
   endCycle: Scalars['DateTime'];
   endNotify: Scalars['DateTime'];
@@ -175,6 +176,7 @@ export type Call = {
   surveyComment: Scalars['String'];
   template: Template;
   templateId: Scalars['Int'];
+  title: Maybe<Scalars['String']>;
 };
 
 export type CallResponseWrap = {
@@ -221,6 +223,7 @@ export type CreateApiAccessTokenInput = {
 export type CreateCallInput = {
   allocationTimeUnit: AllocationTimeUnits;
   cycleComment: Scalars['String'];
+  description?: Maybe<Scalars['String']>;
   endCall: Scalars['DateTime'];
   endCycle: Scalars['DateTime'];
   endNotify: Scalars['DateTime'];
@@ -237,6 +240,7 @@ export type CreateCallInput = {
   startSEPReview?: Maybe<Scalars['DateTime']>;
   surveyComment: Scalars['String'];
   templateId: Scalars['Int'];
+  title?: Maybe<Scalars['String']>;
 };
 
 export type CreateProposalStatusInput = {
@@ -342,6 +346,7 @@ export type Equipment = {
   __typename?: 'Equipment';
   autoAccept: Scalars['Boolean'];
   createdAt: Scalars['DateTime'];
+  description: Maybe<Scalars['String']>;
   equipmentResponsible: Array<User>;
   events: Array<ScheduledEvent>;
   id: Scalars['Int'];
@@ -366,6 +371,7 @@ export enum EquipmentAssignmentStatus {
 
 export type EquipmentInput = {
   autoAccept: Scalars['Boolean'];
+  description: Scalars['String'];
   maintenanceEndsAt?: Maybe<Scalars['TzLessDateTime']>;
   maintenanceStartsAt?: Maybe<Scalars['TzLessDateTime']>;
   name: Scalars['String'];
@@ -386,6 +392,7 @@ export type EquipmentWithAssignmentStatus = {
   __typename?: 'EquipmentWithAssignmentStatus';
   autoAccept: Scalars['Boolean'];
   createdAt: Scalars['DateTime'];
+  description: Maybe<Scalars['String']>;
   equipmentResponsible: Array<User>;
   events: Array<ScheduledEvent>;
   id: Scalars['Int'];
@@ -416,8 +423,11 @@ export enum Event {
   PROPOSAL_ACCEPTED = 'PROPOSAL_ACCEPTED',
   PROPOSAL_ALL_SEP_REVIEWERS_SELECTED = 'PROPOSAL_ALL_SEP_REVIEWERS_SELECTED',
   PROPOSAL_ALL_SEP_REVIEWS_SUBMITTED = 'PROPOSAL_ALL_SEP_REVIEWS_SUBMITTED',
+  PROPOSAL_BOOKING_TIME_ACTIVATED = 'PROPOSAL_BOOKING_TIME_ACTIVATED',
+  PROPOSAL_BOOKING_TIME_COMPLETED = 'PROPOSAL_BOOKING_TIME_COMPLETED',
+  PROPOSAL_BOOKING_TIME_SLOTS_REMOVED = 'PROPOSAL_BOOKING_TIME_SLOTS_REMOVED',
   PROPOSAL_BOOKING_TIME_SLOT_ADDED = 'PROPOSAL_BOOKING_TIME_SLOT_ADDED',
-  PROPOSAL_BOOKING_TIME_SLOT_REMOVED = 'PROPOSAL_BOOKING_TIME_SLOT_REMOVED',
+  PROPOSAL_BOOKING_TIME_UPDATED = 'PROPOSAL_BOOKING_TIME_UPDATED',
   PROPOSAL_CLONED = 'PROPOSAL_CLONED',
   PROPOSAL_CREATED = 'PROPOSAL_CREATED',
   PROPOSAL_FEASIBILITY_REVIEW_SUBMITTED = 'PROPOSAL_FEASIBILITY_REVIEW_SUBMITTED',
@@ -919,6 +929,7 @@ export type MutationCloneProposalsArgs = {
 
 export type MutationCloneSampleArgs = {
   sampleId: Scalars['Int'];
+  title?: Maybe<Scalars['String']>;
 };
 
 
@@ -1739,7 +1750,7 @@ export type ProposalBookingCore = {
 
 
 export type ProposalBookingCoreScheduledEventsArgs = {
-  filter: ProposalBookingScheduledEventFilter;
+  filter: ProposalBookingScheduledEventFilterCore;
 };
 
 export type ProposalBookingFilter = {
@@ -1761,6 +1772,13 @@ export type ProposalBookingScheduledEventFilter = {
   bookingType?: Maybe<ScheduledEventBookingType>;
   endsAfter?: Maybe<Scalars['TzLessDateTime']>;
   endsBefore?: Maybe<Scalars['TzLessDateTime']>;
+};
+
+export type ProposalBookingScheduledEventFilterCore = {
+  bookingType?: Maybe<ScheduledEventBookingType>;
+  endsAfter?: Maybe<Scalars['TzLessDateTime']>;
+  endsBefore?: Maybe<Scalars['TzLessDateTime']>;
+  status?: Maybe<Array<ProposalBookingStatus>>;
 };
 
 export enum ProposalBookingStatus {
@@ -3040,6 +3058,7 @@ export type UpdateCallInput = {
   callReviewEnded?: Maybe<Scalars['Int']>;
   callSEPReviewEnded?: Maybe<Scalars['Int']>;
   cycleComment: Scalars['String'];
+  description?: Maybe<Scalars['String']>;
   endCall: Scalars['DateTime'];
   endCycle: Scalars['DateTime'];
   endNotify: Scalars['DateTime'];
@@ -3057,6 +3076,7 @@ export type UpdateCallInput = {
   startSEPReview?: Maybe<Scalars['DateTime']>;
   surveyComment: Scalars['String'];
   templateId: Scalars['Int'];
+  title?: Maybe<Scalars['String']>;
 };
 
 export type UpdateProposalStatusInput = {
@@ -3248,7 +3268,7 @@ export type CreateEquipmentMutation = (
     & Pick<EquipmentResponseWrap, 'error'>
     & { equipment: Maybe<(
       { __typename?: 'Equipment' }
-      & Pick<Equipment, 'id' | 'createdAt' | 'updatedAt' | 'name' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'>
+      & Pick<Equipment, 'id' | 'createdAt' | 'updatedAt' | 'name' | 'description' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'>
     )> }
   ) }
 );
@@ -3272,7 +3292,7 @@ export type GetAvailableEquipmentsQuery = (
   { __typename?: 'Query' }
   & { availableEquipments: Array<(
     { __typename?: 'Equipment' }
-    & Pick<Equipment, 'id' | 'createdAt' | 'updatedAt' | 'name' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'>
+    & Pick<Equipment, 'id' | 'createdAt' | 'updatedAt' | 'name' | 'description' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'>
   )> }
 );
 
@@ -3285,7 +3305,7 @@ export type GetEquipmentQuery = (
   { __typename?: 'Query' }
   & { equipment: Maybe<(
     { __typename?: 'Equipment' }
-    & Pick<Equipment, 'id' | 'createdAt' | 'updatedAt' | 'name' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'>
+    & Pick<Equipment, 'id' | 'createdAt' | 'updatedAt' | 'name' | 'description' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'>
     & { owner: Maybe<(
       { __typename?: 'User' }
       & Pick<User, 'firstname' | 'lastname'>
@@ -3303,7 +3323,7 @@ export type GetEquipmentsQuery = (
   { __typename?: 'Query' }
   & { equipments: Array<(
     { __typename?: 'Equipment' }
-    & Pick<Equipment, 'id' | 'createdAt' | 'updatedAt' | 'name' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'>
+    & Pick<Equipment, 'id' | 'createdAt' | 'updatedAt' | 'name' | 'description' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'>
   )> }
 );
 
@@ -3320,7 +3340,7 @@ export type UpdateEquipmentMutation = (
     & Pick<EquipmentResponseWrap, 'error'>
     & { equipment: Maybe<(
       { __typename?: 'Equipment' }
-      & Pick<Equipment, 'id' | 'name' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'>
+      & Pick<Equipment, 'id' | 'name' | 'description' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'>
     )> }
   ) }
 );
@@ -3639,7 +3659,7 @@ export type GetScheduledEventEquipmentsQuery = (
     { __typename?: 'ScheduledEvent' }
     & { equipments: Array<(
       { __typename?: 'EquipmentWithAssignmentStatus' }
-      & Pick<EquipmentWithAssignmentStatus, 'id' | 'name' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'status'>
+      & Pick<EquipmentWithAssignmentStatus, 'id' | 'name' | 'description' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'status'>
     )> }
   )> }
 );
@@ -3733,7 +3753,7 @@ export type GetScheduledEventsWithEquipmentsQuery = (
     & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt' | 'status'>
     & { equipments: Array<(
       { __typename?: 'EquipmentWithAssignmentStatus' }
-      & Pick<EquipmentWithAssignmentStatus, 'id' | 'name' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'status'>
+      & Pick<EquipmentWithAssignmentStatus, 'id' | 'name' | 'description' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'status'>
     )> }
   )> }
 );
@@ -3820,6 +3840,7 @@ export const CreateEquipmentDocument = gql`
       createdAt
       updatedAt
       name
+      description
       maintenanceStartsAt
       maintenanceEndsAt
       autoAccept
@@ -3841,6 +3862,7 @@ export const GetAvailableEquipmentsDocument = gql`
     createdAt
     updatedAt
     name
+    description
     maintenanceStartsAt
     maintenanceEndsAt
     autoAccept
@@ -3854,6 +3876,7 @@ export const GetEquipmentDocument = gql`
     createdAt
     updatedAt
     name
+    description
     maintenanceStartsAt
     maintenanceEndsAt
     autoAccept
@@ -3876,6 +3899,7 @@ export const GetEquipmentsDocument = gql`
     createdAt
     updatedAt
     name
+    description
     maintenanceStartsAt
     maintenanceEndsAt
     autoAccept
@@ -3889,6 +3913,7 @@ export const UpdateEquipmentDocument = gql`
     equipment {
       id
       name
+      description
       maintenanceStartsAt
       maintenanceEndsAt
       autoAccept
@@ -4156,6 +4181,7 @@ export const GetScheduledEventEquipmentsDocument = gql`
     equipments {
       id
       name
+      description
       maintenanceStartsAt
       maintenanceEndsAt
       status
@@ -4271,6 +4297,7 @@ export const GetScheduledEventsWithEquipmentsDocument = gql`
     equipments {
       id
       name
+      description
       maintenanceStartsAt
       maintenanceEndsAt
       status

@@ -18,11 +18,16 @@ import { DetailedProposalBooking } from 'hooks/proposalBooking/useProposalBookin
 export type EquipmentTableRow = {
   id: number;
   name: string;
+  description: string | null;
   autoAccept: boolean;
 };
 
 const defaultHeadCells: HeadCell<EquipmentTableRow>[] = [
   { id: 'name', label: 'Name' },
+  {
+    id: 'description',
+    label: 'Description',
+  },
   {
     id: 'autoAccept',
     label: 'Auto accept',
@@ -91,6 +96,7 @@ export default function SelectEquipmentDialog({
             return (
               <>
                 <TableCell align="left">{row.name}</TableCell>
+                <TableCell align="left">{row.description}</TableCell>
                 <TableCell align="left">
                   {row.autoAccept ? 'yes' : 'no'}
                 </TableCell>

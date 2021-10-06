@@ -32,10 +32,26 @@ context('Equipment tests', () => {
     beforeEach(() => {
       cy.contains('1 Test equipment')
         .parent()
-        .find('[data-cy=btn-view-equipment]')
+        .find('[title="View equipment"]')
         .click();
 
       cy.contains(/1 Test equipment/i);
+    });
+
+    it('should be able to add equipment description', () => {
+      cy.get('[data-cy=btn-edit-equipment]').click();
+      cy.get('[data-cy="description"]').type('1 Test equipment description');
+
+      cy.get('[data-cy=btn-save-equipment]').click();
+      cy.finishedLoading();
+      cy.contains(/1 Test equipment description/i);
+
+      cy.get('.MuiDrawer-root').contains('Equipments').click();
+
+      cy.finishedLoading();
+      cy.contains(/1 Test equipment/i)
+        .parent()
+        .contains(/1 Test equipment description/i);
     });
 
     it('should be able to turn on auto accept', () => {

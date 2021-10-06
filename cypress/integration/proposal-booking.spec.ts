@@ -389,7 +389,7 @@ context('Proposal booking tests ', () => {
 
         cy.contains(/Available equipment 1 - no auto accept/i)
           .parent()
-          .find('[data-cy="btn-view-equipment"]')
+          .find('[title="View equipment"]')
           .click();
 
         cy.get('[data-cy="add-equipment-responsible"]').click();
@@ -407,7 +407,7 @@ context('Proposal booking tests ', () => {
 
         cy.contains(/Available equipment 2 - auto accept/i)
           .parent()
-          .find('[data-cy="btn-view-equipment"]')
+          .find('[title="View equipment"]')
           .click();
 
         cy.get('[data-cy="add-equipment-responsible"]').click();
@@ -481,7 +481,7 @@ context('Proposal booking tests ', () => {
 
         cy.contains(/Available equipment 1 - no auto accept/i)
           .parent()
-          .find('[data-cy=btn-view-equipment]')
+          .find('[title="View equipment"]')
           .click();
 
         cy.contains(/Available equipment 1 - no auto accept/i);
@@ -549,7 +549,7 @@ context('Proposal booking tests ', () => {
         cy.visit('/equipments');
         cy.contains(/Available equipment 2 - auto accept/i)
           .parent()
-          .find('[data-cy=btn-view-equipment]')
+          .find('[title="View equipment"]')
           .click();
 
         cy.contains(/Available equipment 2 - auto accept/i);

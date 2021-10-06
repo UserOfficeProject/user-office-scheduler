@@ -8,7 +8,12 @@ export default function useAvailableEquipments(scheduledEventId: number) {
   const [equipments, setEquipments] = useState<
     Pick<
       Equipment,
-      'id' | 'name' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'
+      | 'id'
+      | 'name'
+      | 'description'
+      | 'maintenanceStartsAt'
+      | 'maintenanceEndsAt'
+      | 'autoAccept'
     >[]
   >([]);
 

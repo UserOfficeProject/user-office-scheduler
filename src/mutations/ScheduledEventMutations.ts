@@ -1,7 +1,6 @@
 import { logger } from '@esss-swap/duo-logger';
 import {
   createScheduledEventValidationSchema,
-  bulkUpsertScheduledEventsValidationSchema,
   updateScheduledEventValidationSchema,
   activateBookingValidationSchema,
   finalizeBookingValidationSchema,
@@ -12,7 +11,9 @@ import { EquipmentDataSource } from '../datasources/EquipmentDataSource';
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
 import { ScheduledEventDataSource } from '../datasources/ScheduledEventDataSource';
 import Authorized from '../decorators/Authorized';
+import EventBus from '../decorators/EventBus';
 import ValidateArgs from '../decorators/ValidateArgs';
+import { Event } from '../generated/sdk';
 import { instrumentScientistHasInstrument } from '../helpers/instrumentHelpers';
 import { instrumentScientistHasAccess } from '../helpers/permissionHelpers';
 import { EquipmentAssignmentStatus } from '../models/Equipment';
@@ -27,7 +28,7 @@ import {
 import { rejection, Rejection } from '../rejection';
 import {
   ActivateScheduledEventInput,
-  BulkUpsertScheduledEventsInput,
+  DeleteScheduledEventsInput,
   FinalizeScheduledEventInput,
   NewScheduledEventInput,
   UpdateScheduledEventInput,
@@ -41,6 +42,7 @@ export default class ScheduledEventMutations {
     private equipmentDataSource: EquipmentDataSource
   ) {}
 
+  @EventBus(Event.PROPOSAL_BOOKING_TIME_SLOT_ADDED)
   @ValidateArgs(
     createScheduledEventValidationSchema(CalendarExplicitBookableTypes)
   )
@@ -68,42 +70,32 @@ export default class ScheduledEventMutations {
       });
   }
 
-  @ValidateArgs(bulkUpsertScheduledEventsValidationSchema)
+  @EventBus(Event.PROPOSAL_BOOKING_TIME_SLOTS_REMOVED)
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
-  async bulkUpsert(
+  async delete(
     ctx: ResolverContext,
-    bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput
+    deleteScheduledEvents: DeleteScheduledEventsInput
   ): Promise<ScheduledEvent[] | Rejection> {
-    const proposalBooking = await this.proposalBookingDataSource.get(
-      +bulkUpsertScheduledEvents.proposalBookingId
+    const hasInstrument = await instrumentScientistHasInstrument(
+      ctx,
+      deleteScheduledEvents.instrumentId
     );
-
-    if (
-      !proposalBooking ||
-      proposalBooking.status !== ProposalBookingStatus.DRAFT
-    ) {
-      return rejection('NOT_FOUND');
-    }
-
-    if (!(await instrumentScientistHasAccess(ctx, proposalBooking))) {
+    if (!hasInstrument) {
       return rejection('NOT_ALLOWED');
     }
 
     return this.scheduledEventDataSource
-      .bulkUpsert(
-        +(ctx.user as User).id,
-        proposalBooking.instrument.id,
-        bulkUpsertScheduledEvents
-      )
+      .delete(deleteScheduledEvents)
       .catch((error) => {
-        logger.logException('ScheduledEvent bulkUpsert failed', error, {
-          bulkUpsertScheduledEvents,
+        logger.logException('Could not delete scheduled event', error, {
+          deleteScheduledEvents,
         });
 
         return rejection('INTERNAL_ERROR');
       });
   }
 
+  @EventBus(Event.PROPOSAL_BOOKING_TIME_UPDATED)
   @ValidateArgs(updateScheduledEventValidationSchema)
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
   async update(
@@ -183,6 +175,7 @@ export default class ScheduledEventMutations {
     }
   }
 
+  @EventBus(Event.PROPOSAL_BOOKING_TIME_ACTIVATED)
   @ValidateArgs(activateBookingValidationSchema)
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
   async activate(
@@ -235,6 +228,7 @@ export default class ScheduledEventMutations {
     return result;
   }
 
+  @EventBus(Event.PROPOSAL_BOOKING_TIME_COMPLETED)
   @ValidateArgs(finalizeBookingValidationSchema)
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
   async finalize(

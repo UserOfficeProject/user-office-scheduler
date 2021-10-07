@@ -11,11 +11,12 @@ export enum ScheduledEventBookingType {
 export type BookingTypes = typeof ScheduledEventBookingType;
 
 export const CalendarExplicitBookableTypes: Record<
-  keyof Pick<BookingTypes, 'SHUTDOWN' | 'MAINTENANCE'>,
+  keyof Pick<BookingTypes, 'SHUTDOWN' | 'MAINTENANCE' | 'USER_OPERATIONS'>,
   string
 > = {
   MAINTENANCE: 'Maintenance',
   SHUTDOWN: 'Shutdown',
+  USER_OPERATIONS: 'User operations',
 };
 
 export class ScheduledEvent {

@@ -1,7 +1,7 @@
 import { ProposalBookingFinalizeAction } from '../models/ProposalBooking';
 import { ScheduledEvent } from '../models/ScheduledEvent';
 import {
-  BulkUpsertScheduledEventsInput,
+  DeleteScheduledEventsInput,
   NewScheduledEventInput,
   UpdateScheduledEventInput,
 } from '../resolvers/mutations/ScheduledEventMutation';
@@ -13,11 +13,6 @@ export interface ScheduledEventDataSource {
     scheduledById: number,
     newScheduledEvent: NewScheduledEventInput
   ): Promise<ScheduledEvent>;
-  bulkUpsert(
-    scheduledById: number,
-    instrumentId: number,
-    bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput
-  ): Promise<ScheduledEvent[]>;
   update(
     updateScheduledEvent: UpdateScheduledEventInput
   ): Promise<ScheduledEvent>;
@@ -26,7 +21,9 @@ export interface ScheduledEventDataSource {
     id: number,
     action: ProposalBookingFinalizeAction
   ): Promise<ScheduledEvent>;
-  delete(): Promise<null>;
+  delete(
+    deleteScheduledEvent: DeleteScheduledEventsInput
+  ): Promise<ScheduledEvent[]>;
   get(id: number): Promise<ScheduledEvent | null>;
   getAll(filter: ScheduledEventFilter): Promise<ScheduledEvent[]>;
   proposalBookingScheduledEvents(

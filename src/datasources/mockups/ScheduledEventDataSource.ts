@@ -9,7 +9,7 @@ import {
   ScheduledEventBookingType,
 } from '../../models/ScheduledEvent';
 import {
-  BulkUpsertScheduledEventsInput,
+  DeleteScheduledEventsInput,
   NewScheduledEventInput,
   UpdateScheduledEventInput,
 } from '../../resolvers/mutations/ScheduledEventMutation';
@@ -87,16 +87,10 @@ export default class MockupScheduledEventDataSource
     throw new Error('Method not implemented.');
   }
 
-  bulkUpsert(
-    scheduledById: number,
-    instrumentId: 0,
-    bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput
+  async delete(
+    deleteScheduledEvents: DeleteScheduledEventsInput
   ): Promise<ScheduledEvent[]> {
-    throw new Error('Method not implemented.');
-  }
-
-  async delete(): Promise<null> {
-    throw new Error('Method not implemented.');
+    return dummyScheduledEvents;
   }
 
   async get(id: number): Promise<ScheduledEvent | null> {

@@ -22,6 +22,7 @@ import {
   Add as AddIcon,
   Delete as DeleteIcon,
 } from '@material-ui/icons';
+import { Alert, AlertTitle } from '@material-ui/lab';
 import clsx from 'clsx';
 import humanizeDuration from 'humanize-duration';
 import moment from 'moment';
@@ -79,7 +80,34 @@ const useStyles = makeStyles((theme) => ({
     flexBasis: 0,
     alignSelf: 'flex-start',
   },
+  spacingTop: {
+    marginTop: theme.spacing(2),
+  },
 }));
+
+const checkIfSomeScheduledEventIsOutsideCallCycleInterval = (
+  scheduledEvents: ProposalBookingScheduledEvent[],
+  callCycleStart: Date,
+  callCycleEnd: Date
+) => {
+  if (
+    scheduledEvents.some(
+      (scheduledEvent) =>
+        !moment(scheduledEvent.startsAt).isBetween(
+          moment(callCycleStart),
+          moment(callCycleEnd)
+        ) ||
+        !moment(scheduledEvent.endsAt).isBetween(
+          moment(callCycleStart),
+          moment(callCycleEnd)
+        )
+    )
+  ) {
+    return true;
+  }
+
+  return false;
+};
 
 export default function BookingEventStep({
   activeStatus,
@@ -106,6 +134,17 @@ export default function BookingEventStep({
   const [isLoading, setIsLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] =
     useState<ProposalBookingScheduledEvent | null>(null);
+
+  const [
+    hasEventOutsideCallCycleInterval,
+    setHasEventOutsideCallCycleInterval,
+  ] = useState(
+    checkIfSomeScheduledEventIsOutsideCallCycleInterval(
+      scheduledEvents,
+      proposalBooking.call?.startCycle,
+      proposalBooking.call?.endCycle
+    )
+  );
 
   const { allocated, allocatable } = useMemo(() => {
     const allocated = scheduledEvents.reduce(
@@ -138,8 +177,22 @@ export default function BookingEventStep({
       setScheduledEvents(scheduledEvents);
 
       setIsLoading(false);
+
+      setHasEventOutsideCallCycleInterval(
+        checkIfSomeScheduledEventIsOutsideCallCycleInterval(
+          scheduledEvents,
+          proposalBooking.call.startCycle,
+          proposalBooking.call.endCycle
+        )
+      );
     }
-  }, [loading, scheduledEvents, setScheduledEvents]);
+  }, [
+    loading,
+    scheduledEvents,
+    setScheduledEvents,
+    proposalBooking.call.startCycle,
+    proposalBooking.call.endCycle,
+  ]);
 
   const handleAdd = async () => {
     setIsLoading(true);
@@ -419,6 +472,17 @@ export default function BookingEventStep({
             },
           ]}
         />
+        {hasEventOutsideCallCycleInterval && (
+          <Alert
+            severity="warning"
+            className={classes.spacingTop}
+            data-cy="some-event-outside-cycle-interval-warning"
+          >
+            <AlertTitle>Warning</AlertTitle>
+            Some of the time slots are booked outside call cycle start and end
+            date.
+          </Alert>
+        )}
       </DialogContent>
       <DialogActions>
         <Button

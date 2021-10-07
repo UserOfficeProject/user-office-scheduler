@@ -106,11 +106,10 @@ export default class PostgreScheduledEventDataSource
           : ProposalBookingStatus.DRAFT
       )
       .where('scheduled_event_id', id)
-      .andWhere((query) =>
-        query
-          .where('status', ProposalBookingStatus.ACTIVE)
-          .orWhere('status', ProposalBookingStatus.DRAFT)
-      )
+      .whereIn('status', [
+        ProposalBookingStatus.ACTIVE,
+        ProposalBookingStatus.DRAFT,
+      ])
       .returning<ScheduledEventRecord[]>(['*']);
 
     if (!updatedRecord) {

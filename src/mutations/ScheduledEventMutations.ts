@@ -1,6 +1,6 @@
 import { logger } from '@esss-swap/duo-logger';
 import {
-  // createScheduledEventValidationSchema,
+  createScheduledEventValidationSchema,
   updateScheduledEventValidationSchema,
   activateBookingValidationSchema,
   finalizeBookingValidationSchema,
@@ -23,7 +23,7 @@ import {
 } from '../models/ProposalBooking';
 import {
   ScheduledEvent,
-  // CalendarExplicitBookableTypes,
+  CalendarExplicitBookableTypes,
 } from '../models/ScheduledEvent';
 import { rejection, Rejection } from '../rejection';
 import {
@@ -43,9 +43,9 @@ export default class ScheduledEventMutations {
   ) {}
 
   @EventBus(Event.PROPOSAL_BOOKING_TIME_SLOT_ADDED)
-  // @ValidateArgs(
-  //   createScheduledEventValidationSchema(CalendarExplicitBookableTypes)
-  // )
+  @ValidateArgs(
+    createScheduledEventValidationSchema(CalendarExplicitBookableTypes)
+  )
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
   async create(
     ctx: ResolverContext,

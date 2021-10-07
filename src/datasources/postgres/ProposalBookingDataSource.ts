@@ -101,11 +101,10 @@ export default class PostgresProposalBookingDataSource
           : ProposalBookingStatus.DRAFT
       )
       .where('proposal_booking_id', id)
-      .andWhere((query) =>
-        query
-          .where('status', ProposalBookingStatus.ACTIVE)
-          .orWhere('status', ProposalBookingStatus.DRAFT)
-      )
+      .whereIn('status', [
+        ProposalBookingStatus.ACTIVE,
+        ProposalBookingStatus.DRAFT,
+      ])
       .returning<ProposalBookingRecord[]>(['*']);
 
     if (!updatedRecord) {

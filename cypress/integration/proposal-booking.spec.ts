@@ -777,12 +777,8 @@ context('Proposal booking tests ', () => {
 
       it('should be able to complete the booking process', () => {
         cy.finishedLoading();
-        cy.get('[title="Edit event"]').first().click();
-        cy.contains(/warning/i);
 
-        cy.contains(/complete the time slot booking/i).as('completeBooking');
-
-        cy.finishedLoading();
+        cy.contains(/complete proposal booking/i).as('completeBooking');
 
         cy.get('@completeBooking').should('not.be.disabled').click();
         cy.get('[data-cy="btn-ok"]').click();
@@ -790,7 +786,7 @@ context('Proposal booking tests ', () => {
         cy.wait(500);
 
         cy.contains(
-          /Time slot booking is already completed, you can not edit it/i
+          /Proposal booking is already completed, you can not edit it/i
         );
       });
 

@@ -43,6 +43,7 @@ import { AppContext } from 'context/AppContext';
 import {
   ProposalBookingFinalizeAction,
   ProposalBookingStatus,
+  ScheduledEventBookingType,
 } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import useProposalBookingScheduledEvents, {
@@ -204,28 +205,19 @@ export default function BookingEventStep({
       : moment().startOf('hour');
     const endsAt = startsAt.clone().startOf('hour').add(1, 'day');
 
+    if (!proposalBooking.instrument) {
+      return;
+    }
+
     const {
-      bulkUpsertScheduledEvents: {
-        error,
-        scheduledEvent: updatedScheduledEvents,
-      },
-    } = await api().bulkUpsertScheduledEvents({
+      createScheduledEvent: { error, scheduledEvent: createdScheduledEvent },
+    } = await api().createScheduledEvent({
       input: {
         proposalBookingId: proposalBooking.id,
-        scheduledEvents: [
-          ...scheduledEvents,
-          {
-            id: 0,
-            newlyCreated: true,
-            startsAt: startsAt.format(TZ_LESS_DATE_TIME_FORMAT),
-            endsAt: endsAt.format(TZ_LESS_DATE_TIME_FORMAT),
-          },
-        ].map(({ id, startsAt, endsAt, newlyCreated = false }) => ({
-          newlyCreated,
-          id,
-          startsAt,
-          endsAt,
-        })),
+        bookingType: ScheduledEventBookingType.USER_OPERATIONS,
+        instrumentId: proposalBooking.instrument.id,
+        startsAt: startsAt.format(TZ_LESS_DATE_TIME_FORMAT),
+        endsAt: endsAt.format(TZ_LESS_DATE_TIME_FORMAT),
       },
     });
 
@@ -234,7 +226,8 @@ export default function BookingEventStep({
         variant: 'error',
       });
     } else {
-      updatedScheduledEvents && setScheduledEvents(updatedScheduledEvents);
+      createdScheduledEvent &&
+        setScheduledEvents([...scheduledEvents, { ...createdScheduledEvent }]);
     }
 
     setIsLoading(false);
@@ -248,22 +241,18 @@ export default function BookingEventStep({
         !data.map((item) => item.id).includes(scheduledEvent.id)
     );
 
-    // TODO: Create proper functionality for removing an event/s.
+    if (!proposalBooking.instrument) {
+      return;
+    }
+
     // Delete selected events
     const {
-      bulkUpsertScheduledEvents: {
-        error,
-        scheduledEvent: updatedScheduledEvents,
-      },
-    } = await api().bulkUpsertScheduledEvents({
+      deleteScheduledEvents: { error, scheduledEvents: deletedScheduledEvents },
+    } = await api().deleteScheduledEvents({
       input: {
+        ids: data.map((item) => item.id),
         proposalBookingId: proposalBooking.id,
-        scheduledEvents: newEvents.map((newEvent) => ({
-          id: newEvent.id,
-          startsAt: newEvent.startsAt,
-          endsAt: newEvent.endsAt,
-          newlyCreated: false,
-        })),
+        instrumentId: proposalBooking.instrument.id,
       },
     });
 
@@ -272,7 +261,7 @@ export default function BookingEventStep({
         variant: 'error',
       });
     } else {
-      updatedScheduledEvents && setScheduledEvents(newEvents);
+      deletedScheduledEvents && setScheduledEvents(newEvents);
     }
 
     setIsLoading(false);

@@ -149,11 +149,6 @@ export type BulkUpsertLostTimesInput = {
   proposalBookingId: Scalars['Int'];
 };
 
-export type BulkUpsertScheduledEventsInput = {
-  proposalBookingId: Scalars['Int'];
-  scheduledEvents: Array<SimpleScheduledEventInput>;
-};
-
 export type Call = {
   __typename?: 'Call';
   allocationTimeUnit: AllocationTimeUnits;
@@ -317,6 +312,12 @@ export type DeleteProposalWorkflowStatusInput = {
   sortOrder: Scalars['Int'];
 };
 
+export type DeleteScheduledEventsInput = {
+  ids: Array<Scalars['Int']>;
+  instrumentId: Scalars['Int'];
+  proposalBookingId: Scalars['Int'];
+};
+
 export enum DependenciesLogicOperator {
   AND = 'AND',
   OR = 'OR'
@@ -422,6 +423,11 @@ export enum Event {
   PROPOSAL_ACCEPTED = 'PROPOSAL_ACCEPTED',
   PROPOSAL_ALL_SEP_REVIEWERS_SELECTED = 'PROPOSAL_ALL_SEP_REVIEWERS_SELECTED',
   PROPOSAL_ALL_SEP_REVIEWS_SUBMITTED = 'PROPOSAL_ALL_SEP_REVIEWS_SUBMITTED',
+  PROPOSAL_BOOKING_TIME_ACTIVATED = 'PROPOSAL_BOOKING_TIME_ACTIVATED',
+  PROPOSAL_BOOKING_TIME_COMPLETED = 'PROPOSAL_BOOKING_TIME_COMPLETED',
+  PROPOSAL_BOOKING_TIME_SLOTS_REMOVED = 'PROPOSAL_BOOKING_TIME_SLOTS_REMOVED',
+  PROPOSAL_BOOKING_TIME_SLOT_ADDED = 'PROPOSAL_BOOKING_TIME_SLOT_ADDED',
+  PROPOSAL_BOOKING_TIME_UPDATED = 'PROPOSAL_BOOKING_TIME_UPDATED',
   PROPOSAL_CLONED = 'PROPOSAL_CLONED',
   PROPOSAL_CREATED = 'PROPOSAL_CREATED',
   PROPOSAL_FEASIBILITY_REVIEW_SUBMITTED = 'PROPOSAL_FEASIBILITY_REVIEW_SUBMITTED',
@@ -662,7 +668,6 @@ export type Mutation = {
   assignSepReviewersToProposal: SepResponseWrap;
   assignToScheduledEvents: Scalars['Boolean'];
   bulkUpsertLostTimes: LostTimesResponseWrap;
-  bulkUpsertScheduledEvents: ScheduledEventsResponseWrap;
   changeProposalsStatus: SuccessResponseWrap;
   checkExternalToken: CheckExternalTokenWrap;
   cloneProposals: ProposalsResponseWrap;
@@ -706,6 +711,7 @@ export type Mutation = {
   deleteRiskAssessment: RiskAssessmentResponseWrap;
   deleteSEP: SepResponseWrap;
   deleteSample: SampleResponseWrap;
+  deleteScheduledEvents: ScheduledEventsResponseWrap;
   deleteShipment: ShipmentResponseWrap;
   deleteTemplate: TemplateResponseWrap;
   deleteTopic: TemplateResponseWrap;
@@ -903,11 +909,6 @@ export type MutationAssignToScheduledEventsArgs = {
 
 export type MutationBulkUpsertLostTimesArgs = {
   bulkUpsertLostTimes: BulkUpsertLostTimesInput;
-};
-
-
-export type MutationBulkUpsertScheduledEventsArgs = {
-  bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput;
 };
 
 
@@ -1170,6 +1171,11 @@ export type MutationDeleteSepArgs = {
 
 export type MutationDeleteSampleArgs = {
   sampleId: Scalars['Int'];
+};
+
+
+export type MutationDeleteScheduledEventsArgs = {
+  deleteScheduledEventsInput: DeleteScheduledEventsInput;
 };
 
 
@@ -1587,6 +1593,7 @@ export type NewScheduledEventInput = {
   description?: Maybe<Scalars['String']>;
   endsAt: Scalars['TzLessDateTime'];
   instrumentId: Scalars['Int'];
+  proposalBookingId?: Maybe<Scalars['Int']>;
   startsAt: Scalars['TzLessDateTime'];
 };
 
@@ -1680,6 +1687,7 @@ export type Proposal = {
   notified: Scalars['Boolean'];
   primaryKey: Scalars['Int'];
   proposalBooking: Maybe<ProposalBooking>;
+  proposalBookingCore: Maybe<ProposalBookingCore>;
   proposalId: Scalars['String'];
   proposer: Maybe<BasicUserDetails>;
   publicStatus: ProposalPublicStatus;
@@ -1706,6 +1714,11 @@ export type ProposalProposalBookingArgs = {
   filter?: Maybe<ProposalProposalBookingFilter>;
 };
 
+
+export type ProposalProposalBookingCoreArgs = {
+  filter?: Maybe<ProposalBookingFilter>;
+};
+
 export type ProposalBasisConfig = {
   __typename?: 'ProposalBasisConfig';
   tooltip: Scalars['String'];
@@ -1729,6 +1742,21 @@ export type ProposalBookingScheduledEventsArgs = {
   filter: ProposalBookingScheduledEventFilter;
 };
 
+export type ProposalBookingCore = {
+  __typename?: 'ProposalBookingCore';
+  id: Scalars['Int'];
+  scheduledEvents: Array<ScheduledEventCore>;
+};
+
+
+export type ProposalBookingCoreScheduledEventsArgs = {
+  filter: ProposalBookingScheduledEventFilterCore;
+};
+
+export type ProposalBookingFilter = {
+  status?: Maybe<Array<ProposalBookingStatus>>;
+};
+
 export enum ProposalBookingFinalizeAction {
   COMPLETE = 'COMPLETE',
   RESTART = 'RESTART'
@@ -1744,6 +1772,13 @@ export type ProposalBookingScheduledEventFilter = {
   bookingType?: Maybe<ScheduledEventBookingType>;
   endsAfter?: Maybe<Scalars['TzLessDateTime']>;
   endsBefore?: Maybe<Scalars['TzLessDateTime']>;
+};
+
+export type ProposalBookingScheduledEventFilterCore = {
+  bookingType?: Maybe<ScheduledEventBookingType>;
+  endsAfter?: Maybe<Scalars['TzLessDateTime']>;
+  endsBefore?: Maybe<Scalars['TzLessDateTime']>;
+  status?: Maybe<Array<ProposalBookingStatus>>;
 };
 
 export enum ProposalBookingStatus {
@@ -2699,7 +2734,6 @@ export type ScheduledEvent = {
   startsAt: Scalars['TzLessDateTime'];
   status: ProposalBookingStatus;
   updatedAt: Scalars['DateTime'];
-  visit: Maybe<Visit>;
 };
 
 export enum ScheduledEventBookingType {
@@ -2709,6 +2743,15 @@ export enum ScheduledEventBookingType {
   SHUTDOWN = 'SHUTDOWN',
   USER_OPERATIONS = 'USER_OPERATIONS'
 }
+
+export type ScheduledEventCore = {
+  __typename?: 'ScheduledEventCore';
+  bookingType: ScheduledEventBookingType;
+  endsAt: Scalars['TzLessDateTime'];
+  id: Scalars['Int'];
+  startsAt: Scalars['TzLessDateTime'];
+  visit: Maybe<Visit>;
+};
 
 export type ScheduledEventFilter = {
   endsAt: Scalars['TzLessDateTime'];
@@ -2725,7 +2768,7 @@ export type ScheduledEventResponseWrap = {
 export type ScheduledEventsResponseWrap = {
   __typename?: 'ScheduledEventsResponseWrap';
   error: Maybe<Scalars['String']>;
-  scheduledEvent: Maybe<Array<ScheduledEvent>>;
+  scheduledEvents: Maybe<Array<ScheduledEvent>>;
 };
 
 export type SchedulerConfig = {
@@ -2836,13 +2879,6 @@ export type SimpleLostTimeInput = {
   id: Scalars['Int'];
   newlyCreated?: Maybe<Scalars['Boolean']>;
   scheduledEventId?: Maybe<Scalars['Int']>;
-  startsAt: Scalars['TzLessDateTime'];
-};
-
-export type SimpleScheduledEventInput = {
-  endsAt: Scalars['TzLessDateTime'];
-  id: Scalars['Int'];
-  newlyCreated?: Maybe<Scalars['Boolean']>;
   startsAt: Scalars['TzLessDateTime'];
 };
 
@@ -3510,27 +3546,6 @@ export type ActivateScheduledEventMutation = (
   ) }
 );
 
-export type BulkUpsertScheduledEventsMutationVariables = Exact<{
-  input: BulkUpsertScheduledEventsInput;
-}>;
-
-
-export type BulkUpsertScheduledEventsMutation = (
-  { __typename?: 'Mutation' }
-  & { bulkUpsertScheduledEvents: (
-    { __typename?: 'ScheduledEventsResponseWrap' }
-    & Pick<ScheduledEventsResponseWrap, 'error'>
-    & { scheduledEvent: Maybe<Array<(
-      { __typename?: 'ScheduledEvent' }
-      & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt' | 'bookingType' | 'status' | 'description'>
-      & { scheduledBy: Maybe<(
-        { __typename?: 'User' }
-        & Pick<User, 'id' | 'firstname' | 'lastname'>
-      )> }
-    )>> }
-  ) }
-);
-
 export type CreateScheduledEventMutationVariables = Exact<{
   input: NewScheduledEventInput;
 }>;
@@ -3543,8 +3558,25 @@ export type CreateScheduledEventMutation = (
     & Pick<ScheduledEventResponseWrap, 'error'>
     & { scheduledEvent: Maybe<(
       { __typename?: 'ScheduledEvent' }
-      & Pick<ScheduledEvent, 'id' | 'bookingType' | 'startsAt' | 'endsAt' | 'description'>
+      & Pick<ScheduledEvent, 'id' | 'bookingType' | 'startsAt' | 'endsAt' | 'description' | 'status'>
     )> }
+  ) }
+);
+
+export type DeleteScheduledEventsMutationVariables = Exact<{
+  input: DeleteScheduledEventsInput;
+}>;
+
+
+export type DeleteScheduledEventsMutation = (
+  { __typename?: 'Mutation' }
+  & { deleteScheduledEvents: (
+    { __typename?: 'ScheduledEventsResponseWrap' }
+    & Pick<ScheduledEventsResponseWrap, 'error'>
+    & { scheduledEvents: Maybe<Array<(
+      { __typename?: 'ScheduledEvent' }
+      & Pick<ScheduledEvent, 'id' | 'bookingType' | 'startsAt' | 'endsAt' | 'description' | 'status'>
+    )>> }
   ) }
 );
 
@@ -4049,26 +4081,6 @@ export const ActivateScheduledEventDocument = gql`
   }
 }
     `;
-export const BulkUpsertScheduledEventsDocument = gql`
-    mutation bulkUpsertScheduledEvents($input: BulkUpsertScheduledEventsInput!) {
-  bulkUpsertScheduledEvents(bulkUpsertScheduledEvents: $input) {
-    error
-    scheduledEvent {
-      id
-      startsAt
-      endsAt
-      bookingType
-      scheduledBy {
-        id
-        firstname
-        lastname
-      }
-      status
-      description
-    }
-  }
-}
-    `;
 export const CreateScheduledEventDocument = gql`
     mutation createScheduledEvent($input: NewScheduledEventInput!) {
   createScheduledEvent(newScheduledEvent: $input) {
@@ -4079,6 +4091,22 @@ export const CreateScheduledEventDocument = gql`
       startsAt
       endsAt
       description
+      status
+    }
+  }
+}
+    `;
+export const DeleteScheduledEventsDocument = gql`
+    mutation deleteScheduledEvents($input: DeleteScheduledEventsInput!) {
+  deleteScheduledEvents(deleteScheduledEventsInput: $input) {
+    error
+    scheduledEvents {
+      id
+      bookingType
+      startsAt
+      endsAt
+      description
+      status
     }
   }
 }
@@ -4375,11 +4403,11 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     activateScheduledEvent(variables: ActivateScheduledEventMutationVariables): Promise<ActivateScheduledEventMutation> {
       return withWrapper(() => client.request<ActivateScheduledEventMutation>(print(ActivateScheduledEventDocument), variables));
     },
-    bulkUpsertScheduledEvents(variables: BulkUpsertScheduledEventsMutationVariables): Promise<BulkUpsertScheduledEventsMutation> {
-      return withWrapper(() => client.request<BulkUpsertScheduledEventsMutation>(print(BulkUpsertScheduledEventsDocument), variables));
-    },
     createScheduledEvent(variables: CreateScheduledEventMutationVariables): Promise<CreateScheduledEventMutation> {
       return withWrapper(() => client.request<CreateScheduledEventMutation>(print(CreateScheduledEventDocument), variables));
+    },
+    deleteScheduledEvents(variables: DeleteScheduledEventsMutationVariables): Promise<DeleteScheduledEventsMutation> {
+      return withWrapper(() => client.request<DeleteScheduledEventsMutation>(print(DeleteScheduledEventsDocument), variables));
     },
     finalizeScheduledEvent(variables: FinalizeScheduledEventMutationVariables): Promise<FinalizeScheduledEventMutation> {
       return withWrapper(() => client.request<FinalizeScheduledEventMutation>(print(FinalizeScheduledEventDocument), variables));

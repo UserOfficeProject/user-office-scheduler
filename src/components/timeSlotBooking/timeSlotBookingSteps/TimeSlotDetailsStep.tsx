@@ -23,7 +23,9 @@ import {
   Check as CheckIcon,
   Clear as ClearIcon,
   Edit,
+  Comment as CommentIcon,
 } from '@material-ui/icons';
+import { Alert, AlertTitle } from '@material-ui/lab';
 import {
   KeyboardDateTimePicker,
   MuiPickersUtilsProvider,
@@ -78,6 +80,9 @@ const useStyles = makeStyles((theme) => ({
     cursor: 'pointer',
     position: 'absolute',
   },
+  spacingTop: {
+    marginTop: theme.spacing(2),
+  },
 }));
 
 const formatDuration = (durSec: number) =>
@@ -86,6 +91,22 @@ const formatDuration = (durSec: number) =>
     serialComma: false,
     largest: 3,
   });
+
+const checkIfOutsideCallCycleInterval = (
+  timeSlotStart: Moment | null,
+  timeSlotEnd: Moment | null,
+  callCycleStart: Date,
+  callCycleEnd: Date
+) => {
+  if (
+    timeSlotStart?.isBetween(moment(callCycleStart), moment(callCycleEnd)) &&
+    timeSlotEnd?.isBetween(moment(callCycleStart), moment(callCycleEnd))
+  ) {
+    return false;
+  }
+
+  return true;
+};
 
 export default function TimeSlotDetailsStep({
   activeStatus,
@@ -98,6 +119,7 @@ export default function TimeSlotDetailsStep({
 }: TimeSlotBookingDialogStepProps) {
   const proposalBooking = scheduledEvent.proposalBooking as ProposalBooking;
   const [editingStartDate, setEditingStartDate] = useState(false);
+
   const [editingEndDate, setEditingEndDate] = useState(false);
   const [showStartsAtEditIcon, setShowStartsAtEditIcon] = useState(false);
   const [showEndsAtEditIcon, setShowEndsAtEditIcon] = useState(false);
@@ -115,6 +137,14 @@ export default function TimeSlotDetailsStep({
   );
   const [endsAt, setEndsAt] = useState<Moment | null>(
     moment(scheduledEvent.endsAt)
+  );
+  const [isOutsideCallCycleInterval, setIsOutsideCallCycleInterval] = useState(
+    checkIfOutsideCallCycleInterval(
+      startsAt,
+      endsAt,
+      proposalBooking.call?.startCycle,
+      proposalBooking.call?.endCycle
+    )
   );
 
   const handleOnSave = () => {
@@ -143,6 +173,15 @@ export default function TimeSlotDetailsStep({
 
     setEditingStartDate(false);
     setEditingEndDate(false);
+
+    setIsOutsideCallCycleInterval(
+      checkIfOutsideCallCycleInterval(
+        startsAt,
+        endsAt,
+        proposalBooking.call?.startCycle,
+        proposalBooking.call?.endCycle
+      )
+    );
   };
 
   const { allocated, allocatable } = useMemo(() => {
@@ -372,6 +411,28 @@ export default function TimeSlotDetailsStep({
                     }
                   />
                 </ListItem>
+                <Divider
+                  variant="inset"
+                  component="li"
+                  className={classes.divider}
+                />
+                <ListItem disableGutters>
+                  <ListItemAvatar>
+                    <Avatar>
+                      <CalendarTodayIcon />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary="Call cycle start"
+                    secondary={toTzLessDateTime(
+                      proposalBooking.call?.startCycle
+                    )}
+                  />
+                  <ListItemText
+                    primary="Call cycle end"
+                    secondary={toTzLessDateTime(proposalBooking.call?.endCycle)}
+                  />
+                </ListItem>
               </List>
             </Grid>
             <Grid item xs={6}>
@@ -471,10 +532,36 @@ export default function TimeSlotDetailsStep({
                     secondary={proposalBooking.proposal?.proposalId}
                   />
                 </ListItem>
+                <Divider
+                  variant="inset"
+                  component="li"
+                  className={classes.divider}
+                />
+                <ListItem disableGutters>
+                  <ListItemAvatar>
+                    <Avatar>
+                      <CommentIcon />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary="Call cycle comment"
+                    secondary={proposalBooking.call?.cycleComment}
+                  />
+                </ListItem>
               </List>
             </Grid>
           </MuiPickersUtilsProvider>
         </Grid>
+        {isOutsideCallCycleInterval && (
+          <Alert
+            severity="warning"
+            className={classes.spacingTop}
+            data-cy="event-outside-cycle-interval-warning"
+          >
+            <AlertTitle>Warning</AlertTitle>
+            Time slot should be booked between call cycle start and end date.
+          </Alert>
+        )}
       </DialogContent>
 
       <DialogActions>

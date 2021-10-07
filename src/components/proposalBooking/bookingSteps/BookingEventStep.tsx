@@ -22,6 +22,7 @@ import {
   Add as AddIcon,
   Delete as DeleteIcon,
 } from '@material-ui/icons';
+import { Alert, AlertTitle } from '@material-ui/lab';
 import clsx from 'clsx';
 import humanizeDuration from 'humanize-duration';
 import moment from 'moment';
@@ -42,6 +43,7 @@ import { AppContext } from 'context/AppContext';
 import {
   ProposalBookingFinalizeAction,
   ProposalBookingStatus,
+  ScheduledEventBookingType,
 } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import useProposalBookingScheduledEvents, {
@@ -78,7 +80,34 @@ const useStyles = makeStyles((theme) => ({
     flexBasis: 0,
     alignSelf: 'flex-start',
   },
+  spacingTop: {
+    marginTop: theme.spacing(2),
+  },
 }));
+
+const checkIfSomeScheduledEventIsOutsideCallCycleInterval = (
+  scheduledEvents: ProposalBookingScheduledEvent[],
+  callCycleStart: Date,
+  callCycleEnd: Date
+) => {
+  if (
+    scheduledEvents.some(
+      (scheduledEvent) =>
+        !moment(scheduledEvent.startsAt).isBetween(
+          moment(callCycleStart),
+          moment(callCycleEnd)
+        ) ||
+        !moment(scheduledEvent.endsAt).isBetween(
+          moment(callCycleStart),
+          moment(callCycleEnd)
+        )
+    )
+  ) {
+    return true;
+  }
+
+  return false;
+};
 
 export default function BookingEventStep({
   activeStatus,
@@ -105,6 +134,17 @@ export default function BookingEventStep({
   const [isLoading, setIsLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] =
     useState<ProposalBookingScheduledEvent | null>(null);
+
+  const [
+    hasEventOutsideCallCycleInterval,
+    setHasEventOutsideCallCycleInterval,
+  ] = useState(
+    checkIfSomeScheduledEventIsOutsideCallCycleInterval(
+      scheduledEvents,
+      proposalBooking.call?.startCycle,
+      proposalBooking.call?.endCycle
+    )
+  );
 
   const { allocated, allocatable } = useMemo(() => {
     const allocated = scheduledEvents.reduce(
@@ -137,8 +177,22 @@ export default function BookingEventStep({
       setScheduledEvents(scheduledEvents);
 
       setIsLoading(false);
+
+      setHasEventOutsideCallCycleInterval(
+        checkIfSomeScheduledEventIsOutsideCallCycleInterval(
+          scheduledEvents,
+          proposalBooking.call.startCycle,
+          proposalBooking.call.endCycle
+        )
+      );
     }
-  }, [loading, scheduledEvents, setScheduledEvents]);
+  }, [
+    loading,
+    scheduledEvents,
+    setScheduledEvents,
+    proposalBooking.call.startCycle,
+    proposalBooking.call.endCycle,
+  ]);
 
   const handleAdd = async () => {
     setIsLoading(true);
@@ -151,28 +205,19 @@ export default function BookingEventStep({
       : moment().startOf('hour');
     const endsAt = startsAt.clone().startOf('hour').add(1, 'day');
 
+    if (!proposalBooking.instrument) {
+      return;
+    }
+
     const {
-      bulkUpsertScheduledEvents: {
-        error,
-        scheduledEvent: updatedScheduledEvents,
-      },
-    } = await api().bulkUpsertScheduledEvents({
+      createScheduledEvent: { error, scheduledEvent: createdScheduledEvent },
+    } = await api().createScheduledEvent({
       input: {
         proposalBookingId: proposalBooking.id,
-        scheduledEvents: [
-          ...scheduledEvents,
-          {
-            id: 0,
-            newlyCreated: true,
-            startsAt: startsAt.format(TZ_LESS_DATE_TIME_FORMAT),
-            endsAt: endsAt.format(TZ_LESS_DATE_TIME_FORMAT),
-          },
-        ].map(({ id, startsAt, endsAt, newlyCreated = false }) => ({
-          newlyCreated,
-          id,
-          startsAt,
-          endsAt,
-        })),
+        bookingType: ScheduledEventBookingType.USER_OPERATIONS,
+        instrumentId: proposalBooking.instrument.id,
+        startsAt: startsAt.format(TZ_LESS_DATE_TIME_FORMAT),
+        endsAt: endsAt.format(TZ_LESS_DATE_TIME_FORMAT),
       },
     });
 
@@ -181,7 +226,8 @@ export default function BookingEventStep({
         variant: 'error',
       });
     } else {
-      updatedScheduledEvents && setScheduledEvents(updatedScheduledEvents);
+      createdScheduledEvent &&
+        setScheduledEvents([...scheduledEvents, { ...createdScheduledEvent }]);
     }
 
     setIsLoading(false);
@@ -195,22 +241,18 @@ export default function BookingEventStep({
         !data.map((item) => item.id).includes(scheduledEvent.id)
     );
 
-    // TODO: Create proper functionality for removing an event/s.
+    if (!proposalBooking.instrument) {
+      return;
+    }
+
     // Delete selected events
     const {
-      bulkUpsertScheduledEvents: {
-        error,
-        scheduledEvent: updatedScheduledEvents,
-      },
-    } = await api().bulkUpsertScheduledEvents({
+      deleteScheduledEvents: { error, scheduledEvents: deletedScheduledEvents },
+    } = await api().deleteScheduledEvents({
       input: {
+        ids: data.map((item) => item.id),
         proposalBookingId: proposalBooking.id,
-        scheduledEvents: newEvents.map((newEvent) => ({
-          id: newEvent.id,
-          startsAt: newEvent.startsAt,
-          endsAt: newEvent.endsAt,
-          newlyCreated: false,
-        })),
+        instrumentId: proposalBooking.instrument.id,
       },
     });
 
@@ -219,7 +261,7 @@ export default function BookingEventStep({
         variant: 'error',
       });
     } else {
-      updatedScheduledEvents && setScheduledEvents(newEvents);
+      deletedScheduledEvents && setScheduledEvents(newEvents);
     }
 
     setIsLoading(false);
@@ -430,6 +472,17 @@ export default function BookingEventStep({
             },
           ]}
         />
+        {hasEventOutsideCallCycleInterval && (
+          <Alert
+            severity="warning"
+            className={classes.spacingTop}
+            data-cy="some-event-outside-cycle-interval-warning"
+          >
+            <AlertTitle>Warning</AlertTitle>
+            Some of the time slots are booked outside call cycle start and end
+            date.
+          </Alert>
+        )}
       </DialogContent>
       <DialogActions>
         <Button

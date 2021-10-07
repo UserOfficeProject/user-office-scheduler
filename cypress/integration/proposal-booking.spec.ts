@@ -123,6 +123,59 @@ context('Proposal booking tests ', () => {
           .and('include', 'background-color: rgba(');
       });
 
+      it('should see warning message if time slot is outside call cycle interval', () => {
+        cy.get('[data-cy="some-event-outside-cycle-interval-warning"]').should(
+          'not.exist'
+        );
+        cy.contains(
+          'Some of the time slots are booked outside call cycle start and end date'
+        ).should('not.exist');
+
+        cy.finishedLoading();
+        cy.get('[title="Edit event"]').click();
+
+        cy.get('[data-cy="event-outside-cycle-interval-warning"]').should(
+          'not.exist'
+        );
+        cy.contains(
+          'Time slot should be booked between call cycle start and end date'
+        ).should('not.exist');
+
+        cy.get('[data-cy="startsAtInfo"]').click();
+        cy.get('[data-cy="startsAt"] input').clear();
+
+        cy.get('[data-cy=startsAt] input').type(getHourDateTimeAfter(2));
+
+        cy.get('[data-cy=btn-time-table-save-row]').click();
+
+        cy.get('[data-cy="endsAtInfo"]').click();
+        cy.get('[data-cy="endsAt"] input').clear();
+        cy.get('[data-cy=endsAt] input').type(getHourDateTimeAfter(50, 'days'));
+
+        cy.get('[data-cy=btn-time-table-save-row]').click();
+
+        cy.get('[data-cy="event-outside-cycle-interval-warning"]').should(
+          'exist'
+        );
+        cy.get('[data-cy="event-outside-cycle-interval-warning"]').should(
+          'contain.text',
+          'Time slot should be booked between call cycle start and end date'
+        );
+
+        cy.get('[data-cy="btn-next"]').click();
+        cy.finishedLoading();
+        cy.get('[data-cy="btn-close-event-dialog"]').click();
+        cy.wait(100);
+
+        cy.get('[data-cy="some-event-outside-cycle-interval-warning"]').should(
+          'exist'
+        );
+        cy.get('[data-cy="some-event-outside-cycle-interval-warning"]').should(
+          'contain.text',
+          'Some of the time slots are booked outside call cycle start and end date'
+        );
+      });
+
       it('should be able to edit time slot', () => {
         cy.finishedLoading();
         cy.get('[title="Edit event"]').click();
@@ -724,12 +777,8 @@ context('Proposal booking tests ', () => {
 
       it('should be able to complete the booking process', () => {
         cy.finishedLoading();
-        cy.get('[title="Edit event"]').first().click();
-        cy.contains(/warning/i);
 
-        cy.contains(/complete the time slot booking/i).as('completeBooking');
-
-        cy.finishedLoading();
+        cy.contains(/complete proposal booking/i).as('completeBooking');
 
         cy.get('@completeBooking').should('not.be.disabled').click();
         cy.get('[data-cy="btn-ok"]').click();
@@ -737,7 +786,7 @@ context('Proposal booking tests ', () => {
         cy.wait(500);
 
         cy.contains(
-          /Time slot booking is already completed, you can not edit it/i
+          /Proposal booking is already completed, you can not edit it/i
         );
       });
 

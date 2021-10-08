@@ -13,14 +13,11 @@ import { ScheduledEventDataSource } from '../datasources/ScheduledEventDataSourc
 import Authorized from '../decorators/Authorized';
 import EventBus from '../decorators/EventBus';
 import ValidateArgs from '../decorators/ValidateArgs';
-import { Event } from '../generated/sdk';
+import { Event, ProposalBookingStatusCore } from '../generated/sdk';
 import { instrumentScientistHasInstrument } from '../helpers/instrumentHelpers';
 import { instrumentScientistHasAccess } from '../helpers/permissionHelpers';
 import { EquipmentAssignmentStatus } from '../models/Equipment';
-import {
-  ProposalBookingFinalizeAction,
-  ProposalBookingStatus,
-} from '../models/ProposalBooking';
+import { ProposalBookingFinalizeAction } from '../models/ProposalBooking';
 import {
   ScheduledEvent,
   CalendarExplicitBookableTypes,
@@ -108,7 +105,7 @@ export default class ScheduledEventMutations {
 
     if (
       !scheduledEvent ||
-      scheduledEvent.status !== ProposalBookingStatus.DRAFT ||
+      scheduledEvent.status !== ProposalBookingStatusCore.DRAFT ||
       !scheduledEvent.proposalBookingId
     ) {
       return rejection('NOT_FOUND');
@@ -145,17 +142,17 @@ export default class ScheduledEventMutations {
 
     const allProposalBookingEventsAreActive = scheduledEvents.every(
       (scheduledEventItem) =>
-        scheduledEventItem.status === ProposalBookingStatus.ACTIVE
+        scheduledEventItem.status === ProposalBookingStatusCore.ACTIVE
     );
 
     const allProposalBookingEventsAreCompleted = scheduledEvents.every(
       (scheduledEventItem) =>
-        scheduledEventItem.status === ProposalBookingStatus.COMPLETED
+        scheduledEventItem.status === ProposalBookingStatusCore.COMPLETED
     );
 
     const allProposalBookingEventsNotDraft = scheduledEvents.every(
       (scheduledEventItem) =>
-        scheduledEventItem.status !== ProposalBookingStatus.DRAFT
+        scheduledEventItem.status !== ProposalBookingStatusCore.DRAFT
     );
 
     if (allProposalBookingEventsAreCompleted) {

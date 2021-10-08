@@ -12,10 +12,8 @@ import {
 } from 'type-graphql';
 
 import { ResolverContext } from '../../context';
-import {
-  ProposalBooking as ProposalBookingBase,
-  ProposalBookingStatus,
-} from '../../models/ProposalBooking';
+import { ProposalBookingStatusCore } from '../../generated/sdk';
+import { ProposalBooking as ProposalBookingBase } from '../../models/ProposalBooking';
 import { ScheduledEventBookingType } from '../../models/ScheduledEvent';
 import { TzLessDateTime } from '../CustomScalars';
 import { Call } from './Call';
@@ -42,8 +40,8 @@ export class ProposalBooking implements Partial<ProposalBookingBase> {
   @Field(() => Date)
   updatedAt: Date;
 
-  @Field(() => ProposalBookingStatus)
-  status: ProposalBookingStatus;
+  @Field(() => ProposalBookingStatusCore)
+  status: ProposalBookingStatusCore;
 
   @Field(() => Int)
   allocatedTime: number;

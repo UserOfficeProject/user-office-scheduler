@@ -1,8 +1,4 @@
-export enum ProposalBookingStatus {
-  DRAFT = 'DRAFT',
-  ACTIVE = 'ACTIVE',
-  COMPLETED = 'COMPLETED',
-}
+import { ProposalBookingStatusCore } from '../generated/sdk';
 
 export enum ProposalBookingFinalizeAction {
   COMPLETE = 'COMPLETE',
@@ -16,7 +12,7 @@ export class ProposalBooking {
     public call: { id: number },
     public createdAt: Date,
     public updatedAt: Date,
-    public status: ProposalBookingStatus,
+    public status: ProposalBookingStatusCore,
     public allocatedTime: number,
     public instrument: { id: number }
   ) {}

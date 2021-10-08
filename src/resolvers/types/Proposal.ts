@@ -12,7 +12,7 @@ import {
 } from 'type-graphql';
 
 import { ResolverContext } from '../../context';
-import { ProposalBookingStatus } from '../../models/ProposalBooking';
+import { ProposalBookingStatusCore } from '../../generated/sdk';
 import { ProposalBooking } from './ProposalBooking';
 
 @ObjectType()
@@ -26,8 +26,8 @@ export class Proposal {
 
 @InputType()
 export class ProposalProposalBookingFilter {
-  @Field(() => [ProposalBookingStatus], { nullable: true })
-  status?: ProposalBookingStatus[] | null;
+  @Field(() => [ProposalBookingStatusCore], { nullable: true })
+  status?: ProposalBookingStatusCore[] | null;
 }
 
 @Resolver(() => Proposal)

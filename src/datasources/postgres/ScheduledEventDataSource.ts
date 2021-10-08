@@ -1,7 +1,5 @@
-import {
-  ProposalBookingFinalizeAction,
-  ProposalBookingStatus,
-} from '../../models/ProposalBooking';
+import { ProposalBookingStatusCore } from '../../generated/sdk';
+import { ProposalBookingFinalizeAction } from '../../models/ProposalBooking';
 import {
   ScheduledEvent,
   ScheduledEventBookingType,
@@ -52,8 +50,8 @@ export default class PostgreScheduledEventDataSource
         description: newScheduledEvent.description,
         instrument_id: newScheduledEvent.instrumentId,
         status: isUserOperationsEvent
-          ? ProposalBookingStatus.DRAFT
-          : ProposalBookingStatus.ACTIVE,
+          ? ProposalBookingStatusCore.DRAFT
+          : ProposalBookingStatusCore.ACTIVE,
       })
       .returning<ScheduledEventRecord[]>(['*']);
 
@@ -82,9 +80,9 @@ export default class PostgreScheduledEventDataSource
 
   async activate(id: number): Promise<ScheduledEvent> {
     const [updatedRecord] = await database<ScheduledEventRecord>(this.tableName)
-      .update('status', ProposalBookingStatus.ACTIVE)
+      .update('status', ProposalBookingStatusCore.ACTIVE)
       .where('scheduled_event_id', id)
-      .where('status', ProposalBookingStatus.DRAFT)
+      .where('status', ProposalBookingStatusCore.DRAFT)
       .returning<ScheduledEventRecord[]>(['*']);
 
     if (!updatedRecord) {
@@ -102,13 +100,13 @@ export default class PostgreScheduledEventDataSource
       .update(
         'status',
         action === ProposalBookingFinalizeAction.COMPLETE
-          ? ProposalBookingStatus.COMPLETED
-          : ProposalBookingStatus.DRAFT
+          ? ProposalBookingStatusCore.COMPLETED
+          : ProposalBookingStatusCore.DRAFT
       )
       .where('scheduled_event_id', id)
       .whereIn('status', [
-        ProposalBookingStatus.ACTIVE,
-        ProposalBookingStatus.DRAFT,
+        ProposalBookingStatusCore.ACTIVE,
+        ProposalBookingStatusCore.DRAFT,
       ])
       .returning<ScheduledEventRecord[]>(['*']);
 
@@ -222,11 +220,11 @@ export default class PostgreScheduledEventDataSource
     endsAt: Date
   ): Promise<ScheduledEvent[]> {
     const scheduledEventRecords = await database<
-      ScheduledEventRecord & { scheduledEventStatus: ProposalBookingStatus }
+      ScheduledEventRecord & { scheduledEventStatus: ProposalBookingStatusCore }
     >(this.tableName)
       .select<
         (ScheduledEventRecord & {
-          scheduledEventStatus: ProposalBookingStatus;
+          scheduledEventStatus: ProposalBookingStatusCore;
         })[]
       >(['*', 'scheduled_events.status as scheduledEventStatus'])
       .join(

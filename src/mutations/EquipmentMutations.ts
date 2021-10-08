@@ -6,8 +6,8 @@ import { EquipmentDataSource } from '../datasources/EquipmentDataSource';
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
 import Authorized from '../decorators/Authorized';
 import ValidateArgs from '../decorators/ValidateArgs';
+import { ProposalBookingStatusCore } from '../generated/sdk';
 import { Equipment } from '../models/Equipment';
-import { ProposalBookingStatus } from '../models/ProposalBooking';
 import { Rejection, rejection } from '../rejection';
 import {
   EquipmentInput,
@@ -68,7 +68,7 @@ export default class EquipmentMutations {
     if (
       !proposalBooking ||
       // if the booking is not in DRAFT state disallow assigning any equipment
-      proposalBooking.status !== ProposalBookingStatus.DRAFT
+      proposalBooking.status !== ProposalBookingStatusCore.DRAFT
     ) {
       return false;
     }
@@ -93,7 +93,7 @@ export default class EquipmentMutations {
     if (
       !proposalBooking ||
       // if the booking is not in DRAFT state disallow delete any assigned equipment
-      proposalBooking.status !== ProposalBookingStatus.DRAFT
+      proposalBooking.status !== ProposalBookingStatusCore.DRAFT
     ) {
       return false;
     }

@@ -26,7 +26,7 @@ import { AppContext } from 'context/AppContext';
 import {
   EquipmentAssignmentStatus,
   ProposalBooking,
-  ProposalBookingStatus,
+  ProposalBookingStatusCore,
 } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import { DetailedProposalBooking } from 'hooks/proposalBooking/useProposalBooking';
@@ -68,7 +68,7 @@ export default function TimeSlotEquipmentBookingStep({
   handleCloseDialog,
 }: TimeSlotBookingDialogStepProps) {
   const proposalBooking = scheduledEvent.proposalBooking as ProposalBooking;
-  const isStepReadOnly = activeStatus !== ProposalBookingStatus.DRAFT;
+  const isStepReadOnly = activeStatus !== ProposalBookingStatusCore.DRAFT;
 
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
@@ -123,7 +123,7 @@ export default function TimeSlotEquipmentBookingStep({
             setLoading(false);
           } else {
             handleNext();
-            handleSetActiveStepByStatus(ProposalBookingStatus.ACTIVE);
+            handleSetActiveStepByStatus(ProposalBookingStatusCore.ACTIVE);
           }
         } catch (e) {
           // TODO

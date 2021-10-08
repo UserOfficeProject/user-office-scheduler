@@ -3,7 +3,7 @@ import React from 'react';
 
 import { BasicProposalBooking } from 'components/calendar/Event';
 import { ScheduledEventStatusMap } from 'components/scheduledEvent/ScheduledEventForm';
-import { ProposalBookingStatus } from 'generated/sdk';
+import { ProposalBookingStatusCore } from 'generated/sdk';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -33,7 +33,7 @@ const useStyles = makeStyles(() => ({
 
 interface ProposalBookingInfoProps {
   booking?: BasicProposalBooking;
-  scheduledEventStatus: ProposalBookingStatus;
+  scheduledEventStatus: ProposalBookingStatusCore;
 }
 function ProposalBookingInfo({
   booking,

@@ -7,7 +7,7 @@ import ProposalBookingInfo from 'components/proposalBooking/ProposalBookingInfo'
 import {
   GetScheduledEventsQuery,
   ProposalBooking,
-  ProposalBookingStatus,
+  ProposalBookingStatusCore,
   ScheduledEvent,
   ScheduledEventBookingType,
 } from 'generated/sdk';
@@ -43,15 +43,15 @@ const useStyles = makeStyles(() => ({
 
 export const isDraftEvent = (
   proposalBooking?: Pick<ProposalBooking, 'status'> | null
-) => proposalBooking?.status === ProposalBookingStatus.DRAFT;
+) => proposalBooking?.status === ProposalBookingStatusCore.DRAFT;
 
 export const isCompletedEvent = (
   proposalBooking?: Pick<ProposalBooking, 'status'> | null
-) => proposalBooking?.status === ProposalBookingStatus.COMPLETED;
+) => proposalBooking?.status === ProposalBookingStatusCore.COMPLETED;
 
 export const getBookingTypeStyle = (
   bookingType: ScheduledEventBookingType,
-  status: ProposalBookingStatus
+  status: ProposalBookingStatusCore
 ): CSSProperties => {
   const opacity = isDraftEvent({ status }) ? '0.6' : '1';
 

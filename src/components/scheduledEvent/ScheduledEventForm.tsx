@@ -7,7 +7,7 @@ import { KeyboardDateTimePicker } from 'formik-material-ui-pickers';
 import React from 'react';
 
 import {
-  ProposalBookingStatus,
+  ProposalBookingStatusCore,
   ScheduledEventBookingType,
 } from 'generated/sdk';
 import { TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
@@ -30,10 +30,10 @@ export const CalendarExplicitBookableTypes: Record<
   SHUTDOWN: 'Shutdown',
 };
 
-export type ProposalBookingStatusType = typeof ProposalBookingStatus;
+export type ProposalBookingStatusCoreType = typeof ProposalBookingStatusCore;
 
 export const ScheduledEventStatusMap: Record<
-  keyof ProposalBookingStatusType,
+  keyof ProposalBookingStatusCoreType,
   string
 > = {
   DRAFT: 'Draft',

@@ -42,7 +42,7 @@ import TimeSlotBookingDialog from 'components/timeSlotBooking/TimeSlotBookingDia
 import { AppContext } from 'context/AppContext';
 import {
   ProposalBookingFinalizeAction,
-  ProposalBookingStatus,
+  ProposalBookingStatusCore,
   ScheduledEventBookingType,
 } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
@@ -116,7 +116,7 @@ export default function BookingEventStep({
   handleSetActiveStepByStatus,
   handleNext,
 }: ProposalBookingDialogStepProps) {
-  const isStepReadOnly = activeStatus === ProposalBookingStatus.COMPLETED;
+  const isStepReadOnly = activeStatus === ProposalBookingStatusCore.COMPLETED;
 
   const {
     call: { startCycle, endCycle, cycleComment },
@@ -295,7 +295,7 @@ export default function BookingEventStep({
           } else {
             handleNext();
 
-            handleSetActiveStepByStatus(ProposalBookingStatus.COMPLETED);
+            handleSetActiveStepByStatus(ProposalBookingStatusCore.COMPLETED);
           }
         } catch (e) {
           // TODO

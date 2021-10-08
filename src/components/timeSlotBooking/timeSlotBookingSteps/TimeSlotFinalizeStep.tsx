@@ -17,7 +17,7 @@ import { AppContext } from 'context/AppContext';
 import {
   ProposalBooking,
   ProposalBookingFinalizeAction,
-  ProposalBookingStatus,
+  ProposalBookingStatusCore,
 } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import useProposalBookingLostTimes from 'hooks/lostTime/useProposalBookingLostTimes';
@@ -51,7 +51,7 @@ export default function TimeSlotFinalizeStep({
   handleCloseDialog,
 }: TimeSlotBookingDialogStepProps) {
   const proposalBooking = scheduledEvent.proposalBooking as ProposalBooking;
-  const isStepReadOnly = activeStatus !== ProposalBookingStatus.ACTIVE;
+  const isStepReadOnly = activeStatus !== ProposalBookingStatusCore.ACTIVE;
 
   const classes = useStyles();
 
@@ -193,21 +193,21 @@ export default function TimeSlotFinalizeStep({
             if (selectedKey === ProposalBookingFinalizeAction.COMPLETE) {
               setScheduledEvent({
                 ...scheduledEvent,
-                status: ProposalBookingStatus.COMPLETED,
+                status: ProposalBookingStatusCore.COMPLETED,
               });
               handleNext();
             } else {
               setScheduledEvent({
                 ...scheduledEvent,
-                status: ProposalBookingStatus.DRAFT,
+                status: ProposalBookingStatusCore.DRAFT,
               });
               handleResetSteps();
             }
 
             handleSetActiveStepByStatus(
               selectedKey === ProposalBookingFinalizeAction.COMPLETE
-                ? ProposalBookingStatus.COMPLETED
-                : ProposalBookingStatus.DRAFT
+                ? ProposalBookingStatusCore.COMPLETED
+                : ProposalBookingStatusCore.DRAFT
             );
           }
         } catch (e) {

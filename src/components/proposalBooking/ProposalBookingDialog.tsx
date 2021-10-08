@@ -11,7 +11,7 @@ import React, { useContext, useEffect, useState } from 'react';
 
 import Loader from 'components/common/Loader';
 import { AppContext } from 'context/AppContext';
-import { ProposalBookingStatus } from 'generated/sdk';
+import { ProposalBookingStatusCore } from 'generated/sdk';
 import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
 import useProposalBooking from 'hooks/proposalBooking/useProposalBooking';
 
@@ -49,7 +49,7 @@ const maxSteps = steps.length;
 
 export type ProposalBookingDialogStepProps = {
   activeStep: number;
-  activeStatus: ProposalBookingStatus | null;
+  activeStatus: ProposalBookingStatusCore | null;
   proposalBooking: InstrumentProposalBooking;
   isDirty: boolean;
   handleNext: () => void;
@@ -57,7 +57,7 @@ export type ProposalBookingDialogStepProps = {
   handleResetSteps: () => void;
   handleSetDirty: (isDirty: boolean) => void;
   handleCloseDialog: () => void;
-  handleSetActiveStepByStatus: (status: ProposalBookingStatus) => void;
+  handleSetActiveStepByStatus: (status: ProposalBookingStatusCore) => void;
 };
 
 function getActiveStep(props: ProposalBookingDialogStepProps) {
@@ -73,13 +73,13 @@ function getActiveStep(props: ProposalBookingDialogStepProps) {
 }
 
 const getActiveStepByStatus = (
-  status: ProposalBookingStatus | null
+  status: ProposalBookingStatusCore | null
 ): number => {
   switch (status) {
-    case ProposalBookingStatus.DRAFT:
-    case ProposalBookingStatus.ACTIVE:
+    case ProposalBookingStatusCore.DRAFT:
+    case ProposalBookingStatusCore.ACTIVE:
       return ProposalBookingSteps.BOOK_EVENTS;
-    case ProposalBookingStatus.COMPLETED:
+    case ProposalBookingStatusCore.COMPLETED:
       return ProposalBookingSteps.COMPLETED;
 
     default:
@@ -103,7 +103,7 @@ export default function ProposalBookingDialog({
   const { showConfirmation } = useContext(AppContext);
   const [activeStep, setActiveStep] = useState(-1);
   const [activeStatus, setActiveStatus] =
-    useState<ProposalBookingStatus | null>(null);
+    useState<ProposalBookingStatusCore | null>(null);
   const [isDirty, setIsDirty] = useState(false);
 
   const { loading, proposalBooking } = useProposalBooking(
@@ -137,7 +137,7 @@ export default function ProposalBookingDialog({
     setIsDirty(false);
   };
 
-  const handleSetActiveStepByStatus = (status: ProposalBookingStatus) => {
+  const handleSetActiveStepByStatus = (status: ProposalBookingStatusCore) => {
     setActiveStatus(status);
   };
 

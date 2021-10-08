@@ -1,4 +1,4 @@
-import { ProposalBookingStatus } from './ProposalBooking';
+import { ProposalBookingStatusCore } from '../generated/sdk';
 
 export enum ScheduledEventBookingType {
   USER_OPERATIONS = 'USER_OPERATIONS',
@@ -31,7 +31,7 @@ export class ScheduledEvent {
     public description: string | null,
     public instrument: { id: number },
     public proposalBookingId: number | null,
-    public status: ProposalBookingStatus,
+    public status: ProposalBookingStatusCore,
     public equipmentId: number
   ) {}
 }

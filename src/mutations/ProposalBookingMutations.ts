@@ -11,13 +11,12 @@ import { ScheduledEventDataSource } from '../datasources/ScheduledEventDataSourc
 import Authorized from '../decorators/Authorized';
 import ValidateArgs from '../decorators/ValidateArgs';
 import { eventBus } from '../events';
-import { Event } from '../generated/sdk';
+import { Event, ProposalBookingStatusCore } from '../generated/sdk';
 import { instrumentScientistHasAccess } from '../helpers/permissionHelpers';
 import { EquipmentAssignmentStatus } from '../models/Equipment';
 import {
   ProposalBooking,
   ProposalBookingFinalizeAction,
-  ProposalBookingStatus,
 } from '../models/ProposalBooking';
 import { Rejection, rejection } from '../rejection';
 import { Roles } from '../types/shared';
@@ -61,7 +60,9 @@ export default class ProposalBookingMutations {
 
       const result = await Promise.all(
         allScheduledEvents
-          .filter((event) => event.status !== ProposalBookingStatus.COMPLETED)
+          .filter(
+            (event) => event.status !== ProposalBookingStatusCore.COMPLETED
+          )
           .map(
             async (scheduledEvent) =>
               await this.scheduledEventDataSource.finalize(

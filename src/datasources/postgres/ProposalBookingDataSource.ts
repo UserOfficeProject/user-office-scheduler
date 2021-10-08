@@ -1,7 +1,7 @@
+import { ProposalBookingStatusCore } from '../../generated/sdk';
 import {
   ProposalBooking,
   ProposalBookingFinalizeAction,
-  ProposalBookingStatus,
 } from '../../models/ProposalBooking';
 import { ProposalProposalBookingFilter } from '../../resolvers/types/Proposal';
 import { ProposalBookingDataSource } from '../ProposalBookingDataSource';
@@ -28,7 +28,7 @@ export default class PostgresProposalBookingDataSource
       .insert({
         proposal_pk: event.proposalPk,
         call_id: event.callId,
-        status: ProposalBookingStatus.DRAFT,
+        status: ProposalBookingStatusCore.DRAFT,
         allocated_time: event.allocatedTime,
         instrument_id: event.instrumentId,
       })
@@ -97,13 +97,13 @@ export default class PostgresProposalBookingDataSource
       .update(
         'status',
         action === ProposalBookingFinalizeAction.COMPLETE
-          ? ProposalBookingStatus.COMPLETED
-          : ProposalBookingStatus.DRAFT
+          ? ProposalBookingStatusCore.COMPLETED
+          : ProposalBookingStatusCore.DRAFT
       )
       .where('proposal_booking_id', id)
       .whereIn('status', [
-        ProposalBookingStatus.ACTIVE,
-        ProposalBookingStatus.DRAFT,
+        ProposalBookingStatusCore.ACTIVE,
+        ProposalBookingStatusCore.DRAFT,
       ])
       .returning<ProposalBookingRecord[]>(['*']);
 
@@ -118,9 +118,9 @@ export default class PostgresProposalBookingDataSource
     const [updatedRecord] = await database<ProposalBookingRecord>(
       this.tableName
     )
-      .update('status', ProposalBookingStatus.ACTIVE)
+      .update('status', ProposalBookingStatusCore.ACTIVE)
       .where('proposal_booking_id', id)
-      .where('status', ProposalBookingStatus.DRAFT)
+      .where('status', ProposalBookingStatusCore.DRAFT)
       .returning<ProposalBookingRecord[]>(['*']);
 
     if (!updatedRecord) {

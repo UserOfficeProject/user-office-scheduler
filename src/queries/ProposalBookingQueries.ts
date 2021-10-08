@@ -2,15 +2,13 @@
 import { ResolverContext } from '../context';
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
 import Authorized from '../decorators/Authorized';
+import { ProposalBookingStatusCore } from '../generated/sdk';
 import { instrumentScientistHasInstrument } from '../helpers/instrumentHelpers';
 import {
   instrumentScientistHasAccess,
   userHacAccess,
 } from '../helpers/permissionHelpers';
-import {
-  ProposalBooking,
-  ProposalBookingStatus,
-} from '../models/ProposalBooking';
+import { ProposalBooking } from '../models/ProposalBooking';
 import { ProposalProposalBookingFilter } from '../resolvers/types/Proposal';
 import { Roles } from '../types/shared';
 import { hasRole } from '../utils/authorization';
@@ -61,7 +59,10 @@ export default class ProposalBookingQueries {
       !hasRole([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST], ctx.roles!)
     ) {
       filter = {
-        status: [ProposalBookingStatus.ACTIVE, ProposalBookingStatus.COMPLETED],
+        status: [
+          ProposalBookingStatusCore.ACTIVE,
+          ProposalBookingStatusCore.COMPLETED,
+        ],
       };
     }
 

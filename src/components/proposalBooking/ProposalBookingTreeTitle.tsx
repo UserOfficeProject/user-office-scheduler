@@ -3,7 +3,7 @@ import humanizeDuration from 'humanize-duration';
 import React from 'react';
 
 import { ScheduledEventStatusMap } from 'components/scheduledEvent/ScheduledEventForm';
-import { ProposalBookingStatus } from 'generated/sdk';
+import { ProposalBookingStatusCore } from 'generated/sdk';
 import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
 import { parseTzLessDateTime } from 'utils/date';
 
@@ -61,7 +61,7 @@ function ProposalBookingTreeTitle({
   }
 
   const isProposalBookingCompleted =
-    proposalBooking.status === ProposalBookingStatus.COMPLETED;
+    proposalBooking.status === ProposalBookingStatusCore.COMPLETED;
 
   return (
     <>

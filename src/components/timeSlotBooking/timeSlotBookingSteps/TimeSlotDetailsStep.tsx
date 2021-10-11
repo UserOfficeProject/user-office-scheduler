@@ -39,7 +39,7 @@ import React, { useContext, useMemo, useState } from 'react';
 import IdentifierIcon from 'components/common/icons/IdentifierIcon';
 import Loader from 'components/common/Loader';
 import { AppContext } from 'context/AppContext';
-import { ProposalBooking, ProposalBookingStatus } from 'generated/sdk';
+import { ProposalBooking, ProposalBookingStatusCore } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import {
   toTzLessDateTime,
@@ -124,7 +124,7 @@ export default function TimeSlotDetailsStep({
   const [showStartsAtEditIcon, setShowStartsAtEditIcon] = useState(false);
   const [showEndsAtEditIcon, setShowEndsAtEditIcon] = useState(false);
 
-  const isStepReadOnly = activeStatus !== ProposalBookingStatus.DRAFT;
+  const isStepReadOnly = activeStatus !== ProposalBookingStatusCore.DRAFT;
 
   const classes = useStyles();
 

@@ -148,13 +148,13 @@ export default class PostgreScheduledEventDataSource
   }
 
   async getAll(filter: ScheduledEventFilter): Promise<ScheduledEvent[]> {
-    if (!filter.instrumentId) {
+    if (!filter.instrumentIds?.length) {
       return [];
     }
 
     const qb = database<ScheduledEventRecord>(this.tableName)
       .select()
-      .where('instrument_id', filter.instrumentId)
+      .whereIn('instrument_id', filter.instrumentIds)
       .orderBy('starts_at');
 
     if (filter.startsAt && filter.endsAt) {

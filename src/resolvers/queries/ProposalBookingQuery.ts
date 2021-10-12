@@ -8,11 +8,11 @@ export class ProposalBookingQuery {
   @Query(() => [ProposalBooking])
   instrumentProposalBookings(
     @Ctx() ctx: ResolverContext,
-    @Arg('instrumentId', () => Int) instrumentId: number
+    @Arg('instrumentIds', () => [Int]) instrumentIds: number[]
   ) {
     return ctx.queries.proposalBooking.instrumentProposalBookings(
       ctx,
-      instrumentId
+      instrumentIds
     );
   }
 

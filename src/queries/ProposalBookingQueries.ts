@@ -3,7 +3,7 @@ import { ResolverContext } from '../context';
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
 import Authorized from '../decorators/Authorized';
 import { ProposalBookingStatusCore } from '../generated/sdk';
-import { instrumentScientistHasInstrument } from '../helpers/instrumentHelpers';
+// import { instrumentScientistHasInstrument } from '../helpers/instrumentHelpers';
 import {
   instrumentScientistHasAccess,
   userHacAccess,
@@ -19,14 +19,14 @@ export default class ProposalBookingQueries {
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
   async instrumentProposalBookings(
     ctx: ResolverContext,
-    instrumentId: number
+    instrumentIds: number[]
   ): Promise<ProposalBooking[]> {
-    if (!(await instrumentScientistHasInstrument(ctx, instrumentId))) {
-      return [];
-    }
+    // if (!(await instrumentScientistHasInstrument(ctx, instrumentId))) {
+    //   return [];
+    // }
 
     return this.proposalBookingDataSource.instrumentProposalBookings(
-      instrumentId
+      instrumentIds
     );
   }
 

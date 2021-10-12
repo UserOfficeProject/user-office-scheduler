@@ -1,7 +1,7 @@
 import { ResolverContext } from '../context';
 import { ScheduledEventDataSource } from '../datasources/ScheduledEventDataSource';
 import Authorized from '../decorators/Authorized';
-import { instrumentScientistHasInstrument } from '../helpers/instrumentHelpers';
+// import { instrumentScientistHasInstrument } from '../helpers/instrumentHelpers';
 import {
   instrumentScientistHasAccess,
   userHacAccess,
@@ -27,13 +27,13 @@ export default class ScheduledEventQueries {
     ctx: ResolverContext,
     filter: ScheduledEventFilter
   ): Promise<ScheduledEvent[]> {
-    if (!filter.instrumentId) {
+    if (!filter.instrumentIds?.length) {
       return [];
     }
 
-    if (!(await instrumentScientistHasInstrument(ctx, filter.instrumentId))) {
-      return [];
-    }
+    // if (!(await instrumentScientistHasInstrument(ctx, filter.instrumentId))) {
+    //   return [];
+    // }
 
     return this.scheduledEventDataSource.getAll(filter);
   }

@@ -100,8 +100,6 @@ function TableViewToolbar({
     query,
   ]);
 
-  console.log(endsAtDate);
-
   const [queryValueInitialized, setQueryValueInitialized] = useState(
     !queryInstrument // if the link has query instrument query value when rendering this component
   );

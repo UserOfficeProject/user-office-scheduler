@@ -1,4 +1,5 @@
 import {
+  Button,
   FormControl,
   Grid,
   InputLabel,
@@ -47,57 +48,62 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({ events, instruments }) => {
     TimelineViewPeriods.MONTH
   );
 
-  const queryInstrument = query.get('instrument');
-
-  const [queryValueInitialized, setQueryValueInitialized] = useState(
-    !queryInstrument // if the link has query instrument query value when rendering this component
+  const [visibleTimeStart, setVisibleTimeStart] = useState(
+    moment().startOf('month')
   );
+
+  const [visibleTimeEnd, setVisibleTimeEnd] = useState(moment().endOf('month'));
+
+  const queryInstruments = query.get('instrument')?.split(',');
 
   const [selectedInstruments, setSelectedInstruments] = useState<
     PartialInstrument[] | undefined
   >([]);
 
   useEffect(() => {
-    if (queryInstrument) {
-      const found = instruments.find(({ id }) => `${id}` === queryInstrument);
-
-      console.log(found);
-
-      found && setSelectedInstruments([found]);
-      setQueryValueInitialized(true);
+    if (
+      selectedInstruments?.length === 0 &&
+      queryInstruments?.length !== 0 &&
+      instruments
+    ) {
+      setSelectedInstruments(
+        instruments.filter((item) => queryInstruments?.includes(`${item.id}`))
+      );
     }
-  }, [instruments, queryInstrument, setSelectedInstruments]);
+  }, [
+    instruments,
+    queryInstruments,
+    setSelectedInstruments,
+    selectedInstruments?.length,
+  ]);
 
-  // useEffect(() => {
-  //   if (!queryValueInitialized || (!selectedInstruments && !queryInstrument)) {
-  //     return;
-  //   }
-
-  //   if (!selectedInstruments && queryInstrument) {
-  //     query.delete('instrument');
-  //   } else if (
-  //     selectedInstruments &&
-  //     queryInstrument !== `${selectedInstruments[0]?.id}`
-  //   ) {
-  //     query.set('instrument', `${selectedInstruments[0]?.id}`);
-  //   } else {
-  //     return;
-  //   }
-
-  //   history.push(`?${query}`);
-  // }, [
-  //   queryValueInitialized,
-  //   selectedInstruments,
-  //   queryInstrument,
-  //   query,
-  //   history,
-  // ]);
-
-  const onInstrumentSelect = (
-    selectedInstruments: PartialInstrument[] | undefined
+  const changeVisibleTimeBasedOnSelectedView = (
+    currentTimelineViewPeriod: TimelineViewPeriods
   ) => {
-    setSelectedInstruments(selectedInstruments);
+    switch (currentTimelineViewPeriod) {
+      case TimelineViewPeriods.MONTH:
+        setVisibleTimeStart(moment().startOf('month'));
+        setVisibleTimeEnd(moment().endOf('month'));
+
+        return;
+      case TimelineViewPeriods.QUARTER:
+        setVisibleTimeStart(moment().startOf('month'));
+        setVisibleTimeEnd(moment().add(3, 'months').startOf('month'));
+
+        return;
+      case TimelineViewPeriods.HALF_YEAR:
+        setVisibleTimeStart(moment().startOf('month'));
+        setVisibleTimeEnd(moment().add(6, 'months').startOf('month'));
+
+        return;
+      default:
+        break;
+    }
   };
+
+  useEffect(() => {
+    changeVisibleTimeBasedOnSelectedView(timelineViewPeriod);
+  }, [timelineViewPeriod]);
 
   const instrumentGroups = [];
   const map = new Map();
@@ -118,7 +124,7 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({ events, instruments }) => {
   const eventItems = events.map((event) => ({
     id: event.id,
     group: event.instrument!.id,
-    title: getEventTitle(event),
+    // title: getEventTitle(event),
     itemProps: {
       onClick: () => {
         console.log('You clicked', event);
@@ -132,21 +138,63 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({ events, instruments }) => {
     end_time: moment(event.end),
   }));
 
-  const visibleTimeEnd = () => {
+  const getVisibleTimeStart = (sign: string) => {
     switch (timelineViewPeriod) {
       case TimelineViewPeriods.MONTH:
-        return moment().endOf('month').valueOf();
+        return moment(visibleTimeStart)
+          .add(`${sign}1`, 'month')
+          .startOf('month');
       case TimelineViewPeriods.QUARTER:
-        return moment().add(3, 'months').startOf('month').valueOf();
+        return moment(visibleTimeStart)
+          .add(`${sign}3`, 'months')
+          .startOf('month');
       case TimelineViewPeriods.HALF_YEAR:
-        return moment().add(6, 'months').startOf('month').valueOf();
-
+        return moment(visibleTimeStart)
+          .add(`${sign}6`, 'months')
+          .startOf('month');
       default:
-        break;
+        return moment().startOf('month');
     }
   };
 
-  console.log(selectedInstruments);
+  const getVisibleTimeEnd = (sign: string) => {
+    switch (timelineViewPeriod) {
+      case TimelineViewPeriods.MONTH:
+        return moment(visibleTimeEnd).add(`${sign}1`, 'month').endOf('month');
+      case TimelineViewPeriods.QUARTER:
+        return moment(visibleTimeEnd)
+          .add(`${sign}3`, 'months')
+          .startOf('month');
+      case TimelineViewPeriods.HALF_YEAR:
+        return moment(visibleTimeEnd)
+          .add(`${sign}6`, 'months')
+          .startOf('month');
+      default:
+        return moment().endOf('month');
+    }
+  };
+
+  const onPrevClick = () => {
+    const newVisibleTimeStart = getVisibleTimeStart('-');
+    const newVisibleTimeEnd = getVisibleTimeEnd('-');
+
+    setVisibleTimeStart(newVisibleTimeStart);
+    setVisibleTimeEnd(newVisibleTimeEnd);
+  };
+
+  const onNextClick = () => {
+    const newVisibleTimeStart = getVisibleTimeStart('+');
+    const newVisibleTimeEnd = getVisibleTimeEnd('+');
+
+    setVisibleTimeStart(newVisibleTimeStart);
+    setVisibleTimeEnd(newVisibleTimeEnd);
+  };
+
+  const onTodayClick = () => {
+    changeVisibleTimeBasedOnSelectedView(timelineViewPeriod);
+  };
+
+  console.log(visibleTimeStart, visibleTimeEnd);
 
   return (
     <div data-cy="calendar-timeline-view" className={classes.root}>
@@ -154,8 +202,40 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({ events, instruments }) => {
         data-cy="calendar-timeline-view-toolbar"
         style={{ marginBottom: '16px' }}
       >
-        <Grid container spacing={2}>
+        <Grid container spacing={2} alignItems="center">
           <Grid item sm={6} xs={12}>
+            <Grid container spacing={2}>
+              <Grid item sm={4} xs={12}>
+                <Button
+                  variant="contained"
+                  onClick={onTodayClick}
+                  data-cy="btn-view-today"
+                  fullWidth
+                >
+                  Today
+                </Button>
+              </Grid>
+              <Grid item sm={4} xs={12}>
+                <Button
+                  variant="contained"
+                  onClick={onPrevClick}
+                  data-cy="btn-view-prev"
+                  fullWidth
+                >
+                  Back
+                </Button>
+              </Grid>
+              <Grid item sm={4} xs={12}>
+                <Button
+                  variant="contained"
+                  onClick={onNextClick}
+                  data-cy="btn-view-next"
+                  fullWidth
+                >
+                  Next
+                </Button>
+              </Grid>
+            </Grid>
             <FormControl fullWidth margin="dense">
               <InputLabel id="timeline-view-period">View period</InputLabel>
               <Select
@@ -223,8 +303,8 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({ events, instruments }) => {
       <Timeline
         groups={instrumentGroups}
         items={eventItems}
-        visibleTimeStart={moment().startOf('month').valueOf()}
-        visibleTimeEnd={visibleTimeEnd()}
+        visibleTimeStart={visibleTimeStart}
+        visibleTimeEnd={visibleTimeEnd}
         stackItems
         canMove={false}
         canResize={false}

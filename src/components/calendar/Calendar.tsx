@@ -25,6 +25,7 @@ import {
   momentLocalizer,
   View,
 } from 'react-big-calendar';
+import { useHistory } from 'react-router';
 
 import Loader from 'components/common/Loader';
 import { tableIcons } from 'components/common/TableIcons';
@@ -205,6 +206,7 @@ export default function Calendar() {
   const [showTodoBox, setShowTodoBox] = useState<boolean>(false);
   const classes = useStyles();
   const theme = useTheme();
+  const history = useHistory();
   const [schedulerActiveView, setSchedulerActiveView] = useState(
     SchedulerViews.CALENDAR
   );
@@ -214,8 +216,6 @@ export default function Calendar() {
   const queryInstrumentIds = queryInstrument?.map((item) => parseInt(item));
   const queryEquipment = query.get('equipment')?.split(',');
   const queryEquipmentNumbers = queryEquipment?.map((item) => parseInt(item));
-
-  console.log(queryInstrumentIds);
 
   const { showAlert } = useContext(AppContext);
   const [selectedEvent, setSelectedEvent] = useState<
@@ -254,10 +254,24 @@ export default function Calendar() {
     }
   }, [isTabletOrMobile]);
 
+  useEffect(() => {
+    if (
+      schedulerActiveView === SchedulerViews.CALENDAR ||
+      schedulerActiveView === SchedulerViews.TABLE
+    ) {
+      if (queryInstrumentIds && queryInstrumentIds.length > 1) {
+        query.set('instrument', `${queryInstrumentIds[0]}`);
+        history.push(`?${query}`);
+      }
+    }
+  }, [schedulerActiveView, history, query, queryInstrumentIds]);
+
   const {
     proposalBookings,
     loading: loadingBookings,
     refresh: refreshBookings,
+    setSelectedInstruments: setProposalBookingSelectedInstruments,
+    selectedInstruments: proposalBookingSelectedInstruments,
   } = useInstrumentProposalBookings(queryInstrumentIds);
 
   const {
@@ -306,7 +320,6 @@ export default function Calendar() {
   ]);
 
   useEffect(() => {
-    console.log(queryInstrumentIds, startsAt, view, selectedInstruments);
     if (
       selectedInstruments?.length !== queryInstrumentIds?.length ||
       !selectedInstruments?.every((eq) => queryInstrumentIds?.includes(eq))
@@ -316,13 +329,23 @@ export default function Calendar() {
         generateScheduledEventFilter(queryInstrumentIds, startsAt, view)
       );
     }
-    // debugger;
+    if (
+      proposalBookingSelectedInstruments?.length !==
+        queryInstrumentIds?.length ||
+      !proposalBookingSelectedInstruments?.every((eq) =>
+        queryInstrumentIds?.includes(eq)
+      )
+    ) {
+      setProposalBookingSelectedInstruments(queryInstrumentIds);
+    }
   }, [
     queryInstrumentIds,
     startsAt,
     view,
     selectedInstruments,
     setSelectedInstruments,
+    proposalBookingSelectedInstruments,
+    setProposalBookingSelectedInstruments,
   ]);
 
   const eqEventsTransformed: GetScheduledEventsQuery['scheduledEvents'] =
@@ -483,8 +506,6 @@ export default function Calendar() {
       }}
     />
   );
-
-  console.log(filter);
 
   // 100% height needed for month view
   // also the other components make whole page scrollable without it

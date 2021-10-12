@@ -37,6 +37,7 @@ export default function useScheduledEvents({
     setLoading(true);
 
     if (!selectedInstruments?.length) {
+      setScheduledEvents([]);
       setLoading(false);
 
       return;

@@ -47,7 +47,9 @@ export default function useInstrumentProposalBookings(
 
   useEffect(() => {
     setLoading(true);
+
     if (!selectedInstruments?.length) {
+      setProposalBookings([]);
       setLoading(false);
 
       return;
@@ -81,5 +83,11 @@ export default function useInstrumentProposalBookings(
     };
   }, [selectedInstruments, api, counter]);
 
-  return { loading, proposalBookings, refresh } as const;
+  return {
+    loading,
+    proposalBookings,
+    refresh,
+    setSelectedInstruments,
+    selectedInstruments,
+  } as const;
 }

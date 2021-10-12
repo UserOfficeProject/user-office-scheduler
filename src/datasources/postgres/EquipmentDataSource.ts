@@ -259,12 +259,13 @@ export default class PostgresEquipmentDataSource
         .returning('*');
 
       return records.length === input.equipmentIds.length;
-    } catch (e: any) {
-      if ('code' in e && e.code === UNIQUE_CONSTRAINT_VIOLATION) {
+    } catch (error) {
+      // NOTE: We are explicitly casting error to { code: string } type because it is the easiest solution for now and because it's type is a bit difficult to determine because of knexjs not returning typed error message.
+      if ((error as { code: string }).code === UNIQUE_CONSTRAINT_VIOLATION) {
         return false;
       }
 
-      throw e;
+      throw error;
     }
   }
 

@@ -71,11 +71,11 @@ export class SystemQuery {
       cachedVersion = content.toString().trim();
 
       return cachedVersion;
-    } catch (err: any) {
-      if (err.code !== 'ENOENT') {
+    } catch (error) {
+      if ((error as { code: string }).code !== 'ENOENT') {
         logger.logException(
           'Unknown error while reading build-version.txt',
-          err
+          error
         );
       }
 

@@ -11,8 +11,8 @@ import {
 } from 'type-graphql';
 
 import { ResolverContext } from '../../context';
+import { ProposalBookingStatusCore } from '../../generated/sdk';
 import { EquipmentAssignmentStatus } from '../../models/Equipment';
-import { ProposalBookingStatus } from '../../models/ProposalBooking';
 import {
   ScheduledEvent as ScheduledEventBase,
   ScheduledEventBookingType,
@@ -63,8 +63,8 @@ export class ScheduledEvent implements Partial<ScheduledEventBase> {
   @Field(() => Int, { nullable: true })
   equipmentId?: number;
 
-  @Field(() => ProposalBookingStatus)
-  status: ProposalBookingStatus;
+  @Field(() => ProposalBookingStatusCore)
+  status: ProposalBookingStatusCore;
 }
 
 @Resolver(() => ScheduledEvent)

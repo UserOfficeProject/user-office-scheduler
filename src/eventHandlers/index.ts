@@ -1,10 +1,16 @@
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
-import createMessageBrokerHandler from './messageBroker';
+import {
+  createListenToRabbitMQHandler,
+  createPostToRabbitMQHandler,
+} from './messageBroker';
 
 export default function createEventHandlers({
   proposalBookingDataSource,
 }: {
   proposalBookingDataSource: ProposalBookingDataSource;
 }) {
-  return [createMessageBrokerHandler({ proposalBookingDataSource })];
+  return [
+    createListenToRabbitMQHandler({ proposalBookingDataSource }),
+    createPostToRabbitMQHandler({ proposalBookingDataSource }),
+  ];
 }

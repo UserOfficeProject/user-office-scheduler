@@ -23,7 +23,7 @@ export class ScheduledEventResponseWrap extends ResponseWrapBase<ScheduledEvent>
 export class ScheduledEventsResponseWrap extends ResponseWrapBase<ScheduledEvent> {
   @Response()
   @Field(() => [ScheduledEvent], { nullable: true })
-  scheduledEvent: ScheduledEvent[];
+  scheduledEvents: ScheduledEvent[];
 }
 
 @ObjectType()

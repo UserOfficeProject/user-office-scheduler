@@ -10,12 +10,13 @@ import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSou
 import { ScheduledEventDataSource } from '../datasources/ScheduledEventDataSource';
 import Authorized from '../decorators/Authorized';
 import ValidateArgs from '../decorators/ValidateArgs';
+import { eventBus } from '../events';
+import { Event, ProposalBookingStatusCore } from '../generated/sdk';
 import { instrumentScientistHasAccess } from '../helpers/permissionHelpers';
 import { EquipmentAssignmentStatus } from '../models/Equipment';
 import {
   ProposalBooking,
   ProposalBookingFinalizeAction,
-  ProposalBookingStatus,
 } from '../models/ProposalBooking';
 import { Rejection, rejection } from '../rejection';
 import { Roles } from '../types/shared';
@@ -57,9 +58,11 @@ export default class ProposalBookingMutations {
           proposalBooking.id
         );
 
-      await Promise.all(
+      const result = await Promise.all(
         allScheduledEvents
-          .filter((event) => event.status !== ProposalBookingStatus.COMPLETED)
+          .filter(
+            (event) => event.status !== ProposalBookingStatusCore.COMPLETED
+          )
           .map(
             async (scheduledEvent) =>
               await this.scheduledEventDataSource.finalize(
@@ -68,6 +71,18 @@ export default class ProposalBookingMutations {
               )
           )
       );
+
+      if (result.length === allScheduledEvents.length) {
+        result.map((scheduledEvent) => {
+          eventBus.publish({
+            type: Event.PROPOSAL_BOOKING_TIME_COMPLETED,
+            isRejection: false,
+            key: 'scheduledevent',
+            loggedInUserId: +ctx.user!.id,
+            scheduledevent: scheduledEvent,
+          });
+        });
+      }
     }
 
     return result;

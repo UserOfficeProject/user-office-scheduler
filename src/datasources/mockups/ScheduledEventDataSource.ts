@@ -1,15 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import {
-  ProposalBookingFinalizeAction,
-  ProposalBookingStatus,
-} from '../../models/ProposalBooking';
+import { ProposalBookingStatusCore } from '../../generated/sdk';
+import { ProposalBookingFinalizeAction } from '../../models/ProposalBooking';
 import {
   ScheduledEvent,
   ScheduledEventBookingType,
 } from '../../models/ScheduledEvent';
 import {
-  BulkUpsertScheduledEventsInput,
+  DeleteScheduledEventsInput,
   NewScheduledEventInput,
   UpdateScheduledEventInput,
 } from '../../resolvers/mutations/ScheduledEventMutation';
@@ -28,7 +26,7 @@ export const dummyScheduledEvents: ScheduledEvent[] = [
     null,
     { id: 0 },
     1,
-    ProposalBookingStatus.DRAFT,
+    ProposalBookingStatusCore.DRAFT,
     0
   ),
   new ScheduledEvent(
@@ -42,7 +40,7 @@ export const dummyScheduledEvents: ScheduledEvent[] = [
     'dummy',
     { id: 0 },
     2,
-    ProposalBookingStatus.DRAFT,
+    ProposalBookingStatusCore.DRAFT,
     0
   ),
 ];
@@ -65,7 +63,7 @@ export default class MockupScheduledEventDataSource
       newScheduledEvent.description,
       { id: newScheduledEvent.instrumentId },
       1,
-      ProposalBookingStatus.DRAFT,
+      ProposalBookingStatusCore.DRAFT,
       0
     );
   }
@@ -87,16 +85,10 @@ export default class MockupScheduledEventDataSource
     throw new Error('Method not implemented.');
   }
 
-  bulkUpsert(
-    scheduledById: number,
-    instrumentId: 0,
-    bulkUpsertScheduledEvents: BulkUpsertScheduledEventsInput
+  async delete(
+    deleteScheduledEvents: DeleteScheduledEventsInput
   ): Promise<ScheduledEvent[]> {
-    throw new Error('Method not implemented.');
-  }
-
-  async delete(): Promise<null> {
-    throw new Error('Method not implemented.');
+    return dummyScheduledEvents;
   }
 
   async get(id: number): Promise<ScheduledEvent | null> {

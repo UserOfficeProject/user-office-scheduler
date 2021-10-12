@@ -1,9 +1,7 @@
+import { ProposalBookingStatusCore } from '../../generated/sdk';
 import { Equipment, EquipmentResponsible } from '../../models/Equipment';
 import { LostTime } from '../../models/LostTime';
-import {
-  ProposalBooking,
-  ProposalBookingStatus,
-} from '../../models/ProposalBooking';
+import { ProposalBooking } from '../../models/ProposalBooking';
 import {
   ScheduledEvent,
   ScheduledEventBookingType,
@@ -23,7 +21,7 @@ export interface ScheduledEventRecord {
   readonly scheduled_by: number;
   readonly description: string | null;
   readonly proposal_booking_id: number | null;
-  readonly status: ProposalBookingStatus;
+  readonly status: ProposalBookingStatusCore;
   readonly instrument_id: number;
   readonly equipment_id: number;
 }
@@ -52,7 +50,7 @@ export interface ProposalBookingRecord {
   readonly call_id: number;
   readonly created_at: Date;
   readonly updated_at: Date;
-  readonly status: ProposalBookingStatus;
+  readonly status: ProposalBookingStatusCore;
   readonly allocated_time: number;
   readonly instrument_id: number;
 }

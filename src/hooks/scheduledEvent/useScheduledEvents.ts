@@ -3,11 +3,23 @@ import { useState, useEffect, useCallback } from 'react';
 import { GetScheduledEventsQuery, ScheduledEventFilter } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 
-export default function useScheduledEvents(filter: ScheduledEventFilter) {
+export default function useScheduledEvents({
+  endsAt,
+  startsAt,
+  instrumentIds,
+}: ScheduledEventFilter) {
   const [loading, setLoading] = useState(true);
   const [scheduledEvents, setScheduledEvents] = useState<
     GetScheduledEventsQuery['scheduledEvents']
   >([]);
+
+  const instrumentIdsArray = instrumentIds?.flatMap((instrumentId) =>
+    instrumentId ? [instrumentId] : []
+  );
+
+  const [selectedInstruments, setSelectedInstruments] = useState<
+    number[] | undefined
+  >(instrumentIdsArray);
   // may look stupid, but basically lets us provide a refresh option
   // and we won't get a warning when the component gets unmounted while
   // the promise still pending
@@ -23,9 +35,16 @@ export default function useScheduledEvents(filter: ScheduledEventFilter) {
     let unmount = false;
 
     setLoading(true);
+
+    if (!selectedInstruments?.length) {
+      setLoading(false);
+
+      return;
+    }
+
     api()
       .getScheduledEvents({
-        filter,
+        filter: { startsAt, endsAt, instrumentIds: selectedInstruments },
         scheduledEventFilter: {},
       })
       .then((data) => {
@@ -43,7 +62,13 @@ export default function useScheduledEvents(filter: ScheduledEventFilter) {
     return () => {
       unmount = true;
     };
-  }, [counter, filter, api]);
+  }, [counter, startsAt, endsAt, selectedInstruments, api]);
 
-  return { loading, scheduledEvents, refresh } as const;
+  return {
+    loading,
+    scheduledEvents,
+    refresh,
+    selectedInstruments,
+    setSelectedInstruments,
+  } as const;
 }

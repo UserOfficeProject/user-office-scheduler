@@ -22,12 +22,20 @@ export type InstrumentProposalBooking = Pick<
 };
 
 export default function useInstrumentProposalBookings(
-  instrumentId: number | null
+  instrumentIds: number[] | null | undefined
 ) {
   const [loading, setLoading] = useState(false);
   const [proposalBookings, setProposalBookings] = useState<
     InstrumentProposalBooking[]
   >([]);
+
+  const instrumentIdsArray = instrumentIds?.flatMap((instrumentId) =>
+    instrumentId ? [instrumentId] : []
+  );
+
+  const [selectedInstruments, setSelectedInstruments] = useState<
+    number[] | undefined
+  >(instrumentIdsArray);
 
   const [counter, setCounter] = useState<number>(0);
 
@@ -38,14 +46,19 @@ export default function useInstrumentProposalBookings(
   const api = useDataApi();
 
   useEffect(() => {
-    if (!instrumentId) {
+    setLoading(true);
+    if (!selectedInstruments?.length) {
+      setLoading(false);
+
       return;
     }
     let unmount = false;
 
-    setLoading(true);
     api()
-      .getInstrumentProposalBookings({ instrumentId, filter: {} })
+      .getInstrumentProposalBookings({
+        instrumentIds: selectedInstruments,
+        filter: {},
+      })
       .then((data) => {
         if (unmount) {
           return;
@@ -66,7 +79,7 @@ export default function useInstrumentProposalBookings(
     return () => {
       unmount = true;
     };
-  }, [instrumentId, api, counter]);
+  }, [selectedInstruments, api, counter]);
 
   return { loading, proposalBookings, refresh } as const;
 }

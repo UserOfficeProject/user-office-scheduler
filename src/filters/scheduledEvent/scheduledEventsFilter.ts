@@ -5,18 +5,18 @@ import { ScheduledEventFilter } from 'generated/sdk';
 import { toTzLessDateTime } from 'utils/date';
 
 export default function generateScheduledEventFilter(
-  instrumentId: number | null,
+  instrumentIds: number[] | null | undefined,
   startsAt: Date,
   activeView: ExtendedView
 ): ScheduledEventFilter {
-  instrumentId = instrumentId ?? null;
+  instrumentIds = instrumentIds?.length ? instrumentIds : [0];
 
   switch (activeView) {
     case 'day': {
       const newStartsAt = moment(startsAt).startOf('day');
 
       return {
-        instrumentId,
+        instrumentIds,
         startsAt: toTzLessDateTime(newStartsAt),
         endsAt: toTzLessDateTime(newStartsAt.add(1, 'day')),
       };
@@ -25,7 +25,7 @@ export default function generateScheduledEventFilter(
       const newStartsAt = moment(startsAt).startOf('week');
 
       return {
-        instrumentId,
+        instrumentIds,
         startsAt: toTzLessDateTime(newStartsAt),
         endsAt: toTzLessDateTime(newStartsAt.add(1, 'week')),
       };
@@ -34,7 +34,7 @@ export default function generateScheduledEventFilter(
       const newStartsAt = moment(startsAt).startOf('month');
 
       return {
-        instrumentId,
+        instrumentIds,
         startsAt: toTzLessDateTime(newStartsAt),
         endsAt: toTzLessDateTime(newStartsAt.add(1, 'month')),
       };
@@ -43,7 +43,7 @@ export default function generateScheduledEventFilter(
       const newStartsAt = moment(startsAt).startOf('month');
 
       return {
-        instrumentId,
+        instrumentIds,
         startsAt: toTzLessDateTime(newStartsAt),
         endsAt: toTzLessDateTime(newStartsAt.add(3, 'month')),
       };
@@ -55,7 +55,7 @@ export default function generateScheduledEventFilter(
       return {
         startsAt: toTzLessDateTime(newStartsAt),
         endsAt: toTzLessDateTime(newStartsAt.add(1, 'week')),
-        instrumentId,
+        instrumentIds,
       };
   }
 }

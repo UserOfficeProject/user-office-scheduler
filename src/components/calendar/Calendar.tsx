@@ -6,9 +6,11 @@ import {
   makeStyles,
   useTheme,
   Tooltip,
-  Switch,
-  FormControlLabel,
   useMediaQuery,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@material-ui/core';
 import ChevronLeft from '@material-ui/icons/ChevronLeft';
 import CloseIcon from '@material-ui/icons/Close';
@@ -63,8 +65,8 @@ import Event, {
   isCompletedEvent,
 } from './Event';
 import TableToolbar from './TableViewToolbar';
+import TimeLineView from './TimeLineView';
 import Toolbar from './Toolbar';
-import YearView from './YearView';
 
 moment.locale('en-gb');
 
@@ -73,6 +75,12 @@ const localizer = momentLocalizer(moment);
 const CALENDAR_DEFAULT_VIEW = 'week';
 
 export type ExtendedView = View | 'year';
+
+export enum SchedulerViews {
+  CALENDAR = 'Calendar',
+  TABLE = 'Table',
+  TIMELINE = 'Timeline',
+}
 
 // NOTE: It is better practice to convert some values here for table rendering instead of using render function which adds additional complexity for sorting and stuff like that.
 const transformEvent = (
@@ -186,8 +194,8 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: 0,
     zIndex: 1000,
   },
-  switch: {
-    paddingLeft: 10,
+  schedulerViewSelect: {
+    paddingLeft: theme.spacing(2),
   },
 }));
 
@@ -197,12 +205,17 @@ export default function Calendar() {
   const [showTodoBox, setShowTodoBox] = useState<boolean>(false);
   const classes = useStyles();
   const theme = useTheme();
+  const [schedulerActiveView, setSchedulerActiveView] = useState(
+    SchedulerViews.CALENDAR
+  );
 
   const query = useQuery();
-  const queryInstrument = query.get('instrument');
-  const queryInstrumentId = queryInstrument ? parseInt(queryInstrument) : 0;
+  const queryInstrument = query.get('instrument')?.split(',');
+  const queryInstrumentIds = queryInstrument?.map((item) => parseInt(item));
   const queryEquipment = query.get('equipment')?.split(',');
   const queryEquipmentNumbers = queryEquipment?.map((item) => parseInt(item));
+
+  console.log(queryInstrumentIds);
 
   const { showAlert } = useContext(AppContext);
   const [selectedEvent, setSelectedEvent] = useState<
@@ -219,9 +232,8 @@ export default function Calendar() {
       .startOf(view as moment.unitOfTime.StartOf)
       .toDate()
   );
-  const [isTableView, setIsTableView] = useState<boolean>(false);
   const [filter, setFilter] = useState(
-    generateScheduledEventFilter(queryInstrumentId, startsAt, view)
+    generateScheduledEventFilter(queryInstrumentIds, startsAt, view)
   );
   const [selectedProposalBooking, setSelectedProposalBooking] = useState<{
     proposalBookingId: number | null;
@@ -246,12 +258,14 @@ export default function Calendar() {
     proposalBookings,
     loading: loadingBookings,
     refresh: refreshBookings,
-  } = useInstrumentProposalBookings(queryInstrumentId);
+  } = useInstrumentProposalBookings(queryInstrumentIds);
 
   const {
     scheduledEvents,
     loading: loadingEvents,
     refresh: refreshEvents,
+    selectedInstruments,
+    setSelectedInstruments,
   } = useScheduledEvents(filter);
 
   const {
@@ -292,8 +306,24 @@ export default function Calendar() {
   ]);
 
   useEffect(() => {
-    setFilter(generateScheduledEventFilter(queryInstrumentId, startsAt, view));
-  }, [queryInstrumentId, startsAt, view]);
+    console.log(queryInstrumentIds, startsAt, view, selectedInstruments);
+    if (
+      selectedInstruments?.length !== queryInstrumentIds?.length ||
+      !selectedInstruments?.every((eq) => queryInstrumentIds?.includes(eq))
+    ) {
+      setSelectedInstruments(queryInstrumentIds);
+      setFilter(
+        generateScheduledEventFilter(queryInstrumentIds, startsAt, view)
+      );
+    }
+    // debugger;
+  }, [
+    queryInstrumentIds,
+    startsAt,
+    view,
+    selectedInstruments,
+    setSelectedInstruments,
+  ]);
 
   const eqEventsTransformed: GetScheduledEventsQuery['scheduledEvents'] =
     eqEvents
@@ -454,12 +484,16 @@ export default function Calendar() {
     />
   );
 
+  console.log(filter);
+
   // 100% height needed for month view
   // also the other components make whole page scrollable without it
   return (
     <ContentContainer
       maxWidth={false}
-      className={!isTableView ? classes.fullHeight : ''}
+      className={
+        schedulerActiveView !== SchedulerViews.TABLE ? classes.fullHeight : ''
+      }
     >
       <Grid container className={classes.fullHeight}>
         <Grid item xs={12} className={classes.fullHeight}>
@@ -470,7 +504,7 @@ export default function Calendar() {
             {queryInstrument && (
               <ScheduledEventDialog
                 selectedEvent={selectedEvent}
-                selectedInstrumentId={queryInstrumentId}
+                selectedInstrumentId={queryInstrumentIds?.[0] || 0}
                 isDialogOpen={selectedEvent !== null}
                 closeDialog={closeDialog}
               />
@@ -524,7 +558,7 @@ export default function Calendar() {
                   }),
                 }}
               >
-                {!isTableView && (
+                {schedulerActiveView === SchedulerViews.CALENDAR && (
                   // @ts-expect-error test
                   <BigCalendar
                     selectable
@@ -537,7 +571,6 @@ export default function Calendar() {
                       day: true,
                       week: true,
                       month: true,
-                      year: YearView,
                     }}
                     defaultDate={startsAt}
                     step={60}
@@ -551,8 +584,6 @@ export default function Calendar() {
                     onSelecting={onSelecting}
                     onNavigate={onNavigate}
                     onView={onViewChange}
-                    // TODO: This should be adjustable length but for now it is fixed amount of 3 months
-                    messages={{ year: '3 months' }}
                     components={{
                       toolbar: (toolbarProps) =>
                         Toolbar({
@@ -579,7 +610,7 @@ export default function Calendar() {
                     }}
                   />
                 )}
-                {isTableView && (
+                {schedulerActiveView === SchedulerViews.TABLE && (
                   <div data-cy="scheduled-events-table">
                     <MaterialTable
                       icons={tableIcons}
@@ -626,6 +657,12 @@ export default function Calendar() {
                     />
                   </div>
                 )}
+                {schedulerActiveView === SchedulerViews.TIMELINE && (
+                  <TimeLineView
+                    events={calendarEvents}
+                    instruments={instruments}
+                  />
+                )}
               </Grid>
               <Grid
                 item
@@ -655,20 +692,36 @@ export default function Calendar() {
                       </IconButton>
                     </Tooltip>
                   )}
-                  <FormControlLabel
-                    className={classes.switch}
-                    control={
-                      <Switch
-                        checked={isTableView}
-                        data-cy="toggle-table-view"
-                        onChange={() => {
-                          setIsTableView(!isTableView);
-                        }}
-                        color="primary"
-                      />
-                    }
-                    label="Table view"
-                  />
+                  <FormControl
+                    fullWidth
+                    margin="dense"
+                    className={classes.schedulerViewSelect}
+                  >
+                    <InputLabel
+                      id="scheduler-view-label"
+                      className={classes.schedulerViewSelect}
+                    >
+                      Scheduler view
+                    </InputLabel>
+                    <Select
+                      value={schedulerActiveView}
+                      label="Scheduler view"
+                      labelId="scheduler-view-label"
+                      margin="dense"
+                      onChange={(e) =>
+                        setSchedulerActiveView(e.target.value as SchedulerViews)
+                      }
+                      data-cy="scheduler-active-view"
+                    >
+                      <MenuItem value={SchedulerViews.CALENDAR}>
+                        Calendar
+                      </MenuItem>
+                      <MenuItem value={SchedulerViews.TABLE}>Table</MenuItem>
+                      <MenuItem value={SchedulerViews.TIMELINE}>
+                        Timeline
+                      </MenuItem>
+                    </Select>
+                  </FormControl>
                   <CalendarTodoBox
                     refreshCalendar={refresh}
                     onNewSimpleEvent={handleNewSimpleEvent}

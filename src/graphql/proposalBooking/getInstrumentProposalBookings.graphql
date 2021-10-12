@@ -1,8 +1,8 @@
 query getInstrumentProposalBookings(
-  $instrumentId: Int!
+  $instrumentIds: [Int!]!
   $filter: ProposalBookingScheduledEventFilter!
 ) {
-  instrumentProposalBookings(instrumentId: $instrumentId) {
+  instrumentProposalBookings(instrumentIds: $instrumentIds) {
     id
     call {
       id

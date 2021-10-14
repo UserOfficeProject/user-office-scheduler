@@ -395,8 +395,8 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
               handleHomeEndKeys
               options={instruments}
               getOptionLabel={(instrument) => instrument.name}
-              data-cy="table-toolbar-instrument-select"
-              id="table-toolbar-instrument-select"
+              data-cy="timeline-toolbar-instrument-select"
+              id="timeline-toolbar-instrument-select"
               renderInput={(params) => (
                 <TextField
                   {...params}

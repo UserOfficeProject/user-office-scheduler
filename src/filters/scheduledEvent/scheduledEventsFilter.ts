@@ -39,13 +39,22 @@ export default function generateScheduledEventFilter(
         endsAt: toTzLessDateTime(newStartsAt.add(1, 'month')),
       };
     }
-    case 'year': {
+    case 'quarter': {
       const newStartsAt = moment(startsAt).startOf('month');
 
       return {
         instrumentIds,
         startsAt: toTzLessDateTime(newStartsAt),
         endsAt: toTzLessDateTime(newStartsAt.add(3, 'month')),
+      };
+    }
+    case 'half_year': {
+      const newStartsAt = moment(startsAt).startOf('month');
+
+      return {
+        instrumentIds,
+        startsAt: toTzLessDateTime(newStartsAt),
+        endsAt: toTzLessDateTime(newStartsAt.add(6, 'month')),
       };
     }
     default:

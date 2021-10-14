@@ -8,6 +8,7 @@ import {
   MenuItem,
   Select,
   TextField,
+  useMediaQuery,
 } from '@material-ui/core';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import React, { useEffect, useState } from 'react';
@@ -26,7 +27,10 @@ import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 
 const useStyles = makeStyles((theme) => ({
   tooltip: {
-    margin: theme.spacing(0, 0, 3, 0),
+    marginBottom: theme.spacing(2),
+  },
+  tooltipMobile: {
+    marginTop: theme.spacing(2),
   },
   centered: {
     alignItems: 'center',
@@ -68,6 +72,7 @@ export default function Toolbar({
 }: ToolbarProps & ToolbarAdditionalProps) {
   const classes = useStyles();
   const history = useHistory();
+  const isMobile = useMediaQuery('(max-width: 648px)');
 
   const query = useQuery();
 
@@ -168,7 +173,7 @@ export default function Toolbar({
   };
 
   return (
-    <div className={classes.tooltip}>
+    <div className={`${classes.tooltip} ${isMobile && classes.tooltipMobile}`}>
       <Grid container className={classes.centered} spacing={1}>
         <Grid item sm={4} xs={12}>
           <Grid container spacing={2}>

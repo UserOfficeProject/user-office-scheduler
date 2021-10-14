@@ -7,28 +7,39 @@ import {
   MenuItem,
   Select,
   TextField,
+  useMediaQuery,
 } from '@material-ui/core';
 import { Autocomplete } from '@material-ui/lab';
+import generateScheduledEventFilter from 'filters/scheduledEvent/scheduledEventsFilter';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import Timeline from 'react-calendar-timeline';
+// @ts-expect-error @types/react-calendar-timeline is not updated with tle latest changes on react-calendar-timeline
+import containerResizeDetector from 'react-calendar-timeline/lib/resize-detector/container';
 import 'react-calendar-timeline/lib/Timeline.css';
 import { useHistory } from 'react-router';
 
+import { ScheduledEventFilter } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
 import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
+import { toTzLessDateTime } from 'utils/date';
 
+import { ExtendedView } from './Calendar';
 import { CalendarScheduledEvent, getBookingTypeStyle } from './Event';
 
 enum TimelineViewPeriods {
-  MONTH = '1 month',
-  QUARTER = '3 months',
-  HALF_YEAR = '6 months',
+  WEEK = 'week',
+  MONTH = 'month',
+  QUARTER = 'quarter',
+  HALF_YEAR = 'half_year',
 }
 
 type TimeLineViewProps = {
   events: CalendarScheduledEvent[];
   instruments: PartialInstrument[];
+  instrumentsLoading: boolean;
+  onSelectEvent: (selectedEvent: CalendarScheduledEvent) => void;
+  setFilter: React.Dispatch<React.SetStateAction<ScheduledEventFilter>>;
 };
 
 const useStyles = makeStyles((theme) => ({
@@ -36,28 +47,55 @@ const useStyles = makeStyles((theme) => ({
     '& .react-calendar-timeline .rct-header-root': {
       background: theme.palette.primary.main,
     },
+    '& .react-calendar-timeline .rct-items .rct-item .rct-item-content': {
+      whiteSpace: 'nowrap',
+      textOverflow: 'ellipsis',
+      width: '100%',
+    },
+  },
+  toolbar: {
+    marginBottom: theme.spacing(2),
+  },
+  toolbarMobile: {
+    marginTop: theme.spacing(2),
   },
 }));
 
-const TimeLineView: React.FC<TimeLineViewProps> = ({ events, instruments }) => {
+const TimeLineView: React.FC<TimeLineViewProps> = ({
+  events,
+  instruments,
+  instrumentsLoading,
+  onSelectEvent,
+  setFilter,
+}) => {
   const query = useQuery();
   const history = useHistory();
   const classes = useStyles();
+  const isMobile = useMediaQuery('(max-width: 648px)');
 
-  const [timelineViewPeriod, setTimelineViewPeriod] = useState(
-    TimelineViewPeriods.MONTH
-  );
-
-  const [visibleTimeStart, setVisibleTimeStart] = useState(
-    moment().startOf('month')
-  );
-
-  const [visibleTimeEnd, setVisibleTimeEnd] = useState(moment().endOf('month'));
-
+  const queryView = query.get('viewPeriod');
   const queryInstruments = query.get('instrument')?.split(',');
 
+  const [timelineViewPeriod, setTimelineViewPeriod] = useState(
+    (queryView as TimelineViewPeriods) || TimelineViewPeriods.WEEK
+  );
+  const defaultVisibleTimeEnd =
+    timelineViewPeriod !== TimelineViewPeriods.HALF_YEAR
+      ? moment().endOf(timelineViewPeriod)
+      : moment().add(6, 'months').startOf('month');
+
+  const defaultVisibleTimeStart =
+    timelineViewPeriod === TimelineViewPeriods.WEEK
+      ? moment().startOf('week')
+      : moment().startOf('month');
+
+  const [visibleTimeStart, setVisibleTimeStart] = useState(
+    defaultVisibleTimeStart
+  );
+  const [visibleTimeEnd, setVisibleTimeEnd] = useState(defaultVisibleTimeEnd);
+
   const [selectedInstruments, setSelectedInstruments] = useState<
-    PartialInstrument[] | undefined
+    PartialInstrument[]
   >([]);
 
   useEffect(() => {
@@ -77,130 +115,211 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({ events, instruments }) => {
     selectedInstruments?.length,
   ]);
 
-  const changeVisibleTimeBasedOnSelectedView = (
-    currentTimelineViewPeriod: TimelineViewPeriods
-  ) => {
-    switch (currentTimelineViewPeriod) {
-      case TimelineViewPeriods.MONTH:
-        setVisibleTimeStart(moment().startOf('month'));
-        setVisibleTimeEnd(moment().endOf('month'));
-
-        return;
-      case TimelineViewPeriods.QUARTER:
-        setVisibleTimeStart(moment().startOf('month'));
-        setVisibleTimeEnd(moment().add(3, 'months').startOf('month'));
-
-        return;
-      case TimelineViewPeriods.HALF_YEAR:
-        setVisibleTimeStart(moment().startOf('month'));
-        setVisibleTimeEnd(moment().add(6, 'months').startOf('month'));
-
-        return;
-      default:
-        break;
-    }
-  };
-
-  useEffect(() => {
-    changeVisibleTimeBasedOnSelectedView(timelineViewPeriod);
-  }, [timelineViewPeriod]);
-
-  const instrumentGroups = [];
-  const map = new Map();
-  for (const item of events) {
-    if (item.instrument && !map.has(item.instrument.id)) {
-      map.set(item.instrument?.id, true); // set any value to Map
-      instrumentGroups.push({
-        id: item.instrument.id,
-        title: item.instrument.name,
-      });
-    }
-  }
+  const instrumentGroups = selectedInstruments.map((selectedInstrument) => ({
+    id: selectedInstrument.id,
+    title: selectedInstrument.name,
+  }));
 
   const getEventTitle = (event: CalendarScheduledEvent) => {
-    return `${event.proposalBooking?.proposal?.title} (${event.proposalBooking?.proposal?.proposalId})`;
+    return `${event.proposalBooking?.proposal?.title || event.title} (${
+      event.proposalBooking?.proposal?.proposalId || event.description
+    }) - [${toTzLessDateTime(event.start)} - ${toTzLessDateTime(event.end)}]`;
   };
 
   const eventItems = events.map((event) => ({
-    id: event.id,
-    group: event.instrument!.id,
-    // title: getEventTitle(event),
+    id: `${event.id}_${event.bookingType}`,
+    group: event.instrument?.id || 0,
+    title: getEventTitle(event),
     itemProps: {
-      onClick: () => {
-        console.log('You clicked', event);
-      },
+      onClick: () => onSelectEvent(event),
+      onTouchStart: () => onSelectEvent(event),
       style: {
         background: getBookingTypeStyle(event.bookingType, event.status)
           .backgroundColor,
+        overflow: 'hidden',
       },
     },
     start_time: moment(event.start),
     end_time: moment(event.end),
   }));
 
-  const getVisibleTimeStart = (sign: string) => {
-    switch (timelineViewPeriod) {
+  const getVisibleTimeInterval = (
+    changeOperator: 'PREV' | 'TODAY' | 'NEXT' | 'PERIOD',
+    currentTimelinePeriod: TimelineViewPeriods
+  ) => {
+    switch (currentTimelinePeriod) {
+      case TimelineViewPeriods.WEEK:
+        switch (changeOperator) {
+          case 'PREV':
+            return {
+              newVisibleTimeStart: moment(visibleTimeEnd)
+                .subtract(1, 'week')
+                .startOf('week'),
+              newVisibleTimeEnd: moment(visibleTimeEnd)
+                .subtract(1, 'week')
+                .endOf('week'),
+            };
+
+          case 'TODAY':
+            return {
+              newVisibleTimeStart: moment().startOf('week'),
+              newVisibleTimeEnd: moment().endOf('week'),
+            };
+
+          case 'NEXT':
+            return {
+              newVisibleTimeStart: moment(visibleTimeStart)
+                .add(1, 'week')
+                .startOf('week'),
+              newVisibleTimeEnd: moment(visibleTimeEnd)
+                .add(1, 'week')
+                .endOf('week'),
+            };
+
+          case 'PERIOD':
+            return {
+              newVisibleTimeStart: moment().startOf('week'),
+              newVisibleTimeEnd: moment().endOf('week'),
+            };
+        }
       case TimelineViewPeriods.MONTH:
-        return moment(visibleTimeStart)
-          .add(`${sign}1`, 'month')
-          .startOf('month');
+        switch (changeOperator) {
+          case 'PREV':
+            return {
+              newVisibleTimeStart: moment(visibleTimeEnd)
+                .subtract(1, 'month')
+                .startOf('month'),
+              newVisibleTimeEnd: moment(visibleTimeEnd)
+                .subtract(1, 'month')
+                .endOf('month'),
+            };
+
+          case 'TODAY':
+            return {
+              newVisibleTimeStart: moment().startOf('month'),
+              newVisibleTimeEnd: moment().endOf('month'),
+            };
+
+          case 'NEXT':
+            return {
+              newVisibleTimeStart: moment(visibleTimeStart)
+                .add(1, 'month')
+                .startOf('month'),
+              newVisibleTimeEnd: moment(visibleTimeEnd)
+                .add(1, 'month')
+                .endOf('month'),
+            };
+
+          case 'PERIOD':
+            return {
+              newVisibleTimeStart: moment(visibleTimeStart).startOf('month'),
+              newVisibleTimeEnd: moment(visibleTimeStart).endOf('month'),
+            };
+        }
       case TimelineViewPeriods.QUARTER:
-        return moment(visibleTimeStart)
-          .add(`${sign}3`, 'months')
-          .startOf('month');
+        switch (changeOperator) {
+          case 'PREV':
+            return {
+              newVisibleTimeStart: moment(visibleTimeStart)
+                .subtract(3, 'month')
+                .startOf('month'),
+              newVisibleTimeEnd: moment(visibleTimeEnd)
+                .subtract(3, 'month')
+                .startOf('month'),
+            };
+
+          case 'TODAY':
+            return {
+              newVisibleTimeStart: moment().startOf('month'),
+              newVisibleTimeEnd: moment().add(3, 'month').startOf('month'),
+            };
+
+          case 'NEXT':
+            return {
+              newVisibleTimeStart: moment(visibleTimeStart)
+                .add(3, 'month')
+                .startOf('month'),
+              newVisibleTimeEnd: moment(visibleTimeEnd)
+                .add(3, 'month')
+                .startOf('month'),
+            };
+
+          case 'PERIOD':
+            return {
+              newVisibleTimeStart: moment(visibleTimeStart).startOf('month'),
+              newVisibleTimeEnd: moment(visibleTimeStart)
+                .add(3, 'months')
+                .startOf('month'),
+            };
+        }
       case TimelineViewPeriods.HALF_YEAR:
-        return moment(visibleTimeStart)
-          .add(`${sign}6`, 'months')
-          .startOf('month');
-      default:
-        return moment().startOf('month');
+        switch (changeOperator) {
+          case 'PREV':
+            return {
+              newVisibleTimeStart: moment(visibleTimeStart)
+                .subtract(6, 'month')
+                .startOf('month'),
+              newVisibleTimeEnd: moment(visibleTimeEnd)
+                .subtract(6, 'month')
+                .startOf('month'),
+            };
+
+          case 'TODAY':
+            return {
+              newVisibleTimeStart: moment().startOf('month'),
+              newVisibleTimeEnd: moment().add(6, 'month').startOf('month'),
+            };
+
+          case 'NEXT':
+            return {
+              newVisibleTimeStart: moment(visibleTimeStart)
+                .add(6, 'month')
+                .startOf('month'),
+              newVisibleTimeEnd: moment(visibleTimeEnd)
+                .add(6, 'month')
+                .startOf('month'),
+            };
+
+          case 'PERIOD':
+            return {
+              newVisibleTimeStart: moment(visibleTimeStart).startOf('month'),
+              newVisibleTimeEnd: moment(visibleTimeStart)
+                .add(6, 'months')
+                .startOf('month'),
+            };
+        }
     }
   };
 
-  const getVisibleTimeEnd = (sign: string) => {
-    switch (timelineViewPeriod) {
-      case TimelineViewPeriods.MONTH:
-        return moment(visibleTimeEnd).add(`${sign}1`, 'month').endOf('month');
-      case TimelineViewPeriods.QUARTER:
-        return moment(visibleTimeEnd)
-          .add(`${sign}3`, 'months')
-          .startOf('month');
-      case TimelineViewPeriods.HALF_YEAR:
-        return moment(visibleTimeEnd)
-          .add(`${sign}6`, 'months')
-          .startOf('month');
-      default:
-        return moment().endOf('month');
-    }
-  };
-
-  const onPrevClick = () => {
-    const newVisibleTimeStart = getVisibleTimeStart('-');
-    const newVisibleTimeEnd = getVisibleTimeEnd('-');
+  const onNavClick = (
+    direction: 'PREV' | 'NEXT' | 'TODAY' | 'PERIOD',
+    currentTimelinePeriod = timelineViewPeriod
+  ) => {
+    const { newVisibleTimeStart, newVisibleTimeEnd } = getVisibleTimeInterval(
+      direction,
+      currentTimelinePeriod
+    );
 
     setVisibleTimeStart(newVisibleTimeStart);
     setVisibleTimeEnd(newVisibleTimeEnd);
+
+    setFilter(
+      generateScheduledEventFilter(
+        queryInstruments?.map((item) => parseInt(item)),
+        newVisibleTimeStart.toDate(),
+        currentTimelinePeriod as ExtendedView
+      )
+    );
+
+    query.set('viewPeriod', currentTimelinePeriod);
+    history.push(`?${query}`);
   };
-
-  const onNextClick = () => {
-    const newVisibleTimeStart = getVisibleTimeStart('+');
-    const newVisibleTimeEnd = getVisibleTimeEnd('+');
-
-    setVisibleTimeStart(newVisibleTimeStart);
-    setVisibleTimeEnd(newVisibleTimeEnd);
-  };
-
-  const onTodayClick = () => {
-    changeVisibleTimeBasedOnSelectedView(timelineViewPeriod);
-  };
-
-  console.log(visibleTimeStart, visibleTimeEnd);
 
   return (
     <div data-cy="calendar-timeline-view" className={classes.root}>
       <div
         data-cy="calendar-timeline-view-toolbar"
-        style={{ marginBottom: '16px' }}
+        className={`${classes.toolbar} ${isMobile && classes.toolbarMobile}`}
       >
         <Grid container spacing={2} alignItems="center">
           <Grid item sm={6} xs={12}>
@@ -208,7 +327,7 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({ events, instruments }) => {
               <Grid item sm={4} xs={12}>
                 <Button
                   variant="contained"
-                  onClick={onTodayClick}
+                  onClick={() => onNavClick('TODAY')}
                   data-cy="btn-view-today"
                   fullWidth
                 >
@@ -218,7 +337,7 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({ events, instruments }) => {
               <Grid item sm={4} xs={12}>
                 <Button
                   variant="contained"
-                  onClick={onPrevClick}
+                  onClick={() => onNavClick('PREV')}
                   data-cy="btn-view-prev"
                   fullWidth
                 >
@@ -228,7 +347,7 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({ events, instruments }) => {
               <Grid item sm={4} xs={12}>
                 <Button
                   variant="contained"
-                  onClick={onNextClick}
+                  onClick={() => onNavClick('NEXT')}
                   data-cy="btn-view-next"
                   fullWidth
                 >
@@ -243,11 +362,18 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({ events, instruments }) => {
                 label="View period"
                 labelId="timeline-view-period"
                 margin="dense"
-                onChange={(e) =>
-                  setTimelineViewPeriod(e.target.value as TimelineViewPeriods)
-                }
+                onChange={(e) => {
+                  setTimelineViewPeriod(e.target.value as TimelineViewPeriods);
+                  onNavClick('PERIOD', e.target.value as TimelineViewPeriods);
+
+                  if (e.target.value) {
+                    query.set('viewPeriod', e.target.value as string);
+                    history.push(`?${query}`);
+                  }
+                }}
                 data-cy="timeline-view-period"
               >
+                <MenuItem value={TimelineViewPeriods.WEEK}>1 week</MenuItem>
                 <MenuItem value={TimelineViewPeriods.MONTH}>1 month</MenuItem>
                 <MenuItem value={TimelineViewPeriods.QUARTER}>
                   3 months
@@ -261,8 +387,8 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({ events, instruments }) => {
           <Grid item sm={6} xs={12}>
             <Autocomplete
               multiple
-              // loading={instrumentsLoading}
-              // disabled={instrumentsLoading}
+              loading={instrumentsLoading}
+              disabled={instrumentsLoading}
               selectOnFocus
               fullWidth
               clearOnBlur
@@ -275,7 +401,7 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({ events, instruments }) => {
                 <TextField
                   {...params}
                   label="Instruments"
-                  // disabled={instrumentsLoading}
+                  disabled={instrumentsLoading}
                   margin="dense"
                 />
               )}
@@ -292,9 +418,8 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({ events, instruments }) => {
                     `${newValue?.map((instrument) => instrument.id).join(',')}`
                   );
                 }
-                setSelectedInstruments(newValue);
+                setSelectedInstruments(newValue || []);
                 history.push(`?${query}`);
-                // onInstrumentSelect(newValue);
               }}
             />
           </Grid>
@@ -303,8 +428,9 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({ events, instruments }) => {
       <Timeline
         groups={instrumentGroups}
         items={eventItems}
-        visibleTimeStart={visibleTimeStart}
-        visibleTimeEnd={visibleTimeEnd}
+        visibleTimeStart={visibleTimeStart.valueOf()}
+        visibleTimeEnd={visibleTimeEnd.valueOf()}
+        resizeDetector={containerResizeDetector}
         stackItems
         canMove={false}
         canResize={false}

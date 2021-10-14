@@ -75,7 +75,7 @@ const localizer = momentLocalizer(moment);
 
 const CALENDAR_DEFAULT_VIEW = 'week';
 
-export type ExtendedView = View | 'year';
+export type ExtendedView = View | 'quarter' | 'half_year';
 
 export enum SchedulerViews {
   CALENDAR = 'Calendar',
@@ -178,6 +178,7 @@ const useStyles = makeStyles((theme) => ({
   eventToolbarCloseButtonMobile: {
     right: 0,
     top: 0,
+    zIndex: 1000,
   },
   eventToolbarOpenButton: {
     position: 'absolute',
@@ -198,6 +199,9 @@ const useStyles = makeStyles((theme) => ({
   schedulerViewSelect: {
     paddingLeft: theme.spacing(2),
   },
+  schedulerViewSelectMobile: {
+    padding: theme.spacing(2),
+  },
 }));
 
 export default function Calendar() {
@@ -207,15 +211,18 @@ export default function Calendar() {
   const classes = useStyles();
   const theme = useTheme();
   const history = useHistory();
-  const [schedulerActiveView, setSchedulerActiveView] = useState(
-    SchedulerViews.CALENDAR
-  );
-
   const query = useQuery();
+
+  const querySchedulerView = query.get('schedulerView');
   const queryInstrument = query.get('instrument')?.split(',');
+  const queryView = query.get('viewPeriod');
   const queryInstrumentIds = queryInstrument?.map((item) => parseInt(item));
   const queryEquipment = query.get('equipment')?.split(',');
   const queryEquipmentNumbers = queryEquipment?.map((item) => parseInt(item));
+
+  const [schedulerActiveView, setSchedulerActiveView] = useState(
+    (querySchedulerView as SchedulerViews) || SchedulerViews.CALENDAR
+  );
 
   const { showAlert } = useContext(AppContext);
   const [selectedEvent, setSelectedEvent] = useState<
@@ -326,7 +333,11 @@ export default function Calendar() {
     ) {
       setSelectedInstruments(queryInstrumentIds);
       setFilter(
-        generateScheduledEventFilter(queryInstrumentIds, startsAt, view)
+        generateScheduledEventFilter(
+          queryInstrumentIds,
+          startsAt,
+          (queryView as ExtendedView) || view
+        )
       );
     }
     if (
@@ -342,6 +353,7 @@ export default function Calendar() {
     queryInstrumentIds,
     startsAt,
     view,
+    queryView,
     selectedInstruments,
     setSelectedInstruments,
     proposalBookingSelectedInstruments,
@@ -375,10 +387,18 @@ export default function Calendar() {
   const onNavigate = (newDate: Date, newView: View) => {
     setStartAt(newDate);
     setView(newView);
+
+    setFilter(
+      generateScheduledEventFilter(queryInstrumentIds, newDate, newView)
+    );
   };
 
   const onViewChange = (newView: View) => {
     setView(newView);
+
+    setFilter(
+      generateScheduledEventFilter(queryInstrumentIds, startsAt, newView)
+    );
   };
 
   const onSelectSlot = (slotInfo: SlotInfo) => {
@@ -513,7 +533,9 @@ export default function Calendar() {
     <ContentContainer
       maxWidth={false}
       className={
-        schedulerActiveView !== SchedulerViews.TABLE ? classes.fullHeight : ''
+        schedulerActiveView !== SchedulerViews.TABLE && !isTabletOrMobile
+          ? classes.fullHeight
+          : ''
       }
     >
       <Grid container className={classes.fullHeight}>
@@ -617,8 +639,6 @@ export default function Calendar() {
                       event: Event,
                       header: ({ date, localizer }) => {
                         switch (view) {
-                          case 'year':
-                            return localizer.format(date, 'ddd DD MMM', '');
                           case 'week':
                             return localizer.format(date, 'dddd', '');
                           case 'month':
@@ -682,6 +702,9 @@ export default function Calendar() {
                   <TimeLineView
                     events={calendarEvents}
                     instruments={instruments}
+                    instrumentsLoading={instrumentsLoading}
+                    onSelectEvent={onSelectEvent}
+                    setFilter={setFilter}
                   />
                 )}
               </Grid>
@@ -716,11 +739,15 @@ export default function Calendar() {
                   <FormControl
                     fullWidth
                     margin="dense"
-                    className={classes.schedulerViewSelect}
+                    className={`${classes.schedulerViewSelect} ${
+                      isTabletOrMobile && classes.schedulerViewSelectMobile
+                    }`}
                   >
                     <InputLabel
                       id="scheduler-view-label"
-                      className={classes.schedulerViewSelect}
+                      className={`${classes.schedulerViewSelect} ${
+                        isTabletOrMobile && classes.schedulerViewSelectMobile
+                      }`}
                     >
                       Scheduler view
                     </InputLabel>
@@ -729,9 +756,19 @@ export default function Calendar() {
                       label="Scheduler view"
                       labelId="scheduler-view-label"
                       margin="dense"
-                      onChange={(e) =>
-                        setSchedulerActiveView(e.target.value as SchedulerViews)
-                      }
+                      onChange={(e) => {
+                        const schedulerNewView = e.target
+                          .value as SchedulerViews;
+                        setSchedulerActiveView(schedulerNewView);
+
+                        if (e.target.value !== SchedulerViews.CALENDAR) {
+                          query.set('schedulerView', schedulerNewView);
+                        } else {
+                          query.delete('schedulerView');
+                        }
+
+                        history.push(`?${query}`);
+                      }}
                       data-cy="scheduler-active-view"
                     >
                       <MenuItem value={SchedulerViews.CALENDAR}>

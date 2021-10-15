@@ -3,7 +3,7 @@ import { ResolverContext } from '../context';
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
 import Authorized from '../decorators/Authorized';
 import { ProposalBookingStatusCore } from '../generated/sdk';
-// import { instrumentScientistHasInstrument } from '../helpers/instrumentHelpers';
+import { instrumentScientistHasInstrument } from '../helpers/instrumentHelpers';
 import {
   instrumentScientistHasAccess,
   userHacAccess,
@@ -21,12 +21,19 @@ export default class ProposalBookingQueries {
     ctx: ResolverContext,
     instrumentIds: number[]
   ): Promise<ProposalBooking[]> {
-    // if (!(await instrumentScientistHasInstrument(ctx, instrumentId))) {
-    //   return [];
-    // }
+    const results = await Promise.all(
+      instrumentIds.map(
+        async (instrumentId) =>
+          await instrumentScientistHasInstrument(ctx, instrumentId)
+      )
+    );
+
+    const newInstrumentIdsByRole = instrumentIds.filter(
+      (_item, index) => results[index]
+    );
 
     return this.proposalBookingDataSource.instrumentProposalBookings(
-      instrumentIds
+      newInstrumentIdsByRole
     );
   }
 

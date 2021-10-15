@@ -1,7 +1,7 @@
 import { ResolverContext } from '../context';
 import { ScheduledEventDataSource } from '../datasources/ScheduledEventDataSource';
 import Authorized from '../decorators/Authorized';
-// import { instrumentScientistHasInstrument } from '../helpers/instrumentHelpers';
+import { instrumentScientistHasInstrument } from '../helpers/instrumentHelpers';
 import {
   instrumentScientistHasAccess,
   userHacAccess,
@@ -31,11 +31,21 @@ export default class ScheduledEventQueries {
       return [];
     }
 
-    // if (!(await instrumentScientistHasInstrument(ctx, filter.instrumentId))) {
-    //   return [];
-    // }
+    const results = await Promise.all(
+      filter.instrumentIds.map(
+        async (instrumentId) =>
+          await instrumentScientistHasInstrument(ctx, instrumentId)
+      )
+    );
 
-    return this.scheduledEventDataSource.getAll(filter);
+    const newInstrumentIdsByRole = filter.instrumentIds.filter(
+      (_item, index) => results[index]
+    );
+
+    return this.scheduledEventDataSource.getAll({
+      ...filter,
+      instrumentIds: newInstrumentIdsByRole,
+    });
   }
 
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST, Roles.USER])

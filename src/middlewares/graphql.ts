@@ -1,5 +1,9 @@
 import { logger } from '@esss-swap/duo-logger';
-import { ApolloServerPluginInlineTraceDisabled } from 'apollo-server-core';
+import {
+  ApolloServerPluginInlineTraceDisabled,
+  ApolloServerPluginLandingPageDisabled,
+  ApolloServerPluginLandingPageGraphQLPlayground,
+} from 'apollo-server-core';
 import { ApolloServer } from 'apollo-server-express';
 import { Express, Request as ExpressRequest } from 'express';
 import 'reflect-metadata';
@@ -38,13 +42,15 @@ const apolloServer = async (app: Express) => {
 
   const server = new ApolloServer({
     schema,
-    tracing: false,
-    playground: {
-      settings: {
-        'schema.polling.enable': false,
-      },
-    },
-    plugins: [ApolloServerPluginInlineTraceDisabled()],
+    plugins: [
+      ApolloServerPluginInlineTraceDisabled(),
+      // Explicitly disable playground in prod
+      process.env.NODE_ENV === 'production'
+        ? ApolloServerPluginLandingPageDisabled()
+        : ApolloServerPluginLandingPageGraphQLPlayground({
+            settings: { 'schema.polling.enable': false },
+          }),
+    ],
 
     context: async ({ req }: { req: Request }) => {
       const context: ResolverContext = {
@@ -85,6 +91,9 @@ const apolloServer = async (app: Express) => {
       return context;
     },
   });
+
+  await server.start();
+
   server.applyMiddleware({ app: app, path: PATH });
 };
 

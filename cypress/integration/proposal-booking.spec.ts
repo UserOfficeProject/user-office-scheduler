@@ -120,7 +120,8 @@ context('Proposal booking tests ', () => {
           .parent()
           .parent()
           .should('have.attr', 'style')
-          .and('include', 'background-color: rgba(');
+          .and('include', 'background: rgb(')
+          .and('include', 'filter: grayscale(0) opacity(0.6);');
       });
 
       it('should see warning message if time slot is outside call cycle interval', () => {
@@ -808,7 +809,18 @@ context('Proposal booking tests ', () => {
           .parent()
           .parent()
           .should('have.attr', 'style')
-          .and('include', 'background-color: rgba(');
+          .and('include', 'background: rgb(')
+          .and('include', 'filter: grayscale(0.5) opacity(1)');
+
+        cy.get('[data-cy="scheduler-active-view"]').click();
+        cy.get('[data-value="Timeline"]').click();
+
+        cy.contains(currentHourDateTime)
+          .first()
+          .parent()
+          .should('have.attr', 'style')
+          .and('include', 'background: rgb(')
+          .and('include', 'filter: grayscale(0.5) opacity(1)');
       });
     });
   });

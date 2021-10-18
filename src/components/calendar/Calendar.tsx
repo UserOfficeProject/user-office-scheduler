@@ -62,8 +62,6 @@ import Event, {
   CalendarScheduledEvent,
   eventPropGetter,
   getBookingTypeStyle,
-  getCompletedBookingStyle,
-  isCompletedEvent,
 } from './Event';
 import TableToolbar from './TableViewToolbar';
 import TimeLineView from './TimeLineView';
@@ -671,18 +669,12 @@ export default function Calendar() {
                           ),
                       }}
                       options={{
-                        rowStyle: (rowData: CalendarScheduledEvent) => {
-                          const eventStyle = isCompletedEvent({
-                            status: rowData.status,
-                          })
-                            ? getCompletedBookingStyle()
-                            : getBookingTypeStyle(
-                                rowData.bookingType,
-                                rowData.status
-                              );
+                        rowStyle: (rowData: CalendarScheduledEvent) =>
+                          getBookingTypeStyle(
+                            rowData.bookingType,
+                            rowData.status
+                          ),
 
-                          return eventStyle;
-                        },
                         pageSize: 10,
                       }}
                       actions={[

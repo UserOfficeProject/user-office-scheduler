@@ -96,7 +96,8 @@ context('Scheduled events timeline tests', () => {
       cy.contains(currentHourDateTime)
         .parent()
         .should('have.attr', 'style')
-        .and('include', 'background: rgba(');
+        .and('include', 'background: rgb(')
+        .and('include', 'filter: grayscale(0) opacity(0.6)');
     });
 
     it('should show timeline view of events in different colors depending on the event type', () => {
@@ -309,7 +310,9 @@ context('Scheduled events timeline tests', () => {
 
       cy.get('[data-cy="timeline-toolbar-instrument-select"] input').click();
 
-      cy.get('[aria-labelledby=timeline-toolbar-instrument-select-label] [role=option]')
+      cy.get(
+        '[aria-labelledby=timeline-toolbar-instrument-select-label] [role=option]'
+      )
         .last()
         .click();
 
@@ -317,7 +320,9 @@ context('Scheduled events timeline tests', () => {
 
       cy.get('[data-cy="timeline-toolbar-instrument-select"] input').click();
 
-      cy.get('[aria-labelledby=timeline-toolbar-instrument-select-label] [role=option]')
+      cy.get(
+        '[aria-labelledby=timeline-toolbar-instrument-select-label] [role=option]'
+      )
         .eq(1)
         .click();
 

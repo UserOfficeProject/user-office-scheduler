@@ -123,7 +123,9 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
   const getEventTitle = (event: CalendarScheduledEvent) => {
     return `${event.proposalBooking?.proposal?.title || event.title} (${
       event.proposalBooking?.proposal?.proposalId || event.description
-    }) - [${toTzLessDateTime(event.start)} - ${toTzLessDateTime(event.end)}]`;
+    }) - [${toTzLessDateTime(event.start)} - ${toTzLessDateTime(
+      event.end
+    )}] - ${event.status}`;
   };
 
   const eventItems = events.map((event) => ({
@@ -134,8 +136,7 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
       onClick: () => onSelectEvent(event),
       onTouchStart: () => onSelectEvent(event),
       style: {
-        background: getBookingTypeStyle(event.bookingType, event.status)
-          .backgroundColor,
+        ...getBookingTypeStyle(event.bookingType, event.status),
         overflow: 'hidden',
       },
     },
@@ -327,21 +328,21 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
               <Grid item sm={4} xs={12}>
                 <Button
                   variant="contained"
-                  onClick={() => onNavClick('TODAY')}
-                  data-cy="btn-view-today"
-                  fullWidth
-                >
-                  Today
-                </Button>
-              </Grid>
-              <Grid item sm={4} xs={12}>
-                <Button
-                  variant="contained"
                   onClick={() => onNavClick('PREV')}
                   data-cy="btn-view-prev"
                   fullWidth
                 >
                   Back
+                </Button>
+              </Grid>
+              <Grid item sm={4} xs={12}>
+                <Button
+                  variant="contained"
+                  onClick={() => onNavClick('TODAY')}
+                  data-cy="btn-view-today"
+                  fullWidth
+                >
+                  Today
                 </Button>
               </Grid>
               <Grid item sm={4} xs={12}>

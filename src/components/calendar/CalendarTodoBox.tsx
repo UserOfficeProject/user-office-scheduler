@@ -25,8 +25,9 @@ export default function CalendarTodoBox({
       display: 'flex',
       height: '100%',
       flexDirection: 'column',
-      paddingTop: isTabletOrMobile ? theme.spacing(5) : theme.spacing(2),
+      paddingTop: theme.spacing(2),
       paddingLeft: theme.spacing(2),
+      padding: isTabletOrMobile ? theme.spacing(2) : 0,
     },
     centered: {
       justifyContent: 'center',

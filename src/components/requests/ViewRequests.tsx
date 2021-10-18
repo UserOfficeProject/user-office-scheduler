@@ -45,6 +45,7 @@ export default function ViewRequests() {
       equipmentIds: [], // NOTE: Empty array is used to load all equipments.
       startsAt: toTzLessDateTime(new Date()),
       endsAt: toTzLessDateTime(moment(new Date()).add(1, 'year')),
+      shouldGetAll: true,
     });
   const api = useDataApi();
   const [rows, setRows] = useState<TableRow[]>([]);
@@ -183,7 +184,7 @@ export default function ViewRequests() {
             ) : (
               <Table
                 defaultOrderBy="startsAt"
-                tableTitle="Time Slots Upcoming Year"
+                tableTitle="Upcoming requests"
                 headCells={defaultHeadCells}
                 rowActions={RowActions}
                 showEmptyRows

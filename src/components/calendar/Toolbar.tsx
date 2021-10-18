@@ -1,11 +1,14 @@
 import {
   Button,
   CircularProgress,
+  FormControl,
   Grid,
+  InputLabel,
   makeStyles,
   MenuItem,
   Select,
   TextField,
+  useMediaQuery,
 } from '@material-ui/core';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import React, { useEffect, useState } from 'react';
@@ -24,7 +27,10 @@ import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 
 const useStyles = makeStyles((theme) => ({
   tooltip: {
-    margin: theme.spacing(0, 0, 3, 0),
+    marginBottom: theme.spacing(2),
+  },
+  tooltipMobile: {
+    marginTop: theme.spacing(2),
   },
   centered: {
     alignItems: 'center',
@@ -66,6 +72,7 @@ export default function Toolbar({
 }: ToolbarProps & ToolbarAdditionalProps) {
   const classes = useStyles();
   const history = useHistory();
+  const isMobile = useMediaQuery('(max-width: 648px)');
 
   const query = useQuery();
 
@@ -166,39 +173,55 @@ export default function Toolbar({
   };
 
   return (
-    <div className={classes.tooltip}>
+    <div className={`${classes.tooltip} ${isMobile && classes.tooltipMobile}`}>
       <Grid container className={classes.centered} spacing={1}>
-        <Grid item sm={4} xs={12} className={classes.buttonGrp}>
-          <Button
-            variant="contained"
-            onClick={onNav('TODAY')}
-            data-cy="btn-view-today"
-          >
-            Today
-          </Button>
-          <Button
-            variant="contained"
-            onClick={onNav('PREV')}
-            data-cy="btn-view-prev"
-          >
-            Back
-          </Button>
-          <Button
-            variant="contained"
-            onClick={onNav('NEXT')}
-            data-cy="btn-view-next"
-          >
-            Next
-          </Button>
-          <Select
-            className={classes.calendarViewSelect}
-            value={view}
-            margin="dense"
-            onChange={(e) => onChangeView(e.target.value as View)}
-            data-cy="select-active-view"
-          >
-            {viewNamesGroup(messages)}
-          </Select>
+        <Grid item sm={4} xs={12}>
+          <Grid container spacing={2}>
+            <Grid item sm={4} xs={12}>
+              <Button
+                variant="contained"
+                onClick={onNav('TODAY')}
+                data-cy="btn-view-today"
+                fullWidth
+              >
+                Today
+              </Button>
+            </Grid>
+            <Grid item sm={4} xs={12}>
+              <Button
+                variant="contained"
+                onClick={onNav('PREV')}
+                data-cy="btn-view-prev"
+                fullWidth
+              >
+                Back
+              </Button>
+            </Grid>
+            <Grid item sm={4} xs={12}>
+              <Button
+                variant="contained"
+                onClick={onNav('NEXT')}
+                data-cy="btn-view-next"
+                fullWidth
+              >
+                Next
+              </Button>
+            </Grid>
+          </Grid>
+          <FormControl fullWidth margin="dense">
+            <InputLabel id="calendar-view-label">Calendar view</InputLabel>
+            <Select
+              className={classes.calendarViewSelect}
+              value={view}
+              label="Calendar view"
+              labelId="calendar-view-label"
+              margin="dense"
+              onChange={(e) => onChangeView(e.target.value as View)}
+              data-cy="select-active-view"
+            >
+              {viewNamesGroup(messages)}
+            </Select>
+          </FormControl>
         </Grid>
         <Grid item sm={2} xs={12} data-cy="content-calendar-toolbar">
           {label}

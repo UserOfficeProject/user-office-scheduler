@@ -128,7 +128,7 @@ function EnhancedTableHead<T>(props: EnhancedTableProps<T>) {
           id: 'id' as any, // TODO: use generic solution
           numeric: false,
           label: 'Actions',
-          padding: 'default',
+          padding: 'normal',
         },
         ...headCells,
       ]
@@ -370,7 +370,7 @@ export default function Table<T extends { [k: string]: any }>({
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (
+  const handleRowsPerPageChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
@@ -501,7 +501,7 @@ export default function Table<T extends { [k: string]: any }>({
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handlePageChange}
-        onChangeRowsPerPage={handleChangeRowsPerPage}
+        onRowsPerPageChange={handleRowsPerPageChange}
       />
     </>
   );

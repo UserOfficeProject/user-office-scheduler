@@ -2211,7 +2211,7 @@ export type QueryInstrumentArgs = {
 
 
 export type QueryInstrumentProposalBookingsArgs = {
-  instrumentId: Scalars['Int'];
+  instrumentIds: Array<Scalars['Int']>;
 };
 
 
@@ -2813,7 +2813,7 @@ export type ScheduledEventCore = {
 
 export type ScheduledEventFilter = {
   endsAt: Scalars['TzLessDateTime'];
-  instrumentId?: Maybe<Scalars['Int']>;
+  instrumentIds?: Maybe<Array<Scalars['Int']>>;
   startsAt: Scalars['TzLessDateTime'];
 };
 
@@ -3555,7 +3555,7 @@ export type FinalizeProposalBookingMutation = (
 );
 
 export type GetInstrumentProposalBookingsQueryVariables = Exact<{
-  instrumentId: Scalars['Int'];
+  instrumentIds: Array<Scalars['Int']> | Scalars['Int'];
   filter: ProposalBookingScheduledEventFilter;
 }>;
 
@@ -3792,7 +3792,7 @@ export type GetScheduledEventsQuery = (
     & Pick<ScheduledEvent, 'id' | 'bookingType' | 'equipmentId' | 'startsAt' | 'endsAt' | 'status' | 'description'>
     & { instrument: Maybe<(
       { __typename?: 'Instrument' }
-      & Pick<Instrument, 'name'>
+      & Pick<Instrument, 'id' | 'name'>
     )>, scheduledBy: Maybe<(
       { __typename?: 'User' }
       & Pick<User, 'firstname' | 'lastname'>
@@ -4086,8 +4086,8 @@ export const FinalizeProposalBookingDocument = gql`
 }
     `;
 export const GetInstrumentProposalBookingsDocument = gql`
-    query getInstrumentProposalBookings($instrumentId: Int!, $filter: ProposalBookingScheduledEventFilter!) {
-  instrumentProposalBookings(instrumentId: $instrumentId) {
+    query getInstrumentProposalBookings($instrumentIds: [Int!]!, $filter: ProposalBookingScheduledEventFilter!) {
+  instrumentProposalBookings(instrumentIds: $instrumentIds) {
     id
     call {
       id
@@ -4326,6 +4326,7 @@ export const GetScheduledEventsDocument = gql`
     status
     description
     instrument {
+      id
       name
     }
     scheduledBy {

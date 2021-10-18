@@ -332,7 +332,7 @@ export default function BookingEventStep({
 
       <DialogContent>
         <Grid container spacing={2}>
-          <Grid item xs={6}>
+          <Grid item sm={6}>
             <List className={classes.list} dense>
               <ListItem disableGutters>
                 <ListItemAvatar>
@@ -367,7 +367,7 @@ export default function BookingEventStep({
               </ListItem>
             </List>
           </Grid>
-          <Grid item xs={6}>
+          <Grid item sm={6}>
             <List className={classes.list} dense>
               <ListItem disableGutters>
                 <ListItemAvatar>

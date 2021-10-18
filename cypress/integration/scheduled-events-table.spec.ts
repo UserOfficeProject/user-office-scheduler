@@ -37,13 +37,15 @@ context('Scheduled events table tests', () => {
       description: 'Test maintenance event',
     };
     it('should be able to switch between scheduled events table view and calendar view', () => {
-      cy.get('[data-cy="toggle-table-view"]').click();
+      cy.get('[data-cy="scheduler-active-view"]').click();
+      cy.get('[data-value="Table"]').click();
 
       cy.get('[data-cy="scheduled-events-table"]').should('exist');
 
       cy.get('.rbc-time-view').should('not.exist');
 
-      cy.get('[data-cy="toggle-table-view"]').click();
+      cy.get('[data-cy="scheduler-active-view"]').click();
+      cy.get('[data-value="Calendar"]').click();
 
       cy.get('.rbc-time-view').should('exist');
 
@@ -75,7 +77,8 @@ context('Scheduled events table tests', () => {
 
       cy.get('[data-cy="btn-close-dialog"]').click();
 
-      cy.get('[data-cy="toggle-table-view"]').click();
+      cy.get('[data-cy="scheduler-active-view"]').click();
+      cy.get('[data-value="Table"]').click();
 
       cy.get('[data-cy="scheduled-events-table"]').should('exist');
 
@@ -108,7 +111,8 @@ context('Scheduled events table tests', () => {
 
       cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
 
-      cy.get('[data-cy="toggle-table-view"]').click();
+      cy.get('[data-cy="scheduler-active-view"]').click();
+      cy.get('[data-value="Table"]').click();
 
       cy.get('[data-cy="scheduled-events-table"]').should('exist');
 
@@ -135,7 +139,8 @@ context('Scheduled events table tests', () => {
 
       cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
 
-      cy.get('[data-cy="toggle-table-view"]').click();
+      cy.get('[data-cy="scheduler-active-view"]').click();
+      cy.get('[data-value="Table"]').click();
 
       cy.get('[data-cy="scheduled-events-table"]').should('exist');
 
@@ -196,7 +201,8 @@ context('Scheduled events table tests', () => {
 
       cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
 
-      cy.get('[data-cy="toggle-table-view"]').click();
+      cy.get('[data-cy="scheduler-active-view"]').click();
+      cy.get('[data-value="Table"]').click();
 
       cy.contains(newScheduledEvent_1.endsAt)
         .parent()
@@ -244,7 +250,8 @@ context('Scheduled events table tests', () => {
 
       cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
 
-      cy.get('[data-cy="toggle-table-view"]').click();
+      cy.get('[data-cy="scheduler-active-view"]').click();
+      cy.get('[data-value="Table"]').click();
 
       cy.get('[data-cy="scheduled-events-table"]').should('exist');
 
@@ -306,7 +313,8 @@ context('Scheduled events table tests', () => {
 
       cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
 
-      cy.get('[data-cy="toggle-table-view"]').click();
+      cy.get('[data-cy="scheduler-active-view"]').click();
+      cy.get('[data-value="Table"]').click();
 
       cy.get('[data-cy="scheduled-events-table"]').should('exist');
 
@@ -336,7 +344,8 @@ context('Scheduled events table tests', () => {
 
       cy.finishedLoading();
 
-      cy.get('[data-cy="toggle-table-view"]').click();
+      cy.get('[data-cy="scheduler-active-view"]').click();
+      cy.get('[data-value="Table"]').click();
 
       cy.get('[data-cy=table-toolbar-endsAt] input').should(
         'have.value',

@@ -11,6 +11,7 @@ query getScheduledEvents(
     status
     description
     instrument {
+      id
       name
     }
     scheduledBy {

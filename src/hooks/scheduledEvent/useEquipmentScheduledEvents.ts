@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import { GetEquipmentScheduledEventsQuery, Scalars } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
@@ -7,37 +7,43 @@ export default function useEquipmentScheduledEvents({
   equipmentIds,
   startsAt,
   endsAt,
+  shouldGetAll = false,
 }: {
   startsAt: Scalars['TzLessDateTime'];
   endsAt: Scalars['TzLessDateTime'];
-  equipmentIds?: number[];
+  equipmentIds: number[];
+  shouldGetAll?: boolean;
 }) {
   const [loading, setLoading] = useState(true);
   const [scheduledEvents, setScheduledEvents] = useState<
     GetEquipmentScheduledEventsQuery['equipments']
   >([]);
-  const equipmentIdsArray = equipmentIds?.flatMap((equipmentId) =>
-    equipmentId ? [equipmentId] : []
-  );
-
-  const [selectedEquipment, setSelectedEquipments] = useState<
-    number[] | undefined
-  >(equipmentIdsArray);
+  const [counter, setCounter] = useState<number>(0);
+  // NOTE: We need to stringify the ids array before we pass it to the useEffect dependency array because of its comparison.
+  const equipmentIdsStringified = JSON.stringify(equipmentIds);
 
   const api = useDataApi();
 
+  const refresh = useCallback(() => {
+    setCounter((prev) => prev + 1);
+  }, [setCounter]);
+
   useEffect(() => {
-    let unmounted = false;
+    const equipmentIdsArray = JSON.parse(equipmentIdsStringified);
     setLoading(true);
 
-    if (!selectedEquipment) {
+    if (!equipmentIdsArray?.length && !shouldGetAll) {
+      setScheduledEvents([]);
       setLoading(false);
 
       return;
     }
+
+    let unmounted = false;
+
     api()
       .getEquipmentScheduledEvents({
-        equipmentIds: selectedEquipment,
+        equipmentIds: equipmentIdsArray,
         startsAt,
         endsAt,
       })
@@ -57,13 +63,12 @@ export default function useEquipmentScheduledEvents({
     return () => {
       unmounted = true;
     };
-  }, [selectedEquipment, api, startsAt, endsAt]);
+  }, [equipmentIdsStringified, api, startsAt, endsAt, counter]);
 
   return {
     loading,
     scheduledEvents,
-    selectedEquipment,
-    setSelectedEquipments,
     setScheduledEvents,
+    refresh,
   } as const;
 }

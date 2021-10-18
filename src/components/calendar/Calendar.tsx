@@ -204,6 +204,22 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+export const getInstrumentIdsFromQuery = (queryInstrument: string | null) => {
+  const queryInstrumentArray = queryInstrument?.split(',');
+  const queryInstrumentIds = queryInstrumentArray?.map((item) =>
+    parseInt(item)
+  );
+
+  return queryInstrumentIds || [];
+};
+
+const getEquipmentIdsFromQuery = (queryEquipment: string | null) => {
+  const queryEquipmentArray = queryEquipment?.split(',');
+  const queryEquipmentIds = queryEquipmentArray?.map((item) => parseInt(item));
+
+  return queryEquipmentIds || [];
+};
+
 export default function Calendar() {
   const isTabletOrMobile = useMediaQuery('(max-width: 1224px)');
   const isTabletOrLarger = useMediaQuery('(min-width: 648px)');
@@ -213,12 +229,10 @@ export default function Calendar() {
   const history = useHistory();
   const query = useQuery();
 
+  const queryInstrument = query.get('instrument');
+  const queryEquipment = query.get('equipment');
   const querySchedulerView = query.get('schedulerView');
-  const queryInstrument = query.get('instrument')?.split(',');
   const queryView = query.get('viewPeriod');
-  const queryInstrumentIds = queryInstrument?.map((item) => parseInt(item));
-  const queryEquipment = query.get('equipment')?.split(',');
-  const queryEquipmentNumbers = queryEquipment?.map((item) => parseInt(item));
 
   const [schedulerActiveView, setSchedulerActiveView] = useState(
     (querySchedulerView as SchedulerViews) || SchedulerViews.CALENDAR
@@ -240,7 +254,11 @@ export default function Calendar() {
       .toDate()
   );
   const [filter, setFilter] = useState(
-    generateScheduledEventFilter(queryInstrumentIds, startsAt, view)
+    generateScheduledEventFilter(
+      getInstrumentIdsFromQuery(queryInstrument),
+      startsAt,
+      view
+    )
   );
   const [selectedProposalBooking, setSelectedProposalBooking] = useState<{
     proposalBookingId: number | null;
@@ -266,12 +284,14 @@ export default function Calendar() {
       schedulerActiveView === SchedulerViews.CALENDAR ||
       schedulerActiveView === SchedulerViews.TABLE
     ) {
+      const queryInstrumentIds = getInstrumentIdsFromQuery(queryInstrument);
+      // NOTE: If table or calendar view set the selected instrument to first one if multiple are selected in timeline view.
       if (queryInstrumentIds && queryInstrumentIds.length > 1) {
         query.set('instrument', `${queryInstrumentIds[0]}`);
         history.push(`?${query}`);
       }
     }
-  }, [schedulerActiveView, history, query, queryInstrumentIds]);
+  }, [schedulerActiveView, history, query, queryInstrument]);
 
   const {
     proposalBookings,
@@ -279,83 +299,42 @@ export default function Calendar() {
     refresh: refreshBookings,
     setSelectedInstruments: setProposalBookingSelectedInstruments,
     selectedInstruments: proposalBookingSelectedInstruments,
-  } = useInstrumentProposalBookings(queryInstrumentIds);
+  } = useInstrumentProposalBookings(getInstrumentIdsFromQuery(queryInstrument));
 
   const {
     scheduledEvents,
     loading: loadingEvents,
     refresh: refreshEvents,
-    selectedInstruments,
-    setSelectedInstruments,
   } = useScheduledEvents(filter);
 
-  const {
-    scheduledEvents: eqEvents,
-    setScheduledEvents,
-    selectedEquipment,
-    setSelectedEquipments,
-  } = useEquipmentScheduledEvents({
-    equipmentIds: queryEquipmentNumbers,
-    startsAt: filter.startsAt,
-    endsAt: filter.endsAt,
-  });
+  const { scheduledEvents: eqEvents, refresh: refreshEquipments } =
+    useEquipmentScheduledEvents({
+      equipmentIds: getEquipmentIdsFromQuery(queryEquipment),
+      startsAt: filter.startsAt,
+      endsAt: filter.endsAt,
+    });
 
   const equipmentEventsOnly = eqEvents.map((eqEvent) => eqEvent.events).flat(1);
 
   const refresh = () => {
     refreshEvents();
     refreshBookings();
+    refreshEquipments();
   };
 
   useEffect(() => {
-    if (!selectedEquipment && !queryEquipment) {
-      setScheduledEvents([]);
-    }
-
-    if (
-      selectedEquipment?.length !== queryEquipment?.length ||
-      !selectedEquipment?.every((eq) => queryEquipment?.includes(eq.toString()))
-    ) {
-      setSelectedEquipments(queryEquipmentNumbers);
-    }
-  }, [
-    selectedEquipment,
-    queryEquipment,
-    setSelectedEquipments,
-    setScheduledEvents,
-    queryEquipmentNumbers,
-  ]);
-
-  useEffect(() => {
-    if (
-      selectedInstruments?.length !== queryInstrumentIds?.length ||
-      !selectedInstruments?.every((eq) => queryInstrumentIds?.includes(eq))
-    ) {
-      setSelectedInstruments(queryInstrumentIds);
-      setFilter(
-        generateScheduledEventFilter(
-          queryInstrumentIds,
-          startsAt,
-          (queryView as ExtendedView) || view
-        )
-      );
-    }
-    if (
-      proposalBookingSelectedInstruments?.length !==
-        queryInstrumentIds?.length ||
-      !proposalBookingSelectedInstruments?.every((eq) =>
-        queryInstrumentIds?.includes(eq)
+    setFilter(
+      generateScheduledEventFilter(
+        getInstrumentIdsFromQuery(queryInstrument),
+        startsAt,
+        (queryView as ExtendedView) || view
       )
-    ) {
-      setProposalBookingSelectedInstruments(queryInstrumentIds);
-    }
+    );
   }, [
-    queryInstrumentIds,
+    queryInstrument,
     startsAt,
     view,
     queryView,
-    selectedInstruments,
-    setSelectedInstruments,
     proposalBookingSelectedInstruments,
     setProposalBookingSelectedInstruments,
   ]);
@@ -389,7 +368,11 @@ export default function Calendar() {
     setView(newView);
 
     setFilter(
-      generateScheduledEventFilter(queryInstrumentIds, newDate, newView)
+      generateScheduledEventFilter(
+        getInstrumentIdsFromQuery(queryInstrument),
+        newDate,
+        newView
+      )
     );
   };
 
@@ -397,7 +380,11 @@ export default function Calendar() {
     setView(newView);
 
     setFilter(
-      generateScheduledEventFilter(queryInstrumentIds, startsAt, newView)
+      generateScheduledEventFilter(
+        getInstrumentIdsFromQuery(queryInstrument),
+        startsAt,
+        newView
+      )
     );
   };
 
@@ -547,7 +534,9 @@ export default function Calendar() {
             {queryInstrument && (
               <ScheduledEventDialog
                 selectedEvent={selectedEvent}
-                selectedInstrumentId={queryInstrumentIds?.[0] || 0}
+                selectedInstrumentId={
+                  getInstrumentIdsFromQuery(queryInstrument)[0] || 0
+                }
                 isDialogOpen={selectedEvent !== null}
                 closeDialog={closeDialog}
               />

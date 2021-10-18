@@ -21,9 +21,7 @@ export type InstrumentProposalBooking = Pick<
   proposal: Pick<Proposal, 'primaryKey' | 'title' | 'proposalId'>;
 };
 
-export default function useInstrumentProposalBookings(
-  instrumentIds: number[] | null | undefined
-) {
+export default function useInstrumentProposalBookings(instrumentIds: number[]) {
   const [loading, setLoading] = useState(false);
   const [proposalBookings, setProposalBookings] = useState<
     InstrumentProposalBooking[]
@@ -38,6 +36,8 @@ export default function useInstrumentProposalBookings(
   >(instrumentIdsArray);
 
   const [counter, setCounter] = useState<number>(0);
+  // NOTE: We need to stringify the ids array before we pass it to the useEffect dependency array because of its comparison.
+  const instrumentIdsStringified = JSON.stringify(instrumentIds);
 
   const refresh = useCallback(() => {
     setCounter((prev) => prev + 1);
@@ -46,9 +46,11 @@ export default function useInstrumentProposalBookings(
   const api = useDataApi();
 
   useEffect(() => {
+    const instrumentIdsArray = JSON.parse(instrumentIdsStringified);
+
     setLoading(true);
 
-    if (!selectedInstruments?.length) {
+    if (!instrumentIdsArray?.length) {
       setProposalBookings([]);
       setLoading(false);
 
@@ -58,7 +60,7 @@ export default function useInstrumentProposalBookings(
 
     api()
       .getInstrumentProposalBookings({
-        instrumentIds: selectedInstruments,
+        instrumentIds: instrumentIdsArray,
         filter: {},
       })
       .then((data) => {
@@ -81,7 +83,7 @@ export default function useInstrumentProposalBookings(
     return () => {
       unmount = true;
     };
-  }, [selectedInstruments, api, counter]);
+  }, [instrumentIdsStringified, api, counter]);
 
   return {
     loading,

@@ -7,10 +7,12 @@ export default function useEquipmentScheduledEvents({
   equipmentIds,
   startsAt,
   endsAt,
+  shouldGetAll = false,
 }: {
   startsAt: Scalars['TzLessDateTime'];
   endsAt: Scalars['TzLessDateTime'];
   equipmentIds: number[];
+  shouldGetAll?: boolean;
 }) {
   const [loading, setLoading] = useState(true);
   const [scheduledEvents, setScheduledEvents] = useState<
@@ -30,7 +32,7 @@ export default function useEquipmentScheduledEvents({
     const equipmentIdsArray = JSON.parse(equipmentIdsStringified);
     setLoading(true);
 
-    if (!equipmentIdsArray?.length) {
+    if (!equipmentIdsArray?.length && !shouldGetAll) {
       setScheduledEvents([]);
       setLoading(false);
 

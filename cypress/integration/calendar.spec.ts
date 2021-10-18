@@ -170,6 +170,7 @@ context('Calendar tests', () => {
       cy.get('[data-cy=select-active-view]').click();
 
       cy.get('[role=listbox] [role=option][data-value="month"]').click();
+      cy.finishedLoading();
       cy.get('[data-cy="btn-view-today"]').click();
 
       cy.get('[data-cy=content-calendar-toolbar]').should(
@@ -255,6 +256,8 @@ context('Calendar tests', () => {
         .first()
         .click();
 
+      cy.finishedLoading();
+
       const slot = new Date(currentHourDateTime).toISOString();
       cy.get(`.rbc-day-slot [data-cy='event-slot-${slot}']`).scrollIntoView();
 
@@ -292,6 +295,8 @@ context('Calendar tests', () => {
       cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
         .first()
         .click();
+
+      cy.finishedLoading();
 
       const slot = new Date(currentHourDateTime).toISOString();
       cy.get(`.rbc-day-slot [data-cy='event-slot-${slot}']`).scrollIntoView();

@@ -12,18 +12,12 @@ export default function useScheduledEvents({
   const [scheduledEvents, setScheduledEvents] = useState<
     GetScheduledEventsQuery['scheduledEvents']
   >([]);
-
-  const instrumentIdsArray = instrumentIds?.flatMap((instrumentId) =>
-    instrumentId ? [instrumentId] : []
-  );
-
-  const [selectedInstruments, setSelectedInstruments] = useState<
-    number[] | undefined
-  >(instrumentIdsArray);
   // may look stupid, but basically lets us provide a refresh option
   // and we won't get a warning when the component gets unmounted while
   // the promise still pending
   const [counter, setCounter] = useState<number>(0);
+  // NOTE: We need to stringify the ids array before we pass it to the useEffect dependency array because of its comparison.
+  const instrumentIdsStringified = JSON.stringify(instrumentIds);
 
   const api = useDataApi();
 
@@ -33,10 +27,11 @@ export default function useScheduledEvents({
 
   useEffect(() => {
     let unmount = false;
+    const instrumentIdsArray = JSON.parse(instrumentIdsStringified);
 
     setLoading(true);
 
-    if (!selectedInstruments?.length) {
+    if (!instrumentIdsArray?.length) {
       setScheduledEvents([]);
       setLoading(false);
 
@@ -45,7 +40,7 @@ export default function useScheduledEvents({
 
     api()
       .getScheduledEvents({
-        filter: { startsAt, endsAt, instrumentIds: selectedInstruments },
+        filter: { startsAt, endsAt, instrumentIds: instrumentIdsArray },
         scheduledEventFilter: {},
       })
       .then((data) => {
@@ -63,13 +58,11 @@ export default function useScheduledEvents({
     return () => {
       unmount = true;
     };
-  }, [counter, startsAt, endsAt, selectedInstruments, api]);
+  }, [counter, startsAt, endsAt, instrumentIdsStringified, api]);
 
   return {
     loading,
     scheduledEvents,
     refresh,
-    selectedInstruments,
-    setSelectedInstruments,
   } as const;
 }

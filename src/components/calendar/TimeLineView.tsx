@@ -24,7 +24,7 @@ import { useQuery } from 'hooks/common/useQuery';
 import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 import { toTzLessDateTime } from 'utils/date';
 
-import { ExtendedView } from './Calendar';
+import { ExtendedView, getInstrumentIdsFromQuery } from './Calendar';
 import { CalendarScheduledEvent, getBookingTypeStyle } from './Event';
 
 enum TimelineViewPeriods {
@@ -74,7 +74,7 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
   const isMobile = useMediaQuery('(max-width: 648px)');
 
   const queryView = query.get('viewPeriod');
-  const queryInstruments = query.get('instrument')?.split(',');
+  const queryInstrument = query.get('instrument');
 
   const [timelineViewPeriod, setTimelineViewPeriod] = useState(
     (queryView as TimelineViewPeriods) || TimelineViewPeriods.WEEK
@@ -99,18 +99,20 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
   >([]);
 
   useEffect(() => {
+    const queryInstrumentIds = getInstrumentIdsFromQuery(queryInstrument);
+
     if (
       selectedInstruments?.length === 0 &&
-      queryInstruments?.length !== 0 &&
+      queryInstrumentIds.length !== 0 &&
       instruments
     ) {
       setSelectedInstruments(
-        instruments.filter((item) => queryInstruments?.includes(`${item.id}`))
+        instruments.filter((item) => queryInstrumentIds.includes(item.id))
       );
     }
   }, [
     instruments,
-    queryInstruments,
+    queryInstrument,
     setSelectedInstruments,
     selectedInstruments?.length,
   ]);
@@ -306,7 +308,7 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
 
     setFilter(
       generateScheduledEventFilter(
-        queryInstruments?.map((item) => parseInt(item)),
+        getInstrumentIdsFromQuery(queryInstrument),
         newVisibleTimeStart.toDate(),
         currentTimelinePeriod as ExtendedView
       )

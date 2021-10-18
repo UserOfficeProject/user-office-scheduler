@@ -27,15 +27,25 @@ export default class ScheduledEventQueries {
     ctx: ResolverContext,
     filter: ScheduledEventFilter
   ): Promise<ScheduledEvent[]> {
-    if (!filter.instrumentId) {
+    if (!filter.instrumentIds?.length) {
       return [];
     }
 
-    if (!(await instrumentScientistHasInstrument(ctx, filter.instrumentId))) {
-      return [];
-    }
+    const results = await Promise.all(
+      filter.instrumentIds.map(
+        async (instrumentId) =>
+          await instrumentScientistHasInstrument(ctx, instrumentId)
+      )
+    );
 
-    return this.scheduledEventDataSource.getAll(filter);
+    const newInstrumentIdsByRole = filter.instrumentIds.filter(
+      (_item, index) => results[index]
+    );
+
+    return this.scheduledEventDataSource.getAll({
+      ...filter,
+      instrumentIds: newInstrumentIdsByRole,
+    });
   }
 
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST, Roles.USER])

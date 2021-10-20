@@ -121,8 +121,6 @@ export default function TimeSlotDetailsStep({
   const [editingStartDate, setEditingStartDate] = useState(false);
 
   const [editingEndDate, setEditingEndDate] = useState(false);
-  const [showStartsAtEditIcon, setShowStartsAtEditIcon] = useState(false);
-  const [showEndsAtEditIcon, setShowEndsAtEditIcon] = useState(false);
 
   const isStepReadOnly = activeStatus !== ProposalBookingStatusCore.DRAFT;
 
@@ -150,16 +148,6 @@ export default function TimeSlotDetailsStep({
   const handleOnSave = () => {
     if (!startsAt || !endsAt || !startsAt.isValid() || !endsAt.isValid()) {
       // when the value is empty or invalid it is quite obvious why we prevent save
-      return;
-    }
-
-    if (startsAt >= endsAt) {
-      // when the starting date is after ending date
-      // it may be less obvious for the user, show alert
-      showAlert({
-        message: 'The starting date needs to be before the ending date',
-      });
-
       return;
     }
 
@@ -197,10 +185,20 @@ export default function TimeSlotDetailsStep({
     };
   }, [proposalBooking]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (shouldMoveForward = false) => {
     try {
       setIsLoading(true);
       if (!startsAt || !endsAt) {
+        return;
+      }
+
+      if (startsAt >= endsAt) {
+        // when the starting date is after ending date
+        // it may be less obvious for the user, show alert
+        showAlert({
+          message: 'The starting date needs to be before the ending date',
+        });
+
         return;
       }
 
@@ -213,6 +211,7 @@ export default function TimeSlotDetailsStep({
           endsAt: toTzLessDateTime(endsAt),
         },
       });
+
       if (error) {
         enqueueSnackbar(getTranslation(error as ResourceId), {
           variant: 'error',
@@ -226,6 +225,8 @@ export default function TimeSlotDetailsStep({
           });
       }
       handleSetDirty(false);
+
+      shouldMoveForward && handleNext();
     } catch (e) {
       // TODO
       console.error(e);
@@ -266,8 +267,7 @@ export default function TimeSlotDetailsStep({
   };
 
   const saveAndContinue = async () => {
-    await handleSubmit();
-    handleNext();
+    await handleSubmit(true);
   };
 
   const handleSaveAndContinue = async () => {
@@ -303,21 +303,15 @@ export default function TimeSlotDetailsStep({
                     <>
                       <ListItemText
                         onClick={() => setEditingStartDate(!isStepReadOnly)}
-                        onMouseOver={() =>
-                          setShowStartsAtEditIcon(!isStepReadOnly)
-                        }
-                        onMouseLeave={() => setShowStartsAtEditIcon(false)}
                         primary="Starts at"
                         data-cy="startsAtInfo"
                         secondary={
                           <>
                             {toTzLessDateTime(startsAt as Moment)}
-                            {showStartsAtEditIcon && (
-                              <Edit
-                                fontSize="small"
-                                className={classes.editIcon}
-                              />
-                            )}
+                            <Edit
+                              fontSize="small"
+                              className={classes.editIcon}
+                            />
                           </>
                         }
                       />
@@ -447,18 +441,11 @@ export default function TimeSlotDetailsStep({
                     <ListItemText
                       primary="Ends at"
                       data-cy="endsAtInfo"
-                      onMouseOver={() => setShowEndsAtEditIcon(!isStepReadOnly)}
-                      onMouseLeave={() => setShowEndsAtEditIcon(false)}
                       onClick={() => setEditingEndDate(!isStepReadOnly)}
                       secondary={
                         <>
                           {toTzLessDateTime(endsAt as Moment)}
-                          {showEndsAtEditIcon && (
-                            <Edit
-                              fontSize="small"
-                              className={classes.editIcon}
-                            />
-                          )}
+                          <Edit fontSize="small" className={classes.editIcon} />
                         </>
                       }
                     />

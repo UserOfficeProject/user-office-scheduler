@@ -101,10 +101,10 @@ context('Proposal booking tests ', () => {
         cy.contains('Proposal ID');
         cy.get('[title="Add time slot"]').click();
 
+        cy.finishedLoading();
+
         cy.contains(currentHourDateTime);
         cy.contains(getHourDateTimeAfter(24));
-
-        cy.get('[title="Edit event"]').click();
 
         cy.contains(/Time slot booking/i);
 
@@ -166,7 +166,7 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy="btn-next"]').click();
         cy.finishedLoading();
         cy.get('[data-cy="btn-close-event-dialog"]').click();
-        cy.wait(100);
+        cy.finishedLoading();
 
         cy.get('[data-cy="some-event-outside-cycle-interval-warning"]').should(
           'exist'
@@ -200,7 +200,7 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy="btn-next"]').click();
         cy.finishedLoading();
         cy.get('[data-cy="btn-close-event-dialog"]').click();
-        cy.wait(100);
+        cy.finishedLoading();
         cy.get('[data-cy="btn-close-dialog"]').click();
 
         cy.finishedLoading();
@@ -260,6 +260,8 @@ context('Proposal booking tests ', () => {
         cy.finishedLoading();
         cy.get('[title="Add time slot"]').click();
         cy.finishedLoading();
+        cy.get('[data-cy="btn-close-event-dialog"]').click();
+        cy.finishedLoading();
 
         cy.get('.MuiTable-root input[type="checkbox"]').first().click();
 
@@ -278,7 +280,6 @@ context('Proposal booking tests ', () => {
         cy.finishedLoading();
         cy.get('[title="Add time slot"]').click();
         cy.finishedLoading();
-        cy.get('[title="Edit event"]').click();
 
         cy.get('[data-cy="startsAtInfo"]').click();
         cy.get('[data-cy="startsAt"] input')
@@ -287,10 +288,13 @@ context('Proposal booking tests ', () => {
 
         cy.get('[data-cy=btn-time-table-save-row]').click();
 
+        cy.get('[data-cy="btn-next"]').click();
+
         cy.contains(/warning/i);
         cy.contains(/the starting date needs to be before the ending date/i);
         cy.get('[data-cy="btn-back"]').click();
 
+        cy.get('[data-cy="startsAtInfo"]').click();
         cy.get('[data-cy="startsAt"] input')
           .clear()
           .type(getHourDateTimeAfter(23));
@@ -303,6 +307,8 @@ context('Proposal booking tests ', () => {
           .type(getHourDateTimeAfter(20));
 
         cy.get('[data-cy=btn-time-table-save-row]').click();
+
+        cy.get('[data-cy="btn-next"]').click();
 
         cy.contains(/warning/i);
         cy.contains(/the starting date needs to be before the ending date/i);
@@ -411,7 +417,7 @@ context('Proposal booking tests ', () => {
       it('should show available equipments that are booked by proposals that instrument scientist is part of even if he/she is not equipment owner or responsible', () => {
         cy.finishedLoading();
         cy.get('[data-cy="btn-close-event-dialog"]').click();
-        cy.wait(100);
+        cy.finishedLoading();
         cy.get('[data-cy="btn-close-dialog"]').click();
         cy.finishedLoading();
 
@@ -476,7 +482,7 @@ context('Proposal booking tests ', () => {
       it('should be able to open time slot by clicking on the calendar equipment event', () => {
         cy.finishedLoading();
         cy.get('[data-cy="btn-close-event-dialog"]').click();
-        cy.wait(100);
+        cy.finishedLoading();
         cy.get('[data-cy="btn-close-dialog"]').click();
         cy.finishedLoading();
 

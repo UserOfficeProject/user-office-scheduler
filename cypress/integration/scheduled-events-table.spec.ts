@@ -69,13 +69,16 @@ context('Scheduled events table tests', () => {
         .click();
 
       cy.get('[title="Add time slot"]').click();
+      cy.finishedLoading();
 
       cy.contains(currentHourDateTime);
       cy.contains(getHourDateTimeAfter(24));
 
-      cy.wait(100);
+      cy.get('[data-cy="btn-close-event-dialog"]').click();
+      cy.finishedLoading();
 
       cy.get('[data-cy="btn-close-dialog"]').click();
+      cy.finishedLoading();
 
       cy.get('[data-cy="scheduler-active-view"]').click();
       cy.get('[data-value="Table"]').click();

@@ -281,6 +281,12 @@ export default function Calendar() {
   }, [isTabletOrMobile]);
 
   useEffect(() => {
+    if (!querySchedulerView) {
+      setSchedulerActiveView(SchedulerViews.CALENDAR);
+    }
+  }, [querySchedulerView]);
+
+  useEffect(() => {
     if (
       schedulerActiveView === SchedulerViews.CALENDAR ||
       schedulerActiveView === SchedulerViews.TABLE

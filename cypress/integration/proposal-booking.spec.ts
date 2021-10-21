@@ -319,8 +319,6 @@ context('Proposal booking tests ', () => {
         cy.get('[title="Add time slot"]').click();
         cy.finishedLoading();
 
-        cy.get('[title="Edit event"]').last().click();
-
         cy.get('[data-cy="startsAtInfo"]').click();
         cy.get('[data-cy="startsAt"] input').clear().type(currentHourDateTime);
 

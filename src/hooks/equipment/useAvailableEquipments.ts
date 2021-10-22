@@ -3,19 +3,19 @@ import { useState, useEffect } from 'react';
 import { Equipment } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 
+export type EquipmentPartial = Pick<
+  Equipment,
+  | 'id'
+  | 'name'
+  | 'description'
+  | 'maintenanceStartsAt'
+  | 'maintenanceEndsAt'
+  | 'autoAccept'
+>;
+
 export default function useAvailableEquipments(scheduledEventId: number) {
   const [loading, setLoading] = useState(true);
-  const [equipments, setEquipments] = useState<
-    Pick<
-      Equipment,
-      | 'id'
-      | 'name'
-      | 'description'
-      | 'maintenanceStartsAt'
-      | 'maintenanceEndsAt'
-      | 'autoAccept'
-    >[]
-  >([]);
+  const [equipments, setEquipments] = useState<EquipmentPartial[]>([]);
 
   const api = useDataApi();
 

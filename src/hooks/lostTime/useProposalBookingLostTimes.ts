@@ -9,7 +9,7 @@ export type ProposalBookingLostTime = Pick<
 >;
 
 export default function useProposalBookingLostTimes(
-  proposalBookingId: number,
+  proposalBookingId?: number,
   scheduledEventId?: number
 ) {
   const [loading, setLoading] = useState(true);
@@ -19,6 +19,10 @@ export default function useProposalBookingLostTimes(
 
   useEffect(() => {
     let unmount = false;
+
+    if (!proposalBookingId) {
+      return;
+    }
 
     setLoading(true);
     api()
@@ -41,5 +45,5 @@ export default function useProposalBookingLostTimes(
     };
   }, [proposalBookingId, scheduledEventId, api]);
 
-  return { loading, lostTimes } as const;
+  return { loading, lostTimes, setLostTimes } as const;
 }

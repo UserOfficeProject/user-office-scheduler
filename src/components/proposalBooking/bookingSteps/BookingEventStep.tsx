@@ -3,10 +3,12 @@ import MaterialTable, { Column } from '@material-table/core';
 import {
   Avatar,
   Button,
+  CircularProgress,
   DialogActions,
   DialogContent,
   Divider,
   Grid,
+  IconButton,
   List,
   ListItem,
   ListItemAvatar,
@@ -85,7 +87,7 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
   },
   root: {
-    '& .MuiToolbar-root .MuiIconButton-root': {
+    '& .MuiToolbar-root button.MuiIconButton-root': {
       backgroundColor: 'unset !important',
       padding: 0,
     },
@@ -460,7 +462,15 @@ export default function BookingEventStep({
               position: 'row',
             },
             {
-              icon: DeleteIcon,
+              icon: () => (
+                <IconButton
+                  component="span"
+                  color="inherit"
+                  disabled={isLoading}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              ),
               tooltip: 'Delete time slots',
               onClick: (event, data) => {
                 showConfirmation({
@@ -479,7 +489,13 @@ export default function BookingEventStep({
                   variant="contained"
                   color="primary"
                   component="span"
-                  startIcon={<AddIcon />}
+                  startIcon={
+                    isAddingNewTimeSlot ? (
+                      <CircularProgress size={20} color="inherit" />
+                    ) : (
+                      <AddIcon />
+                    )
+                  }
                   disabled={isAddingNewTimeSlot}
                 >
                   Add time slot

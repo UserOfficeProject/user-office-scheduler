@@ -42,7 +42,7 @@ export default function ConfirmationDialog({
         {title ?? 'Confirmation'}
       </DialogTitle>
       <DialogContent>
-        <DialogContentText id="confirmation-dialog-description">
+        <DialogContentText id="confirmation-dialog-description" component="div">
           {message}
         </DialogContentText>
       </DialogContent>

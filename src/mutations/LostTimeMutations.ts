@@ -1,15 +1,19 @@
 import { logger } from '@esss-swap/duo-logger';
-import { bulkUpsertLostTimeValidationSchema } from '@esss-swap/duo-validation';
+// import { bulkUpsertLostTimeValidationSchema } from '@esss-swap/duo-validation';
 
 import { ResolverContext } from '../context';
 import { LostTimeDataSource } from '../datasources/LostTimeDataSource';
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
 import Authorized from '../decorators/Authorized';
-import ValidateArgs from '../decorators/ValidateArgs';
+// import ValidateArgs from '../decorators/ValidateArgs';
 import { instrumentScientistHasAccess } from '../helpers/permissionHelpers';
 import { LostTime } from '../models/LostTime';
 import { rejection, Rejection } from '../rejection';
-import { BulkUpsertLostTimesInput } from '../resolvers/mutations/LostTimeMutation';
+import {
+  AddLostTimeInput,
+  DeleteLostTimeInput,
+  UpdateLostTimeInput,
+} from '../resolvers/mutations/LostTimeMutation';
 import { Roles } from '../types/shared';
 
 export default class LostTimeMutations {
@@ -18,14 +22,14 @@ export default class LostTimeMutations {
     private proposalBookingDataSource: ProposalBookingDataSource
   ) {}
 
-  @ValidateArgs(bulkUpsertLostTimeValidationSchema)
+  // @ValidateArgs(bulkUpsertLostTimeValidationSchema)
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
-  async bulkUpsert(
+  async addLostTime(
     ctx: ResolverContext,
-    bulkUpsertLostTimes: BulkUpsertLostTimesInput
-  ): Promise<LostTime[] | Rejection> {
+    addLostTimeInput: AddLostTimeInput
+  ): Promise<LostTime | Rejection> {
     const proposalBooking = await this.proposalBookingDataSource.get(
-      bulkUpsertLostTimes.proposalBookingId
+      addLostTimeInput.proposalBookingId
     );
 
     if (!proposalBooking) {
@@ -37,9 +41,37 @@ export default class LostTimeMutations {
     }
 
     return this.lostTimeDataSource
-      .bulkUpsert(bulkUpsertLostTimes)
+      .addLostTime(addLostTimeInput)
       .catch((error: Error) => {
-        logger.logException('LostTime bulkUpsert failed', error);
+        logger.logException('Adding lost time failed', error);
+
+        return rejection('INTERNAL_ERROR');
+      });
+  }
+
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
+  async updateLostTime(
+    ctx: ResolverContext,
+    updateLostTimeInput: UpdateLostTimeInput
+  ): Promise<LostTime | Rejection> {
+    return this.lostTimeDataSource
+      .updateLostTime(updateLostTimeInput)
+      .catch((error: Error) => {
+        logger.logException('Updating lost time failed', error);
+
+        return rejection('INTERNAL_ERROR');
+      });
+  }
+
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
+  async deleteLostTime(
+    ctx: ResolverContext,
+    deleteLostTimeInput: DeleteLostTimeInput
+  ): Promise<LostTime | Rejection> {
+    return this.lostTimeDataSource
+      .deleteLostTime(deleteLostTimeInput)
+      .catch((error: Error) => {
+        logger.logException('Deleting lost time failed', error);
 
         return rejection('INTERNAL_ERROR');
       });

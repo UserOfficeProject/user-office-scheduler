@@ -53,60 +53,59 @@ export const getBookingTypeStyle = (
   bookingType: ScheduledEventBookingType,
   status: ProposalBookingStatusCore
 ): CSSProperties => {
-  const opacity = isDraftEvent({ status }) ? '0.6' : '1';
+  const opacity = isDraftEvent({ status }) ? 0.6 : 1;
+  const grayscale = isCompletedEvent({ status }) ? 0.5 : 0;
+
+  const filter = `grayscale(${grayscale}) opacity(${opacity})`;
 
   switch (bookingType) {
     case ScheduledEventBookingType.COMMISSIONING:
       return {
-        backgroundColor: `rgba(147, 225, 216, ${opacity})`,
+        background: 'rgb(147, 225, 216)',
         color: '#000',
+        filter: filter,
       };
     case ScheduledEventBookingType.MAINTENANCE:
       return {
-        backgroundColor: `rgba(255, 166, 158, ${opacity})`,
+        background: 'rgb(255, 166, 158)',
         color: '#000',
+        filter: filter,
       };
     case ScheduledEventBookingType.SHUTDOWN:
       return {
-        backgroundColor: `rgba(170, 68, 101, ${opacity})`,
+        background: 'rgb(170, 68, 101)',
         color: '#fff',
+        filter: filter,
       };
     case ScheduledEventBookingType.USER_OPERATIONS:
       return {
-        backgroundColor: `rgba(145, 70, 175, ${opacity})`,
+        background: 'rgb(145, 70, 175)',
         color: '#fff',
+        filter: filter,
       };
     case ScheduledEventBookingType.EQUIPMENT:
       return {
-        backgroundColor: `rgba(124, 181, 236, ${opacity})`,
+        background: 'rgb(124, 181, 236)',
         color: '#fff',
+        filter: filter,
       };
     default:
       return {};
   }
 };
 
-export const getCompletedBookingStyle = (): CSSProperties => ({
-  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  color: '#fff',
-});
-
-export function eventPropGetter(event: CalendarScheduledEvent): {
+export const eventPropGetter = (
+  event: CalendarScheduledEvent
+): {
   className?: string;
   style?: CSSProperties;
-} {
-  const eventStyle = isCompletedEvent({ status: event.status })
-    ? getCompletedBookingStyle()
-    : getBookingTypeStyle(event.bookingType, event.status);
-
-  return {
-    style: {
-      borderRadius: 0,
-      border: '1px solid #FFF',
-      ...eventStyle,
-    },
-  };
-}
+} => ({
+  style: {
+    borderRadius: 0,
+    border: '1px solid #FFF',
+    ...getBookingTypeStyle(event.bookingType, event.status),
+  },
+});
 
 export default function Event({
   event: {

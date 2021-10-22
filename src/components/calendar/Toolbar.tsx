@@ -180,21 +180,21 @@ export default function Toolbar({
             <Grid item sm={4} xs={12}>
               <Button
                 variant="contained"
-                onClick={onNav('TODAY')}
-                data-cy="btn-view-today"
-                fullWidth
-              >
-                Today
-              </Button>
-            </Grid>
-            <Grid item sm={4} xs={12}>
-              <Button
-                variant="contained"
                 onClick={onNav('PREV')}
                 data-cy="btn-view-prev"
                 fullWidth
               >
                 Back
+              </Button>
+            </Grid>
+            <Grid item sm={4} xs={12}>
+              <Button
+                variant="contained"
+                onClick={onNav('TODAY')}
+                data-cy="btn-view-today"
+                fullWidth
+              >
+                Today
               </Button>
             </Grid>
             <Grid item sm={4} xs={12}>

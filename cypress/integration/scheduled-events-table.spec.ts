@@ -95,7 +95,8 @@ context('Scheduled events table tests', () => {
       cy.contains(currentHourDateTime)
         .parent()
         .should('have.attr', 'style')
-        .and('include', 'background-color: rgba(');
+        .and('include', 'background: rgb(')
+        .and('include', 'filter: grayscale(0) opacity(0.6)');
     });
 
     it('should show table view of events in different colors depending on the event type', () => {
@@ -119,12 +120,27 @@ context('Scheduled events table tests', () => {
       cy.contains(newScheduledEvent_1.endsAt)
         .parent()
         .should('have.attr', 'style')
-        .and('include', 'background-color: rgb(');
+        .and('include', 'background: rgb(');
 
       cy.contains(newScheduledEvent_2.endsAt)
         .parent()
         .should('have.attr', 'style')
-        .and('include', 'background-color: rgb(');
+        .and('include', 'background: rgb(');
+
+      cy.contains(newScheduledEvent_2.endsAt)
+        .parent()
+        .invoke('attr', 'style')
+        .then((eventStyle) => {
+          cy.contains(newScheduledEvent_1.endsAt)
+            .parent()
+            .should('have.attr', 'style')
+            .and('not.eq', eventStyle);
+
+          cy.contains(currentHourDateTime)
+            .parent()
+            .should('have.attr', 'style')
+            .and('not.eq', eventStyle);
+        });
     });
 
     it('should be able to filter events based on the table toolbar filters', () => {

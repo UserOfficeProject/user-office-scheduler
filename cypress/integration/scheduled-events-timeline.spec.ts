@@ -1,3 +1,4 @@
+import moment from 'moment';
 import {
   currentHourDateTime,
   getHourDateTimeAfter,
@@ -169,7 +170,17 @@ context('Scheduled events timeline tests', () => {
       cy.finishedLoading();
 
       cy.contains(newScheduledEvent_1.endsAt);
-      cy.contains(newScheduledEvent_3.startsAt);
+      if (
+        moment(currentHourDateTime).month() !==
+        moment(newScheduledEvent_3.startsAt).month()
+      ) {
+        cy.get('[data-cy="calendar-timeline-view"]').should(
+          'not.contain',
+          newScheduledEvent_3.startsAt
+        );
+      } else {
+        cy.contains(newScheduledEvent_3.startsAt);
+      }
 
       cy.contains(getFormattedDateAfter('MMMM YYYY'));
 
@@ -179,10 +190,17 @@ context('Scheduled events timeline tests', () => {
 
       cy.contains(getFormattedDateAfter('MMMM YYYY', 1, 'month'));
 
-      cy.get('[data-cy="calendar-timeline-view"]').should(
-        'not.contain',
-        newScheduledEvent_3.startsAt
-      );
+      if (
+        moment(getFormattedDateAfter('MMMM YYYY', 1, 'month')).month() !==
+        moment(newScheduledEvent_3.startsAt).month()
+      ) {
+        cy.get('[data-cy="calendar-timeline-view"]').should(
+          'not.contain',
+          newScheduledEvent_3.startsAt
+        );
+      } else {
+        cy.contains(newScheduledEvent_3.startsAt);
+      }
 
       cy.get('[data-cy="calendar-timeline-view"]').should(
         'not.contain',
@@ -212,7 +230,17 @@ context('Scheduled events timeline tests', () => {
       cy.contains(getFormattedDateAfter('MMMM YYYY'));
 
       cy.contains(newScheduledEvent_1.endsAt);
-      cy.contains(newScheduledEvent_3.startsAt);
+      if (
+        moment(currentHourDateTime).month() !==
+        moment(newScheduledEvent_3.startsAt).month()
+      ) {
+        cy.get('[data-cy="calendar-timeline-view"]').should(
+          'not.contain',
+          newScheduledEvent_3.startsAt
+        );
+      } else {
+        cy.contains(newScheduledEvent_3.startsAt);
+      }
 
       cy.get('[data-cy=timeline-view-period]').click();
       cy.get('[data-value="day"]').click();

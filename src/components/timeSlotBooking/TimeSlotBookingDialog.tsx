@@ -31,9 +31,9 @@ import useScheduledEventWithEquipment, {
 import { toTzLessDateTime } from 'utils/date';
 import { hasOverlappingEvents } from 'utils/scheduledEvent';
 
-import TimeSlotDetails from './timeSlotBookingSteps/TimeSlotDetails';
-import TimeSlotEquipmentBookingTable from './timeSlotBookingSteps/TimeSlotEquipmentBookingTable';
-import TimeSlotLostTimeTable from './timeSlotBookingSteps/TimeSlotLostTimeTable';
+import TimeSlotDetails from './TimeSlotDetails';
+import TimeSlotEquipmentBookingTable from './TimeSlotEquipmentBookingTable';
+import TimeSlotLostTimeTable from './TimeSlotLostTimeTable';
 
 const useStyles = makeStyles((theme) => ({
   fullHeight: {
@@ -72,7 +72,7 @@ export default function ProposalBookingDialog({
   const api = useDataApi();
   const { enqueueSnackbar } = useSnackbar();
 
-  const { showConfirmation } = useContext(AppContext);
+  const { showConfirmation, showAlert } = useContext(AppContext);
   const [isDirty, setIsDirty] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -262,9 +262,9 @@ export default function ProposalBookingDialog({
       if (scheduledEvent.startsAt >= scheduledEvent.endsAt) {
         // when the starting date is after ending date
         // it may be less obvious for the user, show alert
-        // showAlert({
-        //   message: 'The starting date needs to be before the ending date',
-        // });
+        showAlert({
+          message: 'The starting date needs to be before the ending date',
+        });
 
         return;
       }
@@ -374,7 +374,7 @@ export default function ProposalBookingDialog({
       <DialogContent>
         {scheduledEvent && (
           <>
-            {(loading || isLoading) && <Loader />}
+            {isLoading && <Loader />}
             <TimeSlotDetails
               isDirty={isDirty}
               handleSetDirty={setIsDirty}

@@ -3,11 +3,16 @@ mutation createScheduledEvent($input: NewScheduledEventInput!) {
     error
     scheduledEvent {
       id
-      bookingType
       startsAt
       endsAt
-      description
+      bookingType
+      scheduledBy {
+        id
+        firstname
+        lastname
+      }
       status
+      description
     }
   }
 }

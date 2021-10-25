@@ -79,10 +79,11 @@ export default function SelectEquipmentDialog({
             : EquipmentAssignmentStatus.PENDING,
         }));
 
+      setIsLoading(false);
       closeDialog(assignedEquipments);
+    } else {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   return (

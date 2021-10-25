@@ -1,6 +1,6 @@
 import MaterialTable, { Column } from '@material-table/core';
 import { Button, makeStyles } from '@material-ui/core';
-import { Add as AddIcon, Delete as DeleteIcon } from '@material-ui/icons';
+import { Add as AddIcon } from '@material-ui/icons';
 import Alert from '@material-ui/lab/Alert';
 import AlertTitle from '@material-ui/lab/AlertTitle';
 import { useSnackbar } from 'notistack';
@@ -14,7 +14,7 @@ import React, {
 
 import Loader from 'components/common/Loader';
 import { tableIcons } from 'components/common/TableIcons';
-import SelectEquipmentDialog from 'components/proposalBooking/bookingSteps/equipmentBooking/SelectEquipmentDialog';
+import SelectEquipmentDialog from 'components/timeSlotBooking/equipmentBooking/SelectEquipmentDialog';
 import { AppContext } from 'context/AppContext';
 import {
   EquipmentAssignmentStatus,
@@ -100,7 +100,7 @@ export default function TimeSlotEquipmentBookingTable({
   const { showConfirmation } = useContext(AppContext);
   const api = useDataApi();
 
-  const handleDeleteAssignment = (equipmentId: number) => {
+  const handleDeleteAssignment = async (equipmentId: number) => {
     showConfirmation({
       message: (
         <>
@@ -159,16 +159,14 @@ export default function TimeSlotEquipmentBookingTable({
           search: false,
           paging: false,
         }}
+        editable={
+          !isStepReadOnly
+            ? {
+                onRowDelete: (data) => handleDeleteAssignment(data.id),
+              }
+            : {}
+        }
         actions={[
-          {
-            icon: DeleteIcon,
-            tooltip: 'Remove equipment assignment',
-            disabled: isStepReadOnly,
-            onClick: (event, data) => {
-              handleDeleteAssignment((data as ScheduledEventEquipment).id);
-            },
-            position: 'row',
-          },
           {
             icon: () => (
               <Button
@@ -185,7 +183,7 @@ export default function TimeSlotEquipmentBookingTable({
             onClick: () => setEquipmentDialog(true),
             isFreeAction: true,
             hidden: isStepReadOnly,
-            tooltip: 'Book equipment',
+            tooltip: !equipmentDialog ? 'Book equipment' : '',
           },
         ]}
       />

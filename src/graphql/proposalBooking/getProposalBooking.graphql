@@ -20,6 +20,14 @@ query getProposalBooking(
       id
       startsAt
       endsAt
+      bookingType
+      scheduledBy {
+        id
+        firstname
+        lastname
+      }
+      status
+      description
     }
     instrument {
       id

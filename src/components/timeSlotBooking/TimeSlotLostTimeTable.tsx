@@ -35,19 +35,21 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+type TimeSlotLostTimeTableProps = {
+  scheduledEvent: ScheduledEventWithEquipments;
+  handleSetDirty: (isDirty: boolean) => void;
+  lostTimes: ProposalBookingLostTime[];
+  setLostTimes: Dispatch<SetStateAction<ProposalBookingLostTime[]>>;
+  loading: boolean;
+};
+
 function TimeSlotLostTimeTable({
   scheduledEvent,
   handleSetDirty,
   loading,
   lostTimes,
   setLostTimes,
-}: {
-  scheduledEvent: ScheduledEventWithEquipments;
-  handleSetDirty: (isDirty: boolean) => void;
-  lostTimes: ProposalBookingLostTime[];
-  setLostTimes: Dispatch<SetStateAction<ProposalBookingLostTime[]>>;
-  loading: boolean;
-}) {
+}: TimeSlotLostTimeTableProps) {
   const isStepReadOnly =
     scheduledEvent.status === ProposalBookingStatusCore.COMPLETED;
 
@@ -56,45 +58,13 @@ function TimeSlotLostTimeTable({
   const { enqueueSnackbar } = useSnackbar();
   const [isAddingNewLostTime, setIsAddingNewLostTime] = useState(false);
 
-  // const [rows, setRows] = useState<TimeTableRow[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // useEffect(() => {
-  //   if (!loading) {
-  //     setRows(
-  //       lostTimes.map(({ startsAt, endsAt, ...rest }) => ({
-  //         ...rest,
-  //         startsAt: parseTzLessDateTime(startsAt),
-  //         endsAt: parseTzLessDateTime(endsAt),
-  //       }))
-  //     );
-
-  //     setIsLoading(false);
-  //   }
-  // }, [loading, lostTimes]);
-
-  // const handleAdd = () => {
-  //   const newLostTimeStart = rows.length
-  //     ? moment(rows[rows.length - 1].endsAt).startOf('hour')
-  //     : moment().startOf('hour');
-  //   const newLostTimeEnd = rows.length
-  //     ? moment(rows[rows.length - 1].endsAt)
-  //         .startOf('hour')
-  //         .add(1, 'hour')
-  //     : moment().startOf('hour').add(1, 'hour');
-
-  //   handleRowsChange((rows) => [
-  //     ...rows,
-  //     {
-  //       id: Date.now(),
-  //       newlyCreated: true,
-  //       startsAt: newLostTimeStart,
-  //       endsAt: newLostTimeEnd,
-  //     },
-  //   ]);
-  // };
-
   const handleAdd = async () => {
+    if (!scheduledEvent.proposalBooking) {
+      return;
+    }
+
     setIsAddingNewLostTime(true);
     handleSetDirty(false);
     try {
@@ -113,7 +83,7 @@ function TimeSlotLostTimeTable({
         addLostTime: { error, lostTime: addedLostTime },
       } = await api().addLostTime({
         input: {
-          proposalBookingId: scheduledEvent.proposalBooking!.id,
+          proposalBookingId: scheduledEvent.proposalBooking.id,
           lostTime: {
             scheduledEventId: scheduledEvent.id,
             startsAt: toTzLessDateTime(newLostTimeStart),
@@ -274,23 +244,6 @@ function TimeSlotLostTimeTable({
             : {}
         }
         actions={[
-          // {
-          //   icon: () => (
-          //     <IconButton component="span" color="inherit" disabled={isLoading}>
-          //       <DeleteIcon />
-          //     </IconButton>
-          //   ),
-          //   tooltip: 'Delete lost times',
-          //   onClick: (event, data) => {
-          //     // showConfirmation({
-          //     //   message: (
-          //     //     <>Are you sure you want to remove selected time slots?</>
-          //     //   ),
-          //     //   cb: () => handleDelete(data as ProposalBookingScheduledEvent[]),
-          //     // });
-          //   },
-          //   position: 'toolbarOnSelect',
-          // },
           {
             icon: () => (
               <Button

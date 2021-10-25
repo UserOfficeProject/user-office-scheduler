@@ -3729,7 +3729,11 @@ export type GetProposalBookingQuery = (
       & Pick<Proposal, 'primaryKey' | 'title' | 'proposalId'>
     )>, scheduledEvents: Array<(
       { __typename?: 'ScheduledEvent' }
-      & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
+      & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt' | 'bookingType' | 'status' | 'description'>
+      & { scheduledBy: Maybe<(
+        { __typename?: 'User' }
+        & Pick<User, 'id' | 'firstname' | 'lastname'>
+      )> }
     )>, instrument: Maybe<(
       { __typename?: 'Instrument' }
       & Pick<Instrument, 'id' | 'name'>
@@ -3766,7 +3770,11 @@ export type CreateScheduledEventMutation = (
     & Pick<ScheduledEventResponseWrap, 'error'>
     & { scheduledEvent: Maybe<(
       { __typename?: 'ScheduledEvent' }
-      & Pick<ScheduledEvent, 'id' | 'bookingType' | 'startsAt' | 'endsAt' | 'description' | 'status'>
+      & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt' | 'bookingType' | 'status' | 'description'>
+      & { scheduledBy: Maybe<(
+        { __typename?: 'User' }
+        & Pick<User, 'id' | 'firstname' | 'lastname'>
+      )> }
     )> }
   ) }
 );
@@ -4292,6 +4300,14 @@ export const GetProposalBookingDocument = gql`
       id
       startsAt
       endsAt
+      bookingType
+      scheduledBy {
+        id
+        firstname
+        lastname
+      }
+      status
+      description
     }
     instrument {
       id
@@ -4322,11 +4338,16 @@ export const CreateScheduledEventDocument = gql`
     error
     scheduledEvent {
       id
-      bookingType
       startsAt
       endsAt
-      description
+      bookingType
+      scheduledBy {
+        id
+        firstname
+        lastname
+      }
       status
+      description
     }
   }
 }

@@ -19,6 +19,7 @@ import {
   HourglassEmpty as HourglassEmptyIcon,
   Description as DescriptionIcon,
   Edit as EditIcon,
+  Visibility as ViewIcon,
   Add as AddIcon,
   Delete as DeleteIcon,
 } from '@material-ui/icons';
@@ -82,6 +83,12 @@ const useStyles = makeStyles((theme) => ({
   },
   spacingTop: {
     marginTop: theme.spacing(2),
+  },
+  root: {
+    '& .MuiToolbar-root .MuiIconButton-root': {
+      backgroundColor: 'unset !important',
+      padding: 0,
+    },
   },
 }));
 
@@ -330,7 +337,7 @@ export default function BookingEventStep({
     <>
       {isLoading && <Loader />}
 
-      <DialogContent>
+      <DialogContent className={classes.root}>
         <Grid container spacing={2}>
           <Grid item sm={6}>
             <List className={classes.list} dense>
@@ -436,10 +443,12 @@ export default function BookingEventStep({
           data={scheduledEvents}
           options={{
             selection: !isStepReadOnly,
+            search: false,
+            paging: false,
           }}
           actions={[
             {
-              icon: EditIcon,
+              icon: !isStepReadOnly ? EditIcon : ViewIcon,
               tooltip: 'Edit event',
               onClick: (_event, rowData) => {
                 handleOnEditModeChanged(
@@ -463,7 +472,15 @@ export default function BookingEventStep({
               position: 'toolbarOnSelect',
             },
             {
-              icon: AddIcon,
+              icon: () => (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon={<AddIcon />}
+                >
+                  Add time slot
+                </Button>
+              ),
               onClick: () => {
                 handleAdd();
               },

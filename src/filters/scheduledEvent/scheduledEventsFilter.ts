@@ -1,13 +1,13 @@
 import moment from 'moment';
+import { View } from 'react-big-calendar';
 
-import { ExtendedView } from 'components/calendar/Calendar';
 import { ScheduledEventFilter } from 'generated/sdk';
 import { toTzLessDateTime } from 'utils/date';
 
 export default function generateScheduledEventFilter(
   instrumentIds: number[],
   startsAt: Date,
-  activeView: ExtendedView
+  activeView: View
 ): ScheduledEventFilter {
   instrumentIds = instrumentIds?.length ? instrumentIds : [0];
 
@@ -37,24 +37,6 @@ export default function generateScheduledEventFilter(
         instrumentIds,
         startsAt: toTzLessDateTime(newStartsAt),
         endsAt: toTzLessDateTime(newStartsAt.add(1, 'month')),
-      };
-    }
-    case 'quarter': {
-      const newStartsAt = moment(startsAt).startOf('month');
-
-      return {
-        instrumentIds,
-        startsAt: toTzLessDateTime(newStartsAt),
-        endsAt: toTzLessDateTime(newStartsAt.add(3, 'month')),
-      };
-    }
-    case 'half_year': {
-      const newStartsAt = moment(startsAt).startOf('month');
-
-      return {
-        instrumentIds,
-        startsAt: toTzLessDateTime(newStartsAt),
-        endsAt: toTzLessDateTime(newStartsAt.add(6, 'month')),
       };
     }
     default:

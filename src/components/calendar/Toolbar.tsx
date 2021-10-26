@@ -27,7 +27,13 @@ import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 
 const useStyles = makeStyles((theme) => ({
   tooltip: {
-    marginBottom: theme.spacing(2),
+    marginBottom: theme.spacing(1),
+  },
+  label: {
+    fontWeight: 'bold',
+    fontSize: '90%',
+    border: '1px solid #DDD',
+    borderWidth: '1px 1px 0 1px',
   },
   tooltipMobile: {
     marginTop: theme.spacing(2),
@@ -154,7 +160,11 @@ export default function Toolbar({
 
   const onNav = (navAction: NavigateAction) => () => onNavigate(navAction);
 
-  const onChangeView = (view: View) => onView(view);
+  const onChangeView = (view: View) => {
+    query.set('viewPeriod', view);
+    history.push(`?${query}`);
+    onView(view);
+  };
 
   const onInstrumentSelect = (selectedInstrument: PartialInstrument | null) => {
     setSelectedInstrument(selectedInstrument);
@@ -173,9 +183,14 @@ export default function Toolbar({
   };
 
   return (
-    <div className={`${classes.tooltip} ${isMobile && classes.tooltipMobile}`}>
-      <Grid container className={classes.centered} spacing={1}>
-        <Grid item sm={4} xs={12}>
+    <>
+      <Grid
+        container
+        alignItems="center"
+        className={`${classes.tooltip} ${isMobile && classes.tooltipMobile}`}
+        spacing={1}
+      >
+        <Grid item sm={6} xs={12}>
           <Grid container spacing={2}>
             <Grid item sm={4} xs={12}>
               <Button
@@ -222,9 +237,6 @@ export default function Toolbar({
               {viewNamesGroup(messages)}
             </Select>
           </FormControl>
-        </Grid>
-        <Grid item sm={2} xs={12} data-cy="content-calendar-toolbar">
-          {label}
         </Grid>
         <Grid
           item
@@ -320,6 +332,14 @@ export default function Toolbar({
           />
         </Grid>
       </Grid>
-    </div>
+      <Grid
+        container
+        justifyContent="center"
+        className={classes.label}
+        data-cy="content-calendar-toolbar-label"
+      >
+        {label}
+      </Grid>
+    </>
   );
 }

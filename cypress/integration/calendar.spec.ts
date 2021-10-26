@@ -79,7 +79,7 @@ context('Calendar tests', () => {
     });
 
     it('should show the selected day', () => {
-      cy.get('[data-cy=content-calendar-toolbar]').should(
+      cy.get('[data-cy=content-calendar-toolbar-label]').should(
         'contain.text',
         `${getFormattedBeginningOfSelectedWeek(
           'MMMM DD'
@@ -88,7 +88,7 @@ context('Calendar tests', () => {
 
       cy.finishedLoading();
       cy.get('[data-cy=btn-view-next]').click();
-      cy.get('[data-cy=content-calendar-toolbar]').should(
+      cy.get('[data-cy=content-calendar-toolbar-label]').should(
         'contain.text',
         `${getFormattedBeginningOfSelectedWeek(
           'MMMM DD',
@@ -98,7 +98,7 @@ context('Calendar tests', () => {
 
       cy.finishedLoading();
       cy.get('[data-cy=btn-view-next]').click();
-      cy.get('[data-cy=content-calendar-toolbar]').should(
+      cy.get('[data-cy=content-calendar-toolbar-label]').should(
         'contain.text',
         `${getFormattedBeginningOfSelectedWeek(
           'MMMM DD',
@@ -108,7 +108,7 @@ context('Calendar tests', () => {
 
       cy.finishedLoading();
       cy.get('[data-cy=btn-view-prev]').click();
-      cy.get('[data-cy=content-calendar-toolbar]').should(
+      cy.get('[data-cy=content-calendar-toolbar-label]').should(
         'contain.text',
         `${getFormattedBeginningOfSelectedWeek(
           'MMMM DD',
@@ -118,7 +118,7 @@ context('Calendar tests', () => {
 
       cy.finishedLoading();
       cy.get('[data-cy=btn-view-today]').click();
-      cy.get('[data-cy=content-calendar-toolbar]').should(
+      cy.get('[data-cy=content-calendar-toolbar-label]').should(
         'contain.text',
         `${getFormattedBeginningOfSelectedWeek(
           'MMMM DD'
@@ -127,7 +127,7 @@ context('Calendar tests', () => {
 
       cy.finishedLoading();
       cy.get('[data-cy=btn-view-prev]').click();
-      cy.get('[data-cy=content-calendar-toolbar]').should(
+      cy.get('[data-cy=content-calendar-toolbar-label]').should(
         'contain.text',
         `${getFormattedBeginningOfSelectedWeek(
           'MMMM DD',
@@ -137,7 +137,7 @@ context('Calendar tests', () => {
 
       cy.finishedLoading();
       cy.get('[data-cy=btn-view-prev]').click();
-      cy.get('[data-cy=content-calendar-toolbar]').should(
+      cy.get('[data-cy=content-calendar-toolbar-label]').should(
         'contain.text',
         `${getFormattedBeginningOfSelectedWeek(
           'MMMM DD',
@@ -147,7 +147,7 @@ context('Calendar tests', () => {
 
       cy.finishedLoading();
       cy.get('[data-cy=btn-view-next]').click();
-      cy.get('[data-cy=content-calendar-toolbar]').should(
+      cy.get('[data-cy=content-calendar-toolbar-label]').should(
         'contain.text',
         `${getFormattedBeginningOfSelectedWeek(
           'MMMM DD',
@@ -157,7 +157,7 @@ context('Calendar tests', () => {
 
       cy.finishedLoading();
       cy.get('[data-cy=btn-view-today]').click();
-      cy.get('[data-cy=content-calendar-toolbar]').should(
+      cy.get('[data-cy=content-calendar-toolbar-label]').should(
         'contain.text',
         `${getFormattedBeginningOfSelectedWeek(
           'MMMM DD'
@@ -173,63 +173,63 @@ context('Calendar tests', () => {
       cy.finishedLoading();
       cy.get('[data-cy="btn-view-today"]').click();
 
-      cy.get('[data-cy=content-calendar-toolbar]').should(
+      cy.get('[data-cy=content-calendar-toolbar-label]').should(
         'contain.text',
         getFormattedDateAfter('MMMM YYYY')
       );
 
       cy.finishedLoading();
       cy.get('[data-cy=btn-view-next]').click();
-      cy.get('[data-cy=content-calendar-toolbar]').should(
+      cy.get('[data-cy=content-calendar-toolbar-label]').should(
         'contain.text',
         getFormattedDateAfter('MMMM YYYY', 1, 'month')
       );
 
       cy.finishedLoading();
       cy.get('[data-cy=btn-view-next]').click();
-      cy.get('[data-cy=content-calendar-toolbar]').should(
+      cy.get('[data-cy=content-calendar-toolbar-label]').should(
         'contain.text',
         getFormattedDateAfter('MMMM YYYY', 2, 'months')
       );
 
       cy.finishedLoading();
       cy.get('[data-cy=btn-view-prev]').click();
-      cy.get('[data-cy=content-calendar-toolbar]').should(
+      cy.get('[data-cy=content-calendar-toolbar-label]').should(
         'contain.text',
         getFormattedDateAfter('MMMM YYYY', 1, 'month')
       );
 
       cy.finishedLoading();
       cy.get('[data-cy=btn-view-today]').click();
-      cy.get('[data-cy=content-calendar-toolbar]').should(
+      cy.get('[data-cy=content-calendar-toolbar-label]').should(
         'contain.text',
         getFormattedDateAfter('MMMM YYYY')
       );
 
       cy.finishedLoading();
       cy.get('[data-cy=btn-view-prev]').click();
-      cy.get('[data-cy=content-calendar-toolbar]').should(
+      cy.get('[data-cy=content-calendar-toolbar-label]').should(
         'contain.text',
         getFormattedDateAfter('MMMM YYYY', -1, 'month')
       );
 
       cy.finishedLoading();
       cy.get('[data-cy=btn-view-prev]').click();
-      cy.get('[data-cy=content-calendar-toolbar]').should(
+      cy.get('[data-cy=content-calendar-toolbar-label]').should(
         'contain.text',
         getFormattedDateAfter('MMMM YYYY', -2, 'months')
       );
 
       cy.finishedLoading();
       cy.get('[data-cy=btn-view-next]').click();
-      cy.get('[data-cy=content-calendar-toolbar]').should(
+      cy.get('[data-cy=content-calendar-toolbar-label]').should(
         'contain.text',
         getFormattedDateAfter('MMMM YYYY', -1, 'month')
       );
 
       cy.finishedLoading();
       cy.get('[data-cy=btn-view-today]').click();
-      cy.get('[data-cy=content-calendar-toolbar]').should(
+      cy.get('[data-cy=content-calendar-toolbar-label]').should(
         'contain.text',
         getFormattedDateAfter('MMMM YYYY')
       );

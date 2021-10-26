@@ -239,11 +239,9 @@ context('Scheduled events timeline tests', () => {
       }
 
       cy.get('[data-cy=timeline-view-period]').click();
-      cy.get('[data-value="quarter"]').click();
+      cy.get('[data-value="day"]').click();
 
-      cy.contains(getFormattedDateAfter('MMMM YYYY'));
-      cy.contains(getFormattedDateAfter('MMMM YYYY', 1, 'month'));
-      cy.contains(getFormattedDateAfter('MMMM YYYY', 2, 'months'));
+      cy.contains(getFormattedDateAfter('dddd, DD MMMM YYYY'));
     });
 
     it('should be able to click and open events in timeline view', () => {
@@ -296,23 +294,27 @@ context('Scheduled events timeline tests', () => {
       cy.get('[data-value="Timeline"]').click();
 
       cy.get('[data-cy=timeline-view-period]').click();
-      cy.get('[data-value="quarter"]').click();
+      cy.get('[data-value="day"]').click();
 
-      cy.contains(getFormattedDateAfter('MMMM YYYY'));
-      cy.contains(getFormattedDateAfter('MMMM YYYY', 1, 'month'));
-      cy.contains(getFormattedDateAfter('MMMM YYYY', 2, 'months'));
+      cy.contains(getFormattedDateAfter('dddd, DD MMMM YYYY'));
 
       cy.reload();
 
       cy.finishedLoading();
 
-      cy.contains(getFormattedDateAfter('MMMM YYYY'));
-      cy.contains(getFormattedDateAfter('MMMM YYYY', 1, 'month'));
-      cy.contains(getFormattedDateAfter('MMMM YYYY', 2, 'months'));
+      cy.contains(getFormattedDateAfter('dddd, DD MMMM YYYY'));
 
       cy.get('[data-cy=timeline-view-period] input').should(
         'have.value',
-        'quarter'
+        'day'
+      );
+
+      cy.get('[data-cy="scheduler-active-view"]').click();
+      cy.get('[data-value="Calendar"]').click();
+
+      cy.get('[data-cy="select-active-view"] input').should(
+        'have.value',
+        'day'
       );
     });
 

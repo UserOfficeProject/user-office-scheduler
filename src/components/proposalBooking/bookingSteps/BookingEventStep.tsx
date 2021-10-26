@@ -476,6 +476,7 @@ export default function BookingEventStep({
                 <Button
                   variant="contained"
                   color="primary"
+                  component="span"
                   startIcon={<AddIcon />}
                 >
                   Add time slot

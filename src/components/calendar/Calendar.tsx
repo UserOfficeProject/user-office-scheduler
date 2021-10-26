@@ -73,8 +73,6 @@ const localizer = momentLocalizer(moment);
 
 const CALENDAR_DEFAULT_VIEW = 'week';
 
-export type ExtendedView = View | 'quarter' | 'half_year';
-
 export enum SchedulerViews {
   CALENDAR = 'Calendar',
   TABLE = 'Table',
@@ -141,6 +139,11 @@ const useStyles = makeStyles((theme) => ({
   },
   collapsibleGrid: {
     overflow: 'hidden',
+  },
+  calendarMonthRowMobile: {
+    '& .rbc-month-view .rbc-month-row': {
+      overflow: 'unset',
+    },
   },
   collapsibleGridMobile: {
     position: 'absolute',
@@ -230,7 +233,7 @@ export default function Calendar() {
   const queryInstrument = query.get('instrument');
   const queryEquipment = query.get('equipment');
   const querySchedulerView = query.get('schedulerView');
-  const queryView = query.get('viewPeriod');
+  const queryView = query.get('viewPeriod') as View;
 
   const [schedulerActiveView, setSchedulerActiveView] = useState(
     (querySchedulerView as SchedulerViews) || SchedulerViews.CALENDAR
@@ -245,7 +248,7 @@ export default function Calendar() {
     | SlotInfo
     | null
   >(null);
-  const [view, setView] = useState<ExtendedView>(CALENDAR_DEFAULT_VIEW);
+  const [view, setView] = useState<View>(queryView || CALENDAR_DEFAULT_VIEW);
   const [startsAt, setStartAt] = useState(
     moment()
       .startOf(view as moment.unitOfTime.StartOf)
@@ -276,6 +279,12 @@ export default function Calendar() {
       setShowTodoBox(true);
     }
   }, [isTabletOrMobile]);
+
+  useEffect(() => {
+    if (!querySchedulerView) {
+      setSchedulerActiveView(SchedulerViews.CALENDAR);
+    }
+  }, [querySchedulerView]);
 
   useEffect(() => {
     if (
@@ -325,9 +334,10 @@ export default function Calendar() {
       generateScheduledEventFilter(
         getInstrumentIdsFromQuery(queryInstrument),
         startsAt,
-        (queryView as ExtendedView) || view
+        queryView || view
       )
     );
+    setView(queryView || view);
   }, [
     queryInstrument,
     startsAt,
@@ -376,14 +386,6 @@ export default function Calendar() {
 
   const onViewChange = (newView: View) => {
     setView(newView);
-
-    setFilter(
-      generateScheduledEventFilter(
-        getInstrumentIdsFromQuery(queryInstrument),
-        startsAt,
-        newView
-      )
-    );
   };
 
   const onSelectSlot = (slotInfo: SlotInfo) => {
@@ -580,7 +582,9 @@ export default function Calendar() {
               <Grid
                 item
                 xs={isTabletOrMobile ? 12 : showTodoBox ? 10 : 12}
-                className={classes.fullHeight}
+                className={`${classes.fullHeight} ${
+                  isTabletOrMobile && classes.calendarMonthRowMobile
+                }`}
                 style={{
                   transition: theme.transitions.create('all', {
                     easing: theme.transitions.easing.sharp,
@@ -685,7 +689,8 @@ export default function Calendar() {
                     instruments={instruments}
                     instrumentsLoading={instrumentsLoading}
                     onSelectEvent={onSelectEvent}
-                    setFilter={setFilter}
+                    startsAt={startsAt}
+                    setStartAt={setStartAt}
                   />
                 )}
               </Grid>

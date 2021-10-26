@@ -768,6 +768,20 @@ context('Proposal booking tests ', () => {
         cy.finishedLoading();
         cy.get('[title="Edit event"]').first().click();
         cy.get('[data-cy=btn-add-lost-time]').click();
+        cy.finishedLoading();
+        cy.get('[data-cy="time-slot-lost-times-table"] tbody tr [title="Edit"]')
+          .last()
+          .click();
+
+        cy.get('[data-cy=startsAt] input').clear();
+        cy.get('[data-cy=endsAt] input').clear();
+
+        cy.get('[data-cy=startsAt] input').type(getHourDateTimeAfter(48));
+        cy.get('[data-cy=endsAt] input').type(getHourDateTimeAfter(24));
+
+        cy.get('[data-cy="time-slot-lost-times-table"] tbody tr [title="Save"]')
+          .first()
+          .click();
 
         cy.contains(/complete the time slot booking/i).click();
 

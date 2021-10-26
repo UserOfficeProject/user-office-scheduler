@@ -279,7 +279,7 @@ context('Scheduled events timeline tests', () => {
       ).should('exist');
 
       cy.get('[role="none presentation"] [data-cy="btn-save"]').should('exist');
-      cy.get('[role="none presentation"] [data-cy="btn-next"]').should('exist');
+      cy.get('[role="none presentation"] [data-cy="activate-time-slot-booking"]').should('exist');
     });
 
     it('should not reset dates if page reloads', () => {

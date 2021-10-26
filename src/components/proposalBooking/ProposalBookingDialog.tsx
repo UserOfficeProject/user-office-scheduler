@@ -130,6 +130,7 @@ export default function ProposalBookingDialog({
       onClose={handleCloseDialog}
       fullWidth
       maxWidth="lg"
+      data-cy="proposal-booking-dialog"
       PaperProps={{
         className: classes.fullHeight,
       }}

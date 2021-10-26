@@ -1,6 +1,9 @@
 import MomentUtils from '@date-io/moment';
 import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
-import MaterialTable, { Column } from '@material-table/core';
+import MaterialTable, {
+  Column,
+  EditComponentProps,
+} from '@material-table/core';
 import { Button, CircularProgress, makeStyles } from '@material-ui/core';
 import { Add as AddIcon } from '@material-ui/icons';
 import {
@@ -165,6 +168,8 @@ function TimeSlotLostTimeTable({
         setLostTimes(updatedLostTimes);
       }
     }
+
+    setIsLoading(false);
   };
 
   const columns: Column<ProposalBookingLostTime>[] = [
@@ -196,34 +201,51 @@ function TimeSlotLostTimeTable({
     {
       title: 'Ends at',
       field: 'endsAt',
-      editComponent: (props) => {
-        return (
-          <MuiPickersUtilsProvider utils={MomentUtils}>
-            <KeyboardDateTimePicker
-              required
-              label="Ends at"
-              name={`endsAt`}
-              margin="none"
-              size="small"
-              format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
-              ampm={false}
-              minutesStep={60}
-              fullWidth
-              data-cy="endsAt"
-              value={props.value}
-              onChange={(value: Moment | null) => {
-                handleSetDirty(true);
-                props.onChange(value);
-              }}
-            />
-          </MuiPickersUtilsProvider>
-        );
+      validate: (data) => {
+        if (moment(data.startsAt).isSameOrAfter(moment(data.endsAt))) {
+          return {
+            isValid: false,
+            helperText: 'End date should be after start date',
+          };
+        } else {
+          return {
+            isValid: true,
+            helperText: '',
+          };
+        }
       },
+      editComponent: (
+        props: EditComponentProps<ProposalBookingLostTime> & {
+          helperText?: string;
+        }
+      ) => (
+        <MuiPickersUtilsProvider utils={MomentUtils}>
+          <KeyboardDateTimePicker
+            required
+            label="Ends at"
+            name={`endsAt`}
+            margin="none"
+            size="small"
+            format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
+            ampm={false}
+            minutesStep={60}
+            fullWidth
+            error={props.error}
+            helperText={props.helperText}
+            data-cy="endsAt"
+            value={props.value}
+            onChange={(value: Moment | null) => {
+              handleSetDirty(true);
+              props.onChange(value);
+            }}
+          />
+        </MuiPickersUtilsProvider>
+      ),
     },
   ];
 
   return (
-    <div className={classes.root}>
+    <div className={classes.root} data-cy="time-slot-lost-times-table">
       <MaterialTable
         icons={tableIcons}
         title="Lost times"
@@ -237,9 +259,9 @@ function TimeSlotLostTimeTable({
         editable={
           !isStepReadOnly
             ? {
-                onRowUpdate: (newData) => handleRowUpdate(newData),
+                onRowUpdate: handleRowUpdate,
                 onRowUpdateCancelled: () => handleSetDirty(false),
-                onRowDelete: (data) => handleRowDelete(data),
+                onRowDelete: handleRowDelete,
               }
             : {}
         }
@@ -250,6 +272,7 @@ function TimeSlotLostTimeTable({
                 variant="contained"
                 color="primary"
                 component="span"
+                data-cy="btn-add-lost-time"
                 startIcon={
                   isAddingNewLostTime ? (
                     <CircularProgress size={20} color="inherit" />

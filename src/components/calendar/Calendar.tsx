@@ -473,16 +473,14 @@ export default function Calendar() {
     });
   };
 
-  const handleCloseDialog = (shouldRefresh?: boolean) => {
+  const handleCloseDialog = () => {
     setSelectedProposalBooking({
       scheduledEventId: null,
       proposalBookingId: null,
     });
     setSelectedEquipmentBooking(null);
 
-    if (shouldRefresh) {
-      refresh();
-    }
+    refresh();
   };
 
   const columns: Column<CalendarScheduledEvent>[] = [

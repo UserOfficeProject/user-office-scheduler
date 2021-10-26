@@ -50,6 +50,7 @@ import {
 import { useDataApi } from 'hooks/common/useDataApi';
 import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
 import { ProposalBookingScheduledEvent } from 'hooks/scheduledEvent/useProposalBookingScheduledEvents';
+import { ScheduledEventWithEquipments } from 'hooks/scheduledEvent/useScheduledEventWithEquipment';
 import { toTzLessDateTime, TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
 
 const formatDuration = (durSec: number) =>
@@ -292,7 +293,21 @@ export default function ProposalDetailsAndBookingEvents({
     setIsLoading(false);
   };
 
-  const closeDialog = () => {
+  const closeDialog = (openedEvent: ScheduledEventWithEquipments | null) => {
+    const newEvents = scheduledEvents.map((scheduledEvent) => {
+      if (openedEvent && scheduledEvent.id === openedEvent.id) {
+        return {
+          ...scheduledEvent,
+          startsAt: openedEvent.startsAt,
+          endsAt: openedEvent.endsAt,
+          status: openedEvent.status,
+        };
+      }
+
+      return scheduledEvent;
+    });
+
+    setScheduledEvents(newEvents);
     setOpenedEventId(null);
     setSelectedEvent(null);
   };

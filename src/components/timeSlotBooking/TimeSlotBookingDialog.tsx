@@ -53,21 +53,21 @@ export type TimeSlotBookingDialogStepProps = {
   handleSetDirty: (isDirty: boolean) => void;
 };
 
-type ProposalBookingDialogProps = {
+type TimeSlotBookingDialogProps = {
   activeProposalBookingId: number;
   activeTimeSlotScheduledEventId?: number;
   isDialogOpen: boolean;
-  closeDialog: (shouldRefresh?: boolean) => void;
+  closeDialog: (scheduledEvent: ScheduledEventWithEquipments | null) => void;
   isOpenedOverProposalBookingDialog?: boolean;
 };
 
-export default function ProposalBookingDialog({
+export default function TimeSlotBookingDialog({
   activeProposalBookingId,
   activeTimeSlotScheduledEventId,
   isDialogOpen,
   closeDialog,
   isOpenedOverProposalBookingDialog = false,
-}: ProposalBookingDialogProps) {
+}: TimeSlotBookingDialogProps) {
   const classes = useStyles();
   const api = useDataApi();
   const { enqueueSnackbar } = useSnackbar();
@@ -110,9 +110,9 @@ export default function ProposalBookingDialog({
               continue?
             </>
           ),
-          cb: () => closeDialog(true),
+          cb: () => closeDialog(null),
         })
-      : closeDialog(true);
+      : closeDialog(scheduledEvent);
   };
 
   if (loading || !scheduledEvent) {
@@ -366,6 +366,7 @@ export default function ProposalBookingDialog({
       fullWidth
       hideBackdrop={isOpenedOverProposalBookingDialog}
       maxWidth="lg"
+      data-cy="time-slot-booking-dialog"
       PaperProps={{
         className: classes.fullHeight,
       }}

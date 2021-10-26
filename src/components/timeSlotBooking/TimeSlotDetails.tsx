@@ -105,12 +105,6 @@ type TimeSlotDetailsProps = {
   >;
   isDirty: boolean;
   handleSetDirty: (isDirty: boolean) => void;
-  // startAndEndTime: {
-  //   startsAt: Moment | null;
-  //   setStartsAt: Dispatch<SetStateAction<moment.Moment | null>>;
-  //   endsAt: Moment | null;
-  //   setEndsAt: Dispatch<SetStateAction<moment.Moment | null>>;
-  // };
 };
 
 export default function TimeSlotDetails({
@@ -130,10 +124,6 @@ export default function TimeSlotDetails({
 
   const classes = useStyles();
 
-  // const { showAlert, showConfirmation } = useContext(AppContext);
-  // const { enqueueSnackbar } = useSnackbar();
-  // const api = useDataApi();
-  // const [isLoading, setIsLoading] = useState(false);
   const [startsAt, setStartsAt] = useState<Moment | null>(
     moment(scheduledEvent.startsAt)
   );
@@ -191,7 +181,6 @@ export default function TimeSlotDetails({
 
   return (
     <>
-      {/* {isLoading && <Loader />} */}
       {isStepReadOnly && (
         <Alert severity="info">
           Time slot booking is already completed, you can not edit it.

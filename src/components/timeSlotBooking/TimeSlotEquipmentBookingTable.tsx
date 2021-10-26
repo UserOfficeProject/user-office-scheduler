@@ -4,18 +4,11 @@ import { Add as AddIcon } from '@material-ui/icons';
 import Alert from '@material-ui/lab/Alert';
 import AlertTitle from '@material-ui/lab/AlertTitle';
 import { useSnackbar } from 'notistack';
-import React, {
-  useState,
-  useContext,
-  Dispatch,
-  SetStateAction,
-  useEffect,
-} from 'react';
+import React, { useState, Dispatch, SetStateAction, useEffect } from 'react';
 
 import Loader from 'components/common/Loader';
 import { tableIcons } from 'components/common/TableIcons';
 import SelectEquipmentDialog from 'components/timeSlotBooking/equipmentBooking/SelectEquipmentDialog';
-import { AppContext } from 'context/AppContext';
 import {
   EquipmentAssignmentStatus,
   ProposalBooking,
@@ -97,44 +90,33 @@ export default function TimeSlotEquipmentBookingTable({
     setEquipmentDialog(false);
   };
 
-  const { showConfirmation } = useContext(AppContext);
   const api = useDataApi();
 
   const handleDeleteAssignment = async (equipmentId: number) => {
-    showConfirmation({
-      message: (
-        <>
-          Are you sure you want to <strong>remove</strong> the selected
-          equipment?
-        </>
-      ),
-      cb: async () => {
-        setLoading(true);
+    setLoading(true);
 
-        const { deleteEquipmentAssignment: success } =
-          await api().deleteEquipmentAssignment({
-            deleteEquipmentAssignmentInput: {
-              equipmentId,
-              scheduledEventId: scheduledEvent.id,
-              proposalBookingId: proposalBooking.id,
-            },
-          });
+    const { deleteEquipmentAssignment: success } =
+      await api().deleteEquipmentAssignment({
+        deleteEquipmentAssignmentInput: {
+          equipmentId,
+          scheduledEventId: scheduledEvent.id,
+          proposalBookingId: proposalBooking.id,
+        },
+      });
 
-        if (success) {
-          enqueueSnackbar('Removed', { variant: 'success' });
-          const newEquipments = equipments.filter(
-            (equipment) => equipment.id !== equipmentId
-          );
-          setEquipments(newEquipments);
-        } else {
-          enqueueSnackbar('Failed to remove selected assignment', {
-            variant: 'error',
-          });
-        }
+    if (success) {
+      enqueueSnackbar('Removed', { variant: 'success' });
+      const newEquipments = equipments.filter(
+        (equipment) => equipment.id !== equipmentId
+      );
+      setEquipments(newEquipments);
+    } else {
+      enqueueSnackbar('Failed to remove selected assignment', {
+        variant: 'error',
+      });
+    }
 
-        setLoading(false);
-      },
-    });
+    setLoading(false);
   };
 
   return (
@@ -173,6 +155,7 @@ export default function TimeSlotEquipmentBookingTable({
                 variant="contained"
                 color="primary"
                 component="span"
+                data-cy="btn-book-equipment"
                 startIcon={<AddIcon />}
                 disabled={equipmentDialog}
               >

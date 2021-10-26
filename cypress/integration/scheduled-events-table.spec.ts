@@ -247,7 +247,9 @@ context('Scheduled events table tests', () => {
       ).should('exist');
 
       cy.get('[role="none presentation"] [data-cy="btn-save"]').should('exist');
-      cy.get('[role="none presentation"] [data-cy="btn-next"]').should('exist');
+      cy.get(
+        '[role="none presentation"] [data-cy="activate-time-slot-booking"]'
+      ).should('exist');
     });
 
     it('should be able to filter events based on the table toolbar filters', () => {

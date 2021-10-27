@@ -440,6 +440,7 @@ export enum Event {
   PROPOSAL_ALL_SEP_REVIEWS_SUBMITTED = 'PROPOSAL_ALL_SEP_REVIEWS_SUBMITTED',
   PROPOSAL_BOOKING_TIME_ACTIVATED = 'PROPOSAL_BOOKING_TIME_ACTIVATED',
   PROPOSAL_BOOKING_TIME_COMPLETED = 'PROPOSAL_BOOKING_TIME_COMPLETED',
+  PROPOSAL_BOOKING_TIME_REOPENED = 'PROPOSAL_BOOKING_TIME_REOPENED',
   PROPOSAL_BOOKING_TIME_SLOTS_REMOVED = 'PROPOSAL_BOOKING_TIME_SLOTS_REMOVED',
   PROPOSAL_BOOKING_TIME_SLOT_ADDED = 'PROPOSAL_BOOKING_TIME_SLOT_ADDED',
   PROPOSAL_BOOKING_TIME_UPDATED = 'PROPOSAL_BOOKING_TIME_UPDATED',
@@ -800,6 +801,8 @@ export type Mutation = {
   removeProposalsFromSep: SepResponseWrap;
   removeScientistFromInstrument: SuccessResponseWrap;
   removeUserForReview: ReviewResponseWrap;
+  reopenProposalBooking: ProposalBookingResponseWrap;
+  reopenScheduledEvent: ScheduledEventResponseWrap;
   reorderSepMeetingDecisionProposals: SepMeetingDecisionResponseWrap;
   resetPassword: BasicUserDetailsResponseWrap;
   resetPasswordEmail: SuccessResponseWrap;
@@ -1390,6 +1393,16 @@ export type MutationRemoveScientistFromInstrumentArgs = {
 export type MutationRemoveUserForReviewArgs = {
   reviewId: Scalars['Int'];
   sepId: Scalars['Int'];
+};
+
+
+export type MutationReopenProposalBookingArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type MutationReopenScheduledEventArgs = {
+  id: Scalars['Int'];
 };
 
 
@@ -3741,6 +3754,19 @@ export type GetProposalBookingQuery = (
   )> }
 );
 
+export type ReopenProposalBookingMutationVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type ReopenProposalBookingMutation = (
+  { __typename?: 'Mutation' }
+  & { reopenProposalBooking: (
+    { __typename?: 'ProposalBookingResponseWrap' }
+    & Pick<ProposalBookingResponseWrap, 'error'>
+  ) }
+);
+
 export type ActivateScheduledEventMutationVariables = Exact<{
   input: ActivateScheduledEventInput;
 }>;
@@ -3972,6 +3998,19 @@ export type GetScheduledEventsWithEquipmentsQuery = (
       & Pick<EquipmentWithAssignmentStatus, 'id' | 'name' | 'description' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'status'>
     )> }
   )> }
+);
+
+export type ReopenScheduledEventMutationVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type ReopenScheduledEventMutation = (
+  { __typename?: 'Mutation' }
+  & { reopenScheduledEvent: (
+    { __typename?: 'ScheduledEventResponseWrap' }
+    & Pick<ScheduledEventResponseWrap, 'error'>
+  ) }
 );
 
 export type UpdateScheduledEventMutationVariables = Exact<{
@@ -4320,6 +4359,13 @@ export const GetProposalBookingDocument = gql`
   }
 }
     `;
+export const ReopenProposalBookingDocument = gql`
+    mutation reopenProposalBooking($id: Int!) {
+  reopenProposalBooking(id: $id) {
+    error
+  }
+}
+    `;
 export const ActivateScheduledEventDocument = gql`
     mutation activateScheduledEvent($input: ActivateScheduledEventInput!) {
   activateScheduledEvent(activateScheduledEvent: $input) {
@@ -4562,6 +4608,13 @@ export const GetScheduledEventsWithEquipmentsDocument = gql`
   }
 }
     `;
+export const ReopenScheduledEventDocument = gql`
+    mutation reopenScheduledEvent($id: Int!) {
+  reopenScheduledEvent(id: $id) {
+    error
+  }
+}
+    `;
 export const UpdateScheduledEventDocument = gql`
     mutation updateScheduledEvent($input: UpdateScheduledEventInput!) {
   updateScheduledEvent(updateScheduledEvent: $input) {
@@ -4663,6 +4716,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     getProposalBooking(variables: GetProposalBookingQueryVariables): Promise<GetProposalBookingQuery> {
       return withWrapper(() => client.request<GetProposalBookingQuery>(print(GetProposalBookingDocument), variables));
     },
+    reopenProposalBooking(variables: ReopenProposalBookingMutationVariables): Promise<ReopenProposalBookingMutation> {
+      return withWrapper(() => client.request<ReopenProposalBookingMutation>(print(ReopenProposalBookingDocument), variables));
+    },
     activateScheduledEvent(variables: ActivateScheduledEventMutationVariables): Promise<ActivateScheduledEventMutation> {
       return withWrapper(() => client.request<ActivateScheduledEventMutation>(print(ActivateScheduledEventDocument), variables));
     },
@@ -4692,6 +4748,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     getScheduledEventsWithEquipments(variables: GetScheduledEventsWithEquipmentsQueryVariables): Promise<GetScheduledEventsWithEquipmentsQuery> {
       return withWrapper(() => client.request<GetScheduledEventsWithEquipmentsQuery>(print(GetScheduledEventsWithEquipmentsDocument), variables));
+    },
+    reopenScheduledEvent(variables: ReopenScheduledEventMutationVariables): Promise<ReopenScheduledEventMutation> {
+      return withWrapper(() => client.request<ReopenScheduledEventMutation>(print(ReopenScheduledEventDocument), variables));
     },
     updateScheduledEvent(variables: UpdateScheduledEventMutationVariables): Promise<UpdateScheduledEventMutation> {
       return withWrapper(() => client.request<UpdateScheduledEventMutation>(print(UpdateScheduledEventDocument), variables));

@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "dotenv": "^8.6.0",
-    "graphql": "^15.6.0",
+    "graphql": "^15.6.1",
     "graphql-request": "^3.5.0",
     "moment": "^2.29.1",
     "typescript": "^3.9.10"

@@ -20,4 +20,5 @@ export interface ProposalBookingDataSource {
     id: number
   ): Promise<ProposalBooking>;
   activate(id: number): Promise<ProposalBooking>;
+  reopen(id: number): Promise<ProposalBooking>;
 }

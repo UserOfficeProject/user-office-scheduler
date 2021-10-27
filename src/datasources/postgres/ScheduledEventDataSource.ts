@@ -92,6 +92,20 @@ export default class PostgreScheduledEventDataSource
     return createScheduledEventObject(updatedRecord);
   }
 
+  async reopen(id: number): Promise<ScheduledEvent> {
+    const [updatedRecord] = await database<ScheduledEventRecord>(this.tableName)
+      .update('status', ProposalBookingStatusCore.ACTIVE)
+      .where('scheduled_event_id', id)
+      .where('status', ProposalBookingStatusCore.COMPLETED)
+      .returning<ScheduledEventRecord[]>(['*']);
+
+    if (!updatedRecord) {
+      throw new Error(`Failed to re-open proposal scheduled event '${id}'`);
+    }
+
+    return createScheduledEventObject(updatedRecord);
+  }
+
   async finalize(
     id: number,
     action: ProposalBookingFinalizeAction

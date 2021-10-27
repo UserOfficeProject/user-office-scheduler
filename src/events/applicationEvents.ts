@@ -43,6 +43,11 @@ interface ProposalBookingTimeSlotUpdatedEvent extends GeneralEvent {
   scheduledevent: ScheduledEvent;
 }
 
+interface ProposalBookingTimeSlotReopenEvent extends GeneralEvent {
+  type: Event.PROPOSAL_BOOKING_TIME_REOPENED;
+  scheduledevent: ScheduledEvent;
+}
+
 export type ApplicationEvent =
   | ProposalStatusChangedByWorkflowEvent
   | ProposalStatusChangedByUserEvent
@@ -50,4 +55,5 @@ export type ApplicationEvent =
   | ProposalBookingTimeSlotsRemovedEvent
   | ProposalBookingTimeSlotActivatedEvent
   | ProposalBookingTimeSlotCompletedEvent
+  | ProposalBookingTimeSlotReopenEvent
   | ProposalBookingTimeSlotUpdatedEvent;

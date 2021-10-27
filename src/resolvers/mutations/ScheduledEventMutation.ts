@@ -142,4 +142,15 @@ export class ScheduledEventMutation {
       ScheduledEventResponseWrap
     );
   }
+
+  @Mutation(() => ScheduledEventResponseWrap)
+  reopenScheduledEvent(
+    @Ctx() ctx: ResolverContext,
+    @Arg('id', () => Int) id: number
+  ) {
+    return wrapResponse(
+      ctx.mutations.scheduledEvent.reopen(ctx, { id }),
+      ScheduledEventResponseWrap
+    );
+  }
 }

@@ -30,4 +30,15 @@ export class ProposalBookingMutation {
       ProposalBookingResponseWrap
     );
   }
+
+  @Mutation(() => ProposalBookingResponseWrap)
+  reopenProposalBooking(
+    @Ctx() ctx: ResolverContext,
+    @Arg('id', () => Int) id: number
+  ) {
+    return wrapResponse(
+      ctx.mutations.proposalBooking.reopen(ctx, { id }),
+      ProposalBookingResponseWrap
+    );
+  }
 }

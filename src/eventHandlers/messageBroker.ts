@@ -177,6 +177,7 @@ export function createPostToRabbitMQHandler({
         return;
       case Event.PROPOSAL_BOOKING_TIME_ACTIVATED:
       case Event.PROPOSAL_BOOKING_TIME_UPDATED:
+      case Event.PROPOSAL_BOOKING_TIME_REOPENED:
       case Event.PROPOSAL_BOOKING_TIME_COMPLETED: {
         const { scheduledevent } = event;
 

@@ -139,6 +139,7 @@ export default function BookingEventStep({
   const { enqueueSnackbar } = useSnackbar();
   const api = useDataApi();
   const [isLoading, setIsLoading] = useState(true);
+  const [isAddingNewTimeSlot, setIsAddingNewTimeSlot] = useState(false);
   const [selectedEvent, setSelectedEvent] =
     useState<ProposalBookingScheduledEvent | null>(null);
 
@@ -202,7 +203,7 @@ export default function BookingEventStep({
   ]);
 
   const handleAdd = async () => {
-    setIsLoading(true);
+    setIsAddingNewTimeSlot(true);
     const lastRow =
       scheduledEvents.length > 0
         ? scheduledEvents[scheduledEvents.length - 1]
@@ -233,11 +234,11 @@ export default function BookingEventStep({
         variant: 'error',
       });
     } else {
-      createdScheduledEvent &&
-        setScheduledEvents([...scheduledEvents, { ...createdScheduledEvent }]);
+      // NOTE: Open the event right after creation
+      createdScheduledEvent && setSelectedEvent(createdScheduledEvent);
     }
 
-    setIsLoading(false);
+    setIsAddingNewTimeSlot(false);
   };
 
   const handleDelete = async (data: ProposalBookingScheduledEvent[]) => {
@@ -315,6 +316,7 @@ export default function BookingEventStep({
   };
 
   const closeDialog = () => {
+    setIsLoading(true);
     setSelectedEvent(null);
 
     // TODO: This could be improved instead of refreshing(re-calling the endpoint) the scheduled events we could try to manage that on the frontend
@@ -478,13 +480,13 @@ export default function BookingEventStep({
                   color="primary"
                   component="span"
                   startIcon={<AddIcon />}
+                  disabled={isAddingNewTimeSlot}
                 >
                   Add time slot
                 </Button>
               ),
-              onClick: () => {
-                handleAdd();
-              },
+              disabled: isAddingNewTimeSlot,
+              onClick: handleAdd,
               isFreeAction: true,
               tooltip: 'Add time slot',
             },

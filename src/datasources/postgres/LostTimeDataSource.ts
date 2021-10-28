@@ -1,10 +1,12 @@
 import { LostTime } from '../../models/LostTime';
-import { BulkUpsertLostTimesInput } from '../../resolvers/mutations/LostTimeMutation';
+import {
+  AddLostTimeInput,
+  DeleteLostTimeInput,
+  UpdateLostTimeInput,
+} from '../../resolvers/mutations/LostTimeMutation';
 import { LostTimeDataSource } from '../LostTimeDataSource';
 import database from './database';
-import { createLostTimeObject, LostTimeRecord, MetaFields } from './records';
-
-type BulkUpsertFields = Omit<LostTimeRecord, MetaFields>;
+import { createLostTimeObject, LostTimeRecord } from './records';
 
 export default class PostgresLostTimeDataSource implements LostTimeDataSource {
   readonly tableName = 'lost_time';
@@ -13,53 +15,48 @@ export default class PostgresLostTimeDataSource implements LostTimeDataSource {
 
   // technically we don't update anything
   // we only delete and (re)create
-  bulkUpsert(
-    bulkUpsertLostTimes: BulkUpsertLostTimesInput
-  ): Promise<LostTime[]> {
-    return database.transaction(async (trx) => {
-      const { proposalBookingId, lostTimes } = bulkUpsertLostTimes;
+  async addLostTime(addLostTimeInput: AddLostTimeInput): Promise<LostTime> {
+    const { proposalBookingId, lostTime } = addLostTimeInput;
 
-      // delete existing events that weren't included in the upsert
-      await trx<LostTimeRecord>(this.tableName)
-        .where('proposal_booking_id', '=', proposalBookingId)
-        .modify((query) => {
-          if (lostTimes.every((lostTime) => lostTime.scheduledEventId)) {
-            query.whereIn(
-              'scheduled_event_id',
-              lostTimes.map((lostTime) => lostTime.scheduledEventId)
-            );
-          }
-        })
-        .whereNotIn(
-          'lost_time_id',
-          lostTimes
-            .filter(({ newlyCreated }) => !newlyCreated)
-            .map(({ id }) => id)
-        )
-        .delete();
+    const [newlyCreatedRecord] = await database(this.tableName)
+      .insert({
+        proposal_booking_id: proposalBookingId,
+        scheduled_event_id: lostTime.scheduledEventId,
+        starts_at: lostTime.startsAt,
+        ends_at: lostTime.endsAt,
+      })
+      .returning<LostTimeRecord[]>(['*']);
 
-      // when the insert has empty array as param it
-      // returns an object instead of an empty record array
-      if (lostTimes.length === 0) {
-        return [];
-      }
+    return createLostTimeObject(newlyCreatedRecord);
+  }
 
-      const newlyCreatedRecords = await trx<BulkUpsertFields>(this.tableName)
-        .insert(
-          lostTimes.map((newObj) => ({
-            lost_time_id: newObj.newlyCreated ? this.nextId : newObj.id,
-            proposal_booking_id: bulkUpsertLostTimes.proposalBookingId,
-            scheduled_event_id: newObj.scheduledEventId,
-            starts_at: newObj.startsAt,
-            ends_at: newObj.endsAt,
-          }))
-        )
-        .onConflict('lost_time_id')
-        .merge()
-        .returning<LostTimeRecord[]>(['*']);
+  async updateLostTime(
+    updateLostTimeInput: UpdateLostTimeInput
+  ): Promise<LostTime> {
+    const { id, endsAt, startsAt } = updateLostTimeInput;
 
-      return newlyCreatedRecords.map(createLostTimeObject);
-    });
+    const [updatedRecord] = await database(this.tableName)
+      .update({
+        starts_at: startsAt,
+        ends_at: endsAt,
+      })
+      .where('lost_time_id', id)
+      .returning<LostTimeRecord[]>(['*']);
+
+    return createLostTimeObject(updatedRecord);
+  }
+
+  async deleteLostTime(
+    deleteLostTimeInput: DeleteLostTimeInput
+  ): Promise<LostTime> {
+    const { id } = deleteLostTimeInput;
+
+    const [deletedRecord] = await database(this.tableName)
+      .where('lost_time_id', id)
+      .delete()
+      .returning<LostTimeRecord[]>(['*']);
+
+    return createLostTimeObject(deletedRecord);
   }
 
   async proposalBookingLostTimes(

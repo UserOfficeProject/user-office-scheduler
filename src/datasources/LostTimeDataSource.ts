@@ -1,10 +1,14 @@
 import { LostTime } from '../models/LostTime';
-import { BulkUpsertLostTimesInput } from '../resolvers/mutations/LostTimeMutation';
+import {
+  AddLostTimeInput,
+  UpdateLostTimeInput,
+  DeleteLostTimeInput,
+} from '../resolvers/mutations/LostTimeMutation';
 
 export interface LostTimeDataSource {
-  bulkUpsert(
-    bulkUpsertLostTimes: BulkUpsertLostTimesInput
-  ): Promise<LostTime[]>;
+  addLostTime(addLostTimeInput: AddLostTimeInput): Promise<LostTime>;
+  updateLostTime(updateLostTimeInput: UpdateLostTimeInput): Promise<LostTime>;
+  deleteLostTime(deleteLostTimeInput: DeleteLostTimeInput): Promise<LostTime>;
   proposalBookingLostTimes(
     proposalBookingId: number,
     scheduledEventId?: number

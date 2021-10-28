@@ -34,6 +34,13 @@ export class LostTimesResponseWrap extends ResponseWrapBase<LostTime> {
 }
 
 @ObjectType()
+export class LostTimeResponseWrap extends ResponseWrapBase<LostTime> {
+  @Response()
+  @Field(() => LostTime, { nullable: true })
+  lostTime: LostTime;
+}
+
+@ObjectType()
 export class ProposalBookingResponseWrap extends ResponseWrapBase<ProposalBooking> {
   @Response()
   @Field(() => ProposalBooking, { nullable: true })

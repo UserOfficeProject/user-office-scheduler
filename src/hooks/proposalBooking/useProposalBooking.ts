@@ -56,5 +56,5 @@ export default function useProposalBooking(id: number) {
     };
   }, [id, api]);
 
-  return { loading, proposalBooking } as const;
+  return { loading, proposalBooking, setProposalBooking } as const;
 }

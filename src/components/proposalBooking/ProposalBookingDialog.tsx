@@ -1,22 +1,26 @@
+import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
 import {
+  Button,
   Dialog,
+  DialogActions,
   DialogContent,
   DialogTitle,
   makeStyles,
-  Step,
-  Stepper,
-  StepButton,
 } from '@material-ui/core';
-import React, { useContext, useEffect, useState } from 'react';
+import { useSnackbar } from 'notistack';
+import React, { useContext, useState } from 'react';
 
 import Loader from 'components/common/Loader';
 import { AppContext } from 'context/AppContext';
-import { ProposalBookingStatusCore } from 'generated/sdk';
-import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
+import {
+  ProposalBookingFinalizeAction,
+  ProposalBookingStatusCore,
+} from 'generated/sdk';
+import { useDataApi } from 'hooks/common/useDataApi';
 import useProposalBooking from 'hooks/proposalBooking/useProposalBooking';
 
-import BookingEventStep from './bookingSteps/BookingEventStep';
-import CompletedStep from './bookingSteps/CompletedStep';
+import ProposalBookingLostTimeTable from './ProposalBookingLostTimeTable';
+import ProposalDetailsAndBookingEvents from './ProposalDetailsAndBookingEvents';
 
 const useStyles = makeStyles(() => ({
   fullHeight: {
@@ -27,65 +31,6 @@ const useStyles = makeStyles(() => ({
     overflowY: 'hidden',
   },
 }));
-
-export enum ProposalBookingSteps {
-  BOOK_EVENTS = 0,
-  COMPLETED,
-}
-
-const ProposalBookingStepNameMap: Record<
-  keyof typeof ProposalBookingSteps,
-  string
-> = {
-  BOOK_EVENTS: 'Book events',
-  COMPLETED: 'Completed',
-};
-
-const steps = [
-  ProposalBookingStepNameMap.BOOK_EVENTS,
-  ProposalBookingStepNameMap.COMPLETED,
-];
-const maxSteps = steps.length;
-
-export type ProposalBookingDialogStepProps = {
-  activeStep: number;
-  activeStatus: ProposalBookingStatusCore | null;
-  proposalBooking: InstrumentProposalBooking;
-  isDirty: boolean;
-  handleNext: () => void;
-  handleBack: () => void;
-  handleResetSteps: () => void;
-  handleSetDirty: (isDirty: boolean) => void;
-  handleCloseDialog: () => void;
-  handleSetActiveStepByStatus: (status: ProposalBookingStatusCore) => void;
-};
-
-function getActiveStep(props: ProposalBookingDialogStepProps) {
-  switch (props.activeStep) {
-    case ProposalBookingSteps.BOOK_EVENTS:
-      return <BookingEventStep {...props} />;
-    case ProposalBookingSteps.COMPLETED:
-      return <CompletedStep {...props} />;
-
-    default:
-      return <DialogContent>Unknown step</DialogContent>;
-  }
-}
-
-const getActiveStepByStatus = (
-  status: ProposalBookingStatusCore | null
-): number => {
-  switch (status) {
-    case ProposalBookingStatusCore.DRAFT:
-    case ProposalBookingStatusCore.ACTIVE:
-      return ProposalBookingSteps.BOOK_EVENTS;
-    case ProposalBookingStatusCore.COMPLETED:
-      return ProposalBookingSteps.COMPLETED;
-
-    default:
-      return -1;
-  }
-};
 
 type ProposalBookingDialogProps = {
   activeProposalBookingId: number;
@@ -99,67 +44,22 @@ export default function ProposalBookingDialog({
   closeDialog,
 }: ProposalBookingDialogProps) {
   const classes = useStyles();
+  const { enqueueSnackbar } = useSnackbar();
+  const api = useDataApi();
 
   const { showConfirmation } = useContext(AppContext);
-  const [activeStep, setActiveStep] = useState(-1);
-  const [activeStatus, setActiveStatus] =
-    useState<ProposalBookingStatusCore | null>(null);
-  const [isDirty, setIsDirty] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [openedEventId, setOpenedEventId] = useState<number | null>(null);
 
-  const { loading, proposalBooking } = useProposalBooking(
+  const { loading, proposalBooking, setProposalBooking } = useProposalBooking(
     activeProposalBookingId
   );
 
-  useEffect(() => {
-    if (!loading && proposalBooking) {
-      setActiveStep(getActiveStepByStatus(proposalBooking.status));
-      setActiveStatus(proposalBooking.status);
-    }
-  }, [loading, proposalBooking]);
-
-  const handleResetSteps = () => {
-    setActiveStep(ProposalBookingSteps.BOOK_EVENTS);
-    setIsDirty(false);
-  };
-
-  const handleNext = () => {
-    setActiveStep((prevStep) => Math.min(prevStep + 1, maxSteps));
-    setIsDirty(false);
-  };
-
-  const handleBack = () => {
-    setActiveStep((prevStep) => Math.max(prevStep - 1, 0));
-    setIsDirty(false);
-  };
-
-  const handleSetStep = (step: number) => () => {
-    setActiveStep(step);
-    setIsDirty(false);
-  };
-
-  const handleSetActiveStepByStatus = (status: ProposalBookingStatusCore) => {
-    setActiveStatus(status);
-  };
-
   const handleCloseDialog = () => {
-    isDirty
-      ? showConfirmation({
-          message: (
-            <>
-              You have <strong>unsaved work</strong>, are you sure you want to
-              continue?
-            </>
-          ),
-          cb: () => closeDialog(true),
-        })
-      : closeDialog(true);
+    closeDialog(true);
   };
 
-  const handleSetDirty = (isDirty: boolean) => {
-    setIsDirty(isDirty);
-  };
-
-  if (loading) {
+  if (loading || !proposalBooking) {
     return (
       <Dialog
         open={isDialogOpen}
@@ -175,47 +75,99 @@ export default function ProposalBookingDialog({
     );
   }
 
+  const isStepReadOnly =
+    proposalBooking.status === ProposalBookingStatusCore.COMPLETED;
+
+  const completeBooking = () => {
+    showConfirmation({
+      message: (
+        <>
+          Are you sure you want to <strong>complete</strong> the selected
+          booking with all the events?
+        </>
+      ),
+      cb: async () => {
+        try {
+          setIsLoading(true);
+
+          const {
+            finalizeProposalBooking: { error },
+          } = await api().finalizeProposalBooking({
+            action: ProposalBookingFinalizeAction.COMPLETE,
+            id: proposalBooking.id,
+          });
+
+          if (error) {
+            enqueueSnackbar(getTranslation(error as ResourceId), {
+              variant: 'error',
+            });
+
+            setIsLoading(false);
+          } else {
+            enqueueSnackbar('Proposal booking completed', {
+              variant: 'success',
+            });
+            setIsLoading(false);
+
+            setProposalBooking({
+              ...proposalBooking,
+              status: ProposalBookingStatusCore.COMPLETED,
+            });
+          }
+        } catch (e) {
+          // TODO
+
+          setIsLoading(false);
+          console.error(e);
+        }
+      },
+    });
+  };
+
   return (
     <Dialog
       open={isDialogOpen}
       onClose={handleCloseDialog}
       fullWidth
       maxWidth="lg"
+      data-cy="proposal-booking-dialog"
       PaperProps={{
         className: classes.fullHeight,
       }}
     >
       <DialogTitle>Proposal booking</DialogTitle>
-      <Stepper nonLinear activeStep={activeStep} className={classes.stepper}>
-        {steps.map((label, index) => (
-          <Step key={label}>
-            <StepButton
-              data-cy={`booking-step-${ProposalBookingSteps[index]}`}
-              onClick={handleSetStep(index)}
-              completed={
-                index <=
-                Math.max(getActiveStepByStatus(activeStatus), activeStep)
-              }
-              disabled={index > getActiveStepByStatus(activeStatus)}
-            >
-              {label}
-            </StepButton>
-          </Step>
-        ))}
-      </Stepper>
-      {proposalBooking &&
-        getActiveStep({
-          activeStep,
-          activeStatus,
-          proposalBooking,
-          isDirty,
-          handleNext,
-          handleBack,
-          handleSetDirty,
-          handleResetSteps,
-          handleSetActiveStepByStatus,
-          handleCloseDialog,
-        })}
+      <DialogContent>
+        {isLoading && <Loader />}
+        <ProposalDetailsAndBookingEvents
+          proposalBooking={proposalBooking}
+          openedEventId={openedEventId}
+          setOpenedEventId={setOpenedEventId}
+        />
+        {isStepReadOnly && (
+          <ProposalBookingLostTimeTable
+            proposalBooking={proposalBooking}
+            handleOnViewEvent={setOpenedEventId}
+          />
+        )}
+      </DialogContent>
+      <DialogActions>
+        <Button
+          color="primary"
+          onClick={handleCloseDialog}
+          data-cy="btn-close-dialog"
+        >
+          Close
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={completeBooking}
+          data-cy="btn-complete-booking"
+          disabled={isStepReadOnly}
+        >
+          Complete proposal booking
+        </Button>
+      </DialogActions>
     </Dialog>
   );
 }

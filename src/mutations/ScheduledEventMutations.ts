@@ -193,7 +193,7 @@ export default class ScheduledEventMutations {
       (event) => event.status === EquipmentAssignmentStatus.ACCEPTED
     );
 
-    if (!scheduledEvent) {
+    if (!scheduledEvent || !scheduledEvent.proposalBookingId) {
       return rejection('NOT_FOUND');
     }
 
@@ -204,7 +204,7 @@ export default class ScheduledEventMutations {
     if (
       !(await instrumentScientistHasAccess(
         ctx,
-        scheduledEvent.proposalBookingId!
+        scheduledEvent.proposalBookingId
       ))
     ) {
       return rejection('NOT_ALLOWED');
@@ -219,7 +219,7 @@ export default class ScheduledEventMutations {
       });
 
     await this.handleProposalBookingStatusChange(
-      scheduledEvent.proposalBookingId!
+      scheduledEvent.proposalBookingId
     );
 
     return result;
@@ -234,14 +234,14 @@ export default class ScheduledEventMutations {
   ): Promise<ScheduledEvent | Rejection> {
     const scheduledEvent = await this.scheduledEventDataSource.get(id);
 
-    if (!scheduledEvent) {
+    if (!scheduledEvent || !scheduledEvent.proposalBookingId) {
       return rejection('NOT_FOUND');
     }
 
     if (
       !(await instrumentScientistHasAccess(
         ctx,
-        scheduledEvent.proposalBookingId!
+        scheduledEvent.proposalBookingId
       ))
     ) {
       return rejection('NOT_ALLOWED');
@@ -256,9 +256,50 @@ export default class ScheduledEventMutations {
       });
 
     await this.handleProposalBookingStatusChange(
-      scheduledEvent.proposalBookingId!,
+      scheduledEvent.proposalBookingId,
       action
     );
+
+    return result;
+  }
+
+  @EventBus(Event.PROPOSAL_BOOKING_TIME_REOPENED)
+  @ValidateArgs(activateBookingValidationSchema)
+  @Authorized([Roles.USER_OFFICER])
+  async reopen(
+    ctx: ResolverContext,
+    { id }: ActivateScheduledEventInput
+  ): Promise<ScheduledEvent | Rejection> {
+    const scheduledEvent = await this.scheduledEventDataSource.get(id);
+    if (!scheduledEvent) {
+      return rejection('NOT_FOUND');
+    }
+
+    if (!scheduledEvent || !scheduledEvent.proposalBookingId) {
+      return rejection('NOT_FOUND');
+    }
+
+    const proposalBooking = await this.proposalBookingDataSource.get(
+      scheduledEvent.proposalBookingId
+    );
+
+    if (!proposalBooking) {
+      return rejection('NOT_FOUND');
+    }
+
+    const result = await this.scheduledEventDataSource
+      .reopen(id)
+      .catch((error: Error) => {
+        logger.logException('Scheduled event re-opening failed', error);
+
+        return rejection('INTERNAL_ERROR');
+      });
+
+    if (proposalBooking.status === ProposalBookingStatusCore.COMPLETED) {
+      await this.proposalBookingDataSource.reopen(
+        scheduledEvent.proposalBookingId
+      );
+    }
 
     return result;
   }

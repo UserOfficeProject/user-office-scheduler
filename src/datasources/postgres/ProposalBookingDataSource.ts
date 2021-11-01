@@ -120,11 +120,26 @@ export default class PostgresProposalBookingDataSource
     )
       .update('status', ProposalBookingStatusCore.ACTIVE)
       .where('proposal_booking_id', id)
-      .where('status', ProposalBookingStatusCore.DRAFT)
       .returning<ProposalBookingRecord[]>(['*']);
 
     if (!updatedRecord) {
       throw new Error(`Failed to activate proposal booking '${id}'`);
+    }
+
+    return createProposalBookingObject(updatedRecord);
+  }
+
+  async reopen(id: number): Promise<ProposalBooking> {
+    const [updatedRecord] = await database<ProposalBookingRecord>(
+      this.tableName
+    )
+      .update('status', ProposalBookingStatusCore.ACTIVE)
+      .where('proposal_booking_id', id)
+      .where('status', ProposalBookingStatusCore.COMPLETED)
+      .returning<ProposalBookingRecord[]>(['*']);
+
+    if (!updatedRecord) {
+      throw new Error(`Failed to re-open proposal booking '${id}'`);
     }
 
     return createProposalBookingObject(updatedRecord);

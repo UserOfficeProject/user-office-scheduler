@@ -17,6 +17,7 @@ export interface ScheduledEventDataSource {
     updateScheduledEvent: UpdateScheduledEventInput
   ): Promise<ScheduledEvent>;
   activate(id: number): Promise<ScheduledEvent>;
+  reopen(id: number): Promise<ScheduledEvent>;
   finalize(
     id: number,
     action: ProposalBookingFinalizeAction

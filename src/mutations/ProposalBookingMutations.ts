@@ -138,4 +138,41 @@ export default class ProposalBookingMutations {
 
     return result;
   }
+
+  @ValidateArgs(activateBookingValidationSchema)
+  @Authorized([Roles.USER_OFFICER])
+  async reopen(
+    ctx: ResolverContext,
+    { id }: { id: number }
+  ): Promise<ProposalBooking | Rejection> {
+    const proposalBooking = await this.proposalBookingDataSource.get(id);
+
+    if (!proposalBooking) {
+      return rejection('NOT_FOUND');
+    }
+
+    const result = await this.proposalBookingDataSource
+      .reopen(id)
+      .catch((error: Error) => {
+        logger.logException('ProposalBooking re-open failed', error);
+
+        return rejection('INTERNAL_ERROR');
+      });
+
+    if (result instanceof ProposalBooking) {
+      const allScheduledEvents =
+        await this.scheduledEventDataSource.proposalBookingScheduledEvents(
+          proposalBooking.id
+        );
+
+      await Promise.all(
+        allScheduledEvents.map(
+          async (scheduledEvent) =>
+            await this.scheduledEventDataSource.reopen(scheduledEvent.id)
+        )
+      );
+    }
+
+    return result;
+  }
 }

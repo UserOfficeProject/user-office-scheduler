@@ -35,4 +35,7 @@ export default class MockupProposalBookingDataSource
   activate(id: number): Promise<ProposalBooking> {
     throw new Error('Method not implemented.');
   }
+  reopen(id: number): Promise<ProposalBooking> {
+    throw new Error('Method not implemented.');
+  }
 }

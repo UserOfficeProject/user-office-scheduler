@@ -77,6 +77,9 @@ export default class MockupScheduledEventDataSource
   async activate(id: number): Promise<ScheduledEvent> {
     throw new Error('Method not implemented.');
   }
+  async reopen(id: number): Promise<ScheduledEvent> {
+    throw new Error('Method not implemented.');
+  }
 
   async finalize(
     id: number,

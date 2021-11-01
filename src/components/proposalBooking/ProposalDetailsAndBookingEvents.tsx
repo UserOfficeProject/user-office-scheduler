@@ -45,6 +45,7 @@ import TimeSlotBookingDialog from 'components/timeSlotBooking/TimeSlotBookingDia
 import { AppContext } from 'context/AppContext';
 import {
   ProposalBookingStatusCore,
+  ScheduledEvent,
   ScheduledEventBookingType,
 } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
@@ -117,18 +118,19 @@ const checkIfSomeScheduledEventIsOutsideCallCycleInterval = (
 
 export type ProposalDetailsAndBookingEventsProps = {
   proposalBooking: InstrumentProposalBooking;
+  setProposalBooking: Dispatch<
+    SetStateAction<InstrumentProposalBooking | null>
+  >;
   openedEventId: number | null;
   setOpenedEventId: Dispatch<SetStateAction<number | null>>;
 };
 
 export default function ProposalDetailsAndBookingEvents({
   proposalBooking,
+  setProposalBooking,
   openedEventId,
   setOpenedEventId,
 }: ProposalDetailsAndBookingEventsProps) {
-  const isStepReadOnly =
-    proposalBooking.status === ProposalBookingStatusCore.COMPLETED;
-
   const {
     call: { startCycle, endCycle, cycleComment },
     proposal: { title, proposalId },
@@ -136,9 +138,10 @@ export default function ProposalDetailsAndBookingEvents({
 
   const classes = useStyles();
 
-  const [scheduledEvents, setScheduledEvents] = useState(
-    proposalBooking.scheduledEvents as ProposalBookingScheduledEvent[]
-  );
+  const { scheduledEvents } = proposalBooking;
+
+  const isStepReadOnly =
+    proposalBooking.status === ProposalBookingStatusCore.COMPLETED;
 
   const { showConfirmation } = useContext(AppContext);
   const { enqueueSnackbar } = useSnackbar();
@@ -206,7 +209,6 @@ export default function ProposalDetailsAndBookingEvents({
     );
   }, [
     scheduledEvents,
-    setScheduledEvents,
     proposalBooking.call.startCycle,
     proposalBooking.call.endCycle,
   ]);
@@ -247,7 +249,13 @@ export default function ProposalDetailsAndBookingEvents({
         variant: 'success',
       });
       if (createdScheduledEvent) {
-        setScheduledEvents([...scheduledEvents, createdScheduledEvent]);
+        setProposalBooking({
+          ...proposalBooking,
+          scheduledEvents: [
+            ...proposalBooking.scheduledEvents,
+            createdScheduledEvent as ScheduledEvent,
+          ],
+        });
         // NOTE: Open the event right after creation
         setSelectedEvent(createdScheduledEvent);
       }
@@ -287,7 +295,8 @@ export default function ProposalDetailsAndBookingEvents({
       enqueueSnackbar('Time slot deleted successfully', {
         variant: 'success',
       });
-      deletedScheduledEvents && setScheduledEvents(newEvents);
+      deletedScheduledEvents &&
+        setProposalBooking({ ...proposalBooking, scheduledEvents: newEvents });
     }
 
     setIsLoading(false);
@@ -307,7 +316,10 @@ export default function ProposalDetailsAndBookingEvents({
       return scheduledEvent;
     });
 
-    setScheduledEvents(newEvents);
+    setProposalBooking({
+      ...proposalBooking,
+      scheduledEvents: newEvents as ScheduledEvent[],
+    });
     setOpenedEventId(null);
     setSelectedEvent(null);
   };

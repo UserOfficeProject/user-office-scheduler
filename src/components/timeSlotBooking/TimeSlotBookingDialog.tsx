@@ -16,10 +16,12 @@ import React, { Dispatch, useContext, useState } from 'react';
 import Loader from 'components/common/Loader';
 import SplitButton from 'components/common/SplitButton';
 import { AppContext } from 'context/AppContext';
+import { useCheckAccess } from 'context/UserContext';
 import {
   EquipmentAssignmentStatus,
   ProposalBookingFinalizeAction,
   ProposalBookingStatusCore,
+  UserRole,
 } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import useProposalBookingLostTimes, {
@@ -75,6 +77,7 @@ export default function TimeSlotBookingDialog({
   const { showConfirmation, showAlert } = useContext(AppContext);
   const [isDirty, setIsDirty] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const isUserOfficer = useCheckAccess([UserRole.USER_OFFICER]);
 
   const { loading, scheduledEvent, setScheduledEvent } =
     useScheduledEventWithEquipment({
@@ -359,6 +362,51 @@ export default function TimeSlotBookingDialog({
     });
   };
 
+  const reopenTimeSlotBooking = () => {
+    showConfirmation({
+      message: (
+        <>
+          Are you sure you want to <strong>re-open</strong> the selected time
+          slot?
+        </>
+      ),
+      cb: async () => {
+        try {
+          setIsLoading(true);
+
+          const {
+            reopenScheduledEvent: { error },
+          } = await api().reopenScheduledEvent({
+            id: scheduledEvent.id,
+          });
+
+          if (error) {
+            enqueueSnackbar(getTranslation(error as ResourceId), {
+              variant: 'error',
+            });
+
+            setIsLoading(false);
+          } else {
+            enqueueSnackbar('Scheduled event re-opened', {
+              variant: 'success',
+            });
+            setIsLoading(false);
+
+            setScheduledEvent({
+              ...scheduledEvent,
+              status: ProposalBookingStatusCore.ACTIVE,
+            });
+          }
+        } catch (e) {
+          // TODO
+
+          setIsLoading(false);
+          console.error(e);
+        }
+      },
+    });
+  };
+
   return (
     <Dialog
       open={isDialogOpen}
@@ -448,6 +496,16 @@ export default function TimeSlotBookingDialog({
             disabled={isReadOnly || isDirty}
             dropdownDisabled={isReadOnly || isDirty}
           />
+        )}
+        {isReadOnly && isUserOfficer && (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={reopenTimeSlotBooking}
+            data-cy="btn-reopen-time-slot-booking"
+          >
+            Reopen time slot booking
+          </Button>
         )}
       </DialogActions>
     </Dialog>

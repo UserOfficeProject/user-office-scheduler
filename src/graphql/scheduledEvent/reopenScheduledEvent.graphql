@@ -1,0 +1,5 @@
+mutation reopenScheduledEvent($id: Int!) {
+  reopenScheduledEvent(id: $id) {
+    error
+  }
+}

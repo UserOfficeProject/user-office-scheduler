@@ -1,7 +1,7 @@
 import { getTranslation } from '@esss-swap/duo-localisation';
 import { decode } from 'jsonwebtoken';
 import { useSnackbar } from 'notistack';
-import React, { createContext, useEffect, useReducer } from 'react';
+import React, { createContext, useContext, useEffect, useReducer } from 'react';
 import { useCookies } from 'react-cookie';
 
 import Loader from 'components/common/Loader';
@@ -16,6 +16,7 @@ export type UserContextData = {
   stateInitialized: boolean;
   user: AuthenticatedUser | null;
   token: string | null;
+  currentRole: UserRole | null;
   roles: Role[];
   handleNewToken: (token: string) => void;
   handleLogout: () => void;
@@ -26,6 +27,7 @@ const initialState = {
   user: null,
   token: null,
   roles: [],
+  currentRole: null,
   handleNewToken: () => {},
   handleLogout: () => {},
 };
@@ -57,6 +59,8 @@ function reducer(
 
         user: action.payload.decodedToken.user,
         roles: action.payload.decodedToken.roles,
+        currentRole:
+          action.payload.decodedToken.currentRole.shortCode.toUpperCase(),
         token: action.payload.token,
         stateInitialized: true,
       };
@@ -139,3 +143,17 @@ export function UserContextProvider({ children }: UserContextProviderProps) {
     </UserContext.Provider>
   );
 }
+
+export const useCheckAccess = (allowedRoles: UserRole[]) => {
+  const { currentRole } = useContext(UserContext);
+
+  if (!currentRole) {
+    return false;
+  }
+
+  if (allowedRoles.includes(currentRole)) {
+    return true;
+  }
+
+  return false;
+};

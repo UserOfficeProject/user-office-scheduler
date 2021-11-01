@@ -837,6 +837,87 @@ context('Proposal booking tests ', () => {
           .and('include', 'background: rgb(')
           .and('include', 'filter: grayscale(0.5) opacity(1)');
       });
+
+      it('Instrument scientist should not be able to re-open completed events', () => {
+        cy.initializeSession('InstrumentScientist_1');
+
+        cy.visit({
+          url: '/calendar',
+          timeout: 15000,
+        });
+
+        cy.finishedLoading();
+        cy.get('[data-cy=input-instrument-select]').click();
+
+        cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
+          .first()
+          .click();
+        cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
+
+        cy.get(
+          '#instrument-calls-tree-view [role=treeitem] [role=group] [role=treeitem]'
+        )
+          .first()
+          .click();
+
+        cy.get('[data-cy="btn-reopen-booking"]').should('not.exist');
+
+        cy.get('[title="Edit event"]').first().click();
+
+        cy.finishedLoading();
+
+        cy.get('[data-cy="btn-reopen-time-slot-booking"]').should('not.exist');
+      });
+
+      it('User officer should be able to re-open completed events', () => {
+        cy.initializeSession('UserOfficer');
+
+        cy.visit({
+          url: '/calendar',
+          timeout: 15000,
+        });
+
+        cy.finishedLoading();
+        cy.get('[data-cy=input-instrument-select]').click();
+
+        cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
+          .last()
+          .click();
+        cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
+
+        cy.get(
+          '#instrument-calls-tree-view [role=treeitem] [role=group] [role=treeitem]'
+        )
+          .first()
+          .click();
+
+        cy.get('[data-cy="btn-reopen-booking"]').should(
+          'include.text',
+          'Reopen proposal booking'
+        );
+
+        cy.get('[title="Edit event"]').first().click();
+
+        cy.finishedLoading();
+
+        cy.get('[data-cy="btn-reopen-time-slot-booking"]')
+          .should('include.text', 'Reopen time slot booking')
+          .click();
+
+        cy.contains(/confirmation/i);
+        cy.contains(/Are you sure you want to re-open the selected time slot/i);
+
+        cy.get('[data-cy="btn-ok"]').click();
+
+        cy.finishedLoading();
+
+        cy.get('[title="Add lost time"]').should('exist');
+        cy.contains('Complete the time slot booking');
+
+        cy.get('[data-cy="btn-close-event-dialog"]').click();
+
+        cy.get('[data-cy="btn-reopen-booking"]').should('not.exist');
+      });
     });
   });
 });

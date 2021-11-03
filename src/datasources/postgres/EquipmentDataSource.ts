@@ -13,6 +13,7 @@ import {
   DeleteEquipmentAssignmentInput,
   ConfirmEquipmentAssignmentInput,
   EquipmentResponsibleInput,
+  UpdateEquipmentOwnerInput,
 } from '../../resolvers/mutations/EquipmentMutation';
 import { EquipmentDataSource } from '../EquipmentDataSource';
 import database, { UNIQUE_CONSTRAINT_VIOLATION } from './database';
@@ -296,6 +297,17 @@ export default class PostgresEquipmentDataSource
       .returning('*');
 
     return deletedRecords.length === 1;
+  }
+
+  async updateEquipmentOwner(
+    input: UpdateEquipmentOwnerInput
+  ): Promise<boolean> {
+    const [equipmentRecord] = await database<EquipmentRecord>(this.tableName)
+      .update({ owner_id: input.userId })
+      .where({ equipment_id: input.equipmentId })
+      .returning('*');
+
+    return equipmentRecord.owner_id === input.userId;
   }
 
   async addEquipmentResponsible(

@@ -13,6 +13,7 @@ import {
   DeleteEquipmentAssignmentInput,
   ConfirmEquipmentAssignmentInput,
   EquipmentResponsibleInput,
+  UpdateEquipmentOwnerInput,
 } from '../resolvers/mutations/EquipmentMutation';
 
 export interface EquipmentDataSource {
@@ -47,6 +48,9 @@ export interface EquipmentDataSource {
   ): Promise<boolean>;
   addEquipmentResponsible(
     addEquipmentResponsibleInput: EquipmentResponsibleInput
+  ): Promise<boolean>;
+  updateEquipmentOwner(
+    updateEquipmentOwnerInput: UpdateEquipmentOwnerInput
   ): Promise<boolean>;
   getEquipmentResponsible(equipmentId: number): Promise<EquipmentResponsible[]>;
   equipmentEventsByProposalBookingId(

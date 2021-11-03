@@ -14,7 +14,7 @@ export type DetailedEquipment = Pick<
   | 'maintenanceEndsAt'
   | 'autoAccept'
 > & {
-  owner: Maybe<Pick<User, 'firstname' | 'lastname'>>;
+  owner: Maybe<Pick<User, 'id' | 'firstname' | 'lastname'>>;
   equipmentResponsible: Array<Pick<User, 'id' | 'firstname' | 'lastname'>>;
 };
 
@@ -49,5 +49,5 @@ export default function useEquipment(id?: number) {
     };
   }, [id, api]);
 
-  return { loading, equipment } as const;
+  return { loading, equipment, setEquipment } as const;
 }

@@ -1,11 +1,12 @@
-import { Grid, IconButton, TableCell, Tooltip } from '@material-ui/core';
+import MaterialTable, { Column } from '@material-table/core';
+import { Grid } from '@material-ui/core';
 import { Check as CheckIcon, Clear as ClearIcon } from '@material-ui/icons';
 import moment, { Moment } from 'moment';
 import { useSnackbar } from 'notistack';
 import React, { useState, useEffect, useContext } from 'react';
 
 import Loader from 'components/common/Loader';
-import Table, { HeadCell } from 'components/common/Table';
+import { tableIcons } from 'components/common/TableIcons';
 import { AppContext } from 'context/AppContext';
 import { EquipmentAssignmentStatus } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
@@ -26,15 +27,18 @@ type TableRow = {
   scheduledBy: string;
 };
 
-export const defaultHeadCells: HeadCell<TableRow>[] = [
-  { id: 'equipmentName', label: 'Equipment name' },
-  { id: 'instrumentName', label: 'Instrument' },
-  { id: 'proposalTitle', label: 'Proposal' },
-  { id: 'proposalId', label: 'Proposal ID' },
-  { id: 'startsAt', label: 'Starts at' },
-  { id: 'endsAt', label: 'Ends at' },
-  { id: 'equipmentAssignmentStatus', label: 'Status' },
-  { id: 'scheduledBy', label: 'Scheduled by' },
+export const columns: Column<TableRow>[] = [
+  { field: 'equipmentName', title: 'Equipment name' },
+  { field: 'instrumentName', title: 'Instrument' },
+  { field: 'proposalTitle', title: 'Proposal' },
+  { field: 'proposalId', title: 'Proposal ID' },
+  {
+    title: 'Starts at',
+    render: (rowData) => toTzLessDateTime(rowData.startsAt),
+  },
+  { title: 'Ends at', render: (rowData) => toTzLessDateTime(rowData.endsAt) },
+  { field: 'equipmentAssignmentStatus', title: 'Status' },
+  { field: 'scheduledBy', title: 'Scheduled by' },
 ];
 
 export default function ViewRequests() {
@@ -43,8 +47,8 @@ export default function ViewRequests() {
   const { loading: scheduledEventsLoading, scheduledEvents } =
     useEquipmentScheduledEvents({
       equipmentIds: [], // NOTE: Empty array is used to load all equipments.
-      startsAt: toTzLessDateTime(new Date()),
-      endsAt: toTzLessDateTime(moment(new Date()).add(1, 'year')),
+      startsAt: toTzLessDateTime(moment(new Date()).startOf('day')),
+      endsAt: toTzLessDateTime(moment(new Date()).add(1, 'year').endOf('day')),
       shouldGetAll: true,
     });
   const api = useDataApi();
@@ -146,76 +150,43 @@ export default function ViewRequests() {
     });
   };
 
-  const RowActions = ({ row }: { row: TableRow }) => {
-    if (row.equipmentAssignmentStatus !== EquipmentAssignmentStatus.PENDING) {
-      return null;
-    }
-
-    return (
-      <>
-        <Tooltip title="Accept request">
-          <IconButton
-            data-cy="btn-confirm-assignment-accept"
-            onClick={() => handleConfirmAssignment(row, 'accept')}
-          >
-            <CheckIcon />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="Reject request">
-          <IconButton
-            data-cy="btn-confirm-assignment-reject"
-            onClick={() => handleConfirmAssignment(row, 'reject')}
-          >
-            <ClearIcon />
-          </IconButton>
-        </Tooltip>
-      </>
-    );
-  };
-
   return (
     <ContentContainer maxWidth={false}>
       <Grid container>
         <Grid item xs={12}>
           <StyledPaper margin={[0, 1]}>
-            {confirmationLoading && <Loader />}
-            {scheduledEventsLoading ? (
-              <Loader relative spaced />
-            ) : (
-              <Table
-                defaultOrderBy="startsAt"
-                tableTitle="Upcoming requests"
-                headCells={defaultHeadCells}
-                rowActions={RowActions}
-                showEmptyRows
-                rows={rows}
-                extractKey={(el) => {
-                  const key = parseInt(`${el.id}${el.equipmentId}`);
-
-                  return key;
-                }}
-                renderRow={(row) => {
-                  return (
-                    <>
-                      <TableCell align="left">{row.equipmentName}</TableCell>
-                      <TableCell align="left">{row.instrumentName}</TableCell>
-                      <TableCell align="left">{row.proposalTitle}</TableCell>
-                      <TableCell align="left">{row.proposalId}</TableCell>
-                      <TableCell align="left">
-                        {toTzLessDateTime(row.startsAt)}
-                      </TableCell>
-                      <TableCell align="left">
-                        {toTzLessDateTime(row.endsAt)}
-                      </TableCell>
-                      <TableCell align="left">
-                        {row.equipmentAssignmentStatus}
-                      </TableCell>
-                      <TableCell align="left">{row.scheduledBy}</TableCell>
-                    </>
-                  );
-                }}
+            <div data-cy="equipments-requests-table">
+              <MaterialTable
+                icons={tableIcons}
+                title="Time slots upcoming year"
+                columns={columns}
+                data={rows}
+                options={{ search: false }}
+                isLoading={scheduledEventsLoading || confirmationLoading}
+                actions={[
+                  (rowData) => ({
+                    icon: CheckIcon,
+                    tooltip: 'Accept request',
+                    hidden:
+                      rowData.equipmentAssignmentStatus !==
+                      EquipmentAssignmentStatus.PENDING,
+                    onClick: () =>
+                      handleConfirmAssignment(rowData as TableRow, 'accept'),
+                    position: 'row',
+                  }),
+                  (rowData) => ({
+                    icon: ClearIcon,
+                    tooltip: 'Reject request',
+                    hidden:
+                      rowData.equipmentAssignmentStatus !==
+                      EquipmentAssignmentStatus.PENDING,
+                    onClick: (_event, rowData) =>
+                      handleConfirmAssignment(rowData as TableRow, 'reject'),
+                    position: 'row',
+                  }),
+                ]}
               />
-            )}
+            </div>
           </StyledPaper>
         </Grid>
       </Grid>

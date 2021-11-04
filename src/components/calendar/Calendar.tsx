@@ -234,6 +234,7 @@ export default function Calendar() {
   const queryEquipment = query.get('equipment');
   const querySchedulerView = query.get('schedulerView');
   const queryView = query.get('viewPeriod') as View;
+  const queryStartsAt = query.get('timeLineStart');
 
   const [schedulerActiveView, setSchedulerActiveView] = useState(
     (querySchedulerView as SchedulerViews) || SchedulerViews.CALENDAR
@@ -250,9 +251,11 @@ export default function Calendar() {
   >(null);
   const [view, setView] = useState<View>(queryView || CALENDAR_DEFAULT_VIEW);
   const [startsAt, setStartAt] = useState(
-    moment()
-      .startOf(view as moment.unitOfTime.StartOf)
-      .toDate()
+    queryStartsAt
+      ? moment(queryStartsAt).toDate()
+      : moment()
+          .startOf(view as moment.unitOfTime.StartOf)
+          .toDate()
   );
   const [filter, setFilter] = useState(
     generateScheduledEventFilter(
@@ -749,6 +752,7 @@ export default function Calendar() {
                           query.set('schedulerView', schedulerNewView);
                         } else {
                           query.delete('schedulerView');
+                          query.delete('timeLineStart');
                         }
 
                         history.push(`?${query}`);

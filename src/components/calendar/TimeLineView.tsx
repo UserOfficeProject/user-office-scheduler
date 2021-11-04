@@ -10,6 +10,7 @@ import {
   useMediaQuery,
 } from '@material-ui/core';
 import { Autocomplete } from '@material-ui/lab';
+import { debounce } from 'lodash';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { View } from 'react-big-calendar';
@@ -38,6 +39,15 @@ type TimeLineViewProps = {
   startsAt: Date;
   setStartAt: React.Dispatch<React.SetStateAction<Date>>;
 };
+
+const handleTimeChange = debounce(
+  (newStart: moment.Moment, setStartAt: any, query: any, history: any) => {
+    setStartAt(moment(newStart).toDate());
+    query.set('timeLineStart', `${moment(newStart)}`);
+    history.push(`?${query}`);
+  },
+  500
+);
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -90,11 +100,10 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
   const [timelineViewPeriod, setTimelineViewPeriod] = useState(
     queryView || 'week'
   );
-  const defaultVisibleTimeStart = moment(startsAt).startOf(
-    timelineViewPeriod as moment.unitOfTime.StartOf
-  );
-  const defaultVisibleTimeEnd = moment(startsAt).endOf(
-    timelineViewPeriod as moment.unitOfTime.StartOf
+  const defaultVisibleTimeStart = moment(startsAt);
+  const defaultVisibleTimeEnd = moment(startsAt).add(
+    1,
+    timelineViewPeriod as moment.unitOfTime.DurationConstructor
   );
 
   const [visibleTimeStart, setVisibleTimeStart] = useState(
@@ -281,6 +290,18 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
     history.push(`?${query}`);
   };
 
+  // TODO: Try to debounce this somehow and make the fltering work with every date instead of .startOf('month'), .startOf('week') etc.
+
+  const handler = (visibleTimeStart1: number, visibleTimeEnd1: number) => {
+    const newStart = moment(visibleTimeStart1);
+    const newEnd = moment(visibleTimeEnd1);
+
+    setVisibleTimeStart(newStart);
+    setVisibleTimeEnd(newEnd);
+
+    handleTimeChange(newStart, setStartAt, query, history);
+  };
+
   const getPrimaryHeaderText = () => {
     const sameStartAndEndMonth =
       moment(visibleTimeStart).month() === moment(visibleTimeEnd).month();
@@ -303,6 +324,8 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
         return monthViewText;
     }
   };
+
+  console.log('eseadasdas', visibleTimeStart);
 
   return (
     <div data-cy="calendar-timeline-view" className={classes.root}>
@@ -418,31 +441,34 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
         stackItems
         canMove={false}
         canResize={false}
+        onTimeChange={handler}
       >
-        <TimelineHeaders>
-          <SidebarHeader>
-            {({ getRootProps }) => {
-              return <div {...getRootProps()} />;
-            }}
-          </SidebarHeader>
-          <DateHeader
-            unit="primaryHeader"
-            className="primaryHeader"
-            intervalRenderer={(props) => {
-              if (!props) {
-                return;
-              }
-              const { getIntervalProps } = props;
+        {timelineViewPeriod !== 'month' && (
+          <TimelineHeaders>
+            <SidebarHeader>
+              {({ getRootProps }) => {
+                return <div {...getRootProps()} />;
+              }}
+            </SidebarHeader>
+            <DateHeader
+              unit="primaryHeader"
+              className="primaryHeader"
+              intervalRenderer={(props) => {
+                if (!props) {
+                  return;
+                }
+                const { getIntervalProps } = props;
 
-              return (
-                <div className="customPrimaryHeader" {...getIntervalProps()}>
-                  {getPrimaryHeaderText()}
-                </div>
-              );
-            }}
-          />
-          <DateHeader />
-        </TimelineHeaders>
+                return (
+                  <div className="customPrimaryHeader" {...getIntervalProps()}>
+                    {getPrimaryHeaderText()}
+                  </div>
+                );
+              }}
+            />
+            <DateHeader />
+          </TimelineHeaders>
+        )}
       </Timeline>
     </div>
   );

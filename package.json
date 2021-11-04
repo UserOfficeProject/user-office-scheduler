@@ -32,7 +32,8 @@
   "author": "SWAP",
   "license": "ISC",
   "dependencies": {
-    "@apollo/federation": "^0.33.0",
+    "@apollo/federation": "^0.33.3",
+    "@apollo/subgraph": "^0.1.4",
     "@esss-swap/duo-localisation": "^1.1.15",
     "@esss-swap/duo-logger": "^1.1.1",
     "@esss-swap/duo-message-broker": "^1.0.8",
@@ -49,7 +50,7 @@
     "express": "^4.17.1",
     "express-jwt": "^6.1.0",
     "graphql": "^15.6.1",
-    "graphql-request": "^3.4.0",
+    "graphql-request": "^3.6.0",
     "graphql-tag": "^2.12.5",
     "jsonwebtoken": "^8.5.1",
     "knex": "^0.95.11",
@@ -57,7 +58,7 @@
     "pg": "^8.6.0",
     "reflect-metadata": "^0.1.13",
     "type-graphql": "^1.1.1",
-    "yup": "^0.32.10"
+    "yup": "^0.32.11"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^1.21.1",

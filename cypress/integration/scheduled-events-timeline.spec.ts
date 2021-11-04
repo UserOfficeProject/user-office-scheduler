@@ -157,7 +157,7 @@ context('Scheduled events timeline tests', () => {
 
       cy.contains(newScheduledEvent_1.endsAt);
 
-      cy.contains(getFormattedDateAfter('dddd, DD MMMM YYYY'));
+      cy.contains(getFormattedDateAfter('dddd, D MMMM YYYY'));
 
       cy.get('[data-cy="calendar-timeline-view"]').should(
         'not.contain',
@@ -279,7 +279,9 @@ context('Scheduled events timeline tests', () => {
       ).should('exist');
 
       cy.get('[role="none presentation"] [data-cy="btn-save"]').should('exist');
-      cy.get('[role="none presentation"] [data-cy="activate-time-slot-booking"]').should('exist');
+      cy.get(
+        '[role="none presentation"] [data-cy="activate-time-slot-booking"]'
+      ).should('exist');
     });
 
     it('should not reset dates if page reloads', () => {

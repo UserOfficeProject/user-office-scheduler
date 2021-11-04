@@ -517,6 +517,7 @@ export type Feature = {
 };
 
 export enum FeatureId {
+  EMAIL_INVITE = 'EMAIL_INVITE',
   EXTERNAL_AUTH = 'EXTERNAL_AUTH',
   RISK_ASSESSMENT = 'RISK_ASSESSMENT',
   SCHEDULER = 'SCHEDULER',
@@ -736,6 +737,7 @@ export type Mutation = {
   cloneGenericTemplate: GenericTemplateResponseWrap;
   cloneProposals: ProposalsResponseWrap;
   cloneSample: SampleResponseWrap;
+  cloneSampleEsi: SampleEsiResponseWrap;
   cloneTemplate: TemplateResponseWrap;
   confirmEquipmentAssignment: Scalars['Boolean'];
   createApiAccessToken: ApiAccessTokenResponseWrap;
@@ -1007,8 +1009,16 @@ export type MutationCloneProposalsArgs = {
 
 
 export type MutationCloneSampleArgs = {
+  isPostProposalSubmission?: Maybe<Scalars['Boolean']>;
   sampleId: Scalars['Int'];
   title?: Maybe<Scalars['String']>;
+};
+
+
+export type MutationCloneSampleEsiArgs = {
+  esiId: Scalars['Int'];
+  newSampleTitle?: Maybe<Scalars['String']>;
+  sampleId: Scalars['Int'];
 };
 
 

@@ -384,5 +384,39 @@ context('Scheduled events timeline tests', () => {
         '[data-cy="calendar-timeline-view"] .react-calendar-timeline .rct-sidebar'
       ).should('include.text', 'Instrument 3');
     });
+
+    it('should be able to scroll inside timeline view', () => {
+      cy.initializeSession('UserOfficer');
+      cy.visit({
+        url: '/calendar',
+        timeout: 15000,
+      });
+
+      cy.finishedLoading();
+
+      cy.get('[data-cy=input-instrument-select]').click();
+
+      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
+        .first()
+        .click();
+
+      cy.finishedLoading();
+
+      cy.get('[data-cy="scheduler-active-view"]').click();
+      cy.get('[data-value="Timeline"]').click();
+
+      // NOTE: Using .parent().parent() because that's how react-calendar-timeline works. They have added the event listener on that element.
+      cy.get('.react-calendar-timeline .rct-hl.rct-hl-even')
+        .parent()
+        .parent()
+        .click();
+
+      cy.get('body').trigger('keypress', { code: 39 });
+
+      // NOTE: cy.tick is used to be able to execute the handleTimeChange because it's debounced with 500ms.
+      cy.tick(500);
+
+      cy.url().should('include', 'timeLineStart=');
+    });
   });
 });

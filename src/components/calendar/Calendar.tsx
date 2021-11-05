@@ -19,7 +19,13 @@ import clsx from 'clsx';
 import generateScheduledEventFilter from 'filters/scheduledEvent/scheduledEventsFilter';
 import moment, { Moment } from 'moment';
 import 'moment/locale/en-gb';
-import React, { useState, useMemo, useContext, useEffect } from 'react';
+import React, {
+  useState,
+  useMemo,
+  useContext,
+  useEffect,
+  useCallback,
+} from 'react';
 import {
   Calendar as BigCalendar,
   momentLocalizer,
@@ -234,7 +240,7 @@ export default function Calendar() {
   const queryEquipment = query.get('equipment');
   const querySchedulerView = query.get('schedulerView');
   const queryView = query.get('viewPeriod') as View;
-  const queryStartsAt = query.get('timeLineStart');
+  const queryTimeLineStart = query.get('timeLineStart');
 
   const [schedulerActiveView, setSchedulerActiveView] = useState(
     (querySchedulerView as SchedulerViews) || SchedulerViews.CALENDAR
@@ -251,8 +257,8 @@ export default function Calendar() {
   >(null);
   const [view, setView] = useState<View>(queryView || CALENDAR_DEFAULT_VIEW);
   const [startsAt, setStartAt] = useState(
-    queryStartsAt
-      ? moment(queryStartsAt).toDate()
+    queryTimeLineStart
+      ? moment(queryTimeLineStart).toDate()
       : moment()
           .startOf(view as moment.unitOfTime.StartOf)
           .toDate()
@@ -332,11 +338,32 @@ export default function Calendar() {
     refreshEquipments();
   };
 
+  const getStartDate = useCallback(
+    (schedulerNewView = schedulerActiveView) => {
+      if (
+        schedulerNewView === SchedulerViews.CALENDAR &&
+        !moment(startsAt).isSame(
+          moment(startsAt).startOf(view as moment.unitOfTime.StartOf)
+        )
+      ) {
+        const newStartDate = moment(startsAt).startOf(
+          view as moment.unitOfTime.StartOf
+        );
+
+        return newStartDate.toDate();
+      }
+
+      return startsAt;
+    },
+    [schedulerActiveView, startsAt, view]
+  );
+
   useEffect(() => {
+    const newStartDate = getStartDate();
     setFilter(
       generateScheduledEventFilter(
         getInstrumentIdsFromQuery(queryInstrument),
-        startsAt,
+        newStartDate,
         queryView || view
       )
     );
@@ -345,6 +372,7 @@ export default function Calendar() {
     queryInstrument,
     startsAt,
     view,
+    getStartDate,
     queryView,
     proposalBookingSelectedInstruments,
     setProposalBookingSelectedInstruments,
@@ -375,7 +403,10 @@ export default function Calendar() {
   );
 
   const onNavigate = (newDate: Date, newView: View) => {
-    setStartAt(newDate);
+    const newStartDate = moment(newDate)
+      .startOf(newView as moment.unitOfTime.StartOf)
+      .toDate();
+    setStartAt(newStartDate);
     setView(newView);
 
     setFilter(
@@ -609,6 +640,7 @@ export default function Calendar() {
                     }}
                     defaultDate={startsAt}
                     step={60}
+                    date={startsAt}
                     timeslots={1}
                     showMultiDayTimes={true}
                     dayLayoutAlgorithm={'no-overlap'}
@@ -753,6 +785,11 @@ export default function Calendar() {
                         } else {
                           query.delete('schedulerView');
                           query.delete('timeLineStart');
+                          query.delete('startsAt');
+                          query.delete('endsAt');
+
+                          const newStartDate = getStartDate(schedulerNewView);
+                          setStartAt(newStartDate);
                         }
 
                         history.push(`?${query}`);

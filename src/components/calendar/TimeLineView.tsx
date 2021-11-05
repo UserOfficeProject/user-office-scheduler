@@ -10,6 +10,7 @@ import {
   useMediaQuery,
 } from '@material-ui/core';
 import { Autocomplete } from '@material-ui/lab';
+import * as H from 'history';
 import { debounce } from 'lodash';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
@@ -40,8 +41,14 @@ type TimeLineViewProps = {
   setStartAt: React.Dispatch<React.SetStateAction<Date>>;
 };
 
+// NOTE: Debounce the function because there are too many calls on scroll so we want to avoid bombarding the backend with so many requests for new events
 const handleTimeChange = debounce(
-  (newStart: moment.Moment, setStartAt: any, query: any, history: any) => {
+  (
+    newStart: moment.Moment,
+    setStartAt: React.Dispatch<React.SetStateAction<Date>>,
+    query: URLSearchParams,
+    history: H.History
+  ) => {
     setStartAt(moment(newStart).toDate());
     query.set('timeLineStart', `${moment(newStart)}`);
     history.push(`?${query}`);
@@ -110,6 +117,7 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
     defaultVisibleTimeStart
   );
   const [visibleTimeEnd, setVisibleTimeEnd] = useState(defaultVisibleTimeEnd);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const [selectedInstruments, setSelectedInstruments] = useState<
     PartialInstrument[]
@@ -172,12 +180,8 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
         switch (changeOperator) {
           case 'PREV':
             return {
-              newVisibleTimeStart: moment(visibleTimeStart)
-                .subtract(1, 'day')
-                .startOf('day'),
-              newVisibleTimeEnd: moment(visibleTimeEnd)
-                .subtract(1, 'day')
-                .endOf('day'),
+              newVisibleTimeStart: moment(visibleTimeStart).subtract(1, 'day'),
+              newVisibleTimeEnd: moment(visibleTimeEnd).subtract(1, 'day'),
             };
 
           case 'TODAY':
@@ -188,12 +192,8 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
 
           case 'NEXT':
             return {
-              newVisibleTimeStart: moment(visibleTimeStart)
-                .add(1, 'day')
-                .startOf('day'),
-              newVisibleTimeEnd: moment(visibleTimeEnd)
-                .add(1, 'day')
-                .endOf('day'),
+              newVisibleTimeStart: moment(visibleTimeStart).add(1, 'day'),
+              newVisibleTimeEnd: moment(visibleTimeEnd).add(1, 'day'),
             };
 
           case 'PERIOD':
@@ -206,12 +206,8 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
         switch (changeOperator) {
           case 'PREV':
             return {
-              newVisibleTimeStart: moment(visibleTimeEnd)
-                .subtract(1, 'week')
-                .startOf('week'),
-              newVisibleTimeEnd: moment(visibleTimeEnd)
-                .subtract(1, 'week')
-                .endOf('week'),
+              newVisibleTimeStart: moment(visibleTimeStart).subtract(1, 'week'),
+              newVisibleTimeEnd: moment(visibleTimeEnd).subtract(1, 'week'),
             };
 
           case 'TODAY':
@@ -222,12 +218,8 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
 
           case 'NEXT':
             return {
-              newVisibleTimeStart: moment(visibleTimeStart)
-                .add(1, 'week')
-                .startOf('week'),
-              newVisibleTimeEnd: moment(visibleTimeEnd)
-                .add(1, 'week')
-                .endOf('week'),
+              newVisibleTimeStart: moment(visibleTimeStart).add(1, 'week'),
+              newVisibleTimeEnd: moment(visibleTimeEnd).add(1, 'week'),
             };
 
           case 'PERIOD':
@@ -240,12 +232,11 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
         switch (changeOperator) {
           case 'PREV':
             return {
-              newVisibleTimeStart: moment(visibleTimeEnd)
-                .subtract(1, 'month')
-                .startOf('month'),
-              newVisibleTimeEnd: moment(visibleTimeEnd)
-                .subtract(1, 'month')
-                .endOf('month'),
+              newVisibleTimeStart: moment(visibleTimeStart).subtract(
+                1,
+                'month'
+              ),
+              newVisibleTimeEnd: moment(visibleTimeEnd).subtract(1, 'month'),
             };
 
           case 'TODAY':
@@ -256,12 +247,8 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
 
           case 'NEXT':
             return {
-              newVisibleTimeStart: moment(visibleTimeStart)
-                .add(1, 'month')
-                .startOf('month'),
-              newVisibleTimeEnd: moment(visibleTimeEnd)
-                .add(1, 'month')
-                .endOf('month'),
+              newVisibleTimeStart: moment(visibleTimeStart).add(1, 'month'),
+              newVisibleTimeEnd: moment(visibleTimeEnd).add(1, 'month'),
             };
 
           case 'PERIOD':
@@ -290,14 +277,18 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
     history.push(`?${query}`);
   };
 
-  // TODO: Try to debounce this somehow and make the fltering work with every date instead of .startOf('month'), .startOf('week') etc.
-
-  const handler = (visibleTimeStart1: number, visibleTimeEnd1: number) => {
+  const onTimeChange = (visibleTimeStart1: number, visibleTimeEnd1: number) => {
     const newStart = moment(visibleTimeStart1);
     const newEnd = moment(visibleTimeEnd1);
 
     setVisibleTimeStart(newStart);
     setVisibleTimeEnd(newEnd);
+
+    if (!isInitialized) {
+      setIsInitialized(true);
+
+      return;
+    }
 
     handleTimeChange(newStart, setStartAt, query, history);
   };
@@ -324,8 +315,6 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
         return monthViewText;
     }
   };
-
-  console.log('eseadasdas', visibleTimeStart);
 
   return (
     <div data-cy="calendar-timeline-view" className={classes.root}>
@@ -441,7 +430,7 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
         stackItems
         canMove={false}
         canResize={false}
-        onTimeChange={handler}
+        onTimeChange={onTimeChange}
       >
         {timelineViewPeriod !== 'month' && (
           <TimelineHeaders>

@@ -134,6 +134,7 @@ export type BasicUserDetails = {
   organisation: Scalars['String'];
   placeholder: Maybe<Scalars['Boolean']>;
   position: Scalars['String'];
+  preferredname: Maybe<Scalars['String']>;
 };
 
 export type BasicUserDetailsResponseWrap = {
@@ -3726,6 +3727,9 @@ export type GetInstrumentProposalBookingsQuery = (
     )>, proposal: Maybe<(
       { __typename?: 'Proposal' }
       & Pick<Proposal, 'primaryKey' | 'title' | 'proposalId'>
+    )>, instrument: Maybe<(
+      { __typename?: 'Instrument' }
+      & Pick<Instrument, 'id' | 'name'>
     )>, scheduledEvents: Array<(
       { __typename?: 'ScheduledEvent' }
       & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
@@ -4321,6 +4325,10 @@ export const GetInstrumentProposalBookingsDocument = gql`
     updatedAt
     status
     allocatedTime
+    instrument {
+      id
+      name
+    }
     scheduledEvents(filter: $filter) {
       id
       startsAt

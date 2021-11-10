@@ -63,6 +63,7 @@ export default function useScheduledEvents({
   return {
     loading,
     scheduledEvents,
+    setScheduledEvents,
     refresh,
   } as const;
 }

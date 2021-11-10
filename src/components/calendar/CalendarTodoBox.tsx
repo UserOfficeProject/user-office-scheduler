@@ -1,7 +1,7 @@
 import { Button, makeStyles, useMediaQuery } from '@material-ui/core';
 import { Add as AddIcon, Info as InfoIcon } from '@material-ui/icons';
 import clsx from 'clsx';
-import React from 'react';
+import React, { Dispatch, SetStateAction } from 'react';
 
 import { useQuery } from 'hooks/common/useQuery';
 import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
@@ -11,12 +11,16 @@ import ProposalBookingTree from '../proposalBooking/ProposalBookingTree';
 type CalendarTodoBoxProps = {
   onNewSimpleEvent: () => void;
   refreshCalendar: () => void;
+  setDraggedEvent: Dispatch<
+    SetStateAction<{ proposalBookingId: number; instrumentId: number } | null>
+  >;
   proposalBookings: InstrumentProposalBooking[];
 };
 
 export default function CalendarTodoBox({
   onNewSimpleEvent,
   refreshCalendar,
+  setDraggedEvent,
   proposalBookings,
 }: CalendarTodoBoxProps) {
   const isTabletOrMobile = useMediaQuery('(max-width: 1224px)');
@@ -81,6 +85,7 @@ export default function CalendarTodoBox({
       <ProposalBookingTree
         refreshCalendar={refreshCalendar}
         proposalBookings={proposalBookings}
+        setDraggedEvent={setDraggedEvent}
       />
     </div>
   );

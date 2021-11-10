@@ -7,7 +7,13 @@ import {
 import { TreeView, TreeItem } from '@material-ui/lab';
 import clsx from 'clsx';
 import * as _ from 'lodash';
-import React, { ReactNode, useMemo, useState } from 'react';
+import React, {
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useMemo,
+  useState,
+} from 'react';
 
 import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
 
@@ -17,6 +23,8 @@ import ProposalBookingTreeTitle from './ProposalBookingTreeTitle';
 type RenderTree = {
   id: string;
   title: ReactNode;
+  proposalBookingId?: number;
+  instrumentId?: number;
   children?: RenderTree[];
   onClick?: React.MouseEventHandler;
 };
@@ -49,12 +57,16 @@ const useStyles = makeStyles((theme) => ({
 
 type ProposalBookingTreeProps = {
   refreshCalendar: () => void;
+  setDraggedEvent: Dispatch<
+    SetStateAction<{ proposalBookingId: number; instrumentId: number } | null>
+  >;
   proposalBookings: InstrumentProposalBooking[];
 };
 
 export default function ProposalBookingTree({
   refreshCalendar,
   proposalBookings,
+  setDraggedEvent,
 }: ProposalBookingTreeProps) {
   const classes = useStyles();
 
@@ -70,6 +82,8 @@ export default function ProposalBookingTree({
           title: `Call: ${proposalBookings[0].call.shortCode}`,
           children: proposalBookings.map((proposalBooking) => ({
             id: `proposal-${proposalBooking.proposal.primaryKey}`, // avoid numerical ID collision
+            proposalBookingId: proposalBooking.id,
+            instrumentId: proposalBooking.instrument?.id,
             title: (
               <ProposalBookingTreeTitle proposalBooking={proposalBooking} />
             ),
@@ -87,6 +101,15 @@ export default function ProposalBookingTree({
         nodeId={nodes.id}
         label={nodes.title}
         onClick={nodes.onClick}
+        draggable={!!nodes.proposalBookingId}
+        onDragStart={() => {
+          if (nodes.proposalBookingId && nodes.instrumentId) {
+            setDraggedEvent({
+              proposalBookingId: nodes.proposalBookingId,
+              instrumentId: nodes.instrumentId,
+            });
+          }
+        }}
       >
         {Array.isArray(nodes.children)
           ? nodes.children.map((node) => renderTree(node))

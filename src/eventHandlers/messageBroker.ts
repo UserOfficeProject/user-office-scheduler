@@ -31,14 +31,17 @@ export function createListenToRabbitMQHandler({
     };
   }
 
-  rabbitMQ.listenOn(Queue.PROPOSAL, async (type, message) => {
+  rabbitMQ.listenOn(Queue.SCHEDULING_PROPOSAL, async (type, message) => {
     switch (type) {
       case Event.PROPOSAL_STATUS_CHANGED_BY_WORKFLOW:
       case Event.PROPOSAL_STATUS_CHANGED_BY_USER:
-        logger.logDebug(`Listener on ${Queue.PROPOSAL}: Received event`, {
-          type,
-          message,
-        });
+        logger.logDebug(
+          `Listener on ${Queue.SCHEDULING_PROPOSAL}: Received event`,
+          {
+            type,
+            message,
+          }
+        );
         await proposalBookingDataSource.upsert(message);
 
         return;

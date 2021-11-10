@@ -415,7 +415,8 @@ export enum FeatureId {
   SHIPPING = 'SHIPPING',
   SCHEDULER = 'SCHEDULER',
   EXTERNAL_AUTH = 'EXTERNAL_AUTH',
-  RISK_ASSESSMENT = 'RISK_ASSESSMENT'
+  RISK_ASSESSMENT = 'RISK_ASSESSMENT',
+  EMAIL_INVITE = 'EMAIL_INVITE'
 }
 
 export type FieldCondition = {
@@ -617,8 +618,10 @@ export type Mutation = {
   createSampleEsi: SampleEsiResponseWrap;
   deleteSampleEsi: SampleEsiResponseWrap;
   updateSampleEsi: SampleEsiResponseWrap;
+  cloneSampleEsi: SampleEsiResponseWrap;
   createSample: SampleResponseWrap;
   updateSample: SampleResponseWrap;
+  cloneSample: SampleResponseWrap;
   assignChairOrSecretary: SepResponseWrap;
   assignReviewersToSEP: SepResponseWrap;
   removeMemberFromSep: SepResponseWrap;
@@ -660,7 +663,6 @@ export type Mutation = {
   applyPatches: PrepareDbResponseWrap;
   checkExternalToken: CheckExternalTokenWrap;
   cloneGenericTemplate: GenericTemplateResponseWrap;
-  cloneSample: SampleResponseWrap;
   cloneTemplate: TemplateResponseWrap;
   createEsi: EsiResponseWrap;
   createProposal: ProposalResponseWrap;
@@ -956,6 +958,13 @@ export type MutationUpdateSampleEsiArgs = {
 };
 
 
+export type MutationCloneSampleEsiArgs = {
+  esiId: Scalars['Int'];
+  sampleId: Scalars['Int'];
+  newSampleTitle?: Maybe<Scalars['String']>;
+};
+
+
 export type MutationCreateSampleArgs = {
   title: Scalars['String'];
   templateId: Scalars['Int'];
@@ -970,6 +979,13 @@ export type MutationUpdateSampleArgs = {
   title?: Maybe<Scalars['String']>;
   safetyComment?: Maybe<Scalars['String']>;
   safetyStatus?: Maybe<SampleStatus>;
+};
+
+
+export type MutationCloneSampleArgs = {
+  sampleId: Scalars['Int'];
+  title?: Maybe<Scalars['String']>;
+  isPostProposalSubmission?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -1273,12 +1289,6 @@ export type MutationCheckExternalTokenArgs = {
 export type MutationCloneGenericTemplateArgs = {
   title?: Maybe<Scalars['String']>;
   genericTemplateId: Scalars['Int'];
-};
-
-
-export type MutationCloneSampleArgs = {
-  title?: Maybe<Scalars['String']>;
-  sampleId: Scalars['Int'];
 };
 
 

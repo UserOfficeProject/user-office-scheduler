@@ -12,17 +12,16 @@ import {
   MuiPickersUtilsProvider,
 } from '@material-ui/pickers';
 import moment, { Moment } from 'moment';
-import React, { Dispatch, useEffect, useState } from 'react';
+import React, { Dispatch, useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 
+import { InstrumentAndEquipmentContext } from 'context/InstrumentAndEquipmentContext';
 import { Equipment, ScheduledEventFilter } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
-import { PartialEquipment } from 'hooks/equipment/useEquipments';
 import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 import { toTzLessDateTime } from 'utils/date';
 
 import { CalendarScheduledEvent } from './Event';
-import { ToolbarAdditionalProps } from './Toolbar';
 
 const useStyles = makeStyles((theme) => ({
   tooltip: {
@@ -47,11 +46,9 @@ function TableViewToolbar({
   onDateRangeChange,
   startsAtDate,
   endsAtDate,
-  instruments,
-  instrumentsLoading,
-  equipments,
-  equipmentsLoading,
-}: TableViewToolbarProps & ToolbarAdditionalProps) {
+}: TableViewToolbarProps) {
+  const { instruments, loadingInstruments, equipments, loadingEquipments } =
+    useContext(InstrumentAndEquipmentContext);
   const query = useQuery();
   const classes = useStyles();
   const history = useHistory();
@@ -134,7 +131,7 @@ function TableViewToolbar({
 
   useEffect(() => {
     if (
-      instrumentsLoading ||
+      loadingInstruments ||
       !queryValueInitialized ||
       (!selectedInstrument && !queryInstrument)
     ) {
@@ -155,7 +152,7 @@ function TableViewToolbar({
     history.push(`?${query}`);
   }, [
     queryValueInitialized,
-    instrumentsLoading,
+    loadingInstruments,
     selectedInstrument,
     queryInstrument,
     query,
@@ -197,8 +194,8 @@ function TableViewToolbar({
         </Grid>
         <Grid item sm={6} xs={12}>
           <Autocomplete
-            loading={instrumentsLoading}
-            disabled={instrumentsLoading}
+            loading={loadingInstruments}
+            disabled={loadingInstruments}
             selectOnFocus
             fullWidth
             clearOnBlur
@@ -211,13 +208,13 @@ function TableViewToolbar({
               <TextField
                 {...params}
                 label="Instrument"
-                disabled={instrumentsLoading}
+                disabled={loadingInstruments}
                 margin="dense"
                 InputProps={{
                   ...params.InputProps,
                   endAdornment: (
                     <>
-                      {instrumentsLoading ? (
+                      {loadingInstruments ? (
                         <CircularProgress color="inherit" size={20} />
                       ) : null}
                       {params.InputProps.endAdornment}
@@ -236,8 +233,8 @@ function TableViewToolbar({
           />
           <Autocomplete
             multiple
-            loading={equipmentsLoading}
-            disabled={equipmentsLoading}
+            loading={loadingEquipments}
+            disabled={loadingEquipments}
             selectOnFocus
             clearOnBlur
             fullWidth
@@ -251,12 +248,12 @@ function TableViewToolbar({
                 {...params}
                 label="Equipment"
                 margin="dense"
-                disabled={equipmentsLoading}
+                disabled={loadingEquipments}
                 InputProps={{
                   ...params.InputProps,
                   endAdornment: (
                     <>
-                      {equipmentsLoading ? (
+                      {loadingEquipments ? (
                         <CircularProgress color="inherit" size={20} />
                       ) : null}
                       {params.InputProps.endAdornment}
@@ -291,11 +288,7 @@ function TableViewToolbar({
 const TableToolbar = (
   data: Options<CalendarScheduledEvent>,
   filter: ScheduledEventFilter,
-  setFilter: Dispatch<ScheduledEventFilter>,
-  instruments: PartialInstrument[],
-  instrumentsLoading: boolean,
-  equipments: PartialEquipment[],
-  equipmentsLoading: boolean
+  setFilter: Dispatch<ScheduledEventFilter>
 ): JSX.Element => {
   const onDateRangeChange = (
     startDate: Moment | null,
@@ -316,10 +309,6 @@ const TableToolbar = (
         onDateRangeChange={onDateRangeChange}
         startsAtDate={filter.startsAt}
         endsAtDate={filter.endsAt}
-        instruments={instruments}
-        instrumentsLoading={instrumentsLoading}
-        equipments={equipments}
-        equipmentsLoading={equipmentsLoading}
       />
       <MTableToolbar {...data} />
     </>

@@ -9,9 +9,10 @@ import {
   CircularProgress,
 } from '@material-ui/core';
 import { Formik, Form } from 'formik';
-import moment, { Moment } from 'moment';
+import moment from 'moment';
 import { useSnackbar } from 'notistack';
 import React from 'react';
+import { stringOrDate } from 'react-big-calendar';
 
 import { ScheduledEventBookingType, ScheduledEvent } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
@@ -22,9 +23,9 @@ import ScheduledEventForm, {
 } from './ScheduledEventForm';
 
 export type SlotInfo = {
-  start: Moment;
-  end: Moment;
-  slots: Moment[];
+  start: stringOrDate;
+  end: stringOrDate;
+  slots: stringOrDate[];
   action: 'select' | 'click' | 'doubleClick';
 };
 

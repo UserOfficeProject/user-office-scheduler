@@ -34,7 +34,7 @@
     "@types/humanize-duration": "^3.25.1",
     "@types/jsonwebtoken": "^8.5.5",
     "@types/lodash": "^4.14.176",
-    "@types/react": "^17.0.30",
+    "@types/react": "^17.0.31",
     "@types/react-big-calendar": "^0.36.0",
     "@types/react-calendar-timeline": "^0.26.5",
     "@types/react-dom": "^17.0.10",

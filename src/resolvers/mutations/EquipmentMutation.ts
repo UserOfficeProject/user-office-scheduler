@@ -80,6 +80,15 @@ export class EquipmentResponsibleInput {
   userIds: number[];
 }
 
+@InputType()
+export class UpdateEquipmentOwnerInput {
+  @Field(() => Int)
+  equipmentId: number;
+
+  @Field(() => Int)
+  userId: number;
+}
+
 @Resolver()
 export class EquipmentMutation {
   @Mutation(() => EquipmentResponseWrap)
@@ -146,6 +155,18 @@ export class EquipmentMutation {
     return ctx.mutations.equipment.confirmAssignment(
       ctx,
       confirmEquipmentAssignmentInput
+    );
+  }
+
+  @Mutation(() => Boolean)
+  updateEquipmentOwner(
+    @Ctx() ctx: ResolverContext,
+    @Arg('updateEquipmentOwnerInput', () => UpdateEquipmentOwnerInput)
+    updateEquipmentOwnerInput: UpdateEquipmentOwnerInput
+  ): Promise<boolean> {
+    return ctx.mutations.equipment.updateEquipmentOwner(
+      ctx,
+      updateEquipmentOwnerInput
     );
   }
 

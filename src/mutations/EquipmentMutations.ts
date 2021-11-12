@@ -15,6 +15,7 @@ import {
   DeleteEquipmentAssignmentInput,
   ConfirmEquipmentAssignmentInput,
   EquipmentResponsibleInput,
+  UpdateEquipmentOwnerInput,
 } from '../resolvers/mutations/EquipmentMutation';
 import { Roles, User } from '../types/shared';
 
@@ -120,13 +121,20 @@ export default class EquipmentMutations {
   }
 
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
+  async updateEquipmentOwner(
+    ctx: ResolverContext,
+    updateEquipmentOwnerInput: UpdateEquipmentOwnerInput
+  ) {
+    return this.equipmentDataSource.updateEquipmentOwner(
+      updateEquipmentOwnerInput
+    );
+  }
+
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
   async addEquipmentResponsible(
     ctx: ResolverContext,
     equipmentResponsibleInput: EquipmentResponsibleInput
   ) {
-    // TODO: check if has permission
-    //  assignEquipmentsToScheduledEventInput.proposalBookingId
-
     return this.equipmentDataSource.addEquipmentResponsible(
       equipmentResponsibleInput
     );

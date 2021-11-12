@@ -286,48 +286,6 @@ context('Scheduled events timeline tests', () => {
       ).should('exist');
     });
 
-    it('should not reset dates if page reloads', () => {
-      cy.initializeSession('UserOfficer');
-      cy.finishedLoading();
-
-      cy.get('[data-cy=input-instrument-select]').click();
-
-      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-        .first()
-        .click();
-
-      cy.finishedLoading();
-
-      cy.get('[data-cy="scheduler-active-view"]').click();
-      cy.get('[data-value="Timeline"]').click();
-
-      cy.get('[data-cy=timeline-view-period]').click();
-      cy.get('[data-value="day"]').click();
-
-      cy.contains(getFormattedDateAfter('dddd, DD MMMM YYYY'));
-
-      cy.reload();
-
-      cy.finishedLoading();
-
-      cy.wait(1000);
-
-      cy.contains(getFormattedDateAfter('dddd, DD MMMM YYYY'));
-
-      cy.get('[data-cy=timeline-view-period] input').should(
-        'have.value',
-        'day'
-      );
-
-      cy.get('[data-cy="scheduler-active-view"]').click();
-      cy.get('[data-value="Calendar"]').click();
-
-      cy.get('[data-cy="select-active-view"] input').should(
-        'have.value',
-        'day'
-      );
-    });
-
     it('should be able to select multiple instruments in timeline view', () => {
       cy.initializeSession('UserOfficer');
       cy.visit({
@@ -389,7 +347,7 @@ context('Scheduled events timeline tests', () => {
       ).should('include.text', 'Instrument 3');
     });
 
-    it('should be able to scroll inside timeline view', () => {
+    it('should be able to scroll inside timeline view and keep start position after reload', () => {
       cy.initializeSession('UserOfficer');
       cy.visit({
         url: '/calendar',
@@ -409,6 +367,13 @@ context('Scheduled events timeline tests', () => {
       cy.get('[data-cy="scheduler-active-view"]').click();
       cy.get('[data-value="Timeline"]').click();
 
+      cy.get('[data-cy=timeline-view-period]').click();
+      cy.get('[data-value="day"]').click();
+
+      cy.finishedLoading();
+
+      cy.contains(getFormattedDateAfter('dddd, DD MMMM YYYY'));
+
       // NOTE: Using .parent().parent() because that's how react-calendar-timeline works. They have added the event listener on that element.
       cy.get('.react-calendar-timeline .rct-hl.rct-hl-even')
         .parent()
@@ -421,6 +386,25 @@ context('Scheduled events timeline tests', () => {
       cy.tick(500);
 
       cy.url().should('include', 'timeLineStart=');
+
+      cy.reload();
+
+      cy.finishedLoading();
+
+      cy.contains(getFormattedDateAfter('dddd, DD MMMM YYYY', -2, 'days'));
+
+      cy.get('[data-cy=timeline-view-period] input').should(
+        'have.value',
+        'day'
+      );
+
+      cy.get('[data-cy="scheduler-active-view"]').click();
+      cy.get('[data-value="Calendar"]').click();
+
+      cy.get('[data-cy="select-active-view"] input').should(
+        'have.value',
+        'day'
+      );
     });
   });
 });

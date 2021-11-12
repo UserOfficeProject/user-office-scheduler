@@ -22,6 +22,8 @@ Cypress.Commands.add('configureClock', () => {
   now.setMinutes(0);
   now.setSeconds(0);
   now.setMilliseconds(0);
+  console.log('commands', now);
+  console.log(now.toLocaleString('en-US', { timeZone: 'UTC' }));
 
   cy.clock(now, ['Date']);
 });

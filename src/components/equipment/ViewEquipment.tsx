@@ -272,6 +272,19 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
     }
   };
 
+  const CheckIconComponent = (
+    props: JSX.IntrinsicAttributes & {
+      children?: React.ReactNode;
+      'data-cy'?: string;
+    }
+  ): JSX.Element => <CheckIcon {...props} />;
+  const ClearIconComponent = (
+    props: JSX.IntrinsicAttributes & {
+      children?: React.ReactNode;
+      'data-cy'?: string;
+    }
+  ): JSX.Element => <ClearIcon {...props} />;
+
   return (
     <ContentContainer maxWidth={false}>
       <PeopleModal
@@ -429,7 +442,9 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
                 isLoading={scheduledEventsLoading}
                 actions={[
                   (rowData) => ({
-                    icon: CheckIcon,
+                    icon: CheckIconComponent.bind(null, {
+                      'data-cy': 'accept-equipment-request',
+                    }),
                     tooltip: 'Accept request',
                     hidden:
                       rowData.equipmentAssignmentStatus !==
@@ -439,7 +454,9 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
                     position: 'row',
                   }),
                   (rowData) => ({
-                    icon: ClearIcon,
+                    icon: ClearIconComponent.bind(null, {
+                      'data-cy': 'reject-equipment-request',
+                    }),
                     tooltip: 'Reject request',
                     hidden:
                       rowData.equipmentAssignmentStatus !==

@@ -526,7 +526,9 @@ context('Proposal booking tests ', () => {
         );
 
         cy.get('[role="dialog"]').contains('Auto accept equipment requests');
-        cy.get('[role="dialog"]').contains('Time slots upcoming year');
+        cy.get('[role="dialog"]').contains('time slots upcoming year', {
+          matchCase: false,
+        });
         cy.get('[data-cy="btn-close-dialog"]').should('exist');
         cy.get('[data-cy="equipment-upcoming-time-slots-table"]').should(
           'exist'
@@ -549,11 +551,11 @@ context('Proposal booking tests ', () => {
 
         cy.contains(/Available equipment 1 - no auto accept/i)
           .parent()
-          .find('[title="Accept request"]')
+          .find('[data-cy="accept-equipment-request"]')
           .should('exist');
         cy.contains(/Available equipment 1 - no auto accept/i)
           .parent()
-          .find('[title="Reject request"]')
+          .find('[data-cy="reject-equipment-request"]')
           .should('exist');
 
         cy.contains('Instrument');
@@ -575,13 +577,13 @@ context('Proposal booking tests ', () => {
         cy.contains(currentHourDateTime);
         cy.contains(getHourDateTimeAfter(24));
 
-        cy.get('[title="Accept request"]').click();
+        cy.get('[data-cy="accept-equipment-request"]').click();
 
         cy.contains(/confirmation/i);
         cy.contains(/Are you sure you want to accept the request?/i);
         cy.get('[data-cy=btn-cancel]').click();
 
-        cy.get('[title="Reject request"]').click();
+        cy.get('[data-cy="reject-equipment-request"]').click();
 
         cy.contains(/confirmation/i);
         cy.contains(/Are you sure you want to reject the request?/i);

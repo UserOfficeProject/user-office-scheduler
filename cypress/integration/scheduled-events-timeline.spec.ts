@@ -310,7 +310,7 @@ context('Scheduled events timeline tests', () => {
 
       cy.finishedLoading();
 
-      cy.wait(500);
+      cy.wait(1000);
 
       cy.contains(getFormattedDateAfter('dddd, DD MMMM YYYY'));
 

@@ -310,6 +310,8 @@ context('Scheduled events timeline tests', () => {
 
       cy.finishedLoading();
 
+      cy.contains(getFormattedDateAfter('dddd, DD MMMM YYYY'));
+
       cy.get('[data-cy=timeline-view-period] input').should(
         'have.value',
         'day'

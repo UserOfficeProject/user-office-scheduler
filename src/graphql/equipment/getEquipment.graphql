@@ -9,6 +9,7 @@ query getEquipment($id: Int!) {
     maintenanceEndsAt
     autoAccept
     owner {
+      id
       firstname
       lastname
     }

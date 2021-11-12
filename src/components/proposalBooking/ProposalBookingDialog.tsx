@@ -78,10 +78,12 @@ export default function ProposalBookingDialog({
     );
   }
 
-  const isStepReadOnly = proposalBooking.scheduledEvents.every(
-    (scheduledEvent) =>
-      scheduledEvent.status === ProposalBookingStatusCore.COMPLETED
-  );
+  const isStepReadOnly =
+    !!proposalBooking.scheduledEvents.length &&
+    proposalBooking.scheduledEvents.every(
+      (scheduledEvent) =>
+        scheduledEvent.status === ProposalBookingStatusCore.COMPLETED
+    );
 
   const completeBooking = () => {
     showConfirmation({

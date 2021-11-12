@@ -299,21 +299,11 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
 
     const intervalEndDateFormat = sameStartAndEndMonth ? 'DD' : 'MMMM DD';
 
-    const dayViewText = moment(visibleTimeStart).format('dddd, DD MMMM YYYY');
     const weekViewIntervalText = `${moment(visibleTimeStart).format(
       'MMMM DD'
     )} - ${moment(visibleTimeEnd).format(intervalEndDateFormat)}`;
-    const monthViewText = moment(visibleTimeStart).format('MMMM YYYY');
 
-    switch (timelineViewPeriod) {
-      case 'day':
-        return !isMobile && dayViewText;
-      case 'week':
-        return weekViewIntervalText;
-
-      default:
-        return monthViewText;
-    }
+    return weekViewIntervalText;
   };
 
   return (
@@ -432,7 +422,7 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
         canResize={false}
         onTimeChange={onTimeChange}
       >
-        {timelineViewPeriod !== 'month' && (
+        {timelineViewPeriod === 'week' && (
           <TimelineHeaders>
             <SidebarHeader>
               {({ getRootProps }) => {

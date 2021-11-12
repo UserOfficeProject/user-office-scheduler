@@ -1,3 +1,4 @@
+import MaterialTable, { Column } from '@material-table/core';
 import {
   Grid,
   List,
@@ -8,7 +9,6 @@ import {
   makeStyles,
   IconButton,
   Box,
-  TableCell,
   Tooltip,
 } from '@material-ui/core';
 import {
@@ -30,7 +30,7 @@ import { Link } from 'react-router-dom';
 
 import Loader from 'components/common/Loader';
 import PeopleModal from 'components/common/PeopleModal';
-import Table, { HeadCell } from 'components/common/Table';
+import { tableIcons } from 'components/common/TableIcons';
 import { PATH_EDIT_EQUIPMENT } from 'components/paths';
 import { AppContext } from 'context/AppContext';
 import {
@@ -49,15 +49,8 @@ type TableRow = {
   id: number;
   startsAt: Moment;
   endsAt: Moment;
-
   equipmentAssignmentStatus: EquipmentAssignmentStatus | null;
 };
-
-export const defaultHeadCells: HeadCell<TableRow>[] = [
-  { id: 'startsAt', label: 'Starts at' },
-  { id: 'endsAt', label: 'Ends at' },
-  { id: 'equipmentAssignmentStatus', label: 'Status' },
-];
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -121,17 +114,24 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
   const { id } = useParams<{ id?: string }>();
   const finalEquipmentId = id ? parseInt(id) : equipmentId;
   const classes = useStyles();
-  const { loading: equipmentLoading, equipment } =
-    useEquipment(finalEquipmentId);
+  const {
+    loading: equipmentLoading,
+    equipment,
+    setEquipment,
+  } = useEquipment(finalEquipmentId);
   const [selectedUsers, setSelectedUsers] = useState<
     Pick<User, 'id' | 'firstname' | 'lastname'>[]
   >([]);
   const [showPeopleModal, setShowPeopleModal] = useState(false);
+  const [
+    showEquipmentOwnerSelectionModal,
+    setShowEquipmentOwnerSelectionModal,
+  ] = useState(false);
   const { loading: scheduledEventsLoading, scheduledEvents } =
     useEquipmentScheduledEvents({
       equipmentIds: [finalEquipmentId],
-      startsAt: toTzLessDateTime(new Date()),
-      endsAt: toTzLessDateTime(moment(new Date()).add(1, 'year')),
+      startsAt: toTzLessDateTime(moment(new Date()).startOf('day')),
+      endsAt: toTzLessDateTime(moment(new Date()).add(1, 'year').endOf('day')),
     });
   const equipmentResponsible = equipment?.equipmentResponsible;
   useEffect(() => {
@@ -221,29 +221,14 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
     });
   };
 
-  const RowActions = ({ row }: { row: TableRow }) => {
-    if (row.equipmentAssignmentStatus !== EquipmentAssignmentStatus.PENDING) {
-      return null;
-    }
-
-    return (
-      <>
-        <IconButton
-          data-cy="btn-confirm-assignment-accept"
-          onClick={() => handleConfirmAssignment(row, 'accept')}
-        >
-          <CheckIcon />
-        </IconButton>
-
-        <IconButton
-          data-cy="btn-confirm-assignment-reject"
-          onClick={() => handleConfirmAssignment(row, 'reject')}
-        >
-          <ClearIcon />
-        </IconButton>
-      </>
-    );
-  };
+  const columns: Column<TableRow>[] = [
+    {
+      title: 'Starts at',
+      render: (rowData) => toTzLessDateTime(rowData.startsAt),
+    },
+    { title: 'Ends at', render: (rowData) => toTzLessDateTime(rowData.endsAt) },
+    { title: 'Status', field: 'equipmentAssignmentStatus' },
+  ];
 
   const pathEquipmentId = id || equipmentId;
 
@@ -268,6 +253,38 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
     }
   };
 
+  const updateEquipmentOwner = async ([user]: BasicUserDetails[]) => {
+    const response = await api().updateEquipmentOwner({
+      updateEquipmentOwnerInput: {
+        equipmentId: equipment.id,
+        userId: user.id,
+      },
+    });
+
+    if (response.updateEquipmentOwner) {
+      enqueueSnackbar('Success', { variant: 'success' });
+
+      setEquipment({ ...equipment, owner: user });
+
+      setShowEquipmentOwnerSelectionModal(false);
+    } else {
+      enqueueSnackbar('Error', { variant: 'error' });
+    }
+  };
+
+  const CheckIconComponent = (
+    props: JSX.IntrinsicAttributes & {
+      children?: React.ReactNode;
+      'data-cy'?: string;
+    }
+  ): JSX.Element => <CheckIcon {...props} />;
+  const ClearIconComponent = (
+    props: JSX.IntrinsicAttributes & {
+      children?: React.ReactNode;
+      'data-cy'?: string;
+    }
+  ): JSX.Element => <ClearIcon {...props} />;
+
   return (
     <ContentContainer maxWidth={false}>
       <PeopleModal
@@ -277,6 +294,14 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
         selectedUsers={selectedUsers.map((selectedUser) => selectedUser.id)}
         selection={true}
         title={'Select responsible people'}
+        userRole={UserRole.INSTRUMENT_SCIENTIST}
+      />
+      <PeopleModal
+        show={!!showEquipmentOwnerSelectionModal}
+        close={(): void => setShowEquipmentOwnerSelectionModal(false)}
+        addParticipants={updateEquipmentOwner}
+        selectedUsers={equipment.owner ? [equipment.owner.id] : []}
+        title={'Select equipment owner'}
         userRole={UserRole.INSTRUMENT_SCIENTIST}
       />
       <Grid container>
@@ -307,7 +332,7 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
                     </ListItemAvatar>
                     <ListItemText primary="Name" secondary={equipment?.name} />
                   </ListItem>
-                  <ListItem disableGutters>
+                  <ListItem disableGutters data-cy="equipment-owner">
                     <ListItemAvatar>
                       <Avatar>
                         <PersonIcon />
@@ -320,6 +345,17 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
                       }`}
                       className={classes.listItemText}
                     />
+                    <Tooltip title="Change equipment owner">
+                      <IconButton
+                        onClick={() =>
+                          setShowEquipmentOwnerSelectionModal(true)
+                        }
+                        data-cy="change-equipment-owner"
+                        aria-label="Change equipment owner"
+                      >
+                        <EditIcon />
+                      </IconButton>
+                    </Tooltip>
                   </ListItem>
                   <ListItem disableGutters>
                     <ListItemAvatar>
@@ -396,35 +432,42 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
               </Grid>
             </Grid>
 
-            {scheduledEventsLoading ? (
-              <Loader relative spaced />
-            ) : (
-              <Table
-                defaultOrderBy="startsAt"
-                tableTitle="Time Slots Upcoming Year"
-                headCells={defaultHeadCells}
-                rowActions={RowActions}
-                showEmptyRows
-                rows={rows}
-                extractKey={(el) => el.id}
-                data-cy="equipment-upcoming-time-slots-table"
-                renderRow={(row) => {
-                  return (
-                    <>
-                      <TableCell align="left">
-                        {toTzLessDateTime(row.startsAt)}
-                      </TableCell>
-                      <TableCell align="left">
-                        {toTzLessDateTime(row.endsAt)}
-                      </TableCell>
-                      <TableCell align="left">
-                        {row.equipmentAssignmentStatus}
-                      </TableCell>
-                    </>
-                  );
-                }}
+            <div data-cy="equipment-upcoming-time-slots-table">
+              <MaterialTable
+                icons={tableIcons}
+                title="Time slots upcoming year"
+                columns={columns}
+                data={rows}
+                options={{ search: false }}
+                isLoading={scheduledEventsLoading}
+                actions={[
+                  (rowData) => ({
+                    icon: CheckIconComponent.bind(null, {
+                      'data-cy': 'accept-equipment-request',
+                    }),
+                    tooltip: 'Accept request',
+                    hidden:
+                      rowData.equipmentAssignmentStatus !==
+                      EquipmentAssignmentStatus.PENDING,
+                    onClick: () =>
+                      handleConfirmAssignment(rowData as TableRow, 'accept'),
+                    position: 'row',
+                  }),
+                  (rowData) => ({
+                    icon: ClearIconComponent.bind(null, {
+                      'data-cy': 'reject-equipment-request',
+                    }),
+                    tooltip: 'Reject request',
+                    hidden:
+                      rowData.equipmentAssignmentStatus !==
+                      EquipmentAssignmentStatus.PENDING,
+                    onClick: (_event, rowData) =>
+                      handleConfirmAssignment(rowData as TableRow, 'reject'),
+                    position: 'row',
+                  }),
+                ]}
               />
-            )}
+            </div>
           </StyledPaper>
         </Grid>
       </Grid>

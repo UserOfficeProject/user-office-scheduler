@@ -14,8 +14,8 @@
     "lint:all": "tsc --noEmit && eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "tsc --noEmit && eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "generate:local": "node scripts/generate-graphql-sdk.js",
-    "cy:open": "cypress open",
-    "cy:run": "cypress run"
+    "cy:open": "cypress open --config defaultCommandTimeout=15000",
+    "cy:run": "cypress run --config defaultCommandTimeout=15000"
   },
   "dependencies": {
     "@date-io/moment": "^1.3.13",

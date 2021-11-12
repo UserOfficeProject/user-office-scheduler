@@ -826,6 +826,7 @@ export type Mutation = {
   updateApiAccessToken: ApiAccessTokenResponseWrap;
   updateCall: CallResponseWrap;
   updateEquipment: EquipmentResponseWrap;
+  updateEquipmentOwner: Scalars['Boolean'];
   updateEsi: EsiResponseWrap;
   updateGenericTemplate: GenericTemplateResponseWrap;
   updateInstitution: InstitutionResponseWrap;
@@ -1528,6 +1529,11 @@ export type MutationUpdateCallArgs = {
 export type MutationUpdateEquipmentArgs = {
   id: Scalars['Int'];
   updateEquipmentInput: EquipmentInput;
+};
+
+
+export type MutationUpdateEquipmentOwnerArgs = {
+  updateEquipmentOwnerInput: UpdateEquipmentOwnerInput;
 };
 
 
@@ -3268,6 +3274,11 @@ export type UpdateCallInput = {
   title?: Maybe<Scalars['String']>;
 };
 
+export type UpdateEquipmentOwnerInput = {
+  equipmentId: Scalars['Int'];
+  userId: Scalars['Int'];
+};
+
 export type UpdateLostTimeInput = {
   endsAt: Scalars['TzLessDateTime'];
   id: Scalars['Int'];
@@ -3505,7 +3516,7 @@ export type GetEquipmentQuery = (
     & Pick<Equipment, 'id' | 'createdAt' | 'updatedAt' | 'name' | 'description' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'>
     & { owner: Maybe<(
       { __typename?: 'User' }
-      & Pick<User, 'firstname' | 'lastname'>
+      & Pick<User, 'id' | 'firstname' | 'lastname'>
     )>, equipmentResponsible: Array<(
       { __typename?: 'User' }
       & Pick<User, 'id' | 'firstname' | 'lastname'>
@@ -3540,6 +3551,16 @@ export type UpdateEquipmentMutation = (
       & Pick<Equipment, 'id' | 'name' | 'description' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'>
     )> }
   ) }
+);
+
+export type UpdateEquipmentOwnerMutationVariables = Exact<{
+  updateEquipmentOwnerInput: UpdateEquipmentOwnerInput;
+}>;
+
+
+export type UpdateEquipmentOwnerMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'updateEquipmentOwner'>
 );
 
 export type GetUserInstrumentsQueryVariables = Exact<{ [key: string]: never; }>;
@@ -4146,6 +4167,7 @@ export const GetEquipmentDocument = gql`
     maintenanceEndsAt
     autoAccept
     owner {
+      id
       firstname
       lastname
     }
@@ -4184,6 +4206,11 @@ export const UpdateEquipmentDocument = gql`
       autoAccept
     }
   }
+}
+    `;
+export const UpdateEquipmentOwnerDocument = gql`
+    mutation updateEquipmentOwner($updateEquipmentOwnerInput: UpdateEquipmentOwnerInput!) {
+  updateEquipmentOwner(updateEquipmentOwnerInput: $updateEquipmentOwnerInput)
 }
     `;
 export const GetUserInstrumentsDocument = gql`
@@ -4686,6 +4713,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     updateEquipment(variables: UpdateEquipmentMutationVariables): Promise<UpdateEquipmentMutation> {
       return withWrapper(() => client.request<UpdateEquipmentMutation>(print(UpdateEquipmentDocument), variables));
+    },
+    updateEquipmentOwner(variables: UpdateEquipmentOwnerMutationVariables): Promise<UpdateEquipmentOwnerMutation> {
+      return withWrapper(() => client.request<UpdateEquipmentOwnerMutation>(print(UpdateEquipmentOwnerDocument), variables));
     },
     getUserInstruments(variables?: GetUserInstrumentsQueryVariables): Promise<GetUserInstrumentsQuery> {
       return withWrapper(() => client.request<GetUserInstrumentsQuery>(print(GetUserInstrumentsDocument), variables));

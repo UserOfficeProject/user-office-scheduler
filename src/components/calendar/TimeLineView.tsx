@@ -10,6 +10,8 @@ import {
   useMediaQuery,
 } from '@material-ui/core';
 import { Autocomplete } from '@material-ui/lab';
+import * as H from 'history';
+import { debounce } from 'lodash';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { View } from 'react-big-calendar';
@@ -38,6 +40,21 @@ type TimeLineViewProps = {
   startsAt: Date;
   setStartAt: React.Dispatch<React.SetStateAction<Date>>;
 };
+
+// NOTE: Debounce the function because there are too many calls on scroll so we want to avoid bombarding the backend with so many requests for new events
+const handleTimeChange = debounce(
+  (
+    newStart: moment.Moment,
+    setStartAt: React.Dispatch<React.SetStateAction<Date>>,
+    query: URLSearchParams,
+    history: H.History
+  ) => {
+    setStartAt(moment(newStart).toDate());
+    query.set('timeLineStart', `${moment(newStart)}`);
+    history.push(`?${query}`);
+  },
+  500
+);
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -90,17 +107,17 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
   const [timelineViewPeriod, setTimelineViewPeriod] = useState(
     queryView || 'week'
   );
-  const defaultVisibleTimeStart = moment(startsAt).startOf(
-    timelineViewPeriod as moment.unitOfTime.StartOf
-  );
-  const defaultVisibleTimeEnd = moment(startsAt).endOf(
-    timelineViewPeriod as moment.unitOfTime.StartOf
+  const defaultVisibleTimeStart = moment(startsAt);
+  const defaultVisibleTimeEnd = moment(startsAt).add(
+    1,
+    timelineViewPeriod as moment.unitOfTime.DurationConstructor
   );
 
   const [visibleTimeStart, setVisibleTimeStart] = useState(
     defaultVisibleTimeStart
   );
   const [visibleTimeEnd, setVisibleTimeEnd] = useState(defaultVisibleTimeEnd);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const [selectedInstruments, setSelectedInstruments] = useState<
     PartialInstrument[]
@@ -163,12 +180,8 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
         switch (changeOperator) {
           case 'PREV':
             return {
-              newVisibleTimeStart: moment(visibleTimeStart)
-                .subtract(1, 'day')
-                .startOf('day'),
-              newVisibleTimeEnd: moment(visibleTimeEnd)
-                .subtract(1, 'day')
-                .endOf('day'),
+              newVisibleTimeStart: moment(visibleTimeStart).subtract(1, 'day'),
+              newVisibleTimeEnd: moment(visibleTimeEnd).subtract(1, 'day'),
             };
 
           case 'TODAY':
@@ -179,12 +192,8 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
 
           case 'NEXT':
             return {
-              newVisibleTimeStart: moment(visibleTimeStart)
-                .add(1, 'day')
-                .startOf('day'),
-              newVisibleTimeEnd: moment(visibleTimeEnd)
-                .add(1, 'day')
-                .endOf('day'),
+              newVisibleTimeStart: moment(visibleTimeStart).add(1, 'day'),
+              newVisibleTimeEnd: moment(visibleTimeEnd).add(1, 'day'),
             };
 
           case 'PERIOD':
@@ -197,12 +206,8 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
         switch (changeOperator) {
           case 'PREV':
             return {
-              newVisibleTimeStart: moment(visibleTimeEnd)
-                .subtract(1, 'week')
-                .startOf('week'),
-              newVisibleTimeEnd: moment(visibleTimeEnd)
-                .subtract(1, 'week')
-                .endOf('week'),
+              newVisibleTimeStart: moment(visibleTimeStart).subtract(1, 'week'),
+              newVisibleTimeEnd: moment(visibleTimeEnd).subtract(1, 'week'),
             };
 
           case 'TODAY':
@@ -213,12 +218,8 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
 
           case 'NEXT':
             return {
-              newVisibleTimeStart: moment(visibleTimeStart)
-                .add(1, 'week')
-                .startOf('week'),
-              newVisibleTimeEnd: moment(visibleTimeEnd)
-                .add(1, 'week')
-                .endOf('week'),
+              newVisibleTimeStart: moment(visibleTimeStart).add(1, 'week'),
+              newVisibleTimeEnd: moment(visibleTimeEnd).add(1, 'week'),
             };
 
           case 'PERIOD':
@@ -231,12 +232,11 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
         switch (changeOperator) {
           case 'PREV':
             return {
-              newVisibleTimeStart: moment(visibleTimeEnd)
-                .subtract(1, 'month')
-                .startOf('month'),
-              newVisibleTimeEnd: moment(visibleTimeEnd)
-                .subtract(1, 'month')
-                .endOf('month'),
+              newVisibleTimeStart: moment(visibleTimeStart).subtract(
+                1,
+                'month'
+              ),
+              newVisibleTimeEnd: moment(visibleTimeEnd).subtract(1, 'month'),
             };
 
           case 'TODAY':
@@ -247,12 +247,8 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
 
           case 'NEXT':
             return {
-              newVisibleTimeStart: moment(visibleTimeStart)
-                .add(1, 'month')
-                .startOf('month'),
-              newVisibleTimeEnd: moment(visibleTimeEnd)
-                .add(1, 'month')
-                .endOf('month'),
+              newVisibleTimeStart: moment(visibleTimeStart).add(1, 'month'),
+              newVisibleTimeEnd: moment(visibleTimeEnd).add(1, 'month'),
             };
 
           case 'PERIOD':
@@ -281,27 +277,33 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
     history.push(`?${query}`);
   };
 
+  const onTimeChange = (visibleTimeStart1: number, visibleTimeEnd1: number) => {
+    const newStart = moment(visibleTimeStart1);
+    const newEnd = moment(visibleTimeEnd1);
+
+    setVisibleTimeStart(newStart);
+    setVisibleTimeEnd(newEnd);
+
+    if (!isInitialized) {
+      setIsInitialized(true);
+
+      return;
+    }
+
+    handleTimeChange(newStart, setStartAt, query, history);
+  };
+
   const getPrimaryHeaderText = () => {
     const sameStartAndEndMonth =
       moment(visibleTimeStart).month() === moment(visibleTimeEnd).month();
 
     const intervalEndDateFormat = sameStartAndEndMonth ? 'DD' : 'MMMM DD';
 
-    const dayViewText = moment(visibleTimeStart).format('dddd, DD MMMM YYYY');
     const weekViewIntervalText = `${moment(visibleTimeStart).format(
       'MMMM DD'
     )} - ${moment(visibleTimeEnd).format(intervalEndDateFormat)}`;
-    const monthViewText = moment(visibleTimeStart).format('MMMM YYYY');
 
-    switch (timelineViewPeriod) {
-      case 'day':
-        return !isMobile && dayViewText;
-      case 'week':
-        return weekViewIntervalText;
-
-      default:
-        return monthViewText;
-    }
+    return weekViewIntervalText;
   };
 
   return (
@@ -418,31 +420,34 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
         stackItems
         canMove={false}
         canResize={false}
+        onTimeChange={onTimeChange}
       >
-        <TimelineHeaders>
-          <SidebarHeader>
-            {({ getRootProps }) => {
-              return <div {...getRootProps()} />;
-            }}
-          </SidebarHeader>
-          <DateHeader
-            unit="primaryHeader"
-            className="primaryHeader"
-            intervalRenderer={(props) => {
-              if (!props) {
-                return;
-              }
-              const { getIntervalProps } = props;
+        {timelineViewPeriod === 'week' && (
+          <TimelineHeaders>
+            <SidebarHeader>
+              {({ getRootProps }) => {
+                return <div {...getRootProps()} />;
+              }}
+            </SidebarHeader>
+            <DateHeader
+              unit="primaryHeader"
+              className="primaryHeader"
+              intervalRenderer={(props) => {
+                if (!props) {
+                  return;
+                }
+                const { getIntervalProps } = props;
 
-              return (
-                <div className="customPrimaryHeader" {...getIntervalProps()}>
-                  {getPrimaryHeaderText()}
-                </div>
-              );
-            }}
-          />
-          <DateHeader />
-        </TimelineHeaders>
+                return (
+                  <div className="customPrimaryHeader" {...getIntervalProps()}>
+                    {getPrimaryHeaderText()}
+                  </div>
+                );
+              }}
+            />
+            <DateHeader />
+          </TimelineHeaders>
+        )}
       </Timeline>
     </div>
   );

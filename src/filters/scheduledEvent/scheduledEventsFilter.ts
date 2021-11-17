@@ -13,7 +13,7 @@ export default function generateScheduledEventFilter(
 
   switch (activeView) {
     case 'day': {
-      const newStartsAt = moment(startsAt).startOf('day');
+      const newStartsAt = moment(startsAt);
 
       return {
         instrumentIds,
@@ -22,7 +22,7 @@ export default function generateScheduledEventFilter(
       };
     }
     case 'week': {
-      const newStartsAt = moment(startsAt).startOf('week');
+      const newStartsAt = moment(startsAt);
 
       return {
         instrumentIds,
@@ -31,7 +31,7 @@ export default function generateScheduledEventFilter(
       };
     }
     case 'month': {
-      const newStartsAt = moment(startsAt).startOf('month');
+      const newStartsAt = moment(startsAt);
 
       return {
         instrumentIds,
@@ -41,7 +41,7 @@ export default function generateScheduledEventFilter(
     }
     default:
       console.warn('activeView not implemented:', activeView);
-      const newStartsAt = moment(startsAt).startOf('week');
+      const newStartsAt = moment(startsAt);
 
       return {
         startsAt: toTzLessDateTime(newStartsAt),

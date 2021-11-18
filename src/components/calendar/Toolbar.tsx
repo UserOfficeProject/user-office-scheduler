@@ -11,7 +11,7 @@ import {
   useMediaQuery,
 } from '@material-ui/core';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Messages,
   NavigateAction,
@@ -20,9 +20,9 @@ import {
 } from 'react-big-calendar';
 import { useHistory } from 'react-router';
 
+import { InstrumentAndEquipmentContext } from 'context/InstrumentAndEquipmentContext';
 import { Equipment } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
-import { PartialEquipment } from 'hooks/equipment/useEquipments';
 import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 
 const useStyles = makeStyles((theme) => ({
@@ -57,13 +57,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export type ToolbarAdditionalProps = {
-  instruments: PartialInstrument[];
-  instrumentsLoading: boolean;
-  equipments: PartialEquipment[];
-  equipmentsLoading: boolean;
-};
-
 export default function Toolbar({
   localizer: { messages },
   label,
@@ -71,11 +64,9 @@ export default function Toolbar({
   onView,
   views,
   view,
-  instruments,
-  instrumentsLoading,
-  equipments,
-  equipmentsLoading,
-}: ToolbarProps & ToolbarAdditionalProps) {
+}: ToolbarProps) {
+  const { instruments, loadingInstruments, equipments, loadingEquipments } =
+    useContext(InstrumentAndEquipmentContext);
   const classes = useStyles();
   const history = useHistory();
   const isMobile = useMediaQuery('(max-width: 648px)');
@@ -120,17 +111,17 @@ export default function Toolbar({
   }, [equipments, queryEquipment, selectedEquipment]);
 
   useEffect(() => {
-    if (!instrumentsLoading && queryInstrument) {
+    if (!loadingInstruments && queryInstrument) {
       const found = instruments.find(({ id }) => `${id}` === queryInstrument);
 
       found && setSelectedInstrument(found);
       setQueryValueInitialized(true);
     }
-  }, [instrumentsLoading, instruments, queryInstrument, setSelectedInstrument]);
+  }, [loadingInstruments, instruments, queryInstrument, setSelectedInstrument]);
 
   useEffect(() => {
     if (
-      instrumentsLoading ||
+      loadingInstruments ||
       !queryValueInitialized ||
       (!selectedInstrument && !queryInstrument)
     ) {
@@ -151,7 +142,7 @@ export default function Toolbar({
     history.push(`?${query}`);
   }, [
     queryValueInitialized,
-    instrumentsLoading,
+    loadingInstruments,
     selectedInstrument,
     queryInstrument,
     query,
@@ -245,8 +236,8 @@ export default function Toolbar({
           data-cy="content-calendar-toolbar-instrument-equipment"
         >
           <Autocomplete
-            loading={instrumentsLoading}
-            disabled={instrumentsLoading}
+            loading={loadingInstruments}
+            disabled={loadingInstruments}
             selectOnFocus
             clearOnBlur
             fullWidth
@@ -260,12 +251,12 @@ export default function Toolbar({
                 {...params}
                 label="Instrument"
                 margin="dense"
-                disabled={instrumentsLoading}
+                disabled={loadingInstruments}
                 InputProps={{
                   ...params.InputProps,
                   endAdornment: (
                     <>
-                      {instrumentsLoading ? (
+                      {loadingInstruments ? (
                         <CircularProgress color="inherit" size={20} />
                       ) : null}
                       {params.InputProps.endAdornment}
@@ -284,8 +275,8 @@ export default function Toolbar({
           />
           <Autocomplete
             multiple
-            loading={equipmentsLoading}
-            disabled={equipmentsLoading}
+            loading={loadingEquipments}
+            disabled={loadingEquipments}
             selectOnFocus
             clearOnBlur
             fullWidth
@@ -299,12 +290,12 @@ export default function Toolbar({
                 {...params}
                 label="Equipment"
                 margin="dense"
-                disabled={equipmentsLoading}
+                disabled={loadingEquipments}
                 InputProps={{
                   ...params.InputProps,
                   endAdornment: (
                     <>
-                      {equipmentsLoading ? (
+                      {loadingEquipments ? (
                         <CircularProgress color="inherit" size={20} />
                       ) : null}
                       {params.InputProps.endAdornment}

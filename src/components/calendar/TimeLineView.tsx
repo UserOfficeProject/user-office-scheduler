@@ -13,7 +13,7 @@ import { Autocomplete } from '@material-ui/lab';
 import * as H from 'history';
 import { debounce } from 'lodash';
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View } from 'react-big-calendar';
 import Timeline, {
   DateHeader,
@@ -25,6 +25,7 @@ import containerResizeDetector from 'react-calendar-timeline/lib/resize-detector
 import 'react-calendar-timeline/lib/Timeline.css';
 import { useHistory } from 'react-router';
 
+import { InstrumentAndEquipmentContext } from 'context/InstrumentAndEquipmentContext';
 import { useQuery } from 'hooks/common/useQuery';
 import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 import { toTzLessDateTime } from 'utils/date';
@@ -34,8 +35,6 @@ import { CalendarScheduledEvent, getBookingTypeStyle } from './Event';
 
 type TimeLineViewProps = {
   events: CalendarScheduledEvent[];
-  instruments: PartialInstrument[];
-  instrumentsLoading: boolean;
   onSelectEvent: (selectedEvent: CalendarScheduledEvent) => void;
   startsAt: Date;
   setStartAt: React.Dispatch<React.SetStateAction<Date>>;
@@ -90,12 +89,13 @@ const useStyles = makeStyles((theme) => ({
 
 const TimeLineView: React.FC<TimeLineViewProps> = ({
   events,
-  instruments,
-  instrumentsLoading,
   onSelectEvent,
   startsAt,
   setStartAt,
 }) => {
+  const { instruments, loadingInstruments } = useContext(
+    InstrumentAndEquipmentContext
+  );
   const query = useQuery();
   const history = useHistory();
   const classes = useStyles();
@@ -373,8 +373,8 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
           <Grid item sm={6} xs={12}>
             <Autocomplete
               multiple
-              loading={instrumentsLoading}
-              disabled={instrumentsLoading}
+              loading={loadingInstruments}
+              disabled={loadingInstruments}
               selectOnFocus
               fullWidth
               clearOnBlur
@@ -387,7 +387,7 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
                 <TextField
                   {...params}
                   label="Instruments"
-                  disabled={instrumentsLoading}
+                  disabled={loadingInstruments}
                   margin="dense"
                 />
               )}

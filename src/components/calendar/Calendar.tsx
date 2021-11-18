@@ -1,3 +1,4 @@
+import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
 import MaterialTable, { Column } from '@material-table/core';
 import {
   IconButton,
@@ -17,20 +18,25 @@ import CloseIcon from '@material-ui/icons/Close';
 import ViewIcon from '@material-ui/icons/Visibility';
 import clsx from 'clsx';
 import generateScheduledEventFilter from 'filters/scheduledEvent/scheduledEventsFilter';
-import moment, { Moment } from 'moment';
+import moment from 'moment';
 import 'moment/locale/en-gb';
+import { useSnackbar } from 'notistack';
 import React, {
   useState,
   useMemo,
   useContext,
   useEffect,
   useCallback,
+  ComponentType,
 } from 'react';
 import {
   Calendar as BigCalendar,
+  CalendarProps,
   momentLocalizer,
+  stringOrDate,
   View,
 } from 'react-big-calendar';
+import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import { useHistory } from 'react-router';
 
 import Loader from 'components/common/Loader';
@@ -45,22 +51,27 @@ import {
 } from 'components/scheduledEvent/ScheduledEventForm';
 import TimeSlotBookingDialog from 'components/timeSlotBooking/TimeSlotBookingDialog';
 import { AppContext } from 'context/AppContext';
+import { InstrumentAndEquipmentContextProvider } from 'context/InstrumentAndEquipmentContext';
 import {
   ScheduledEvent,
   ScheduledEventBookingType,
   GetScheduledEventsQuery,
   ProposalBooking,
 } from 'generated/sdk';
+import { useDataApi } from 'hooks/common/useDataApi';
 import { useQuery } from 'hooks/common/useQuery';
-import useEquipments from 'hooks/equipment/useEquipments';
-import useUserInstruments from 'hooks/instrument/useUserInstruments';
 import useInstrumentProposalBookings from 'hooks/proposalBooking/useInstrumentProposalBookings';
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
 import useScheduledEvents from 'hooks/scheduledEvent/useScheduledEvents';
 import { ContentContainer, StyledPaper } from 'styles/StyledComponents';
-import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
+import {
+  parseTzLessDateTime,
+  toTzLessDateTime,
+  TZ_LESS_DATE_TIME_FORMAT,
+} from 'utils/date';
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+
 import 'styles/react-big-calendar.css';
 
 import CalendarTodoBox from './CalendarTodoBox';
@@ -108,15 +119,15 @@ const transformEvent = (
   }));
 
 function isOverlapping(
-  { start, end }: { start: Moment; end: Moment },
+  { start, end }: { start: stringOrDate; end: stringOrDate },
   calendarEvents: CalendarScheduledEvent[]
 ): boolean {
   return calendarEvents.some((calendarEvent) => {
     if (
-      (moment(calendarEvent.start).isSameOrAfter(start) &&
-        moment(calendarEvent.end).isSameOrBefore(end)) ||
-      (moment(calendarEvent.start).isBefore(end) &&
-        moment(calendarEvent.end).isAfter(start))
+      (moment(calendarEvent.start).isSameOrAfter(moment(start)) &&
+        moment(calendarEvent.end).isSameOrBefore(moment(end))) ||
+      (moment(calendarEvent.start).isBefore(moment(end)) &&
+        moment(calendarEvent.end).isAfter(moment(start)))
     ) {
       return true;
     }
@@ -227,6 +238,12 @@ const getEquipmentIdsFromQuery = (queryEquipment: string | null) => {
   return queryEquipmentIds || [];
 };
 
+const DragAndDropCalendar = withDragAndDrop(
+  BigCalendar as ComponentType<
+    CalendarProps<CalendarScheduledEvent, Record<string, unknown>>
+  >
+);
+
 export default function Calendar() {
   const isTabletOrMobile = useMediaQuery('(max-width: 1224px)');
   const isTabletOrLarger = useMediaQuery('(min-width: 648px)');
@@ -235,6 +252,8 @@ export default function Calendar() {
   const theme = useTheme();
   const history = useHistory();
   const query = useQuery();
+  const { enqueueSnackbar } = useSnackbar();
+  const api = useDataApi();
 
   const queryInstrument = query.get('instrument');
   const queryEquipment = query.get('equipment');
@@ -255,6 +274,11 @@ export default function Calendar() {
     | SlotInfo
     | null
   >(null);
+  const [draggingEventDetails, setDraggingEventDetails] = useState<{
+    proposalBookingId: number;
+    instrumentId: number;
+  } | null>(null);
+  const [isAddingNewTimeSlot, setIsAddingNewTimeSlot] = useState(false);
   const [view, setView] = useState<View>(queryView || CALENDAR_DEFAULT_VIEW);
   const [startsAt, setStartAt] = useState(
     queryTimeLineStart
@@ -277,9 +301,6 @@ export default function Calendar() {
   const [selectedEquipmentBooking, setSelectedEquipmentBooking] = useState<
     number | null
   >(null);
-
-  const { loading: instrumentsLoading, instruments } = useUserInstruments();
-  const { loading: equipmentsLoading, equipments } = useEquipments();
 
   useEffect(() => {
     if (isTabletOrMobile) {
@@ -320,6 +341,7 @@ export default function Calendar() {
   const {
     scheduledEvents,
     loading: loadingEvents,
+    setScheduledEvents,
     refresh: refreshEvents,
   } = useScheduledEvents(filter);
 
@@ -441,7 +463,10 @@ export default function Calendar() {
     setSelectedEvent(slotInfo);
   };
 
-  const onSelecting = (range: { start: Moment; end: Moment }) => {
+  const onSelecting = (range: {
+    start: stringOrDate;
+    end: stringOrDate;
+  }): boolean | undefined | null => {
     return !isOverlapping(range, calendarEvents);
   };
 
@@ -496,8 +521,8 @@ export default function Calendar() {
   };
 
   const handleNewSimpleEvent = () => {
-    const start = moment().startOf('hour');
-    const end = moment().startOf('hour').add(1, 'hour');
+    const start = moment().startOf('hour').toDate();
+    const end = moment().startOf('hour').add(1, 'hour').toDate();
 
     setSelectedEvent({
       action: 'click',
@@ -545,6 +570,66 @@ export default function Calendar() {
       }}
     />
   );
+
+  const addAndOpenNewTimeSlot = async ({
+    start,
+    end,
+  }: {
+    start: stringOrDate;
+    end: stringOrDate;
+  }) => {
+    if (
+      !draggingEventDetails?.proposalBookingId ||
+      !draggingEventDetails.instrumentId
+    ) {
+      return;
+    }
+
+    setIsAddingNewTimeSlot(true);
+    const {
+      createScheduledEvent: { error, scheduledEvent: createdScheduledEvent },
+    } = await api().createScheduledEvent({
+      input: {
+        proposalBookingId: draggingEventDetails.proposalBookingId,
+        bookingType: ScheduledEventBookingType.USER_OPERATIONS,
+        instrumentId: draggingEventDetails.instrumentId,
+        startsAt: moment(start).format(TZ_LESS_DATE_TIME_FORMAT),
+        endsAt: moment(end).format(TZ_LESS_DATE_TIME_FORMAT),
+      },
+    });
+    if (error) {
+      enqueueSnackbar(getTranslation(error as ResourceId), {
+        variant: 'error',
+      });
+    } else {
+      enqueueSnackbar('Time slot added successfully', {
+        variant: 'success',
+      });
+      if (createdScheduledEvent) {
+        setScheduledEvents([
+          ...scheduledEvents,
+          createdScheduledEvent as ScheduledEvent,
+        ]);
+        // NOTE: Open the event right after creation
+        setSelectedProposalBooking({
+          proposalBookingId: draggingEventDetails.proposalBookingId,
+          scheduledEventId: createdScheduledEvent.id,
+        });
+      }
+    }
+    setIsAddingNewTimeSlot(false);
+    setDraggingEventDetails(null);
+  };
+
+  const onDropFromOutside = async ({
+    start,
+    end,
+  }: {
+    start: stringOrDate;
+    end: stringOrDate;
+  }) => {
+    await addAndOpenNewTimeSlot({ start, end });
+  };
 
   // 100% height needed for month view
   // also the other components make whole page scrollable without it
@@ -624,108 +709,92 @@ export default function Calendar() {
                   }),
                 }}
               >
-                {schedulerActiveView === SchedulerViews.CALENDAR && (
-                  // @ts-expect-error test
-                  <BigCalendar
-                    selectable
-                    // TODO: needs some position fixing
-                    // popup
-                    localizer={localizer}
-                    events={calendarEvents}
-                    defaultView={view}
-                    views={{
-                      day: true,
-                      week: true,
-                      month: true,
-                    }}
-                    defaultDate={startsAt}
-                    step={60}
-                    date={startsAt}
-                    timeslots={1}
-                    showMultiDayTimes={true}
-                    dayLayoutAlgorithm={'no-overlap'}
-                    eventPropGetter={eventPropGetter}
-                    slotPropGetter={slotPropGetter}
-                    onSelectEvent={onSelectEvent}
-                    onSelectSlot={onSelectSlot}
-                    onSelecting={onSelecting}
-                    onNavigate={onNavigate}
-                    onView={onViewChange}
-                    components={{
-                      toolbar: (toolbarProps) =>
-                        Toolbar({
-                          ...toolbarProps,
-                          instruments,
-                          instrumentsLoading,
-                          equipments,
-                          equipmentsLoading,
-                        }),
-                      event: Event,
-                      header: ({ date, localizer }) => {
-                        switch (view) {
-                          case 'week':
-                            return localizer.format(date, 'dddd', '');
-                          case 'month':
-                            return localizer.format(date, 'dddd', '');
-
-                          default:
-                            return '';
-                        }
-                      },
-                    }}
-                  />
-                )}
-                {schedulerActiveView === SchedulerViews.TABLE && (
-                  <div data-cy="scheduled-events-table">
-                    <MaterialTable
-                      icons={tableIcons}
-                      title="Scheduled events"
-                      columns={columns}
-                      data={tableEvents}
+                <InstrumentAndEquipmentContextProvider>
+                  {schedulerActiveView === SchedulerViews.CALENDAR && (
+                    <DragAndDropCalendar
+                      selectable
+                      // TODO: needs some position fixing
+                      // popup
+                      localizer={localizer}
+                      events={calendarEvents}
+                      defaultView={view}
+                      views={{
+                        day: true,
+                        week: true,
+                        month: true,
+                      }}
+                      defaultDate={startsAt}
+                      step={60}
+                      date={startsAt}
+                      timeslots={1}
+                      onDropFromOutside={onDropFromOutside}
+                      showMultiDayTimes={true}
+                      dayLayoutAlgorithm={'no-overlap'}
+                      eventPropGetter={eventPropGetter}
+                      slotPropGetter={slotPropGetter}
+                      onSelectEvent={onSelectEvent}
+                      onSelectSlot={onSelectSlot}
+                      onSelecting={onSelecting}
+                      onNavigate={onNavigate}
+                      onView={onViewChange}
                       components={{
-                        Toolbar: (data) =>
-                          TableToolbar(
-                            data,
-                            filter,
-                            setFilter,
-                            instruments,
-                            instrumentsLoading,
-                            equipments,
-                            equipmentsLoading
+                        toolbar: Toolbar,
+                        event: Event,
+                        week: {
+                          header: ({ date, localizer }) => (
+                            <>{localizer.format(date, 'dddd', '')}</>
                           ),
-                      }}
-                      options={{
-                        rowStyle: (rowData: CalendarScheduledEvent) =>
-                          getBookingTypeStyle(
-                            rowData.bookingType,
-                            rowData.status
+                        },
+                        month: {
+                          header: ({ date, localizer }) => (
+                            <>{localizer.format(date, 'dddd', '')}</>
                           ),
-
-                        pageSize: 10,
+                        },
                       }}
-                      actions={[
-                        (rowData) => ({
-                          icon: () => ViewTableRowIcon(rowData),
-                          tooltip: 'View event',
-                          onClick: (_event, rowData) => {
-                            onSelectEvent(rowData as CalendarScheduledEvent);
-                          },
-                          position: 'row',
-                        }),
-                      ]}
                     />
-                  </div>
-                )}
-                {schedulerActiveView === SchedulerViews.TIMELINE && (
-                  <TimeLineView
-                    events={calendarEvents}
-                    instruments={instruments}
-                    instrumentsLoading={instrumentsLoading}
-                    onSelectEvent={onSelectEvent}
-                    startsAt={startsAt}
-                    setStartAt={setStartAt}
-                  />
-                )}
+                  )}
+                  {schedulerActiveView === SchedulerViews.TABLE && (
+                    <div data-cy="scheduled-events-table">
+                      <MaterialTable
+                        icons={tableIcons}
+                        title="Scheduled events"
+                        columns={columns}
+                        data={tableEvents}
+                        components={{
+                          Toolbar: (data) =>
+                            TableToolbar(data, filter, setFilter),
+                        }}
+                        options={{
+                          rowStyle: (rowData: CalendarScheduledEvent) =>
+                            getBookingTypeStyle(
+                              rowData.bookingType,
+                              rowData.status
+                            ),
+
+                          pageSize: 10,
+                        }}
+                        actions={[
+                          (rowData) => ({
+                            icon: () => ViewTableRowIcon(rowData),
+                            tooltip: 'View event',
+                            onClick: (_event, rowData) => {
+                              onSelectEvent(rowData as CalendarScheduledEvent);
+                            },
+                            position: 'row',
+                          }),
+                        ]}
+                      />
+                    </div>
+                  )}
+                  {schedulerActiveView === SchedulerViews.TIMELINE && (
+                    <TimeLineView
+                      events={calendarEvents}
+                      onSelectEvent={onSelectEvent}
+                      startsAt={startsAt}
+                      setStartAt={setStartAt}
+                    />
+                  )}
+                </InstrumentAndEquipmentContextProvider>
               </Grid>
               <Grid
                 item
@@ -807,13 +876,16 @@ export default function Calendar() {
                   </FormControl>
                   <CalendarTodoBox
                     refreshCalendar={refresh}
+                    setDraggedEvent={setDraggingEventDetails}
                     onNewSimpleEvent={handleNewSimpleEvent}
                     proposalBookings={proposalBookings}
                   />
                 </Collapse>
               </Grid>
             </Grid>
-            {(loadingEvents || loadingBookings) && <Loader />}
+            {(loadingEvents || loadingBookings || isAddingNewTimeSlot) && (
+              <Loader />
+            )}
           </StyledPaper>
         </Grid>
       </Grid>

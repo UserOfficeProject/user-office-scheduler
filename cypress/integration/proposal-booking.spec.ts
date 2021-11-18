@@ -119,12 +119,51 @@ context('Proposal booking tests ', () => {
           .should('exist');
       });
 
+      it('should be able to add new time slot by drag and drop to calendar', () => {
+        cy.contains('Proposal ID');
+        cy.get('[data-cy="btn-close-dialog"]').click();
+
+        cy.finishedLoading();
+
+        cy.get(
+          '#instrument-calls-tree-view [role=treeitem] [role=group] [role=treeitem]'
+        )
+          .first()
+          .trigger('dragstart');
+
+        const slot = new Date(getHourDateTimeAfter(-25, 'hours')).toISOString();
+        cy.get(`.rbc-day-slot [data-cy='event-slot-${slot}']`).scrollIntoView();
+
+        // NOTE: It needs to be forced because all the event slots are covered by this element .rbc-events-container and it is not possible to execute drop on event-slot
+        cy.get(`.rbc-day-slot [data-cy='event-slot-${slot}']`).trigger('drop', {
+          force: true,
+        });
+
+        cy.finishedLoading();
+
+        cy.get('[data-cy="time-slot-booking-dialog"]').contains(
+          /Time slot booking/i
+        );
+
+        cy.get('[data-cy="time-slot-booking-dialog"]')
+          .get('[data-cy="btn-save"]')
+          .should('exist');
+
+        cy.get(
+          '[data-cy="time-slot-booking-dialog"] [data-cy="startsAtInfo"]'
+        ).should('include.text', getHourDateTimeAfter(-25, 'hours'));
+        cy.get(
+          '[data-cy="time-slot-booking-dialog"] [data-cy="endsAtInfo"]'
+        ).should('include.text', getHourDateTimeAfter(-24, 'hours'));
+      });
+
       it('Draft events should have opacity', () => {
         cy.get('[data-cy="btn-close-dialog"]').click();
 
         // NOTE: Using fixed proposal name and shortcode because they are inserted inside the database using a seeder and always will be the same for the test cases.
-        // .parent().parent() thing is because the react big calendar component always uses that structure around an event shown on the calendar.
+        // .parent().parent().parent() thing is because the react big calendar component always uses that structure around an event shown on the calendar.
         cy.get('[data-cy="proposal-event-Test proposal-999999"]')
+          .parent()
           .parent()
           .parent()
           .should('have.attr', 'style')
@@ -141,7 +180,7 @@ context('Proposal booking tests ', () => {
         ).should('not.exist');
 
         cy.finishedLoading();
-        cy.get('[title="Edit event"]').click();
+        cy.get('[title="Edit event"]').last().click();
 
         cy.get('[data-cy="event-outside-cycle-interval-warning"]').should(
           'not.exist'
@@ -187,7 +226,7 @@ context('Proposal booking tests ', () => {
 
       it('should be able to edit time slot', () => {
         cy.finishedLoading();
-        cy.get('[title="Edit event"]').click();
+        cy.get('[title="Edit event"]').last().click();
 
         cy.get('[data-cy="startsAtInfo"]').click();
         cy.get('[data-cy="startsAt"] input').clear();
@@ -219,7 +258,7 @@ context('Proposal booking tests ', () => {
           .first()
           .click();
 
-        cy.get('[title="Edit event"]').click();
+        cy.get('[title="Edit event"]').last().click();
 
         cy.contains(getHourDateTimeAfter(2));
         cy.contains(getHourDateTimeAfter(3));
@@ -245,7 +284,10 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy="btn-close-dialog"]').click();
         cy.finishedLoading();
 
-        cy.get('.rbc-time-content .rbc-event').contains('999999').click();
+        cy.get('.rbc-time-content .rbc-event')
+          .last()
+          .contains('999999')
+          .click();
 
         cy.finishedLoading();
 
@@ -275,7 +317,7 @@ context('Proposal booking tests ', () => {
 
         cy.get('.MuiTable-root input[type="checkbox"]').first().click();
 
-        cy.contains('2 row(s) selected');
+        cy.contains('3 row(s) selected');
 
         cy.get('[title="Delete time slots"]').click();
 
@@ -854,6 +896,7 @@ context('Proposal booking tests ', () => {
           .should('contain.text', '[Completed]');
 
         cy.get('[data-cy="proposal-event-Test proposal-999999"]')
+          .parent()
           .parent()
           .parent()
           .should('have.attr', 'style')

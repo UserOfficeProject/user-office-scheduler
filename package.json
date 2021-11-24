@@ -32,7 +32,7 @@
   "author": "SWAP",
   "license": "ISC",
   "dependencies": {
-    "@apollo/federation": "^0.33.3",
+    "@apollo/federation": "^0.33.6",
     "@apollo/subgraph": "^0.1.4",
     "@esss-swap/duo-localisation": "^1.1.15",
     "@esss-swap/duo-logger": "^1.1.1",

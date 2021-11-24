@@ -40,6 +40,7 @@ const useStyles = makeStyles((theme) => ({
 
 type TimeSlotLostTimeTableProps = {
   scheduledEvent: ScheduledEventWithEquipments;
+  proposalBookingId: number;
   handleSetDirty: (isDirty: boolean) => void;
   lostTimes: ProposalBookingLostTime[];
   setLostTimes: Dispatch<SetStateAction<ProposalBookingLostTime[]>>;
@@ -49,6 +50,7 @@ type TimeSlotLostTimeTableProps = {
 function TimeSlotLostTimeTable({
   scheduledEvent,
   handleSetDirty,
+  proposalBookingId,
   loading,
   lostTimes,
   setLostTimes,
@@ -64,10 +66,6 @@ function TimeSlotLostTimeTable({
   const [isLoading, setIsLoading] = useState(false);
 
   const handleAdd = async () => {
-    if (!scheduledEvent.proposalBooking) {
-      return;
-    }
-
     setIsAddingNewLostTime(true);
     handleSetDirty(false);
     try {
@@ -86,7 +84,7 @@ function TimeSlotLostTimeTable({
         addLostTime: { error, lostTime: addedLostTime },
       } = await api().addLostTime({
         input: {
-          proposalBookingId: scheduledEvent.proposalBooking.id,
+          proposalBookingId: proposalBookingId,
           lostTime: {
             scheduledEventId: scheduledEvent.id,
             startsAt: toTzLessDateTime(newLostTimeStart),

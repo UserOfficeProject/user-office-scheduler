@@ -1,18 +1,12 @@
 import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  makeStyles,
-} from '@material-ui/core';
-import { Save as SaveIcon } from '@material-ui/icons';
+import { Button, makeStyles } from '@material-ui/core';
+import { Save as SaveIcon, Delete as DeleteIcon } from '@material-ui/icons';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import moment from 'moment';
 import { useSnackbar } from 'notistack';
-import React, { Dispatch, useContext, useState } from 'react';
+import React, { Dispatch, SetStateAction, useContext, useState } from 'react';
 
+import { ActionButtonContainer } from 'components/common/ActionButtonContainer';
 import Loader from 'components/common/Loader';
 import SplitButton from 'components/common/SplitButton';
 import { AppContext } from 'context/AppContext';
@@ -21,15 +15,16 @@ import {
   EquipmentAssignmentStatus,
   ProposalBookingFinalizeAction,
   ProposalBookingStatusCore,
+  ScheduledEvent,
   UserRole,
 } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import useProposalBookingLostTimes, {
   ProposalBookingLostTime,
 } from 'hooks/lostTime/useProposalBookingLostTimes';
-import useScheduledEventWithEquipment, {
-  ScheduledEventWithEquipments,
-} from 'hooks/scheduledEvent/useScheduledEventWithEquipment';
+import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
+import useScheduledEventEquipments from 'hooks/scheduledEvent/useScheduledEventEquipments';
+import { ScheduledEventWithEquipments } from 'hooks/scheduledEvent/useScheduledEventWithEquipment';
 import { toTzLessDateTime } from 'utils/date';
 import { hasOverlappingEvents } from 'utils/scheduledEvent';
 
@@ -46,30 +41,21 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export type TimeSlotBookingDialogStepProps = {
-  scheduledEvent: ScheduledEventWithEquipments;
-  setScheduledEvent: Dispatch<
-    React.SetStateAction<ScheduledEventWithEquipments | null>
+type TimeSlotBookingProps = {
+  proposalBooking: InstrumentProposalBooking;
+  setProposalBooking: Dispatch<
+    SetStateAction<InstrumentProposalBooking | null>
   >;
-  isDirty: boolean;
-  handleSetDirty: (isDirty: boolean) => void;
+  activeScheduledEvent: ScheduledEvent;
+  onDelete: (scheduledEvent: ScheduledEventWithEquipments) => Promise<void>;
 };
 
-type TimeSlotBookingDialogProps = {
-  activeProposalBookingId: number;
-  activeTimeSlotScheduledEventId?: number;
-  isDialogOpen: boolean;
-  closeDialog: (scheduledEvent: ScheduledEventWithEquipments | null) => void;
-  isOpenedOverProposalBookingDialog?: boolean;
-};
-
-export default function TimeSlotBookingDialog({
-  activeProposalBookingId,
-  activeTimeSlotScheduledEventId,
-  isDialogOpen,
-  closeDialog,
-  isOpenedOverProposalBookingDialog = false,
-}: TimeSlotBookingDialogProps) {
+export default function TimeSlotBooking({
+  proposalBooking,
+  setProposalBooking,
+  activeScheduledEvent,
+  onDelete,
+}: TimeSlotBookingProps) {
   const classes = useStyles();
   const api = useDataApi();
   const { enqueueSnackbar } = useSnackbar();
@@ -79,11 +65,14 @@ export default function TimeSlotBookingDialog({
   const [isLoading, setIsLoading] = useState(false);
   const isUserOfficer = useCheckAccess([UserRole.USER_OFFICER]);
 
-  const { loading, scheduledEvent, setScheduledEvent } =
-    useScheduledEventWithEquipment({
-      proposalBookingId: activeProposalBookingId,
-      scheduledEventId: activeTimeSlotScheduledEventId,
+  const { equipments, loading: loadingEquipments } =
+    useScheduledEventEquipments({
+      proposalBookingId: proposalBooking.id,
+      scheduledEventId: proposalBooking.id,
     });
+
+  const shouldShowLostTimes =
+    activeScheduledEvent.status !== ProposalBookingStatusCore.DRAFT;
 
   // TODO: Query lost times by scheduled event id as well.
   const {
@@ -91,55 +80,24 @@ export default function TimeSlotBookingDialog({
     lostTimes,
     setLostTimes,
   } = useProposalBookingLostTimes(
-    scheduledEvent?.proposalBooking?.id,
-    scheduledEvent?.id
+    proposalBooking.id,
+    activeScheduledEvent.id,
+    shouldShowLostTimes
   );
 
-  const allAccepted = scheduledEvent
-    ? scheduledEvent.equipments.every(
-        (equipment) => equipment.status === EquipmentAssignmentStatus.ACCEPTED
-      )
-    : true;
+  const allAccepted = equipments.every(
+    (equipment) => equipment.status === EquipmentAssignmentStatus.ACCEPTED
+  );
 
   const [allEquipmentsAccepted, setAllEquipmentsAccepted] =
     useState(allAccepted);
 
-  const handleCloseDialog = () => {
-    isDirty
-      ? showConfirmation({
-          message: (
-            <>
-              You have <strong>unsaved work</strong>, are you sure you want to
-              continue?
-            </>
-          ),
-          cb: () => closeDialog(null),
-        })
-      : closeDialog(scheduledEvent);
-  };
-
-  if (loading || !scheduledEvent) {
-    return (
-      <Dialog
-        open={isDialogOpen}
-        onClose={handleCloseDialog}
-        fullWidth
-        maxWidth="lg"
-        PaperProps={{
-          className: classes.fullHeight,
-        }}
-      >
-        <Loader />
-      </Dialog>
-    );
-  }
-
   const canUpdateDetailsAndEquipments =
-    scheduledEvent.status === ProposalBookingStatusCore.DRAFT;
+    activeScheduledEvent.status === ProposalBookingStatusCore.DRAFT;
   const canUpdateAddLostTimes =
-    scheduledEvent.status === ProposalBookingStatusCore.ACTIVE;
+    activeScheduledEvent.status === ProposalBookingStatusCore.ACTIVE;
   const isReadOnly =
-    scheduledEvent.status === ProposalBookingStatusCore.COMPLETED;
+    activeScheduledEvent.status === ProposalBookingStatusCore.COMPLETED;
 
   const handleFinalizeSubmit = async (
     selectedKey: ProposalBookingFinalizeAction
@@ -163,15 +121,14 @@ export default function TimeSlotBookingDialog({
         </>
       ),
       cb: async () => {
+        setIsLoading(true);
         try {
-          setIsLoading(true);
-
           const {
             finalizeScheduledEvent: { error },
           } = await api().finalizeScheduledEvent({
             input: {
               action: selectedKey,
-              id: scheduledEvent.id,
+              id: activeScheduledEvent.id,
             },
           });
 
@@ -180,23 +137,32 @@ export default function TimeSlotBookingDialog({
               variant: 'error',
             });
           } else {
+            let newStatus = ProposalBookingStatusCore.DRAFT;
             if (selectedKey === ProposalBookingFinalizeAction.COMPLETE) {
-              setScheduledEvent({
-                ...scheduledEvent,
-                status: ProposalBookingStatusCore.COMPLETED,
-              });
+              newStatus = ProposalBookingStatusCore.COMPLETED;
               enqueueSnackbar('Scheduled event completed', {
                 variant: 'success',
               });
             } else {
-              setScheduledEvent({
-                ...scheduledEvent,
-                status: ProposalBookingStatusCore.DRAFT,
-              });
               enqueueSnackbar('Scheduled event restarted', {
                 variant: 'success',
               });
             }
+
+            const newScheduledEvents = proposalBooking.scheduledEvents.map(
+              (event) => ({
+                ...event,
+                status:
+                  event.id === activeScheduledEvent.id
+                    ? newStatus
+                    : event.status,
+              })
+            );
+
+            setProposalBooking({
+              ...proposalBooking,
+              scheduledEvents: newScheduledEvents,
+            });
           }
         } catch (e) {
           // TODO
@@ -235,16 +201,16 @@ export default function TimeSlotBookingDialog({
   };
 
   const getProposalBookingEventsForOverlapCheck = () =>
-    scheduledEvent.proposalBooking?.scheduledEvents.map((event) => {
+    proposalBooking.scheduledEvents.map((event) => {
       if (
-        event.id === scheduledEvent.id &&
-        scheduledEvent.startsAt &&
-        scheduledEvent.endsAt
+        event.id === activeScheduledEvent.id &&
+        activeScheduledEvent.startsAt &&
+        activeScheduledEvent.endsAt
       ) {
         return {
           id: event.id,
-          startsAt: moment(scheduledEvent.startsAt),
-          endsAt: moment(scheduledEvent.endsAt),
+          startsAt: moment(activeScheduledEvent.startsAt),
+          endsAt: moment(activeScheduledEvent.endsAt),
         };
       } else {
         return {
@@ -256,13 +222,13 @@ export default function TimeSlotBookingDialog({
     }) || [];
 
   const handleSubmit = async () => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      if (!scheduledEvent.startsAt || !scheduledEvent.endsAt) {
+      if (!activeScheduledEvent.startsAt || !activeScheduledEvent.endsAt) {
         return;
       }
 
-      if (scheduledEvent.startsAt >= scheduledEvent.endsAt) {
+      if (activeScheduledEvent.startsAt >= activeScheduledEvent.endsAt) {
         // when the starting date is after ending date
         // it may be less obvious for the user, show alert
         showAlert({
@@ -276,9 +242,9 @@ export default function TimeSlotBookingDialog({
         updateScheduledEvent: { error, scheduledEvent: updatedScheduledEvent },
       } = await api().updateScheduledEvent({
         input: {
-          scheduledEventId: scheduledEvent.id,
-          startsAt: toTzLessDateTime(scheduledEvent.startsAt),
-          endsAt: toTzLessDateTime(scheduledEvent.endsAt),
+          scheduledEventId: activeScheduledEvent.id,
+          startsAt: toTzLessDateTime(activeScheduledEvent.startsAt),
+          endsAt: toTzLessDateTime(activeScheduledEvent.endsAt),
         },
       });
 
@@ -287,24 +253,35 @@ export default function TimeSlotBookingDialog({
           variant: 'error',
         });
       } else {
-        updatedScheduledEvent &&
-          setScheduledEvent({
-            ...scheduledEvent,
-            startsAt: updatedScheduledEvent.startsAt,
-            endsAt: updatedScheduledEvent.endsAt,
-          });
-
         enqueueSnackbar('Scheduled event updated', {
           variant: 'success',
+        });
+
+        const newScheduledEvents = proposalBooking.scheduledEvents.map(
+          (event) => ({
+            ...event,
+            startsAt:
+              event.id === updatedScheduledEvent?.id
+                ? updatedScheduledEvent.startsAt
+                : event.startsAt,
+            endsAt:
+              event.id === updatedScheduledEvent?.id
+                ? updatedScheduledEvent.endsAt
+                : event.endsAt,
+          })
+        );
+
+        setProposalBooking({
+          ...proposalBooking,
+          scheduledEvents: newScheduledEvents,
         });
       }
       setIsDirty(false);
     } catch (e) {
       // TODO
       console.error(e);
-    } finally {
-      setIsLoading(false);
     }
+    setIsLoading(false);
   };
 
   const handleSaveDraft = () => {
@@ -329,13 +306,12 @@ export default function TimeSlotBookingDialog({
         </>
       ),
       cb: async () => {
+        setIsLoading(true);
         try {
-          setIsLoading(true);
-
           const {
             activateScheduledEvent: { error },
           } = await api().activateScheduledEvent({
-            input: { id: scheduledEvent.id },
+            input: { id: activeScheduledEvent.id },
           });
 
           if (error) {
@@ -343,12 +319,23 @@ export default function TimeSlotBookingDialog({
               variant: 'error',
             });
           } else {
-            setScheduledEvent({
-              ...scheduledEvent,
-              status: ProposalBookingStatusCore.ACTIVE,
-            });
             enqueueSnackbar('Scheduled event activated!', {
               variant: 'success',
+            });
+
+            const newScheduledEvents = proposalBooking.scheduledEvents.map(
+              (event) => ({
+                ...event,
+                status:
+                  event.id === activeScheduledEvent.id
+                    ? ProposalBookingStatusCore.ACTIVE
+                    : event.status,
+              })
+            );
+
+            setProposalBooking({
+              ...proposalBooking,
+              scheduledEvents: newScheduledEvents,
             });
           }
         } catch (e) {
@@ -357,6 +344,21 @@ export default function TimeSlotBookingDialog({
         }
 
         setIsDirty(false);
+        setIsLoading(false);
+      },
+    });
+  };
+
+  const handleDelete = async () => {
+    showConfirmation({
+      message: (
+        <>
+          Are you sure you want to <strong>delete</strong> scheduled event?
+        </>
+      ),
+      cb: async () => {
+        setIsLoading(true);
+        await onDelete(activeScheduledEvent);
         setIsLoading(false);
       },
     });
@@ -371,89 +373,97 @@ export default function TimeSlotBookingDialog({
         </>
       ),
       cb: async () => {
+        setIsLoading(true);
         try {
-          setIsLoading(true);
-
           const {
             reopenScheduledEvent: { error },
           } = await api().reopenScheduledEvent({
-            id: scheduledEvent.id,
+            id: activeScheduledEvent.id,
           });
 
           if (error) {
             enqueueSnackbar(getTranslation(error as ResourceId), {
               variant: 'error',
             });
-
-            setIsLoading(false);
           } else {
             enqueueSnackbar('Scheduled event re-opened', {
               variant: 'success',
             });
-            setIsLoading(false);
 
-            setScheduledEvent({
-              ...scheduledEvent,
-              status: ProposalBookingStatusCore.ACTIVE,
+            const newScheduledEvents = proposalBooking.scheduledEvents.map(
+              (event) => ({
+                ...event,
+                status:
+                  event.id === activeScheduledEvent.id
+                    ? ProposalBookingStatusCore.ACTIVE
+                    : event.status,
+              })
+            );
+
+            setProposalBooking({
+              ...proposalBooking,
+              scheduledEvents: newScheduledEvents,
             });
           }
         } catch (e) {
           // TODO
-
-          setIsLoading(false);
           console.error(e);
         }
+
+        setIsLoading(false);
       },
     });
   };
 
+  const onEventDateChangeSave = (updatedEvent: ScheduledEvent) => {
+    const newScheduledEvents = proposalBooking.scheduledEvents.map((event) =>
+      event.id === updatedEvent.id ? updatedEvent : event
+    );
+
+    setProposalBooking({
+      ...proposalBooking,
+      scheduledEvents: newScheduledEvents,
+    });
+  };
+
   return (
-    <Dialog
-      open={isDialogOpen}
-      onClose={handleCloseDialog}
-      fullWidth
-      hideBackdrop={isOpenedOverProposalBookingDialog}
-      maxWidth="lg"
-      data-cy="time-slot-booking-dialog"
-      PaperProps={{
-        className: classes.fullHeight,
-      }}
-    >
-      <DialogTitle>Time slot booking</DialogTitle>
-      <DialogContent>
-        {scheduledEvent && (
-          <>
-            {isLoading && <Loader />}
-            <TimeSlotDetails
-              isDirty={isDirty}
-              handleSetDirty={setIsDirty}
-              scheduledEvent={scheduledEvent}
-              setScheduledEvent={setScheduledEvent}
-            />
-            <TimeSlotEquipmentBookingTable
-              allEquipmentsAccepted={allEquipmentsAccepted}
-              setAllEquipmentsAccepted={setAllEquipmentsAccepted}
-              scheduledEvent={scheduledEvent}
-            />
-            {scheduledEvent.status !== ProposalBookingStatusCore.DRAFT && (
-              <TimeSlotLostTimeTable
-                handleSetDirty={setIsDirty}
-                scheduledEvent={scheduledEvent}
-                lostTimes={lostTimes}
-                setLostTimes={setLostTimes}
-                loading={loadingLostTimes}
-              />
-            )}
-          </>
-        )}
-      </DialogContent>
-      <DialogActions>
+    <>
+      {isLoading && <Loader />}
+      <TimeSlotDetails
+        isDirty={isDirty}
+        handleSetDirty={setIsDirty}
+        scheduledEvent={activeScheduledEvent}
+        proposalBooking={proposalBooking}
+        onSave={onEventDateChangeSave}
+      />
+      <TimeSlotEquipmentBookingTable
+        allEquipmentsAccepted={allEquipmentsAccepted}
+        loadingEquipments={loadingEquipments}
+        setAllEquipmentsAccepted={setAllEquipmentsAccepted}
+        scheduledEvent={activeScheduledEvent}
+        proposalBookingId={proposalBooking.id}
+        scheduledEventEquipments={equipments}
+      />
+      {shouldShowLostTimes && (
+        <TimeSlotLostTimeTable
+          handleSetDirty={setIsDirty}
+          proposalBookingId={proposalBooking.id}
+          scheduledEvent={activeScheduledEvent}
+          lostTimes={lostTimes}
+          setLostTimes={setLostTimes}
+          loading={loadingLostTimes}
+        />
+      )}
+
+      <ActionButtonContainer>
         <Button
+          variant="outlined"
           color="primary"
-          onClick={handleCloseDialog}
-          data-cy="btn-close-event-dialog"
+          startIcon={<DeleteIcon />}
+          onClick={handleDelete}
+          data-cy="btn-save"
         >
-          Close
+          Delete
         </Button>
         {canUpdateDetailsAndEquipments && (
           <Button
@@ -507,7 +517,7 @@ export default function TimeSlotBookingDialog({
             Reopen time slot booking
           </Button>
         )}
-      </DialogActions>
-    </Dialog>
+      </ActionButtonContainer>
+    </>
   );
 }

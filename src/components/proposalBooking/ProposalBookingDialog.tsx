@@ -21,7 +21,6 @@ import {
 import { useDataApi } from 'hooks/common/useDataApi';
 import useProposalBooking from 'hooks/proposalBooking/useProposalBooking';
 
-import ProposalBookingLostTimeTable from './ProposalBookingLostTimeTable';
 import ProposalDetailsAndBookingEvents from './ProposalDetailsAndBookingEvents';
 
 const useStyles = makeStyles(() => ({
@@ -36,6 +35,7 @@ const useStyles = makeStyles(() => ({
 
 type ProposalBookingDialogProps = {
   activeProposalBookingId: number;
+  scheduledEventId?: number;
   isDialogOpen: boolean;
   closeDialog: (shouldRefresh?: boolean) => void;
 };
@@ -43,6 +43,7 @@ type ProposalBookingDialogProps = {
 export default function ProposalBookingDialog({
   activeProposalBookingId,
   isDialogOpen,
+  scheduledEventId,
   closeDialog,
 }: ProposalBookingDialogProps) {
   const classes = useStyles();
@@ -52,7 +53,6 @@ export default function ProposalBookingDialog({
 
   const { showConfirmation } = useContext(AppContext);
   const [isLoading, setIsLoading] = useState(false);
-  const [openedEventId, setOpenedEventId] = useState<number | null>(null);
 
   const { loading, proposalBooking, setProposalBooking } = useProposalBooking(
     activeProposalBookingId
@@ -78,12 +78,12 @@ export default function ProposalBookingDialog({
     );
   }
 
-  const isStepReadOnly =
-    !!proposalBooking.scheduledEvents.length &&
-    proposalBooking.scheduledEvents.every(
-      (scheduledEvent) =>
-        scheduledEvent.status === ProposalBookingStatusCore.COMPLETED
-    );
+  const isStepReadOnly = proposalBooking.scheduledEvents.length
+    ? proposalBooking.scheduledEvents.every(
+        (scheduledEvent) =>
+          scheduledEvent.status === ProposalBookingStatusCore.COMPLETED
+      )
+    : proposalBooking.status === ProposalBookingStatusCore.COMPLETED;
 
   const completeBooking = () => {
     showConfirmation({
@@ -209,15 +209,8 @@ export default function ProposalBookingDialog({
         <ProposalDetailsAndBookingEvents
           proposalBooking={proposalBooking}
           setProposalBooking={setProposalBooking}
-          openedEventId={openedEventId}
-          setOpenedEventId={setOpenedEventId}
+          openedEventId={scheduledEventId}
         />
-        {isStepReadOnly && (
-          <ProposalBookingLostTimeTable
-            proposalBooking={proposalBooking}
-            handleOnViewEvent={setOpenedEventId}
-          />
-        )}
       </DialogContent>
       <DialogActions>
         <Button

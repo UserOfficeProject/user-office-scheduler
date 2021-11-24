@@ -11,14 +11,11 @@ import { tableIcons } from 'components/common/TableIcons';
 import SelectEquipmentDialog from 'components/timeSlotBooking/equipmentBooking/SelectEquipmentDialog';
 import {
   EquipmentAssignmentStatus,
-  ProposalBooking,
   ProposalBookingStatusCore,
+  ScheduledEvent,
 } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
-import {
-  ScheduledEventEquipment,
-  ScheduledEventWithEquipments,
-} from 'hooks/scheduledEvent/useScheduledEventWithEquipment';
+import { ScheduledEventEquipment } from 'hooks/scheduledEvent/useScheduledEventWithEquipment';
 
 export type EquipmentTableRow = {
   id: string;
@@ -39,18 +36,23 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 type TimeSlotEquipmentBookingTableProps = {
-  scheduledEvent: ScheduledEventWithEquipments;
+  scheduledEvent: ScheduledEvent;
+  proposalBookingId: number;
+  loadingEquipments: boolean;
+  scheduledEventEquipments: ScheduledEventEquipment[];
   allEquipmentsAccepted: boolean;
   setAllEquipmentsAccepted: Dispatch<SetStateAction<boolean>>;
 };
 
 export default function TimeSlotEquipmentBookingTable({
+  scheduledEventEquipments,
   scheduledEvent,
+  proposalBookingId,
+  loadingEquipments,
   allEquipmentsAccepted,
   setAllEquipmentsAccepted,
 }: TimeSlotEquipmentBookingTableProps) {
-  const proposalBooking = scheduledEvent.proposalBooking as ProposalBooking;
-  const [equipments, setEquipments] = useState(scheduledEvent.equipments);
+  const [equipments, setEquipments] = useState(scheduledEventEquipments);
   const isStepReadOnly =
     scheduledEvent.status !== ProposalBookingStatusCore.DRAFT;
 
@@ -100,7 +102,7 @@ export default function TimeSlotEquipmentBookingTable({
         deleteEquipmentAssignmentInput: {
           equipmentId,
           scheduledEventId: scheduledEvent.id,
-          proposalBookingId: proposalBooking.id,
+          proposalBookingId: proposalBookingId,
         },
       });
 
@@ -135,6 +137,7 @@ export default function TimeSlotEquipmentBookingTable({
       <MaterialTable
         icons={tableIcons}
         title="Time slot equipments"
+        isLoading={loadingEquipments}
         columns={columns}
         data={equipments}
         options={{

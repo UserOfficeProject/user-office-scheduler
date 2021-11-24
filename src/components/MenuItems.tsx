@@ -22,13 +22,13 @@ export default function MenuItems() {
         <ListItemIcon>
           <BuildIcon />
         </ListItemIcon>
-        <ListItemText primary="Equipments" />
+        <ListItemText primary="Equipment list" />
       </ListItem>
       <ListItem component={NavLink} to={PATH_REQUESTS} button>
         <ListItemIcon>
           <LibraryAddCheckIcon />
         </ListItemIcon>
-        <ListItemText primary="Requests" />
+        <ListItemText primary="Equipment requests" />
       </ListItem>
     </>
   );

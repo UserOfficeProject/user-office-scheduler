@@ -46,7 +46,7 @@ context('Equipment tests', () => {
       cy.finishedLoading();
       cy.contains(/1 Test equipment description/i);
 
-      cy.get('.MuiDrawer-root').contains('Equipments').click();
+      cy.get('.MuiDrawer-root').contains('Equipment list').click();
 
       cy.finishedLoading();
       cy.contains(/1 Test equipment/i)

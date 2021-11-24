@@ -40,10 +40,12 @@ const defaultHeadCells: HeadCell<EquipmentTableRow>[] = [
 export default function SelectEquipmentDialog({
   isDialogOpen,
   scheduledEvent,
+  proposalBookingId,
   closeDialog,
 }: {
   isDialogOpen: boolean;
   scheduledEvent: ScheduledEventWithEquipments;
+  proposalBookingId: number;
   closeDialog: (assignedEquipments?: ScheduledEventEquipment[]) => void;
 }) {
   const { enqueueSnackbar } = useSnackbar();
@@ -59,7 +61,7 @@ export default function SelectEquipmentDialog({
         assignEquipmentsToScheduledEventInput: {
           equipmentIds: ids,
           scheduledEventId: scheduledEvent.id,
-          proposalBookingId: scheduledEvent.proposalBooking?.id || 0,
+          proposalBookingId: proposalBookingId,
         },
       });
 

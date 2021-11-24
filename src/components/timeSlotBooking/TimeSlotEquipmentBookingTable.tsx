@@ -53,6 +53,13 @@ export default function TimeSlotEquipmentBookingTable({
   setAllEquipmentsAccepted,
 }: TimeSlotEquipmentBookingTableProps) {
   const [equipments, setEquipments] = useState(scheduledEventEquipments);
+
+  useEffect(() => {
+    if (scheduledEventEquipments.length) {
+      setEquipments(scheduledEventEquipments);
+    }
+  }, [scheduledEventEquipments]);
+
   const isStepReadOnly =
     scheduledEvent.status !== ProposalBookingStatusCore.DRAFT;
 
@@ -132,6 +139,7 @@ export default function TimeSlotEquipmentBookingTable({
             handleEquipmentCloseDialog(assignedEquipments)
           }
           scheduledEvent={scheduledEvent}
+          proposalBookingId={proposalBookingId}
         />
       )}
       <MaterialTable

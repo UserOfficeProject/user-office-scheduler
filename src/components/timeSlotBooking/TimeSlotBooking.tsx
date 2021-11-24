@@ -68,7 +68,7 @@ export default function TimeSlotBooking({
   const { equipments, loading: loadingEquipments } =
     useScheduledEventEquipments({
       proposalBookingId: proposalBooking.id,
-      scheduledEventId: proposalBooking.id,
+      scheduledEventId: activeScheduledEvent.id,
     });
 
   const shouldShowLostTimes =
@@ -222,7 +222,6 @@ export default function TimeSlotBooking({
     }) || [];
 
   const handleSubmit = async () => {
-    setIsLoading(true);
     try {
       if (!activeScheduledEvent.startsAt || !activeScheduledEvent.endsAt) {
         return;
@@ -237,6 +236,8 @@ export default function TimeSlotBooking({
 
         return;
       }
+
+      setIsLoading(true);
 
       const {
         updateScheduledEvent: { error, scheduledEvent: updatedScheduledEvent },
@@ -427,7 +428,7 @@ export default function TimeSlotBooking({
   };
 
   return (
-    <>
+    <div data-cy="time-slot-booking">
       {isLoading && <Loader />}
       <TimeSlotDetails
         isDirty={isDirty}
@@ -461,7 +462,7 @@ export default function TimeSlotBooking({
           color="primary"
           startIcon={<DeleteIcon />}
           onClick={handleDelete}
-          data-cy="btn-save"
+          data-cy="btn-delete"
         >
           Delete
         </Button>
@@ -518,6 +519,6 @@ export default function TimeSlotBooking({
           </Button>
         )}
       </ActionButtonContainer>
-    </>
+    </div>
   );
 }

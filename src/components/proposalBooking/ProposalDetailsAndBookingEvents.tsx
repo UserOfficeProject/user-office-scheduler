@@ -398,6 +398,7 @@ export default function ProposalDetailsAndBookingEvents({
             color="primary"
             component="span"
             onClick={handleAdd}
+            data-cy="add-new-timeslot"
             startIcon={
               isAddingNewTimeSlot ? (
                 <CircularProgress size={20} color="inherit" />

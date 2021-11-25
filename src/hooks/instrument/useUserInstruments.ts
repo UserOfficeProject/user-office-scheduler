@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 import { Instrument } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
@@ -8,16 +8,8 @@ export type PartialInstrument = Pick<Instrument, 'id' | 'name'>;
 export default function useUserInstruments() {
   const [loading, setLoading] = useState(true);
   const [instruments, setInstruments] = useState<PartialInstrument[]>([]);
-  // may look stupid, but basically lets us provide a refresh option
-  // and we won't get a warning when the component gets unmounted while
-  // the promise still pending
-  const [counter, setCounter] = useState<number>(0);
 
   const api = useDataApi();
-
-  const refresh = useCallback(() => {
-    setCounter((prev) => prev + 1);
-  }, [setCounter]);
 
   useEffect(() => {
     let unmount = false;
@@ -40,7 +32,7 @@ export default function useUserInstruments() {
     return () => {
       unmount = true;
     };
-  }, [counter, api]);
+  }, [api]);
 
-  return { loading, instruments, refresh } as const;
+  return { loading, instruments } as const;
 }

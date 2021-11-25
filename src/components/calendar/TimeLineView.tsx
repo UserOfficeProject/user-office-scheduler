@@ -1,20 +1,11 @@
-import {
-  Button,
-  FormControl,
-  Grid,
-  InputLabel,
-  makeStyles,
-  MenuItem,
-  Select,
-  TextField,
-  useMediaQuery,
-} from '@material-ui/core';
-import { Autocomplete } from '@material-ui/lab';
+import { makeStyles, useMediaQuery } from '@material-ui/core';
 import * as H from 'history';
 import { debounce } from 'lodash';
 import moment from 'moment';
 import React, { useContext, useEffect, useState } from 'react';
-import { View } from 'react-big-calendar';
+import { View, momentLocalizer } from 'react-big-calendar';
+// @ts-expect-error Using the toolbar from react-big-calendar but they are not exporting it.
+import CalendarToolbar from 'react-big-calendar/lib/Toolbar';
 import Timeline, {
   DateHeader,
   SidebarHeader,
@@ -32,6 +23,11 @@ import { toTzLessDateTime } from 'utils/date';
 
 import { getInstrumentIdsFromQuery } from './Calendar';
 import { CalendarScheduledEvent, getBookingTypeStyle } from './Event';
+import 'moment/locale/en-gb';
+import Toolbar from './Toolbar';
+
+moment.locale('en-gb');
+const localizer = momentLocalizer(moment);
 
 type TimeLineViewProps = {
   events: CalendarScheduledEvent[];
@@ -78,9 +74,6 @@ const useStyles = makeStyles((theme) => ({
       textOverflow: 'ellipsis',
       width: '100%',
     },
-  },
-  toolbar: {
-    marginBottom: theme.spacing(2),
   },
   toolbarMobile: {
     marginTop: theme.spacing(2),
@@ -310,67 +303,10 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
     <div data-cy="calendar-timeline-view" className={classes.root}>
       <div
         data-cy="calendar-timeline-view-toolbar"
-        className={`${classes.toolbar} ${isMobile && classes.toolbarMobile}`}
+        className={`${isMobile && classes.toolbarMobile}`}
       >
-        <Grid container spacing={2} alignItems="center">
-          <Grid item sm={6} xs={12}>
-            <Grid container spacing={2}>
-              <Grid item sm={4} xs={12}>
-                <Button
-                  variant="contained"
-                  onClick={() => onNavClick('PREV')}
-                  data-cy="btn-view-prev"
-                  fullWidth
-                >
-                  Back
-                </Button>
-              </Grid>
-              <Grid item sm={4} xs={12}>
-                <Button
-                  variant="contained"
-                  onClick={() => onNavClick('TODAY')}
-                  data-cy="btn-view-today"
-                  fullWidth
-                >
-                  Today
-                </Button>
-              </Grid>
-              <Grid item sm={4} xs={12}>
-                <Button
-                  variant="contained"
-                  onClick={() => onNavClick('NEXT')}
-                  data-cy="btn-view-next"
-                  fullWidth
-                >
-                  Next
-                </Button>
-              </Grid>
-            </Grid>
-            <FormControl fullWidth margin="dense">
-              <InputLabel id="timeline-view-period">View period</InputLabel>
-              <Select
-                value={timelineViewPeriod}
-                label="View period"
-                labelId="timeline-view-period"
-                margin="dense"
-                onChange={(e) => {
-                  setTimelineViewPeriod(e.target.value as View);
-                  onNavClick('PERIOD', e.target.value as View);
-
-                  if (e.target.value) {
-                    query.set('viewPeriod', e.target.value as string);
-                    history.push(`?${query}`);
-                  }
-                }}
-                data-cy="timeline-view-period"
-              >
-                <MenuItem value="day">Day</MenuItem>
-                <MenuItem value="week">Week</MenuItem>
-                <MenuItem value="month">Month</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item sm={6} xs={12}>
+        {/* <Grid container spacing={2} alignItems="center"> */}
+        {/* <Grid item sm={6} xs={12}>
             <Autocomplete
               multiple
               loading={loadingInstruments}
@@ -408,9 +344,38 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
                 history.push(`?${query}`);
               }}
             />
-          </Grid>
-        </Grid>
+          </Grid> */}
+        {/* </Grid> */}
+        <Toolbar />
+        <CalendarToolbar
+          view={timelineViewPeriod}
+          localizer={{
+            messages: {
+              today: 'Today',
+              next: 'Next',
+              previous: 'Back',
+              day: 'Day',
+              week: 'Week',
+              month: 'Month',
+            },
+          }}
+          views={['day', 'week', 'month']}
+          label=""
+          onNavigate={(direction: 'PREV' | 'NEXT' | 'TODAY') =>
+            onNavClick(direction)
+          }
+          onView={(view: View) => {
+            setTimelineViewPeriod(view);
+            onNavClick('PERIOD', view);
+
+            if (view) {
+              query.set('viewPeriod', view);
+              history.push(`?${query}`);
+            }
+          }}
+        />
       </div>
+
       <Timeline
         groups={instrumentGroups}
         items={eventItems}

@@ -157,9 +157,16 @@ const useStyles = makeStyles((theme) => ({
   collapsibleGrid: {
     overflow: 'hidden',
   },
-  calendarMonthRowMobile: {
-    '& .rbc-month-view .rbc-month-row': {
-      overflow: 'unset',
+  calendar: {
+    // NOTE: This calculation in height is mainly because of toolbar height
+    height: 'calc(100% - 69px)',
+  },
+  calendarMonthView: {
+    '& .rbc-month-view': {
+      overflowY: 'auto',
+      '& .rbc-month-row': {
+        overflow: 'unset',
+      },
     },
   },
   collapsibleGridMobile: {
@@ -231,7 +238,7 @@ export const getInstrumentIdsFromQuery = (queryInstrument: string | null) => {
   return queryInstrumentIds || [];
 };
 
-const getEquipmentIdsFromQuery = (queryEquipment: string | null) => {
+export const getEquipmentIdsFromQuery = (queryEquipment: string | null) => {
   const queryEquipmentArray = queryEquipment?.split(',');
   const queryEquipmentIds = queryEquipmentArray?.map((item) => parseInt(item));
 
@@ -441,6 +448,9 @@ export default function Calendar() {
   };
 
   const onViewChange = (newView: View) => {
+    query.set('viewPeriod', newView);
+    history.push(`?${query}`);
+
     setView(newView);
   };
 
@@ -637,7 +647,7 @@ export default function Calendar() {
     <ContentContainer
       maxWidth={false}
       className={
-        schedulerActiveView !== SchedulerViews.TABLE && !isTabletOrMobile
+        schedulerActiveView !== SchedulerViews.TABLE && isTabletOrLarger
           ? classes.fullHeight
           : ''
       }
@@ -697,9 +707,7 @@ export default function Calendar() {
               <Grid
                 item
                 xs={isTabletOrMobile ? 12 : showTodoBox ? 10 : 12}
-                className={`${classes.fullHeight} ${
-                  isTabletOrMobile && classes.calendarMonthRowMobile
-                }`}
+                className={`${classes.fullHeight} ${classes.calendarMonthView}`}
                 style={{
                   transition: theme.transitions.create('all', {
                     easing: theme.transitions.easing.sharp,
@@ -709,47 +717,50 @@ export default function Calendar() {
               >
                 <InstrumentAndEquipmentContextProvider>
                   {schedulerActiveView === SchedulerViews.CALENDAR && (
-                    <DragAndDropCalendar
-                      selectable
-                      // TODO: needs some position fixing
-                      // popup
-                      localizer={localizer}
-                      events={calendarEvents}
-                      defaultView={view}
-                      views={{
-                        day: true,
-                        week: true,
-                        month: true,
-                      }}
-                      defaultDate={startsAt}
-                      step={60}
-                      date={startsAt}
-                      timeslots={1}
-                      onDropFromOutside={onDropFromOutside}
-                      showMultiDayTimes={true}
-                      dayLayoutAlgorithm={'no-overlap'}
-                      eventPropGetter={eventPropGetter}
-                      slotPropGetter={slotPropGetter}
-                      onSelectEvent={onSelectEvent}
-                      onSelectSlot={onSelectSlot}
-                      onSelecting={onSelecting}
-                      onNavigate={onNavigate}
-                      onView={onViewChange}
-                      components={{
-                        toolbar: Toolbar,
-                        event: Event,
-                        week: {
-                          header: ({ date, localizer }) => (
-                            <>{localizer.format(date, 'dddd', '')}</>
-                          ),
-                        },
-                        month: {
-                          header: ({ date, localizer }) => (
-                            <>{localizer.format(date, 'dddd', '')}</>
-                          ),
-                        },
-                      }}
-                    />
+                    <>
+                      <Toolbar />
+                      <DragAndDropCalendar
+                        popup
+                        selectable
+                        className={classes.calendar}
+                        localizer={localizer}
+                        events={calendarEvents}
+                        defaultView={view}
+                        views={{
+                          day: true,
+                          week: true,
+                          month: true,
+                        }}
+                        defaultDate={startsAt}
+                        step={60}
+                        date={startsAt}
+                        timeslots={1}
+                        onDropFromOutside={onDropFromOutside}
+                        showMultiDayTimes={true}
+                        dayLayoutAlgorithm={'no-overlap'}
+                        eventPropGetter={eventPropGetter}
+                        slotPropGetter={slotPropGetter}
+                        onSelectEvent={onSelectEvent}
+                        onSelectSlot={onSelectSlot}
+                        onSelecting={onSelecting}
+                        onNavigate={onNavigate}
+                        onView={onViewChange}
+                        components={{
+                          // toolbar: Toolbar,
+                          event: Event,
+                          week: {
+                            header: ({ date, localizer }) => (
+                              <>{localizer.format(date, 'dddd', '')}</>
+                            ),
+                          },
+                          month: {
+                            header: ({ date, localizer }) => (
+                              <>{localizer.format(date, 'dddd', '')}</>
+                            ),
+                          },
+                        }}
+                      />
+                    </>
                   )}
                   {schedulerActiveView === SchedulerViews.TABLE && (
                     <div data-cy="scheduled-events-table">

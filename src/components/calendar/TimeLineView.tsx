@@ -15,6 +15,7 @@ import 'react-calendar-timeline/lib/Timeline.css';
 import { useHistory } from 'react-router';
 
 import { InstrumentAndEquipmentContext } from 'context/InstrumentAndEquipmentContext';
+import { ScheduledEventFilter } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
 import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 import { toTzLessDateTime } from 'utils/date';
@@ -22,10 +23,11 @@ import { toTzLessDateTime } from 'utils/date';
 import { getInstrumentIdsFromQuery } from './Calendar';
 import { CalendarScheduledEvent, getBookingTypeStyle } from './Event';
 import 'moment/locale/en-gb';
-import { getLabelText } from './Toolbar';
+import Toolbar, { getLabelText } from './Toolbar';
 
 type TimeLineViewProps = {
   events: CalendarScheduledEvent[];
+  filter: ScheduledEventFilter;
   onSelectEvent: (selectedEvent: CalendarScheduledEvent) => void;
 };
 
@@ -66,6 +68,7 @@ const useStyles = makeStyles((theme) => ({
 
 const TimeLineView: React.FC<TimeLineViewProps> = ({
   events,
+  filter,
   onSelectEvent,
 }) => {
   const { instruments } = useContext(InstrumentAndEquipmentContext);
@@ -148,6 +151,11 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
 
   return (
     <div data-cy="calendar-timeline-view" className={classes.root}>
+      <Toolbar
+        filter={filter}
+        shouldIncludeCalendarNavigation
+        multipleInstruments
+      />
       <Timeline
         groups={instrumentGroups}
         items={eventItems}

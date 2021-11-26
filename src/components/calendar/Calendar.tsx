@@ -1,5 +1,4 @@
 import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
-import MaterialTable, { Column } from '@material-table/core';
 import {
   IconButton,
   Collapse,
@@ -15,7 +14,6 @@ import {
 } from '@material-ui/core';
 import ChevronLeft from '@material-ui/icons/ChevronLeft';
 import CloseIcon from '@material-ui/icons/Close';
-import ViewIcon from '@material-ui/icons/Visibility';
 import clsx from 'clsx';
 import generateScheduledEventFilter from 'filters/scheduledEvent/scheduledEventsFilter';
 import moment from 'moment';
@@ -40,7 +38,6 @@ import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import { useHistory } from 'react-router';
 
 import Loader from 'components/common/Loader';
-import { tableIcons } from 'components/common/TableIcons';
 import EquipmentBookingDialog from 'components/equipment/EquipmentBookingDialog';
 import ProposalBookingDialog from 'components/proposalBooking/ProposalBookingDialog';
 import ScheduledEventDialog, {
@@ -75,11 +72,8 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import 'styles/react-big-calendar.css';
 
 import CalendarTodoBox from './CalendarTodoBox';
-import Event, {
-  CalendarScheduledEvent,
-  eventPropGetter,
-  getBookingTypeStyle,
-} from './Event';
+import Event, { CalendarScheduledEvent, eventPropGetter } from './Event';
+import TableView from './TableView';
 import TimeLineView from './TimeLineView';
 import Toolbar from './Toolbar';
 
@@ -556,36 +550,6 @@ export default function Calendar() {
     refresh();
   };
 
-  const columns: Column<CalendarScheduledEvent>[] = [
-    {
-      title: 'Booking type',
-      field: 'bookingTypeTableRenderValue',
-    },
-    {
-      title: 'Starts at',
-      field: 'startTableRenderValue',
-    },
-    {
-      title: 'Ends at',
-      field: 'endTableRenderValue',
-    },
-    { title: 'Description', field: 'description' },
-    { title: 'Status', field: 'statusTableRenderValue' },
-    { title: 'Instrument', field: 'instrument.name' },
-    { title: 'Proposal', field: 'proposalBooking.proposal.title' },
-    { title: 'Proposal ID', field: 'proposalBooking.proposal.proposalId' },
-  ];
-
-  const ViewTableRowIcon = (rowData: CalendarScheduledEvent) => (
-    <ViewIcon
-      style={{
-        ...getBookingTypeStyle(rowData.bookingType, rowData.status),
-        backgroundColor: 'inherit',
-        filter: 'none',
-      }}
-    />
-  );
-
   const addAndOpenNewTimeSlot = async ({
     start,
     end,
@@ -722,6 +686,7 @@ export default function Calendar() {
               >
                 <InstrumentAndEquipmentContextProvider>
                   {schedulerActiveView === SchedulerViews.CALENDAR && (
+                    // TODO: Try to extract calendar in its own component and make this one like a ViewWrapper component.
                     <>
                       <Toolbar filter={filter} />
                       <DragAndDropCalendar
@@ -767,51 +732,18 @@ export default function Calendar() {
                     </>
                   )}
                   {schedulerActiveView === SchedulerViews.TABLE && (
-                    <div data-cy="scheduled-events-table">
-                      <Toolbar
-                        filter={filter}
-                        shouldIncludeCalendarNavigation
-                        shouldIncludeLabelText
-                      />
-                      <MaterialTable
-                        icons={tableIcons}
-                        title="Scheduled events"
-                        columns={columns}
-                        data={tableEvents}
-                        options={{
-                          rowStyle: (rowData: CalendarScheduledEvent) =>
-                            getBookingTypeStyle(
-                              rowData.bookingType,
-                              rowData.status
-                            ),
-
-                          pageSize: 10,
-                        }}
-                        actions={[
-                          (rowData) => ({
-                            icon: () => ViewTableRowIcon(rowData),
-                            tooltip: 'View event',
-                            onClick: (_event, rowData) => {
-                              onSelectEvent(rowData as CalendarScheduledEvent);
-                            },
-                            position: 'row',
-                          }),
-                        ]}
-                      />
-                    </div>
+                    <TableView
+                      filter={filter}
+                      onSelectEvent={onSelectEvent}
+                      events={tableEvents}
+                    />
                   )}
                   {schedulerActiveView === SchedulerViews.TIMELINE && (
-                    <>
-                      <Toolbar
-                        filter={filter}
-                        shouldIncludeCalendarNavigation
-                        multipleInstruments
-                      />
-                      <TimeLineView
-                        events={calendarEvents}
-                        onSelectEvent={onSelectEvent}
-                      />
-                    </>
+                    <TimeLineView
+                      events={calendarEvents}
+                      filter={filter}
+                      onSelectEvent={onSelectEvent}
+                    />
                   )}
                 </InstrumentAndEquipmentContextProvider>
               </Grid>

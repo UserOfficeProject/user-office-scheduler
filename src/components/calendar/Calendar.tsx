@@ -80,7 +80,6 @@ import Event, {
   eventPropGetter,
   getBookingTypeStyle,
 } from './Event';
-import TableToolbar from './TableViewToolbar';
 import TimeLineView from './TimeLineView';
 import Toolbar from './Toolbar';
 
@@ -159,7 +158,7 @@ const useStyles = makeStyles((theme) => ({
   },
   calendar: {
     // NOTE: This calculation in height is mainly because of toolbar height
-    height: 'calc(100% - 69px)',
+    height: 'calc(100% - 70px)',
   },
   calendarMonthView: {
     '& .rbc-month-view': {
@@ -266,7 +265,7 @@ export default function Calendar() {
   const queryEquipment = query.get('equipment');
   const querySchedulerView = query.get('schedulerView');
   const queryView = query.get('viewPeriod') as View;
-  const queryTimeLineStart = query.get('timeLineStart');
+  const queryTimeLineStart = query.get('startsAt');
 
   const [schedulerActiveView, setSchedulerActiveView] = useState(
     (querySchedulerView as SchedulerViews) || SchedulerViews.CALENDAR
@@ -381,10 +380,11 @@ export default function Calendar() {
 
         return newStartDate.toDate();
       }
+      const newDate = moment(queryTimeLineStart || startsAt).toDate();
 
-      return startsAt;
+      return newDate;
     },
-    [schedulerActiveView, startsAt, view]
+    [schedulerActiveView, startsAt, view, queryTimeLineStart]
   );
 
   useEffect(() => {
@@ -432,16 +432,19 @@ export default function Calendar() {
   );
 
   const onNavigate = (newDate: Date, newView: View) => {
-    const newStartDate = moment(newDate)
-      .startOf(newView as moment.unitOfTime.StartOf)
-      .toDate();
-    setStartAt(newStartDate);
+    const newStartDate = moment(newDate).startOf(
+      newView as moment.unitOfTime.StartOf
+    );
+    setStartAt(newStartDate.toDate());
     setView(newView);
+
+    query.set('startsAt', `${newStartDate}`);
+    history.push(`?${query}`);
 
     setFilter(
       generateScheduledEventFilter(
         getInstrumentIdsFromQuery(queryInstrument),
-        newDate,
+        newStartDate.toDate(),
         newView
       )
     );
@@ -449,6 +452,7 @@ export default function Calendar() {
 
   const onViewChange = (newView: View) => {
     query.set('viewPeriod', newView);
+    query.set('startsAt', `${moment(filter.startsAt)}`);
     history.push(`?${query}`);
 
     setView(newView);
@@ -577,6 +581,7 @@ export default function Calendar() {
       style={{
         ...getBookingTypeStyle(rowData.bookingType, rowData.status),
         backgroundColor: 'inherit',
+        filter: 'none',
       }}
     />
   );
@@ -718,7 +723,7 @@ export default function Calendar() {
                 <InstrumentAndEquipmentContextProvider>
                   {schedulerActiveView === SchedulerViews.CALENDAR && (
                     <>
-                      <Toolbar />
+                      <Toolbar filter={filter} />
                       <DragAndDropCalendar
                         popup
                         selectable
@@ -746,7 +751,6 @@ export default function Calendar() {
                         onNavigate={onNavigate}
                         onView={onViewChange}
                         components={{
-                          // toolbar: Toolbar,
                           event: Event,
                           week: {
                             header: ({ date, localizer }) => (
@@ -764,15 +768,16 @@ export default function Calendar() {
                   )}
                   {schedulerActiveView === SchedulerViews.TABLE && (
                     <div data-cy="scheduled-events-table">
+                      <Toolbar
+                        filter={filter}
+                        shouldIncludeCalendarNavigation
+                        shouldIncludeLabelText
+                      />
                       <MaterialTable
                         icons={tableIcons}
                         title="Scheduled events"
                         columns={columns}
                         data={tableEvents}
-                        components={{
-                          Toolbar: (data) =>
-                            TableToolbar(data, filter, setFilter),
-                        }}
                         options={{
                           rowStyle: (rowData: CalendarScheduledEvent) =>
                             getBookingTypeStyle(
@@ -796,12 +801,17 @@ export default function Calendar() {
                     </div>
                   )}
                   {schedulerActiveView === SchedulerViews.TIMELINE && (
-                    <TimeLineView
-                      events={calendarEvents}
-                      onSelectEvent={onSelectEvent}
-                      startsAt={startsAt}
-                      setStartAt={setStartAt}
-                    />
+                    <>
+                      <Toolbar
+                        filter={filter}
+                        shouldIncludeCalendarNavigation
+                        multipleInstruments
+                      />
+                      <TimeLineView
+                        events={calendarEvents}
+                        onSelectEvent={onSelectEvent}
+                      />
+                    </>
                   )}
                 </InstrumentAndEquipmentContextProvider>
               </Grid>

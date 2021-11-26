@@ -1,190 +1,124 @@
-import {
-  CircularProgress,
-  Grid,
-  makeStyles,
-  TextField,
-  useMediaQuery,
-} from '@material-ui/core';
-import Autocomplete from '@material-ui/lab/Autocomplete';
-import React, { useContext, useEffect, useState } from 'react';
+import moment from 'moment';
+import React from 'react';
+import { View, Views } from 'react-big-calendar';
+// @ts-expect-error Using the toolbar from react-big-calendar but they are not exporting it.
+import CalendarNavigationToolbar from 'react-big-calendar/lib/Toolbar';
 import { useHistory } from 'react-router';
 
-import { InstrumentAndEquipmentContext } from 'context/InstrumentAndEquipmentContext';
-import { Equipment } from 'generated/sdk';
+import { ScheduledEventFilter } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
-import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 
-import { getEquipmentIdsFromQuery } from './Calendar';
+import InstrumentAndEquipmentFilter from './InstrumentAndEquipmentFilter';
 
-const useStyles = makeStyles((theme) => ({
-  tooltip: {
-    marginBottom: theme.spacing(1),
+const calendarNavigationToolbarButtonsText = {
+  messages: {
+    today: 'Today',
+    next: 'Next',
+    previous: 'Back',
+    day: 'Day',
+    week: 'Week',
+    month: 'Month',
   },
-  tooltipMobile: {
-    marginTop: theme.spacing(2),
-  },
-}));
+};
 
-// TODO: Make this toolbar accept multiple instrument or single one depending on the needs
-export default function Toolbar() {
-  const classes = useStyles();
-  const history = useHistory();
+const calendarNavigationToolbarViewOptions = [
+  Views.DAY,
+  Views.WEEK,
+  Views.MONTH,
+];
+
+export const getLabelText = (
+  queryView: Exclude<View, 'work_week' | 'agenda'>,
+  startsAt: string
+) => {
+  switch (queryView) {
+    case 'day':
+      return moment(startsAt).format('dddd, DD MMMM YYYY');
+    case 'week':
+      const startDate = moment(startsAt);
+      const endDate = moment(startsAt).add(1, queryView);
+      const sameStartAndEndMonth = startDate.month() === endDate.month();
+
+      const intervalEndDateFormat = sameStartAndEndMonth ? 'DD' : 'MMMM DD';
+
+      const weekViewIntervalText = `${startDate.format(
+        'MMMM DD'
+      )} - ${endDate.format(intervalEndDateFormat)}`;
+
+      return weekViewIntervalText;
+
+    default:
+      return moment(startsAt).format('MMMM YYYY');
+  }
+};
+
+const Toolbar = ({
+  filter,
+  shouldIncludeCalendarNavigation = false,
+  multipleInstruments = false,
+  shouldIncludeLabelText = false,
+}: {
+  filter: ScheduledEventFilter;
+  shouldIncludeCalendarNavigation?: boolean;
+  multipleInstruments?: boolean;
+  shouldIncludeLabelText?: boolean;
+}) => {
   const query = useQuery();
-  const isMobile = useMediaQuery('(max-width: 648px)');
-
-  const { instruments, loadingInstruments, equipments, loadingEquipments } =
-    useContext(InstrumentAndEquipmentContext);
-  const queryInstrumentId = query.get('instrument');
-  const queryEquipment = query.get('equipment');
-
-  const [selectedInstrument, setSelectedInstrument] =
-    useState<PartialInstrument | null>(null);
-
-  const [selectedEquipment, setSelectedEquipment] = useState<
-    Pick<Equipment, 'id' | 'name'>[] | undefined
-  >([]);
-
-  useEffect(() => {
-    const equipmentIds = getEquipmentIdsFromQuery(queryEquipment);
-
-    if (!loadingEquipments && equipmentIds.length && equipments.length) {
-      const queryFilteredEquipments = equipments.filter((eq) =>
-        equipmentIds.includes(eq.id)
-      );
-
-      setSelectedEquipment(queryFilteredEquipments);
-    }
-  }, [loadingEquipments, equipments, queryEquipment]);
-
-  useEffect(() => {
-    if (!loadingInstruments && queryInstrumentId) {
-      const queryFoundInstrument = instruments.find(
-        ({ id }) => `${id}` === queryInstrumentId
-      );
-
-      queryFoundInstrument && setSelectedInstrument(queryFoundInstrument);
-    }
-  }, [loadingInstruments, instruments, queryInstrumentId]);
-
-  const onInstrumentChange = (
-    event: React.ChangeEvent<unknown>,
-    selectedInstrument: PartialInstrument | null
-  ) => {
-    if (!selectedInstrument) {
-      query.delete('instrument');
-    } else if (
-      selectedInstrument &&
-      queryInstrumentId !== `${selectedInstrument.id}`
-    ) {
-      query.set('instrument', `${selectedInstrument.id}`);
-    } else {
-      return;
-    }
-
-    setSelectedInstrument(selectedInstrument);
-    history.push(`?${query}`);
-  };
-
-  const onEquipmentChange = (
-    event: React.ChangeEvent<unknown>,
-    newSelectedEquipment: Pick<Equipment, 'id' | 'name'>[] | undefined
-  ) => {
-    if (
-      newSelectedEquipment === undefined ||
-      newSelectedEquipment.length === 0
-    ) {
-      query.delete('equipment');
-    } else if (
-      JSON.stringify(newSelectedEquipment) !== JSON.stringify(selectedEquipment)
-    ) {
-      query.set(
-        'equipment',
-        `${newSelectedEquipment?.map((eq) => eq.id).join(',')}`
-      );
-    }
-
-    setSelectedEquipment(newSelectedEquipment);
-    history.push(`?${query}`);
-  };
+  const history = useHistory();
+  const startsAt = filter.startsAt;
+  const queryView = (query.get('viewPeriod') || 'week') as Exclude<
+    View,
+    'work_week' | 'agenda'
+  >;
 
   return (
-    <Grid
-      container
-      alignItems="center"
-      className={`${classes.tooltip} ${isMobile && classes.tooltipMobile}`}
-      spacing={1}
-    >
-      <Grid item sm={6} xs={12} data-cy="calendar-toolbar-instrument-select">
-        <Autocomplete
-          loading={loadingInstruments}
-          disabled={loadingInstruments}
-          selectOnFocus
-          clearOnBlur
-          fullWidth
-          handleHomeEndKeys
-          options={instruments}
-          getOptionLabel={(instrument) => instrument.name}
-          data-cy="input-instrument-select"
-          id="input-instrument-select"
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Instrument"
-              margin="dense"
-              disabled={loadingInstruments}
-              InputProps={{
-                ...params.InputProps,
-                endAdornment: (
-                  <>
-                    {loadingInstruments ? (
-                      <CircularProgress color="inherit" size={20} />
-                    ) : null}
-                    {params.InputProps.endAdornment}
-                  </>
-                ),
-              }}
-            />
-          )}
-          value={selectedInstrument}
-          onChange={onInstrumentChange}
+    <>
+      <InstrumentAndEquipmentFilter multipleInstruments={multipleInstruments} />
+      {shouldIncludeCalendarNavigation && (
+        <CalendarNavigationToolbar
+          view={queryView}
+          localizer={calendarNavigationToolbarButtonsText}
+          views={calendarNavigationToolbarViewOptions}
+          label={
+            shouldIncludeLabelText ? getLabelText(queryView, startsAt) : ''
+          }
+          onNavigate={(direction: 'PREV' | 'NEXT' | 'TODAY') => {
+            let newStartsAt: moment.Moment;
+
+            switch (direction) {
+              case 'PREV':
+                newStartsAt = moment(startsAt)
+                  .subtract(1, queryView)
+                  .startOf(queryView);
+                break;
+
+              case 'TODAY':
+                newStartsAt = moment().startOf(queryView);
+                break;
+
+              default:
+                newStartsAt = moment(startsAt)
+                  .add(1, queryView)
+                  .startOf(queryView);
+                break;
+            }
+
+            query.set('startsAt', `${newStartsAt}`);
+            history.push(`?${query}`);
+          }}
+          onView={(view: View) => {
+            const newStartsAt = moment(startsAt).startOf(
+              view as moment.unitOfTime.StartOf
+            );
+
+            query.set('startsAt', `${newStartsAt}`);
+            query.set('viewPeriod', view);
+            history.push(`?${query}`);
+          }}
         />
-      </Grid>
-      <Grid item sm={6} xs={12} data-cy="calendar-toolbar-equipment-select">
-        <Autocomplete
-          multiple
-          loading={loadingEquipments}
-          disabled={loadingEquipments}
-          selectOnFocus
-          clearOnBlur
-          fullWidth
-          handleHomeEndKeys
-          options={equipments}
-          getOptionLabel={(equipment) => equipment.name}
-          data-cy="input-equipment-select"
-          id="input-equipment-select"
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Equipment"
-              margin="dense"
-              disabled={loadingEquipments}
-              InputProps={{
-                ...params.InputProps,
-                endAdornment: (
-                  <>
-                    {loadingEquipments ? (
-                      <CircularProgress color="inherit" size={20} />
-                    ) : null}
-                    {params.InputProps.endAdornment}
-                  </>
-                ),
-              }}
-            />
-          )}
-          value={selectedEquipment}
-          onChange={onEquipmentChange}
-        />
-      </Grid>
-    </Grid>
+      )}
+    </>
   );
-}
+};
+
+export default Toolbar;

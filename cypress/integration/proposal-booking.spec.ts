@@ -128,7 +128,7 @@ context('Proposal booking tests ', () => {
           .first()
           .trigger('dragstart');
 
-        const slot = new Date(getHourDateTimeAfter(-25, 'hours')).toISOString();
+        const slot = new Date(currentHourDateTime).toISOString();
         cy.get(`.rbc-day-slot [data-cy='event-slot-${slot}']`).scrollIntoView();
 
         // NOTE: It needs to be forced because all the event slots are covered by this element .rbc-events-container and it is not possible to execute drop on event-slot
@@ -144,11 +144,11 @@ context('Proposal booking tests ', () => {
 
         cy.get('[data-cy="time-slot-booking"] [data-cy="startsAtInfo"]').should(
           'include.text',
-          getHourDateTimeAfter(-25, 'hours')
+          currentHourDateTime
         );
         cy.get('[data-cy="time-slot-booking"] [data-cy="endsAtInfo"]').should(
           'include.text',
-          getHourDateTimeAfter(-24, 'hours')
+          getHourDateTimeAfter(1, 'hours')
         );
       });
 
@@ -224,18 +224,20 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy="startsAtInfo"]').click();
         cy.get('[data-cy="startsAt"] input').clear();
 
-        cy.get('[data-cy=startsAt] input').type(getHourDateTimeAfter(2));
+        cy.get('[data-cy=startsAt] input').type(
+          getHourDateTimeAfter(2, 'days')
+        );
 
         cy.get('[data-cy=btn-time-table-save-row]').click();
 
         cy.get('[data-cy="endsAtInfo"]').click();
         cy.get('[data-cy="endsAt"] input').clear();
-        cy.get('[data-cy=endsAt] input').type(getHourDateTimeAfter(3));
+        cy.get('[data-cy=endsAt] input').type(getHourDateTimeAfter(3, 'days'));
 
         cy.get('[data-cy=btn-time-table-save-row]').click();
 
-        cy.contains(getHourDateTimeAfter(2));
-        cy.contains(getHourDateTimeAfter(3));
+        cy.contains(getHourDateTimeAfter(2, 'days'));
+        cy.contains(getHourDateTimeAfter(3, 'days'));
 
         cy.get('[data-cy="btn-save"]').click();
         cy.finishedLoading();
@@ -251,8 +253,8 @@ context('Proposal booking tests ', () => {
 
         cy.get('.MuiTab-fullWidth').last().click();
 
-        cy.contains(getHourDateTimeAfter(2));
-        cy.contains(getHourDateTimeAfter(3));
+        cy.contains(getHourDateTimeAfter(2, 'days'));
+        cy.contains(getHourDateTimeAfter(3, 'days'));
 
         cy.get('[data-cy="startsAtInfo"]').click();
         cy.get('[data-cy="startsAt"] input').clear();
@@ -267,8 +269,8 @@ context('Proposal booking tests ', () => {
 
         cy.get('[data-cy=btn-time-table-reset-row]').click();
 
-        cy.contains(getHourDateTimeAfter(2));
-        cy.contains(getHourDateTimeAfter(3));
+        cy.contains(getHourDateTimeAfter(2, 'days'));
+        cy.contains(getHourDateTimeAfter(3, 'days'));
       });
 
       it('should be able to open time slot by clicking on the calendar event', () => {
@@ -287,8 +289,8 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy="startsAtInfo"]').should('exist');
         cy.get('[data-cy="endsAtInfo"]').should('exist');
 
-        cy.contains(getHourDateTimeAfter(2));
-        cy.contains(getHourDateTimeAfter(3));
+        cy.contains(getHourDateTimeAfter(2, 'days'));
+        cy.contains(getHourDateTimeAfter(3, 'days'));
 
         cy.contains('Proposal title');
         cy.contains('Proposal ID');
@@ -298,23 +300,16 @@ context('Proposal booking tests ', () => {
       });
 
       it('should display time allocation left', () => {
-        cy.contains('1 day');
+        cy.contains('0 seconds');
       });
 
       it('should be able to delete time slot', () => {
         cy.finishedLoading();
-        cy.get('[data-cy="add-new-timeslot"]').click();
-        cy.finishedLoading();
-
         cy.get('[data-cy="btn-delete"]').click();
 
         cy.contains(/confirmation/i);
         cy.contains(/are you sure you want to delete scheduled event/i);
 
-        cy.get('[data-cy="btn-ok"]').click();
-        cy.finishedLoading();
-
-        cy.get('[data-cy="btn-delete"]').click();
         cy.get('[data-cy="btn-ok"]').click();
         cy.finishedLoading();
 

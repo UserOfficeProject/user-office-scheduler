@@ -143,7 +143,7 @@ context('Scheduled events table tests', () => {
         });
     });
 
-    it('should be able to filter events based on the table toolbar filters', () => {
+    it('should be able to use table navigation to filter events the same way as calendar navigation', () => {
       cy.finishedLoading();
       cy.createEvent(newScheduledEvent_3);
 
@@ -160,10 +160,8 @@ context('Scheduled events table tests', () => {
 
       cy.get('[data-cy="scheduled-events-table"]').should('exist');
 
-      cy.get('[data-cy=table-toolbar-instrument-select]').should('exist');
-      cy.get('[data-cy=table-toolbar-equipment-select]').should('exist');
-      cy.get('[data-cy=table-toolbar-startsAt]').should('exist');
-      cy.get('[data-cy=table-toolbar-endsAt]').should('exist');
+      cy.get('[data-cy=input-instrument-select]').should('exist');
+      cy.get('[data-cy=input-equipment-select]').should('exist');
 
       cy.contains(newScheduledEvent_1.endsAt);
 
@@ -172,28 +170,23 @@ context('Scheduled events table tests', () => {
         newScheduledEvent_3.startsAt
       );
 
-      cy.get('[data-cy=table-toolbar-endsAt] input').clear();
-
-      cy.get('[data-cy=table-toolbar-endsAt] input').type(
-        getHourDateTimeAfter(9, 'days')
-      );
+      cy.get('.rbc-toolbar button')
+        .contains('next', { matchCase: false })
+        .click();
 
       cy.finishedLoading();
 
-      cy.contains(newScheduledEvent_1.endsAt);
       cy.contains(newScheduledEvent_3.startsAt);
 
-      cy.get('[data-cy=table-toolbar-startsAt] input').clear();
+      cy.get('.rbc-toolbar button')
+        .contains('today', { matchCase: false })
+        .click();
 
-      cy.get('[data-cy=table-toolbar-startsAt] input').type(
-        getHourDateTimeAfter(-10, 'days')
-      );
+      cy.contains(newScheduledEvent_1.endsAt);
 
-      cy.get('[data-cy=table-toolbar-endsAt] input').clear();
-
-      cy.get('[data-cy=table-toolbar-endsAt] input').type(
-        getHourDateTimeAfter(-5, 'days')
-      );
+      cy.get('.rbc-toolbar button')
+        .contains('back', { matchCase: false })
+        .click();
 
       cy.get('[data-cy="scheduled-events-table"]').should(
         'not.contain',
@@ -245,76 +238,6 @@ context('Scheduled events table tests', () => {
       ).should('exist');
     });
 
-    it('should be able to filter events based on the table toolbar filters', () => {
-      cy.finishedLoading();
-      const newScheduledEvent = {
-        instrumentId: '1',
-        bookingType: 'MAINTENANCE',
-        endsAt: getHourDateTimeAfter(9, 'days'),
-        startsAt: getHourDateTimeAfter(8, 'days'),
-        description: 'Test maintenance event',
-      };
-      cy.createEvent(newScheduledEvent);
-
-      cy.get('[data-cy=input-instrument-select]').click();
-
-      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-        .first()
-        .click();
-
-      cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
-
-      cy.get('[data-cy="scheduler-active-view"]').click();
-      cy.get('[data-value="Table"]').click();
-
-      cy.get('[data-cy="scheduled-events-table"]').should('exist');
-
-      cy.get('[data-cy=table-toolbar-instrument-select]').should('exist');
-      cy.get('[data-cy=table-toolbar-equipment-select]').should('exist');
-      cy.get('[data-cy=table-toolbar-startsAt]').should('exist');
-      cy.get('[data-cy=table-toolbar-endsAt]').should('exist');
-
-      cy.contains(getHourDateTimeAfter(1));
-
-      cy.get('[data-cy="scheduled-events-table"]').should(
-        'not.contain',
-        getHourDateTimeAfter(8, 'days')
-      );
-
-      cy.get('[data-cy=table-toolbar-endsAt] input').clear();
-
-      cy.get('[data-cy=table-toolbar-endsAt] input').type(
-        getHourDateTimeAfter(9, 'days')
-      );
-
-      cy.finishedLoading();
-
-      cy.contains(getHourDateTimeAfter(1));
-      cy.contains(getHourDateTimeAfter(8, 'days'));
-
-      cy.get('[data-cy=table-toolbar-startsAt] input').clear();
-
-      cy.get('[data-cy=table-toolbar-startsAt] input').type(
-        getHourDateTimeAfter(-10, 'days')
-      );
-
-      cy.get('[data-cy=table-toolbar-endsAt] input').clear();
-
-      cy.get('[data-cy=table-toolbar-endsAt] input').type(
-        getHourDateTimeAfter(-5, 'days')
-      );
-
-      cy.get('[data-cy="scheduled-events-table"]').should(
-        'not.contain',
-        getHourDateTimeAfter(1)
-      );
-
-      cy.get('[data-cy="scheduled-events-table"]').should(
-        'contain.text',
-        'No records to display'
-      );
-    });
-
     it('should not reset dates if instrument is changed in filters', () => {
       cy.initializeSession('UserOfficer');
       cy.finishedLoading();
@@ -330,41 +253,26 @@ context('Scheduled events table tests', () => {
       cy.get('[data-cy="scheduler-active-view"]').click();
       cy.get('[data-value="Table"]').click();
 
-      cy.get('[data-cy="scheduled-events-table"]').should('exist');
-
-      cy.get('[data-cy=table-toolbar-endsAt] input').clear();
-
-      cy.get('[data-cy=table-toolbar-endsAt] input').type(
-        getHourDateTimeAfter(9, 'days')
-      );
+      cy.get('.rbc-toolbar button')
+        .contains('next', { matchCase: false })
+        .click();
 
       cy.finishedLoading();
 
-      cy.get('[data-cy=table-toolbar-instrument-select]').click();
-      cy.get(
-        '[aria-labelledby=table-toolbar-instrument-select-label] [role=option]'
-      )
+      cy.get('[data-cy=input-instrument-select]').click();
+      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
         .last()
         .click();
 
       cy.finishedLoading();
 
-      cy.get('[data-cy=table-toolbar-endsAt] input').should(
-        'have.value',
-        getHourDateTimeAfter(9, 'days').split(' ')[0]
-      );
-
       cy.reload();
 
       cy.finishedLoading();
 
-      cy.get('[data-cy="scheduler-active-view"]').click();
-      cy.get('[data-value="Table"]').click();
+      cy.get('[data-cy="scheduled-events-table"]').should('exist');
 
-      cy.get('[data-cy=table-toolbar-endsAt] input').should(
-        'have.value',
-        getHourDateTimeAfter(9, 'days').split(' ')[0]
-      );
+      cy.contains(getHourDateTimeAfter(8, 'days'));
     });
   });
 });

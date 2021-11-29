@@ -3,7 +3,7 @@ import * as H from 'history';
 import { debounce } from 'lodash';
 import moment from 'moment';
 import React, { useContext, useEffect, useState } from 'react';
-import { View } from 'react-big-calendar';
+import { Views } from 'react-big-calendar';
 import Timeline, {
   DateHeader,
   SidebarHeader,
@@ -20,7 +20,10 @@ import { useQuery } from 'hooks/common/useQuery';
 import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 import { toTzLessDateTime } from 'utils/date';
 
-import { getInstrumentIdsFromQuery } from './Calendar';
+import {
+  getInstrumentIdsFromQuery,
+  SchedulerViewPeriod,
+} from './CalendarViewContainer';
 import { CalendarScheduledEvent, getBookingTypeStyle } from './Event';
 import 'moment/locale/en-gb';
 import Toolbar, { getLabelText } from './Toolbar';
@@ -76,10 +79,9 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
   const history = useHistory();
   const classes = useStyles();
 
-  const queryView = (query.get('viewPeriod') as View) || 'week';
-  const startsAt =
-    query.get('startsAt') ||
-    moment().startOf(queryView as moment.unitOfTime.StartOf);
+  const queryView =
+    (query.get('viewPeriod') as SchedulerViewPeriod) || Views.WEEK;
+  const startsAt = query.get('startsAt') || moment().startOf(queryView);
   const queryInstrument = query.get('instrument');
 
   const [isInitialized, setIsInitialized] = useState(false);
@@ -88,10 +90,7 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
   >([]);
 
   const defaultVisibleTimeStart = moment(startsAt);
-  const defaultVisibleTimeEnd = moment(startsAt).add(
-    1,
-    queryView as moment.unitOfTime.DurationConstructor
-  );
+  const defaultVisibleTimeEnd = moment(startsAt).add(1, queryView);
 
   useEffect(() => {
     const queryInstrumentIds = getInstrumentIdsFromQuery(queryInstrument);
@@ -122,7 +121,7 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
   };
 
   const eventItems = events.map((event) => ({
-    id: `${event.id}_${event.bookingType}`,
+    id: `${event.id}_${event.bookingType}_${event.equipmentId}`,
     group: event.instrument?.id || 0,
     title: getEventTitle(event),
     itemProps: {

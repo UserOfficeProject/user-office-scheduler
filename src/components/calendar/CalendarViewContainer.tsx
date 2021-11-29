@@ -14,27 +14,12 @@ import {
 } from '@material-ui/core';
 import ChevronLeft from '@material-ui/icons/ChevronLeft';
 import CloseIcon from '@material-ui/icons/Close';
-import clsx from 'clsx';
 import generateScheduledEventFilter from 'filters/scheduledEvent/scheduledEventsFilter';
 import moment from 'moment';
 import 'moment/locale/en-gb';
 import { useSnackbar } from 'notistack';
-import React, {
-  useState,
-  useMemo,
-  useContext,
-  useEffect,
-  useCallback,
-  ComponentType,
-} from 'react';
-import {
-  Calendar as BigCalendar,
-  CalendarProps,
-  momentLocalizer,
-  stringOrDate,
-  View,
-} from 'react-big-calendar';
-import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { stringOrDate, View, Views } from 'react-big-calendar';
 import { useHistory } from 'react-router';
 
 import Loader from 'components/common/Loader';
@@ -47,7 +32,6 @@ import {
   BookingTypesMap,
   ScheduledEventStatusMap,
 } from 'components/scheduledEvent/ScheduledEventForm';
-import { AppContext } from 'context/AppContext';
 import { InstrumentAndEquipmentContextProvider } from 'context/InstrumentAndEquipmentContext';
 import {
   ScheduledEvent,
@@ -72,22 +56,24 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import 'styles/react-big-calendar.css';
 
 import CalendarTodoBox from './CalendarTodoBox';
-import Event, { CalendarScheduledEvent, eventPropGetter } from './Event';
+import CalendarView from './CalendarView';
+import { CalendarScheduledEvent } from './Event';
 import TableView from './TableView';
 import TimeLineView from './TimeLineView';
-import Toolbar from './Toolbar';
-
-moment.locale('en-gb');
-
-const localizer = momentLocalizer(moment);
-
-const CALENDAR_DEFAULT_VIEW = 'week';
 
 export enum SchedulerViews {
   CALENDAR = 'Calendar',
   TABLE = 'Table',
   TIMELINE = 'Timeline',
 }
+
+const schedulerViewPeriods = [Views.DAY, Views.WEEK, Views.MONTH];
+export type SchedulerViewPeriod = typeof schedulerViewPeriods[number];
+export const isSchedulerViewPeriod = (
+  arg: View
+): arg is SchedulerViewPeriod => {
+  return schedulerViewPeriods.some((element) => element === arg);
+};
 
 // NOTE: It is better practice to convert some values here for table rendering instead of using render function which adds additional complexity for sorting and stuff like that.
 const transformEvent = (
@@ -111,56 +97,13 @@ const transformEvent = (
     statusTableRenderValue: ScheduledEventStatusMap[scheduledEvent.status],
   }));
 
-function isOverlapping(
-  { start, end }: { start: stringOrDate; end: stringOrDate },
-  calendarEvents: CalendarScheduledEvent[]
-): boolean {
-  return calendarEvents.some((calendarEvent) => {
-    if (
-      (moment(calendarEvent.start).isSameOrAfter(moment(start)) &&
-        moment(calendarEvent.end).isSameOrBefore(moment(end))) ||
-      (moment(calendarEvent.start).isBefore(moment(end)) &&
-        moment(calendarEvent.end).isAfter(moment(start)))
-    ) {
-      return true;
-    }
-
-    return false;
-  });
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function slotPropGetter(date: Date): any {
-  return {
-    'data-cy': `event-slot-${date.toISOString()}`,
-  };
-}
-
 const useStyles = makeStyles((theme) => ({
   fullHeight: {
     height: '100%',
     position: 'relative',
   },
-  relative: {
-    position: 'relative',
-  },
-  eventDescription: {
-    marginTop: 5,
-  },
   collapsibleGrid: {
     overflow: 'hidden',
-  },
-  calendar: {
-    // NOTE: This calculation in height is mainly because of toolbar height
-    height: 'calc(100% - 70px)',
-  },
-  calendarMonthView: {
-    '& .rbc-month-view': {
-      overflowY: 'auto',
-      '& .rbc-month-row': {
-        overflow: 'unset',
-      },
-    },
   },
   collapsibleGridMobile: {
     position: 'absolute',
@@ -238,13 +181,7 @@ export const getEquipmentIdsFromQuery = (queryEquipment: string | null) => {
   return queryEquipmentIds || [];
 };
 
-const DragAndDropCalendar = withDragAndDrop(
-  BigCalendar as ComponentType<
-    CalendarProps<CalendarScheduledEvent, Record<string, unknown>>
-  >
-);
-
-export default function Calendar() {
+export default function CalendarViewContainer() {
   const isTabletOrMobile = useMediaQuery('(max-width: 1224px)');
   const isTabletOrLarger = useMediaQuery('(min-width: 648px)');
   const [showTodoBox, setShowTodoBox] = useState<boolean>(false);
@@ -258,14 +195,12 @@ export default function Calendar() {
   const queryInstrument = query.get('instrument');
   const queryEquipment = query.get('equipment');
   const querySchedulerView = query.get('schedulerView');
-  const queryView = query.get('viewPeriod') as View;
-  const queryTimeLineStart = query.get('startsAt');
+  const queryView = query.get('viewPeriod') as SchedulerViewPeriod;
+  const queryStartsAt = query.get('startsAt');
 
   const [schedulerActiveView, setSchedulerActiveView] = useState(
     (querySchedulerView as SchedulerViews) || SchedulerViews.CALENDAR
   );
-
-  const { showAlert } = useContext(AppContext);
   const [selectedEvent, setSelectedEvent] = useState<
     | Pick<
         ScheduledEvent,
@@ -279,14 +214,10 @@ export default function Calendar() {
     instrumentId: number;
   } | null>(null);
   const [isAddingNewTimeSlot, setIsAddingNewTimeSlot] = useState(false);
-  const [view, setView] = useState<View>(queryView || CALENDAR_DEFAULT_VIEW);
-  const [startsAt, setStartAt] = useState(
-    queryTimeLineStart
-      ? moment(queryTimeLineStart).toDate()
-      : moment()
-          .startOf(view as moment.unitOfTime.StartOf)
-          .toDate()
+  const [view, setView] = useState<SchedulerViewPeriod>(
+    queryView || Views.WEEK
   );
+  const [startsAt, setStartsAt] = useState(moment().startOf(view).toDate());
   const [filter, setFilter] = useState(
     generateScheduledEventFilter(
       getInstrumentIdsFromQuery(queryInstrument),
@@ -301,6 +232,12 @@ export default function Calendar() {
   const [selectedEquipmentBooking, setSelectedEquipmentBooking] = useState<
     number | null
   >(null);
+
+  useEffect(() => {
+    if (queryStartsAt) {
+      setStartsAt(moment(queryStartsAt).toDate());
+    }
+  }, [queryStartsAt]);
 
   useEffect(() => {
     if (isTabletOrMobile) {
@@ -364,21 +301,17 @@ export default function Calendar() {
     (schedulerNewView = schedulerActiveView) => {
       if (
         schedulerNewView === SchedulerViews.CALENDAR &&
-        !moment(startsAt).isSame(
-          moment(startsAt).startOf(view as moment.unitOfTime.StartOf)
-        )
+        !moment(startsAt).isSame(moment(startsAt).startOf(view))
       ) {
-        const newStartDate = moment(startsAt).startOf(
-          view as moment.unitOfTime.StartOf
-        );
+        const newStartDate = moment(startsAt).startOf(view);
 
         return newStartDate.toDate();
       }
-      const newDate = moment(queryTimeLineStart || startsAt).toDate();
+      const newDate = moment(queryStartsAt || startsAt).toDate();
 
       return newDate;
     },
-    [schedulerActiveView, startsAt, view, queryTimeLineStart]
+    [schedulerActiveView, startsAt, view, queryStartsAt]
   );
 
   useEffect(() => {
@@ -401,7 +334,7 @@ export default function Calendar() {
     setProposalBookingSelectedInstruments,
   ]);
 
-  const eqEventsTransformed: GetScheduledEventsQuery['scheduledEvents'] =
+  const equipmentEventsTransformed: GetScheduledEventsQuery['scheduledEvents'] =
     eqEvents
       .map((eq) =>
         eq.events.map((event) => ({
@@ -416,67 +349,10 @@ export default function Calendar() {
       )
       .flat(1);
 
-  const calendarEvents = useMemo(
-    () => transformEvent([...scheduledEvents, ...eqEventsTransformed]),
-    [scheduledEvents, eqEventsTransformed]
+  const events = useMemo(
+    () => transformEvent([...scheduledEvents, ...equipmentEventsTransformed]),
+    [scheduledEvents, equipmentEventsTransformed]
   );
-  const tableEvents = useMemo(
-    () => transformEvent([...scheduledEvents, ...eqEventsTransformed]),
-    [scheduledEvents, eqEventsTransformed]
-  );
-
-  const onNavigate = (newDate: Date, newView: View) => {
-    const newStartDate = moment(newDate).startOf(
-      newView as moment.unitOfTime.StartOf
-    );
-    setStartAt(newStartDate.toDate());
-    setView(newView);
-
-    query.set('startsAt', `${newStartDate}`);
-    history.push(`?${query}`);
-
-    setFilter(
-      generateScheduledEventFilter(
-        getInstrumentIdsFromQuery(queryInstrument),
-        newStartDate.toDate(),
-        newView
-      )
-    );
-  };
-
-  const onViewChange = (newView: View) => {
-    query.set('viewPeriod', newView);
-    query.set('startsAt', `${moment(filter.startsAt)}`);
-    history.push(`?${query}`);
-
-    setView(newView);
-  };
-
-  const onSelectSlot = (slotInfo: SlotInfo) => {
-    if (
-      isOverlapping(
-        { start: slotInfo.start, end: slotInfo.end },
-        calendarEvents
-      )
-    ) {
-      return;
-    }
-
-    if (!queryInstrument) {
-      showAlert({ message: <>You have to select an instrument</> });
-
-      return;
-    }
-
-    setSelectedEvent(slotInfo);
-  };
-
-  const onSelecting = (range: {
-    start: stringOrDate;
-    end: stringOrDate;
-  }): boolean | undefined | null => {
-    return !isOverlapping(range, calendarEvents);
-  };
 
   const closeDialog = (shouldRefresh?: boolean) => {
     setSelectedEvent(null);
@@ -610,6 +486,57 @@ export default function Calendar() {
     await addAndOpenNewTimeSlot({ start, end });
   };
 
+  const onSchedulerActiveViewChange = (
+    event: React.ChangeEvent<{
+      name?: string | undefined;
+      value: unknown;
+    }>
+  ) => {
+    const schedulerNewView = event.target.value as SchedulerViews;
+    setSchedulerActiveView(schedulerNewView);
+
+    if (event.target.value !== SchedulerViews.CALENDAR) {
+      query.set('schedulerView', schedulerNewView);
+    } else {
+      query.delete('schedulerView');
+    }
+
+    history.push(`?${query}`);
+  };
+
+  const getSchedulerActiveView = () => {
+    switch (schedulerActiveView) {
+      case SchedulerViews.TABLE:
+        return (
+          <TableView
+            filter={filter}
+            events={events}
+            onSelectEvent={onSelectEvent}
+          />
+        );
+
+      case SchedulerViews.TIMELINE:
+        return (
+          <TimeLineView
+            filter={filter}
+            events={events}
+            onSelectEvent={onSelectEvent}
+          />
+        );
+
+      default:
+        return (
+          <CalendarView
+            filter={filter}
+            events={events}
+            onSelectEvent={onSelectEvent}
+            onDropFromOutside={onDropFromOutside}
+            onSelectTimeSlot={setSelectedEvent}
+          />
+        );
+    }
+  };
+
   // 100% height needed for month view
   // also the other components make whole page scrollable without it
   return (
@@ -623,10 +550,7 @@ export default function Calendar() {
     >
       <Grid container className={classes.fullHeight}>
         <Grid item xs={12} className={classes.fullHeight}>
-          <StyledPaper
-            margin={[0, 1]}
-            className={clsx(classes.fullHeight, classes.relative)}
-          >
+          <StyledPaper margin={[0, 1]} className={classes.fullHeight}>
             {queryInstrument && (
               <ScheduledEventDialog
                 selectedEvent={selectedEvent}
@@ -676,7 +600,7 @@ export default function Calendar() {
               <Grid
                 item
                 xs={isTabletOrMobile ? 12 : showTodoBox ? 10 : 12}
-                className={`${classes.fullHeight} ${classes.calendarMonthView}`}
+                className={`${classes.fullHeight}`}
                 style={{
                   transition: theme.transitions.create('all', {
                     easing: theme.transitions.easing.sharp,
@@ -685,66 +609,7 @@ export default function Calendar() {
                 }}
               >
                 <InstrumentAndEquipmentContextProvider>
-                  {schedulerActiveView === SchedulerViews.CALENDAR && (
-                    // TODO: Try to extract calendar in its own component and make this one like a ViewWrapper component.
-                    <>
-                      <Toolbar filter={filter} />
-                      <DragAndDropCalendar
-                        popup
-                        selectable
-                        className={classes.calendar}
-                        localizer={localizer}
-                        events={calendarEvents}
-                        defaultView={view}
-                        views={{
-                          day: true,
-                          week: true,
-                          month: true,
-                        }}
-                        defaultDate={startsAt}
-                        step={60}
-                        date={startsAt}
-                        timeslots={1}
-                        onDropFromOutside={onDropFromOutside}
-                        showMultiDayTimes={true}
-                        dayLayoutAlgorithm={'no-overlap'}
-                        eventPropGetter={eventPropGetter}
-                        slotPropGetter={slotPropGetter}
-                        onSelectEvent={onSelectEvent}
-                        onSelectSlot={onSelectSlot}
-                        onSelecting={onSelecting}
-                        onNavigate={onNavigate}
-                        onView={onViewChange}
-                        components={{
-                          event: Event,
-                          week: {
-                            header: ({ date, localizer }) => (
-                              <>{localizer.format(date, 'dddd', '')}</>
-                            ),
-                          },
-                          month: {
-                            header: ({ date, localizer }) => (
-                              <>{localizer.format(date, 'dddd', '')}</>
-                            ),
-                          },
-                        }}
-                      />
-                    </>
-                  )}
-                  {schedulerActiveView === SchedulerViews.TABLE && (
-                    <TableView
-                      filter={filter}
-                      onSelectEvent={onSelectEvent}
-                      events={tableEvents}
-                    />
-                  )}
-                  {schedulerActiveView === SchedulerViews.TIMELINE && (
-                    <TimeLineView
-                      events={calendarEvents}
-                      filter={filter}
-                      onSelectEvent={onSelectEvent}
-                    />
-                  )}
+                  {getSchedulerActiveView()}
                 </InstrumentAndEquipmentContextProvider>
               </Grid>
               <Grid
@@ -795,25 +660,7 @@ export default function Calendar() {
                       label="Scheduler view"
                       labelId="scheduler-view-label"
                       margin="dense"
-                      onChange={(e) => {
-                        const schedulerNewView = e.target
-                          .value as SchedulerViews;
-                        setSchedulerActiveView(schedulerNewView);
-
-                        if (e.target.value !== SchedulerViews.CALENDAR) {
-                          query.set('schedulerView', schedulerNewView);
-                        } else {
-                          query.delete('schedulerView');
-                          query.delete('timeLineStart');
-                          query.delete('startsAt');
-                          query.delete('endsAt');
-
-                          const newStartDate = getStartDate(schedulerNewView);
-                          setStartAt(newStartDate);
-                        }
-
-                        history.push(`?${query}`);
-                      }}
+                      onChange={onSchedulerActiveViewChange}
                       data-cy="scheduler-active-view"
                     >
                       <MenuItem value={SchedulerViews.CALENDAR}>

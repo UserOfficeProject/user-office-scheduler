@@ -8,6 +8,10 @@ import { useHistory } from 'react-router';
 import { ScheduledEventFilter } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
 
+import {
+  isSchedulerViewPeriod,
+  SchedulerViewPeriod,
+} from './CalendarViewContainer';
 import InstrumentAndEquipmentFilter from './InstrumentAndEquipmentFilter';
 
 const calendarNavigationToolbarButtonsText = {
@@ -28,7 +32,7 @@ const calendarNavigationToolbarViewOptions = [
 ];
 
 export const getLabelText = (
-  queryView: Exclude<View, 'work_week' | 'agenda'>,
+  queryView: SchedulerViewPeriod,
   startsAt: string
 ) => {
   switch (queryView) {
@@ -66,10 +70,8 @@ const Toolbar = ({
   const query = useQuery();
   const history = useHistory();
   const startsAt = filter.startsAt;
-  const queryView = (query.get('viewPeriod') || 'week') as Exclude<
-    View,
-    'work_week' | 'agenda'
-  >;
+  const queryView = (query.get('viewPeriod') ||
+    Views.WEEK) as SchedulerViewPeriod;
 
   return (
     <>
@@ -107,13 +109,13 @@ const Toolbar = ({
             history.push(`?${query}`);
           }}
           onView={(view: View) => {
-            const newStartsAt = moment(startsAt).startOf(
-              view as moment.unitOfTime.StartOf
-            );
+            if (isSchedulerViewPeriod(view)) {
+              const newStartsAt = moment(startsAt).startOf(view);
 
-            query.set('startsAt', `${newStartsAt}`);
-            query.set('viewPeriod', view);
-            history.push(`?${query}`);
+              query.set('startsAt', `${newStartsAt}`);
+              query.set('viewPeriod', view);
+              history.push(`?${query}`);
+            }
           }}
         />
       )}

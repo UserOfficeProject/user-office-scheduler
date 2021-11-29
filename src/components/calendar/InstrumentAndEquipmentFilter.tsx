@@ -19,7 +19,7 @@ import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 import {
   getEquipmentIdsFromQuery,
   getInstrumentIdsFromQuery,
-} from './Calendar';
+} from './CalendarViewContainer';
 
 const useStyles = makeStyles((theme) => ({
   tooltip: {

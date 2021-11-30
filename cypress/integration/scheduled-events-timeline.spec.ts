@@ -201,7 +201,7 @@ context('Scheduled events timeline tests', () => {
 
       cy.get('[data-cy="calendar-timeline-view"]').should(
         'not.contain',
-        newScheduledEvent_1.startsAt
+        newScheduledEvent_1.endsAt
       );
 
       cy.get('[data-cy="btn-view-prev"]').click();

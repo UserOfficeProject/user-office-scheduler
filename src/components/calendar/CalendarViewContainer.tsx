@@ -254,6 +254,37 @@ export default function CalendarViewContainer() {
   }, [querySchedulerView]);
 
   useEffect(() => {
+    let calendarParsedState = {
+      instrumentIds: null,
+      equipmentIds: null,
+      schedulerView: null,
+      activeView: null,
+      startsAt: null,
+    };
+
+    const localStorageCalendarState = localStorage.getItem('calendarState');
+
+    if (localStorageCalendarState) {
+      calendarParsedState = JSON.parse(localStorageCalendarState);
+    }
+    const calendarState = {
+      instrumentIds: getInstrumentIdsFromQuery(queryInstrument),
+      equipmentIds: getEquipmentIdsFromQuery(queryEquipment),
+      schedulerView: querySchedulerView,
+      activeView: queryView || calendarParsedState.activeView,
+      startsAt: queryStartsAt || calendarParsedState.startsAt,
+    };
+
+    localStorage.setItem('calendarState', JSON.stringify(calendarState));
+  }, [
+    querySchedulerView,
+    queryView,
+    queryStartsAt,
+    queryInstrument,
+    queryEquipment,
+  ]);
+
+  useEffect(() => {
     if (
       schedulerActiveView === SchedulerViews.CALENDAR ||
       schedulerActiveView === SchedulerViews.TABLE
@@ -271,8 +302,6 @@ export default function CalendarViewContainer() {
     proposalBookings,
     loading: loadingBookings,
     refresh: refreshBookings,
-    setSelectedInstruments: setProposalBookingSelectedInstruments,
-    selectedInstruments: proposalBookingSelectedInstruments,
   } = useInstrumentProposalBookings(getInstrumentIdsFromQuery(queryInstrument));
 
   const {
@@ -324,15 +353,7 @@ export default function CalendarViewContainer() {
       )
     );
     setView(queryView || view);
-  }, [
-    queryInstrument,
-    startsAt,
-    view,
-    getStartDate,
-    queryView,
-    proposalBookingSelectedInstruments,
-    setProposalBookingSelectedInstruments,
-  ]);
+  }, [queryInstrument, view, getStartDate, queryView]);
 
   const equipmentEventsTransformed: GetScheduledEventsQuery['scheduledEvents'] =
     eqEvents

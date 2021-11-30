@@ -7,6 +7,7 @@ import { useHistory } from 'react-router';
 
 import { ScheduledEventFilter } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
+import { TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
 
 import {
   isSchedulerViewPeriod,
@@ -105,14 +106,17 @@ const Toolbar = ({
                 break;
             }
 
-            query.set('startsAt', `${newStartsAt}`);
+            query.set('startsAt', newStartsAt.format(TZ_LESS_DATE_TIME_FORMAT));
             history.push(`?${query}`);
           }}
           onView={(view: View) => {
             if (isSchedulerViewPeriod(view)) {
               const newStartsAt = moment(startsAt).startOf(view);
 
-              query.set('startsAt', `${newStartsAt}`);
+              query.set(
+                'startsAt',
+                newStartsAt.format(TZ_LESS_DATE_TIME_FORMAT)
+              );
               query.set('viewPeriod', view);
               history.push(`?${query}`);
             }

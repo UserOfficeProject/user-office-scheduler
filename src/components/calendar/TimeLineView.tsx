@@ -18,7 +18,7 @@ import { InstrumentAndEquipmentContext } from 'context/InstrumentAndEquipmentCon
 import { ScheduledEventFilter } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
 import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
-import { toTzLessDateTime } from 'utils/date';
+import { toTzLessDateTime, TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
 
 import {
   getInstrumentIdsFromQuery,
@@ -37,7 +37,7 @@ type TimeLineViewProps = {
 // NOTE: Debounce the function because there are too many calls on scroll so we want to avoid bombarding the backend with so many requests for new events
 const handleTimeChange = debounce(
   (newStart: moment.Moment, query: URLSearchParams, history: H.History) => {
-    query.set('startsAt', `${newStart}`);
+    query.set('startsAt', newStart.format(TZ_LESS_DATE_TIME_FORMAT));
     history.push(`?${query}`);
   },
   500
@@ -81,7 +81,7 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
 
   const queryView =
     (query.get('viewPeriod') as SchedulerViewPeriod) || Views.WEEK;
-  const startsAt = query.get('startsAt') || moment().startOf(queryView);
+  const startsAt = query.get('startsAt');
   const queryInstrument = query.get('instrument');
 
   const [isInitialized, setIsInitialized] = useState(false);
@@ -89,8 +89,28 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
     PartialInstrument[]
   >([]);
 
-  const defaultVisibleTimeStart = moment(startsAt);
-  const defaultVisibleTimeEnd = moment(startsAt).add(1, queryView);
+  const initialVisibleTimeStart = moment
+    .utc(startsAt || moment().startOf(queryView))
+    .local();
+  const initialVisibleTimeEnd = moment(initialVisibleTimeStart).add(
+    1,
+    queryView
+  );
+
+  const [visibleTimeStart, setVisibleTimeStart] = useState(
+    initialVisibleTimeStart
+  );
+  const [visibleTimeEnd, setVisibleTimeEnd] = useState(initialVisibleTimeEnd);
+
+  useEffect(() => {
+    if (startsAt) {
+      const newVisibleTimeStart = moment.utc(startsAt).local();
+      const newVisibleTimeEnd = moment(newVisibleTimeStart).add(1, queryView);
+
+      setVisibleTimeStart(newVisibleTimeStart);
+      setVisibleTimeEnd(newVisibleTimeEnd);
+    }
+  }, [startsAt, queryView]);
 
   useEffect(() => {
     const queryInstrumentIds = getInstrumentIdsFromQuery(queryInstrument);
@@ -136,14 +156,22 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
     end_time: moment(event.end),
   }));
 
-  const onTimeChange = (newVisibleTimeStart: number) => {
+  const onTimeChange = (
+    newVisibleTimeStart: number,
+    newVisibleTimeEnd: number
+  ) => {
     const newStart = moment(newVisibleTimeStart);
+    const newEnd = moment(newVisibleTimeEnd);
 
-    if (!isInitialized) {
+    // NOTE: Like this we prevent calling handleTimeChange on initial render because it's not needed to do one more re-render
+    if (!isInitialized || !newStart.diff(visibleTimeStart, 'hours')) {
       setIsInitialized(true);
 
       return;
     }
+
+    setVisibleTimeStart(newStart);
+    setVisibleTimeEnd(newEnd);
 
     handleTimeChange(newStart, query, history);
   };
@@ -158,8 +186,8 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
       <Timeline
         groups={instrumentGroups}
         items={eventItems}
-        visibleTimeStart={defaultVisibleTimeStart.valueOf()}
-        visibleTimeEnd={defaultVisibleTimeEnd.valueOf()}
+        visibleTimeStart={visibleTimeStart.valueOf()}
+        visibleTimeEnd={visibleTimeEnd.valueOf()}
         resizeDetector={containerResizeDetector}
         stackItems
         canMove={false}
@@ -184,10 +212,7 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
 
                 return (
                   <div className="customPrimaryHeader" {...getIntervalProps()}>
-                    {getLabelText(
-                      queryView,
-                      defaultVisibleTimeStart.toString()
-                    )}
+                    {getLabelText(queryView, visibleTimeStart.toString())}
                   </div>
                 );
               }}

@@ -16,6 +16,7 @@ import { useHistory } from 'react-router';
 import { AppContext } from 'context/AppContext';
 import { ScheduledEventFilter } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
+import { TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
 
 import {
   isSchedulerViewPeriod,
@@ -113,7 +114,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
       const newStartDate = moment(newDate).startOf(newView);
       setView(newView);
 
-      query.set('startsAt', `${newStartDate}`);
+      query.set('startsAt', newStartDate.format(TZ_LESS_DATE_TIME_FORMAT));
       history.push(`?${query}`);
     }
   };
@@ -121,7 +122,10 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   const onViewChange = (newView: View) => {
     if (isSchedulerViewPeriod(newView)) {
       query.set('viewPeriod', newView);
-      query.set('startsAt', `${moment(startsAt).startOf(newView)}`);
+      query.set(
+        'startsAt',
+        moment(startsAt).startOf(newView).format(TZ_LESS_DATE_TIME_FORMAT)
+      );
       history.push(`?${query}`);
 
       setView(newView);

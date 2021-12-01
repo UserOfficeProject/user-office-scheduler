@@ -10,7 +10,8 @@ export type ProposalBookingLostTime = Pick<
 
 export default function useProposalBookingLostTimes(
   proposalBookingId?: number,
-  scheduledEventId?: number
+  scheduledEventId?: number,
+  shouldLoadLostTimes = true
 ) {
   const [loading, setLoading] = useState(true);
   const [lostTimes, setLostTimes] = useState<ProposalBookingLostTime[]>([]);
@@ -20,7 +21,7 @@ export default function useProposalBookingLostTimes(
   useEffect(() => {
     let unmount = false;
 
-    if (!proposalBookingId) {
+    if (!proposalBookingId || !shouldLoadLostTimes) {
       return;
     }
 
@@ -43,7 +44,7 @@ export default function useProposalBookingLostTimes(
     return () => {
       unmount = true;
     };
-  }, [proposalBookingId, scheduledEventId, api]);
+  }, [shouldLoadLostTimes, proposalBookingId, scheduledEventId, api]);
 
   return { loading, lostTimes, setLostTimes } as const;
 }

@@ -68,14 +68,11 @@ context('Scheduled events table tests', () => {
         .first()
         .click();
 
-      cy.get('[title="Add time slot"]').click();
+      cy.get('[data-cy="add-new-timeslot"]').click();
       cy.finishedLoading();
 
       cy.contains(currentHourDateTime);
       cy.contains(getHourDateTimeAfter(24));
-
-      cy.get('[data-cy="btn-close-event-dialog"]').click();
-      cy.finishedLoading();
 
       cy.get('[data-cy="btn-close-dialog"]').click();
       cy.finishedLoading();
@@ -241,10 +238,6 @@ context('Scheduled events table tests', () => {
         .parent()
         .find('[title="View event"]')
         .click();
-
-      cy.get(
-        '[role="none presentation"] [data-cy="btn-close-event-dialog"]'
-      ).should('exist');
 
       cy.get('[role="none presentation"] [data-cy="btn-save"]').should('exist');
       cy.get(

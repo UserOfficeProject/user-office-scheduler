@@ -10,7 +10,7 @@ export function ActionButtonContainer(
     buttonContainer: {
       justifyItems: 'flex-end',
       marginTop: theme.spacing(3),
-      '& button': {
+      '& > :not(:first-child)': {
         marginLeft: theme.spacing(2),
       },
     },

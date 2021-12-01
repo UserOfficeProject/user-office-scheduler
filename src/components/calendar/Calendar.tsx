@@ -42,6 +42,7 @@ import { useHistory } from 'react-router';
 import Loader from 'components/common/Loader';
 import { tableIcons } from 'components/common/TableIcons';
 import EquipmentBookingDialog from 'components/equipment/EquipmentBookingDialog';
+import ProposalBookingDialog from 'components/proposalBooking/ProposalBookingDialog';
 import ScheduledEventDialog, {
   SlotInfo,
 } from 'components/scheduledEvent/ScheduledEventDialog';
@@ -49,7 +50,6 @@ import {
   BookingTypesMap,
   ScheduledEventStatusMap,
 } from 'components/scheduledEvent/ScheduledEventForm';
-import TimeSlotBookingDialog from 'components/timeSlotBooking/TimeSlotBookingDialog';
 import { AppContext } from 'context/AppContext';
 import { InstrumentAndEquipmentContextProvider } from 'context/InstrumentAndEquipmentContext';
 import {
@@ -660,13 +660,11 @@ export default function Calendar() {
             )}
             {selectedProposalBooking.proposalBookingId !== null &&
               selectedProposalBooking.scheduledEventId !== null && (
-                <TimeSlotBookingDialog
-                  activeTimeSlotScheduledEventId={
-                    selectedProposalBooking.scheduledEventId
-                  }
+                <ProposalBookingDialog
                   activeProposalBookingId={
                     selectedProposalBooking.proposalBookingId
                   }
+                  scheduledEventId={selectedProposalBooking.scheduledEventId}
                   isDialogOpen={true}
                   closeDialog={handleCloseDialog}
                 />

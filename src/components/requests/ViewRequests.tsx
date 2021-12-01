@@ -171,7 +171,7 @@ export default function ViewRequests() {
             <div data-cy="equipments-requests-table">
               <MaterialTable
                 icons={tableIcons}
-                title="Time slots upcoming year"
+                title="Equipment booking requests"
                 columns={columns}
                 data={rows}
                 options={{ search: false }}

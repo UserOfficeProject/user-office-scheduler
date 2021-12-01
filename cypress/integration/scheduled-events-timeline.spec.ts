@@ -75,15 +75,12 @@ context('Scheduled events timeline tests', () => {
         .first()
         .click();
 
-      cy.get('[title="Add time slot"]').click();
+      cy.get('[data-cy="add-new-timeslot"]').click();
 
       cy.finishedLoading();
 
       cy.contains(currentHourDateTime);
       cy.contains(getHourDateTimeAfter(24));
-
-      cy.get('[data-cy="btn-close-event-dialog"]').click();
-      cy.finishedLoading();
 
       cy.get('[data-cy="btn-close-dialog"]').click();
       cy.finishedLoading();
@@ -204,7 +201,7 @@ context('Scheduled events timeline tests', () => {
 
       cy.get('[data-cy="calendar-timeline-view"]').should(
         'not.contain',
-        newScheduledEvent_1.startsAt
+        newScheduledEvent_1.endsAt
       );
 
       cy.get('[data-cy="btn-view-prev"]').click();
@@ -275,10 +272,6 @@ context('Scheduled events timeline tests', () => {
       cy.get('[data-cy="btn-close-dialog"]').click();
 
       cy.contains(currentHourDateTime).first().parent().click();
-
-      cy.get(
-        '[role="none presentation"] [data-cy="btn-close-event-dialog"]'
-      ).should('exist');
 
       cy.get('[role="none presentation"] [data-cy="btn-save"]').should('exist');
       cy.get(

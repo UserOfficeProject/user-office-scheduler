@@ -1,27 +1,25 @@
 import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
-import MaterialTable, { Column } from '@material-table/core';
 import {
   Avatar,
+  Box,
   Button,
   CircularProgress,
   Divider,
   Grid,
-  IconButton,
   List,
   ListItem,
   ListItemAvatar,
   ListItemText,
   makeStyles,
+  Paper,
+  Typography,
 } from '@material-ui/core';
 import {
   Comment as CommentIcon,
   CalendarToday as CalendarTodayIcon,
   HourglassEmpty as HourglassEmptyIcon,
   Description as DescriptionIcon,
-  Edit as EditIcon,
-  Visibility as ViewIcon,
   Add as AddIcon,
-  Delete as DeleteIcon,
 } from '@material-ui/icons';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import clsx from 'clsx';
@@ -31,18 +29,14 @@ import { useSnackbar } from 'notistack';
 import React, {
   Dispatch,
   SetStateAction,
-  useCallback,
-  useContext,
   useEffect,
   useMemo,
   useState,
 } from 'react';
 
 import IdentifierIcon from 'components/common/icons/IdentifierIcon';
-import Loader from 'components/common/Loader';
-import { tableIcons } from 'components/common/TableIcons';
-import TimeSlotBookingDialog from 'components/timeSlotBooking/TimeSlotBookingDialog';
-import { AppContext } from 'context/AppContext';
+import SimpleTabs from 'components/common/SimpleTabs';
+import TimeSlotBooking from 'components/timeSlotBooking/TimeSlotBooking';
 import {
   ProposalBookingStatusCore,
   ScheduledEvent,
@@ -52,6 +46,7 @@ import { useDataApi } from 'hooks/common/useDataApi';
 import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
 import { ProposalBookingScheduledEvent } from 'hooks/scheduledEvent/useProposalBookingScheduledEvents';
 import { ScheduledEventWithEquipments } from 'hooks/scheduledEvent/useScheduledEventWithEquipment';
+import { ButtonContainer } from 'styles/StyledComponents';
 import { toTzLessDateTime, TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
 
 const formatDuration = (durSec: number) =>
@@ -83,6 +78,14 @@ const useStyles = makeStyles((theme) => ({
   },
   spacingTop: {
     marginTop: theme.spacing(2),
+  },
+  timeSlotsToolbar: {
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(1),
+    marginBottom: theme.spacing(2),
+  },
+  timeSlotsTitle: {
+    marginRight: 'auto',
   },
   root: {
     '& .MuiToolbar-root button.MuiIconButton-root': {
@@ -121,15 +124,13 @@ export type ProposalDetailsAndBookingEventsProps = {
   setProposalBooking: Dispatch<
     SetStateAction<InstrumentProposalBooking | null>
   >;
-  openedEventId: number | null;
-  setOpenedEventId: Dispatch<SetStateAction<number | null>>;
+  openedEventId?: number;
 };
 
 export default function ProposalDetailsAndBookingEvents({
   proposalBooking,
-  setProposalBooking,
   openedEventId,
-  setOpenedEventId,
+  setProposalBooking,
 }: ProposalDetailsAndBookingEventsProps) {
   const {
     call: { startCycle, endCycle, cycleComment },
@@ -140,16 +141,22 @@ export default function ProposalDetailsAndBookingEvents({
 
   const { scheduledEvents } = proposalBooking;
 
-  const isStepReadOnly =
-    proposalBooking.status === ProposalBookingStatusCore.COMPLETED;
+  const isStepReadOnly = scheduledEvents.length
+    ? scheduledEvents.every(
+        (scheduledEvent) =>
+          scheduledEvent.status === ProposalBookingStatusCore.COMPLETED
+      )
+    : proposalBooking.status === ProposalBookingStatusCore.COMPLETED;
 
-  const { showConfirmation } = useContext(AppContext);
   const { enqueueSnackbar } = useSnackbar();
   const api = useDataApi();
-  const [isLoading, setIsLoading] = useState(true);
+  const preSelectedEventTab =
+    openedEventId &&
+    scheduledEvents.findIndex((item) => item.id === openedEventId);
+  const [selectedTab, setSelectedTab] = useState<number | undefined>(
+    preSelectedEventTab || 0
+  );
   const [isAddingNewTimeSlot, setIsAddingNewTimeSlot] = useState(false);
-  const [selectedEvent, setSelectedEvent] =
-    useState<ProposalBookingScheduledEvent | null>(null);
 
   const [
     hasEventOutsideCallCycleInterval,
@@ -161,16 +168,6 @@ export default function ProposalDetailsAndBookingEvents({
       proposalBooking.call?.endCycle
     )
   );
-
-  useEffect(() => {
-    if (openedEventId) {
-      const preSelectedEvent = scheduledEvents.find(
-        (event) => event.id === openedEventId
-      );
-
-      setSelectedEvent(preSelectedEvent || null);
-    }
-  }, [openedEventId, setSelectedEvent, scheduledEvents]);
 
   const { allocated, allocatable } = useMemo(() => {
     const allocated = scheduledEvents.reduce(
@@ -185,21 +182,7 @@ export default function ProposalDetailsAndBookingEvents({
     };
   }, [scheduledEvents, proposalBooking]);
 
-  const handleOnEditModeChanged = useCallback(
-    (editingEventId: number) => {
-      const editingEvent = scheduledEvents.find(
-        (scheduledEvent) => scheduledEvent.id === editingEventId
-      );
-
-      if (editingEvent) {
-        setSelectedEvent(editingEvent);
-      }
-    },
-    [scheduledEvents]
-  );
-
   useEffect(() => {
-    setIsLoading(false);
     setHasEventOutsideCallCycleInterval(
       checkIfSomeScheduledEventIsOutsideCallCycleInterval(
         scheduledEvents,
@@ -248,40 +231,36 @@ export default function ProposalDetailsAndBookingEvents({
       enqueueSnackbar('Time slot added successfully', {
         variant: 'success',
       });
+
+      const newScheduledEvents = [
+        ...scheduledEvents,
+        createdScheduledEvent as ScheduledEvent,
+      ];
+
       if (createdScheduledEvent) {
         setProposalBooking({
           ...proposalBooking,
-          scheduledEvents: [
-            ...proposalBooking.scheduledEvents,
-            createdScheduledEvent as ScheduledEvent,
-          ],
+          scheduledEvents: newScheduledEvents,
         });
         // NOTE: Open the event right after creation
-        setSelectedEvent(createdScheduledEvent);
+        setSelectedTab(newScheduledEvents.length - 1);
       }
     }
 
     setIsAddingNewTimeSlot(false);
   };
 
-  const handleDelete = async (data: ProposalBookingScheduledEvent[]) => {
-    setIsLoading(true);
-
-    const newEvents = scheduledEvents.filter(
-      (scheduledEvent) =>
-        !data.map((item) => item.id).includes(scheduledEvent.id)
-    );
-
+  const handleDelete = async (event: ScheduledEventWithEquipments) => {
     if (!proposalBooking.instrument) {
       return;
     }
 
     // Delete selected events
     const {
-      deleteScheduledEvents: { error, scheduledEvents: deletedScheduledEvents },
+      deleteScheduledEvents: { error },
     } = await api().deleteScheduledEvents({
       input: {
-        ids: data.map((item) => item.id),
+        ids: [event.id],
         proposalBookingId: proposalBooking.id,
         instrumentId: proposalBooking.instrument.id,
       },
@@ -295,46 +274,18 @@ export default function ProposalDetailsAndBookingEvents({
       enqueueSnackbar('Time slot deleted successfully', {
         variant: 'success',
       });
-      deletedScheduledEvents &&
-        setProposalBooking({ ...proposalBooking, scheduledEvents: newEvents });
+
+      const newEvents = scheduledEvents.filter(
+        (scheduledEvent) => event.id !== scheduledEvent.id
+      );
+
+      setProposalBooking({ ...proposalBooking, scheduledEvents: newEvents });
+
+      setSelectedTab(newEvents.length - 1);
     }
-
-    setIsLoading(false);
   };
 
-  const closeDialog = (openedEvent: ScheduledEventWithEquipments | null) => {
-    const newEvents = scheduledEvents.map((scheduledEvent) => {
-      if (openedEvent && scheduledEvent.id === openedEvent.id) {
-        return {
-          ...scheduledEvent,
-          startsAt: openedEvent.startsAt,
-          endsAt: openedEvent.endsAt,
-          status: openedEvent.status,
-        };
-      }
-
-      return scheduledEvent;
-    });
-
-    setProposalBooking({
-      ...proposalBooking,
-      scheduledEvents: newEvents as ScheduledEvent[],
-    });
-    setOpenedEventId(null);
-    setSelectedEvent(null);
-  };
-
-  const columns: Column<ProposalBookingScheduledEvent>[] = [
-    {
-      title: 'Starts at',
-      field: 'startsAt',
-    },
-    {
-      title: 'Ends at',
-      field: 'endsAt',
-    },
-    { title: 'Status', field: 'status', editable: 'never' },
-  ];
+  const hasTimeSlots = !!scheduledEvents.length;
 
   return (
     <div className={classes.root}>
@@ -343,7 +294,6 @@ export default function ProposalDetailsAndBookingEvents({
           Proposal booking is already completed, you can not edit it.
         </Alert>
       )}
-      {isLoading && <Loader />}
 
       <Grid container spacing={2}>
         <Grid item sm={6}>
@@ -433,77 +383,64 @@ export default function ProposalDetailsAndBookingEvents({
         </Grid>
       </Grid>
 
-      <TimeSlotBookingDialog
-        activeTimeSlotScheduledEventId={selectedEvent?.id}
-        activeProposalBookingId={proposalBooking.id}
-        isDialogOpen={!!selectedEvent}
-        closeDialog={closeDialog}
-        isOpenedOverProposalBookingDialog={true}
-      />
-      <MaterialTable
-        icons={tableIcons}
-        title="Time slots"
-        columns={columns}
-        data={scheduledEvents}
-        options={{
-          selection: !isStepReadOnly,
-          search: false,
-          paging: false,
-        }}
-        actions={[
-          {
-            icon: !isStepReadOnly ? EditIcon : ViewIcon,
-            tooltip: 'Edit event',
-            onClick: (_event, rowData) => {
-              handleOnEditModeChanged(
-                (rowData as ProposalBookingScheduledEvent).id
-              );
-            },
-            position: 'row',
-          },
-          {
-            icon: () => (
-              <IconButton component="span" color="inherit" disabled={isLoading}>
-                <DeleteIcon />
-              </IconButton>
-            ),
-            tooltip: 'Delete time slots',
-            onClick: (event, data) => {
-              showConfirmation({
-                message: (
-                  <>Are you sure you want to remove selected time slots?</>
-                ),
-                cb: () => handleDelete(data as ProposalBookingScheduledEvent[]),
-              });
-            },
-            position: 'toolbarOnSelect',
-          },
-          {
-            icon: () => (
-              <Button
-                variant="contained"
-                color="primary"
-                component="span"
-                startIcon={
-                  isAddingNewTimeSlot ? (
-                    <CircularProgress size={20} color="inherit" />
-                  ) : (
-                    <AddIcon />
-                  )
-                }
-                disabled={isAddingNewTimeSlot}
-              >
-                Add time slot
-              </Button>
-            ),
-            disabled: isAddingNewTimeSlot,
-            hidden: isStepReadOnly,
-            onClick: handleAdd,
-            isFreeAction: true,
-            tooltip: !selectedEvent ? 'Add time slot' : '',
-          },
-        ]}
-      />
+      <ButtonContainer className={classes.timeSlotsToolbar}>
+        <Typography
+          variant="h6"
+          component="h6"
+          align="left"
+          className={classes.timeSlotsTitle}
+        >
+          Time slots
+        </Typography>
+        {!isStepReadOnly && (
+          <Button
+            variant="contained"
+            color="primary"
+            component="span"
+            onClick={handleAdd}
+            data-cy="add-new-timeslot"
+            startIcon={
+              isAddingNewTimeSlot ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : (
+                <AddIcon />
+              )
+            }
+            disabled={isAddingNewTimeSlot}
+          >
+            Add time slot
+          </Button>
+        )}
+      </ButtonContainer>
+
+      {hasTimeSlots && (
+        <SimpleTabs
+          tab={selectedTab}
+          tabNames={scheduledEvents.map(
+            (item) => `${item.startsAt} - ${item.endsAt}`
+          )}
+        >
+          {scheduledEvents.map((event) => {
+            return (
+              <TimeSlotBooking
+                key={event.id}
+                onDelete={handleDelete}
+                activeScheduledEvent={event}
+                proposalBooking={proposalBooking}
+                setProposalBooking={setProposalBooking}
+              />
+            );
+          })}
+        </SimpleTabs>
+      )}
+      {!hasTimeSlots && (
+        <Paper elevation={3}>
+          <Box padding={2} textAlign="center">
+            No records to display. Start by adding new time slot
+          </Box>
+        </Paper>
+      )}
+
       {hasEventOutsideCallCycleInterval && (
         <Alert
           severity="warning"

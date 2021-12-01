@@ -14,26 +14,21 @@ import {
   CalendarToday as CalendarTodayIcon,
   HourglassEmpty as HourglassEmptyIcon,
   People as PeopleIcon,
-  FolderOpen as FolderOpenIcon,
   Check as CheckIcon,
   Clear as ClearIcon,
   Info as InfoIcon,
   Edit,
-  Comment as CommentIcon,
 } from '@material-ui/icons';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import {
   KeyboardDateTimePicker,
   MuiPickersUtilsProvider,
 } from '@material-ui/pickers';
-import clsx from 'clsx';
-import humanizeDuration from 'humanize-duration';
 import moment, { Moment } from 'moment';
-import React, { Dispatch, useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
-import IdentifierIcon from 'components/common/icons/IdentifierIcon';
-import { ProposalBooking, ProposalBookingStatusCore } from 'generated/sdk';
-import { ScheduledEventWithEquipments } from 'hooks/scheduledEvent/useScheduledEventWithEquipment';
+import { ProposalBookingStatusCore, ScheduledEvent } from 'generated/sdk';
+import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
 import {
   toTzLessDateTime,
   TZ_LESS_DATE_TIME_LOW_PREC_FORMAT,
@@ -75,13 +70,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const formatDuration = (durSec: number) =>
-  humanizeDuration(durSec * 1000, {
-    conjunction: ' and ',
-    serialComma: false,
-    largest: 3,
-  });
-
 const checkIfOutsideCallCycleInterval = (
   timeSlotStart: Moment | null,
   timeSlotEnd: Moment | null,
@@ -99,21 +87,20 @@ const checkIfOutsideCallCycleInterval = (
 };
 
 type TimeSlotDetailsProps = {
-  scheduledEvent: ScheduledEventWithEquipments;
-  setScheduledEvent: Dispatch<
-    React.SetStateAction<ScheduledEventWithEquipments | null>
-  >;
+  scheduledEvent: ScheduledEvent;
+  onSave: (event: ScheduledEvent) => void;
+  proposalBooking: InstrumentProposalBooking;
   isDirty: boolean;
   handleSetDirty: (isDirty: boolean) => void;
 };
 
 export default function TimeSlotDetails({
   scheduledEvent,
-  setScheduledEvent,
+  onSave,
+  proposalBooking,
   isDirty,
   handleSetDirty,
 }: TimeSlotDetailsProps) {
-  const proposalBooking = scheduledEvent.proposalBooking as ProposalBooking;
   const [editingStartDate, setEditingStartDate] = useState(false);
 
   const [editingEndDate, setEditingEndDate] = useState(false);
@@ -134,8 +121,8 @@ export default function TimeSlotDetails({
     checkIfOutsideCallCycleInterval(
       startsAt,
       endsAt,
-      proposalBooking.call?.startCycle,
-      proposalBooking.call?.endCycle
+      proposalBooking.call.startCycle,
+      proposalBooking.call.endCycle
     )
   );
 
@@ -147,7 +134,7 @@ export default function TimeSlotDetails({
 
     !isDirty && handleSetDirty(true);
 
-    setScheduledEvent({
+    onSave({
       ...scheduledEvent,
       startsAt: toTzLessDateTime(startsAt),
       endsAt: toTzLessDateTime(endsAt),
@@ -160,24 +147,11 @@ export default function TimeSlotDetails({
       checkIfOutsideCallCycleInterval(
         startsAt,
         endsAt,
-        proposalBooking.call?.startCycle,
-        proposalBooking.call?.endCycle
+        proposalBooking.call.startCycle,
+        proposalBooking.call.endCycle
       )
     );
   };
-
-  const { allocated, allocatable } = useMemo(() => {
-    const allocated = proposalBooking.scheduledEvents.reduce(
-      (total, curr) =>
-        total + moment(curr.endsAt).diff(curr.startsAt, 'seconds'),
-      0
-    );
-
-    return {
-      allocated,
-      allocatable: proposalBooking.allocatedTime - allocated,
-    };
-  }, [proposalBooking]);
 
   return (
     <>
@@ -276,61 +250,6 @@ export default function TimeSlotDetails({
                   secondary={`${scheduledEvent.scheduledBy?.firstname} ${scheduledEvent.scheduledBy?.lastname}`}
                 />
               </ListItem>
-              <Divider
-                variant="inset"
-                component="li"
-                className={classes.divider}
-              />
-              <ListItem disableGutters>
-                <ListItemAvatar>
-                  <Avatar>
-                    <HourglassEmptyIcon />
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                  primary="Proposal allocated time"
-                  secondary={formatDuration(allocated)}
-                  className={classes.flexColumn}
-                />
-                <ListItemText
-                  primary="Proposal allocatable time"
-                  className={classes.flexColumn}
-                  secondary={
-                    <>
-                      <span
-                        className={clsx({
-                          [classes.allocatablePositive]: allocatable > 0,
-                          [classes.allocatableNegative]: allocatable < 0,
-                        })}
-                      >
-                        {allocatable < 0
-                          ? `0 seconds (+${formatDuration(allocatable)})`
-                          : formatDuration(allocatable)}
-                      </span>
-                    </>
-                  }
-                />
-              </ListItem>
-              <Divider
-                variant="inset"
-                component="li"
-                className={classes.divider}
-              />
-              <ListItem disableGutters>
-                <ListItemAvatar>
-                  <Avatar>
-                    <CalendarTodayIcon />
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                  primary="Call cycle start"
-                  secondary={toTzLessDateTime(proposalBooking.call?.startCycle)}
-                />
-                <ListItemText
-                  primary="Call cycle end"
-                  secondary={toTzLessDateTime(proposalBooking.call?.endCycle)}
-                />
-              </ListItem>
             </List>
           </Grid>
           <Grid item sm={6} xs={12}>
@@ -414,47 +333,6 @@ export default function TimeSlotDetails({
                 <ListItemText
                   primary="Status"
                   secondary={scheduledEvent.status}
-                />
-              </ListItem>
-              <Divider
-                variant="inset"
-                component="li"
-                className={classes.divider}
-              />
-              <ListItem disableGutters>
-                <ListItemAvatar>
-                  <Avatar>
-                    <FolderOpenIcon />
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                  primary="Proposal title"
-                  secondary={proposalBooking.proposal?.title}
-                />
-                <ListItemAvatar>
-                  <Avatar>
-                    <IdentifierIcon />
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                  primary="Proposal ID"
-                  secondary={proposalBooking.proposal?.proposalId}
-                />
-              </ListItem>
-              <Divider
-                variant="inset"
-                component="li"
-                className={classes.divider}
-              />
-              <ListItem disableGutters>
-                <ListItemAvatar>
-                  <Avatar>
-                    <CommentIcon />
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                  primary="Call cycle comment"
-                  secondary={proposalBooking.call?.cycleComment}
                 />
               </ListItem>
             </List>

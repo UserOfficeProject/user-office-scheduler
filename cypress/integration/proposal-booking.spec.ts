@@ -305,9 +305,6 @@ context('Proposal booking tests ', () => {
 
       it('should be able to delete time slot', () => {
         cy.finishedLoading();
-        cy.get('.MuiTab-fullWidth').last().click();
-        cy.finishedLoading();
-
         cy.get('[data-cy="btn-delete"]').click();
 
         cy.contains(/confirmation/i);
@@ -317,10 +314,6 @@ context('Proposal booking tests ', () => {
         cy.finishedLoading();
 
         cy.get('.MuiTab-fullWidth').last().click();
-
-        cy.get('[data-cy="btn-delete"]').click();
-        cy.get('[data-cy="btn-ok"]').click();
-        cy.finishedLoading();
 
         cy.contains(/No records to display/i);
       });

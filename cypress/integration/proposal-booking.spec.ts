@@ -315,7 +315,11 @@ context('Proposal booking tests ', () => {
 
         cy.get('.MuiTab-fullWidth').last().click();
 
-        cy.contains(/No records to display/i);
+        cy.get('[data-cy="btn-delete"]').click();
+        cy.get('[data-cy="btn-ok"]').click();
+        cy.finishedLoading();
+
+        cy.contains(/No records to display\. Start by adding new time slot/i);
       });
 
       it('should show warning when `startsAt` is after `endsAt`', () => {

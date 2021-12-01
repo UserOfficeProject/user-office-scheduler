@@ -264,37 +264,6 @@ export default function CalendarViewContainer() {
   }, [querySchedulerView]);
 
   useEffect(() => {
-    let calendarParsedState = {
-      instrumentIds: null,
-      equipmentIds: null,
-      schedulerView: null,
-      activeView: null,
-      startsAt: null,
-    };
-
-    const localStorageCalendarState = localStorage.getItem('calendarState');
-
-    if (localStorageCalendarState) {
-      calendarParsedState = JSON.parse(localStorageCalendarState);
-    }
-    const calendarState = {
-      instrumentIds: getInstrumentIdsFromQuery(queryInstrument),
-      equipmentIds: getEquipmentIdsFromQuery(queryEquipment),
-      schedulerView: querySchedulerView,
-      activeView: queryView || calendarParsedState.activeView,
-      startsAt: queryStartsAt || calendarParsedState.startsAt,
-    };
-
-    localStorage.setItem('calendarState', JSON.stringify(calendarState));
-  }, [
-    querySchedulerView,
-    queryView,
-    queryStartsAt,
-    queryInstrument,
-    queryEquipment,
-  ]);
-
-  useEffect(() => {
     if (
       schedulerActiveView === SchedulerViews.CALENDAR ||
       schedulerActiveView === SchedulerViews.TABLE

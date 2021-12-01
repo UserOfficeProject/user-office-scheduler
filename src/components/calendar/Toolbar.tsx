@@ -38,7 +38,7 @@ export const getLabelText = (
 ) => {
   switch (queryView) {
     case 'day':
-      return moment(startsAt).format('dddd, DD MMMM YYYY');
+      return moment(startsAt).format('dddd, D MMMM YYYY');
     case 'week':
       const startDate = moment(startsAt);
       const endDate = moment(startsAt).add(1, queryView);

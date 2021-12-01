@@ -6,6 +6,7 @@ import {
   CalendarProps,
   momentLocalizer,
   SlotInfo,
+  SlotPropGetter,
   stringOrDate,
   View,
   Views,
@@ -29,8 +30,7 @@ import Toolbar from './Toolbar';
 moment.locale('en-gb');
 const localizer = momentLocalizer(moment);
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function slotPropGetter(date: Date): any {
+function slotPropGetter(date: Date) {
   return {
     'data-cy': `event-slot-${date.toISOString()}`,
   };
@@ -177,7 +177,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         showMultiDayTimes={true}
         dayLayoutAlgorithm={'no-overlap'}
         eventPropGetter={eventPropGetter}
-        slotPropGetter={slotPropGetter}
+        slotPropGetter={slotPropGetter as SlotPropGetter}
         onSelectEvent={onSelectEvent}
         onSelectSlot={onSelectSlot}
         onSelecting={onSelecting}

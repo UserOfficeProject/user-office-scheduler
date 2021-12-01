@@ -13,7 +13,7 @@ import React, { useEffect } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 
 import AppToolbar, { drawerWidth } from './appToolbar/AppToolbar';
-import Calendar from './calendar/Calendar';
+import CalendarViewContainer from './calendar/CalendarViewContainer';
 import CreateEditEquipment from './equipment/CreateEditEquipment';
 import Equipments from './equipment/Equipments';
 import ViewEquipment from './equipment/ViewEquipment';
@@ -129,7 +129,7 @@ export default function Dashboard() {
       </Drawer>
       <main className={classes.content}>
         <Switch>
-          <Route path={PATH_CALENDAR} component={Calendar} />
+          <Route path={PATH_CALENDAR} component={CalendarViewContainer} />
           <Route path={PATH_EQUIPMENTS} component={Equipments} exact />
           <Route
             path={PATH_CREATE_EQUIPMENT}

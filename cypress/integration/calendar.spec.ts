@@ -64,8 +64,9 @@ context('Calendar tests', () => {
 
       cy.finishedLoading();
 
-      cy.get('[data-cy=select-active-view]').click();
-      cy.get('[role=listbox] [role=option][data-value="month"]').click();
+      cy.get('.rbc-toolbar button')
+        .contains('month', { matchCase: false })
+        .click();
 
       cy.finishedLoading();
 
@@ -73,13 +74,14 @@ context('Calendar tests', () => {
 
       cy.finishedLoading();
 
-      cy.get('[data-cy=select-active-view]').click();
-      cy.get('[role=listbox] [role=option][data-value="week"]').click();
+      cy.get('.rbc-toolbar button')
+        .contains('week', { matchCase: false })
+        .click();
       cy.get('.rbc-time-view').should('be.visible');
     });
 
     it('should show the selected day', () => {
-      cy.get('[data-cy=content-calendar-toolbar-label]').should(
+      cy.get('.rbc-toolbar').should(
         'contain.text',
         `${getFormattedBeginningOfSelectedWeek(
           'MMMM DD'
@@ -87,8 +89,10 @@ context('Calendar tests', () => {
       );
 
       cy.finishedLoading();
-      cy.get('[data-cy=btn-view-next]').click();
-      cy.get('[data-cy=content-calendar-toolbar-label]').should(
+      cy.get('.rbc-toolbar button')
+        .contains('next', { matchCase: false })
+        .click();
+      cy.get('.rbc-toolbar').should(
         'contain.text',
         `${getFormattedBeginningOfSelectedWeek(
           'MMMM DD',
@@ -97,8 +101,10 @@ context('Calendar tests', () => {
       );
 
       cy.finishedLoading();
-      cy.get('[data-cy=btn-view-next]').click();
-      cy.get('[data-cy=content-calendar-toolbar-label]').should(
+      cy.get('.rbc-toolbar button')
+        .contains('next', { matchCase: false })
+        .click();
+      cy.get('.rbc-toolbar').should(
         'contain.text',
         `${getFormattedBeginningOfSelectedWeek(
           'MMMM DD',
@@ -107,8 +113,10 @@ context('Calendar tests', () => {
       );
 
       cy.finishedLoading();
-      cy.get('[data-cy=btn-view-prev]').click();
-      cy.get('[data-cy=content-calendar-toolbar-label]').should(
+      cy.get('.rbc-toolbar button')
+        .contains('back', { matchCase: false })
+        .click();
+      cy.get('.rbc-toolbar').should(
         'contain.text',
         `${getFormattedBeginningOfSelectedWeek(
           'MMMM DD',
@@ -117,8 +125,10 @@ context('Calendar tests', () => {
       );
 
       cy.finishedLoading();
-      cy.get('[data-cy=btn-view-today]').click();
-      cy.get('[data-cy=content-calendar-toolbar-label]').should(
+      cy.get('.rbc-toolbar button')
+        .contains('today', { matchCase: false })
+        .click();
+      cy.get('.rbc-toolbar').should(
         'contain.text',
         `${getFormattedBeginningOfSelectedWeek(
           'MMMM DD'
@@ -126,8 +136,10 @@ context('Calendar tests', () => {
       );
 
       cy.finishedLoading();
-      cy.get('[data-cy=btn-view-prev]').click();
-      cy.get('[data-cy=content-calendar-toolbar-label]').should(
+      cy.get('.rbc-toolbar button')
+        .contains('back', { matchCase: false })
+        .click();
+      cy.get('.rbc-toolbar').should(
         'contain.text',
         `${getFormattedBeginningOfSelectedWeek(
           'MMMM DD',
@@ -136,8 +148,10 @@ context('Calendar tests', () => {
       );
 
       cy.finishedLoading();
-      cy.get('[data-cy=btn-view-prev]').click();
-      cy.get('[data-cy=content-calendar-toolbar-label]').should(
+      cy.get('.rbc-toolbar button')
+        .contains('back', { matchCase: false })
+        .click();
+      cy.get('.rbc-toolbar').should(
         'contain.text',
         `${getFormattedBeginningOfSelectedWeek(
           'MMMM DD',
@@ -146,8 +160,10 @@ context('Calendar tests', () => {
       );
 
       cy.finishedLoading();
-      cy.get('[data-cy=btn-view-next]').click();
-      cy.get('[data-cy=content-calendar-toolbar-label]').should(
+      cy.get('.rbc-toolbar button')
+        .contains('next', { matchCase: false })
+        .click();
+      cy.get('.rbc-toolbar').should(
         'contain.text',
         `${getFormattedBeginningOfSelectedWeek(
           'MMMM DD',
@@ -156,8 +172,10 @@ context('Calendar tests', () => {
       );
 
       cy.finishedLoading();
-      cy.get('[data-cy=btn-view-today]').click();
-      cy.get('[data-cy=content-calendar-toolbar-label]').should(
+      cy.get('.rbc-toolbar button')
+        .contains('today', { matchCase: false })
+        .click();
+      cy.get('.rbc-toolbar').should(
         'contain.text',
         `${getFormattedBeginningOfSelectedWeek(
           'MMMM DD'
@@ -167,69 +185,87 @@ context('Calendar tests', () => {
 
     it('should show the selected month', () => {
       cy.finishedLoading();
-      cy.get('[data-cy=select-active-view]').click();
-
-      cy.get('[role=listbox] [role=option][data-value="month"]').click();
+      cy.get('.rbc-toolbar button')
+        .contains('month', { matchCase: false })
+        .click();
       cy.finishedLoading();
-      cy.get('[data-cy="btn-view-today"]').click();
+      cy.get('.rbc-toolbar button')
+        .contains('today', { matchCase: false })
+        .click();
 
-      cy.get('[data-cy=content-calendar-toolbar-label]').should(
+      cy.get('.rbc-toolbar').should(
         'contain.text',
         getFormattedDateAfter('MMMM YYYY')
       );
 
       cy.finishedLoading();
-      cy.get('[data-cy=btn-view-next]').click();
-      cy.get('[data-cy=content-calendar-toolbar-label]').should(
+      cy.get('.rbc-toolbar button')
+        .contains('next', { matchCase: false })
+        .click();
+      cy.get('.rbc-toolbar').should(
         'contain.text',
         getFormattedDateAfter('MMMM YYYY', 1, 'month')
       );
 
       cy.finishedLoading();
-      cy.get('[data-cy=btn-view-next]').click();
-      cy.get('[data-cy=content-calendar-toolbar-label]').should(
+      cy.get('.rbc-toolbar button')
+        .contains('next', { matchCase: false })
+        .click();
+      cy.get('.rbc-toolbar').should(
         'contain.text',
         getFormattedDateAfter('MMMM YYYY', 2, 'months')
       );
 
       cy.finishedLoading();
-      cy.get('[data-cy=btn-view-prev]').click();
-      cy.get('[data-cy=content-calendar-toolbar-label]').should(
+      cy.get('.rbc-toolbar button')
+        .contains('back', { matchCase: false })
+        .click();
+      cy.get('.rbc-toolbar').should(
         'contain.text',
         getFormattedDateAfter('MMMM YYYY', 1, 'month')
       );
 
       cy.finishedLoading();
-      cy.get('[data-cy=btn-view-today]').click();
-      cy.get('[data-cy=content-calendar-toolbar-label]').should(
+      cy.get('.rbc-toolbar button')
+        .contains('today', { matchCase: false })
+        .click();
+      cy.get('.rbc-toolbar').should(
         'contain.text',
         getFormattedDateAfter('MMMM YYYY')
       );
 
       cy.finishedLoading();
-      cy.get('[data-cy=btn-view-prev]').click();
-      cy.get('[data-cy=content-calendar-toolbar-label]').should(
+      cy.get('.rbc-toolbar button')
+        .contains('back', { matchCase: false })
+        .click();
+      cy.get('.rbc-toolbar').should(
         'contain.text',
         getFormattedDateAfter('MMMM YYYY', -1, 'month')
       );
 
       cy.finishedLoading();
-      cy.get('[data-cy=btn-view-prev]').click();
-      cy.get('[data-cy=content-calendar-toolbar-label]').should(
+      cy.get('.rbc-toolbar button')
+        .contains('back', { matchCase: false })
+        .click();
+      cy.get('.rbc-toolbar').should(
         'contain.text',
         getFormattedDateAfter('MMMM YYYY', -2, 'months')
       );
 
       cy.finishedLoading();
-      cy.get('[data-cy=btn-view-next]').click();
-      cy.get('[data-cy=content-calendar-toolbar-label]').should(
+      cy.get('.rbc-toolbar button')
+        .contains('next', { matchCase: false })
+        .click();
+      cy.get('.rbc-toolbar').should(
         'contain.text',
         getFormattedDateAfter('MMMM YYYY', -1, 'month')
       );
 
       cy.finishedLoading();
-      cy.get('[data-cy=btn-view-today]').click();
-      cy.get('[data-cy=content-calendar-toolbar-label]').should(
+      cy.get('.rbc-toolbar button')
+        .contains('today', { matchCase: false })
+        .click();
+      cy.get('.rbc-toolbar').should(
         'contain.text',
         getFormattedDateAfter('MMMM YYYY')
       );

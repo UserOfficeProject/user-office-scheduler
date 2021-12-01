@@ -144,13 +144,7 @@ context('Scheduled events timeline tests', () => {
       cy.get('[data-cy="scheduler-active-view"]').click();
       cy.get('[data-value="Timeline"]').click();
 
-      cy.get('[data-cy="calendar-timeline-view-toolbar"]').should('exist');
-
-      cy.get('[data-cy="timeline-toolbar-instrument-select"]').should('exist');
-      cy.get('[data-cy="timeline-view-period"]').should('exist');
-      cy.get('[data-cy="btn-view-prev"]').should('exist');
-      cy.get('[data-cy="btn-view-next"]').should('exist');
-      cy.get('[data-cy="btn-view-today"]').should('exist');
+      cy.get('[data-cy="input-instrument-select"]').should('exist');
 
       cy.contains(newScheduledEvent_1.endsAt);
 
@@ -161,12 +155,20 @@ context('Scheduled events timeline tests', () => {
         newScheduledEvent_3.startsAt
       );
 
-      cy.get('[data-cy=timeline-view-period]').click();
-      cy.get('[data-value="month"]').click();
+      cy.get('.rbc-toolbar button')
+        .contains('month', { matchCase: false })
+        .click();
+
+      cy.finishedLoading();
+
+      cy.get('.rbc-toolbar button')
+        .contains('today', { matchCase: false })
+        .click();
 
       cy.finishedLoading();
 
       cy.contains(newScheduledEvent_1.endsAt);
+
       if (
         moment(currentHourDateTime).month() !==
         moment(newScheduledEvent_3.startsAt).month()
@@ -181,7 +183,9 @@ context('Scheduled events timeline tests', () => {
 
       cy.contains(getFormattedDateAfter('MMMM YYYY'));
 
-      cy.get('[data-cy="btn-view-next"]').click();
+      cy.get('.rbc-toolbar button')
+        .contains('next', { matchCase: false })
+        .click();
 
       cy.finishedLoading();
 
@@ -204,9 +208,13 @@ context('Scheduled events timeline tests', () => {
         newScheduledEvent_1.endsAt
       );
 
-      cy.get('[data-cy="btn-view-prev"]').click();
+      cy.get('.rbc-toolbar button')
+        .contains('back', { matchCase: false })
+        .click();
       cy.finishedLoading();
-      cy.get('[data-cy="btn-view-prev"]').click();
+      cy.get('.rbc-toolbar button')
+        .contains('back', { matchCase: false })
+        .click();
       cy.finishedLoading();
 
       cy.contains(getFormattedDateAfter('MMMM YYYY', -1, 'month'));
@@ -221,7 +229,9 @@ context('Scheduled events timeline tests', () => {
         newScheduledEvent_1.startsAt
       );
 
-      cy.get('[data-cy="btn-view-today"]').click();
+      cy.get('.rbc-toolbar button')
+        .contains('today', { matchCase: false })
+        .click();
       cy.finishedLoading();
 
       cy.contains(getFormattedDateAfter('MMMM YYYY'));
@@ -239,10 +249,10 @@ context('Scheduled events timeline tests', () => {
         cy.contains(newScheduledEvent_3.startsAt);
       }
 
-      cy.get('[data-cy=timeline-view-period]').click();
-      cy.get('[data-value="day"]').click();
+      cy.get('.rbc-toolbar button').contains('Day').click();
+      cy.get('.rbc-toolbar button').contains('Today').click();
 
-      cy.contains(getFormattedDateAfter('dddd, DD MMMM YYYY'));
+      cy.contains(getFormattedDateAfter('dddd, D MMMM YYYY'));
     });
 
     it('should be able to click and open events in timeline view', () => {
@@ -294,29 +304,23 @@ context('Scheduled events timeline tests', () => {
       cy.get('[data-cy="scheduler-active-view"]').click();
       cy.get('[data-value="Timeline"]').click();
 
-      cy.get('[data-cy=timeline-view-period]').click();
-      cy.get('[data-value="day"]').click();
+      cy.get('.rbc-toolbar button').contains('Day').click();
+      cy.get('.rbc-toolbar button').contains('Today').click();
 
-      cy.contains(getFormattedDateAfter('dddd, DD MMMM YYYY'));
+      cy.contains(getFormattedDateAfter('dddd, D MMMM YYYY'));
 
       cy.reload();
 
       cy.finishedLoading();
 
-      cy.contains(getFormattedDateAfter('dddd, DD MMMM YYYY'));
+      cy.contains(getFormattedDateAfter('dddd, D MMMM YYYY'));
 
-      cy.get('[data-cy=timeline-view-period] input').should(
-        'have.value',
-        'day'
-      );
+      cy.get('.rbc-toolbar button.rbc-active').contains('Day').click();
 
       cy.get('[data-cy="scheduler-active-view"]').click();
       cy.get('[data-value="Calendar"]').click();
 
-      cy.get('[data-cy="select-active-view"] input').should(
-        'have.value',
-        'day'
-      );
+      cy.get('.rbc-toolbar button.rbc-active').contains('Day').click();
     });
 
     it('should be able to select multiple instruments in timeline view', () => {
@@ -339,21 +343,17 @@ context('Scheduled events timeline tests', () => {
       cy.get('[data-cy="scheduler-active-view"]').click();
       cy.get('[data-value="Timeline"]').click();
 
-      cy.get('[data-cy="timeline-toolbar-instrument-select"] input').click();
+      cy.get('[data-cy="input-instrument-select"] input').click();
 
-      cy.get(
-        '[aria-labelledby=timeline-toolbar-instrument-select-label] [role=option]'
-      )
+      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
         .last()
         .click();
 
       cy.finishedLoading();
 
-      cy.get('[data-cy="timeline-toolbar-instrument-select"] input').click();
+      cy.get('[data-cy="input-instrument-select"] input').click();
 
-      cy.get(
-        '[aria-labelledby=timeline-toolbar-instrument-select-label] [role=option]'
-      )
+      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
         .eq(1)
         .click();
 
@@ -411,7 +411,7 @@ context('Scheduled events timeline tests', () => {
       // NOTE: cy.tick is used to be able to execute the handleTimeChange because it's debounced with 500ms.
       cy.tick(500);
 
-      cy.url().should('include', 'timeLineStart=');
+      cy.url().should('include', 'startsAt=');
     });
   });
 });

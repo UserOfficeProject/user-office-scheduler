@@ -19,10 +19,11 @@ import { useQuery } from 'hooks/common/useQuery';
 import { TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
 
 import {
+  CalendarScheduledEventWithUniqeId,
   isSchedulerViewPeriod,
   SchedulerViewPeriod,
 } from './CalendarViewContainer';
-import Event, { CalendarScheduledEvent, eventPropGetter } from './Event';
+import Event, { eventPropGetter } from './Event';
 import Toolbar from './Toolbar';
 
 moment.locale('en-gb');
@@ -37,7 +38,7 @@ function slotPropGetter(date: Date): any {
 
 function isOverlapping(
   { start, end }: { start: stringOrDate; end: stringOrDate },
-  calendarEvents: CalendarScheduledEvent[]
+  calendarEvents: CalendarScheduledEventWithUniqeId[]
 ): boolean {
   return calendarEvents.some((calendarEvent) => {
     if (
@@ -55,7 +56,7 @@ function isOverlapping(
 
 const DragAndDropCalendar = withDragAndDrop(
   BigCalendar as ComponentType<
-    CalendarProps<CalendarScheduledEvent, Record<string, unknown>>
+    CalendarProps<CalendarScheduledEventWithUniqeId, Record<string, unknown>>
   >
 );
 
@@ -74,8 +75,8 @@ const useStyles = makeStyles(() => ({
 
 type CalendarViewProps = {
   filter: ScheduledEventFilter;
-  events: CalendarScheduledEvent[];
-  onSelectEvent: (data: CalendarScheduledEvent) => void;
+  events: CalendarScheduledEventWithUniqeId[];
+  onSelectEvent: (data: CalendarScheduledEventWithUniqeId) => void;
   onDropFromOutside: (data: {
     start: stringOrDate;
     end: stringOrDate;

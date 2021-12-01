@@ -21,17 +21,18 @@ import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 import { toTzLessDateTime, TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
 
 import {
+  CalendarScheduledEventWithUniqeId,
   getInstrumentIdsFromQuery,
   SchedulerViewPeriod,
 } from './CalendarViewContainer';
-import { CalendarScheduledEvent, getBookingTypeStyle } from './Event';
+import { getBookingTypeStyle } from './Event';
 import 'moment/locale/en-gb';
 import Toolbar, { getLabelText } from './Toolbar';
 
 type TimeLineViewProps = {
-  events: CalendarScheduledEvent[];
+  events: CalendarScheduledEventWithUniqeId[];
   filter: ScheduledEventFilter;
-  onSelectEvent: (selectedEvent: CalendarScheduledEvent) => void;
+  onSelectEvent: (selectedEvent: CalendarScheduledEventWithUniqeId) => void;
 };
 
 // NOTE: Debounce the function because there are too many calls on scroll so we want to avoid bombarding the backend with so many requests for new events
@@ -132,7 +133,7 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
     title: selectedInstrument.name,
   }));
 
-  const getEventTitle = (event: CalendarScheduledEvent) => {
+  const getEventTitle = (event: CalendarScheduledEventWithUniqeId) => {
     return `${event.proposalBooking?.proposal?.title || event.title} (${
       event.proposalBooking?.proposal?.proposalId || event.description
     }) - [${toTzLessDateTime(event.start)} - ${toTzLessDateTime(

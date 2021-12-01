@@ -10,7 +10,7 @@ import { NavLink } from 'react-router-dom';
 import { PATH_CALENDAR, PATH_EQUIPMENTS, PATH_REQUESTS } from './paths';
 
 export default function MenuItems() {
-  // NOTE: On reload remove the saved calendar state because if we keep it always there wont be any way to start from clean state or just /calendar url
+  // NOTE: On reload remove the saved calendar state because if we keep it always there wont be any way to start from clean state or just /calendar url it will always be populated with localstorage state
   useEffect(() => {
     window.onbeforeunload = function () {
       localStorage.removeItem('calendarState');
@@ -52,8 +52,6 @@ export default function MenuItems() {
         path.push(`schedulerView=${calendarState.schedulerView}`);
       }
     }
-
-    console.log(`${PATH_CALENDAR}?${path.join('&')}`);
 
     return `${PATH_CALENDAR}?${path.join('&')}`;
   };

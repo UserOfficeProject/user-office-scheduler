@@ -18,6 +18,10 @@ import { AppContext } from 'context/AppContext';
 import { ScheduledEventFilter } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
 
+import 'react-big-calendar/lib/css/react-big-calendar.css';
+import 'styles/react-big-calendar.css';
+import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
+
 import {
   isSchedulerViewPeriod,
   SchedulerViewPeriod,
@@ -79,6 +83,11 @@ type CalendarViewProps = {
     start: stringOrDate;
     end: stringOrDate;
   }) => Promise<void>;
+  onEventResize: (data: {
+    event: CalendarScheduledEvent;
+    start: stringOrDate;
+    end: stringOrDate;
+  }) => Promise<void>;
   onSelectTimeSlot: (slotIfo: SlotInfo) => void;
 };
 const CalendarView: React.FC<CalendarViewProps> = ({
@@ -86,6 +95,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   events,
   onSelectEvent,
   onDropFromOutside,
+  onEventResize,
   onSelectTimeSlot,
 }) => {
   const classes = useStyles();
@@ -155,6 +165,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
       <DragAndDropCalendar
         popup
         selectable
+        resizable
         className={classes.calendar}
         localizer={localizer}
         events={events}
@@ -169,6 +180,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         date={startsAt}
         timeslots={1}
         onDropFromOutside={onDropFromOutside}
+        onEventResize={onEventResize}
         showMultiDayTimes={true}
         dayLayoutAlgorithm={'no-overlap'}
         eventPropGetter={eventPropGetter}
@@ -178,7 +190,6 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         onSelecting={onSelecting}
         onNavigate={onNavigate}
         onView={onViewChange}
-        draggableAccessor={() => false}
         components={{
           event: Event,
           week: {

@@ -5,6 +5,7 @@ import { Alert, AlertTitle } from '@material-ui/lab';
 import moment from 'moment';
 import { useSnackbar } from 'notistack';
 import React, { Dispatch, SetStateAction, useContext, useState } from 'react';
+import { stringOrDate } from 'react-big-calendar';
 
 import { ActionButtonContainer } from 'components/common/ActionButtonContainer';
 import Loader from 'components/common/Loader';
@@ -49,6 +50,38 @@ type TimeSlotBookingProps = {
   activeScheduledEvent: ScheduledEvent;
   onDelete: (scheduledEvent: ScheduledEventWithEquipments) => Promise<void>;
 };
+
+export const getProposalBookingEventsForOverlapCheck = (
+  scheduledEvents: {
+    id: number;
+    startsAt: stringOrDate;
+    endsAt: stringOrDate;
+  }[],
+  changedScheduledEvent?: {
+    id: number;
+    startsAt: stringOrDate;
+    endsAt: stringOrDate;
+  }
+) =>
+  scheduledEvents.map((event) => {
+    if (
+      event.id === changedScheduledEvent?.id &&
+      changedScheduledEvent.startsAt &&
+      changedScheduledEvent.endsAt
+    ) {
+      return {
+        id: event.id,
+        startsAt: moment(changedScheduledEvent.startsAt),
+        endsAt: moment(changedScheduledEvent.endsAt),
+      };
+    } else {
+      return {
+        id: event.id,
+        startsAt: moment(event.startsAt),
+        endsAt: moment(event.endsAt),
+      };
+    }
+  }) || [];
 
 export default function TimeSlotBooking({
   proposalBooking,
@@ -200,27 +233,6 @@ export default function TimeSlotBooking({
       : handleFinalizeSubmit(selectedKey);
   };
 
-  const getProposalBookingEventsForOverlapCheck = () =>
-    proposalBooking.scheduledEvents.map((event) => {
-      if (
-        event.id === activeScheduledEvent.id &&
-        activeScheduledEvent.startsAt &&
-        activeScheduledEvent.endsAt
-      ) {
-        return {
-          id: event.id,
-          startsAt: moment(activeScheduledEvent.startsAt),
-          endsAt: moment(activeScheduledEvent.endsAt),
-        };
-      } else {
-        return {
-          id: event.id,
-          startsAt: moment(event.startsAt),
-          endsAt: moment(event.endsAt),
-        };
-      }
-    }) || [];
-
   const handleSubmit = async () => {
     try {
       if (!activeScheduledEvent.startsAt || !activeScheduledEvent.endsAt) {
@@ -286,7 +298,12 @@ export default function TimeSlotBooking({
   };
 
   const handleSaveDraft = () => {
-    hasOverlappingEvents(getProposalBookingEventsForOverlapCheck())
+    hasOverlappingEvents(
+      getProposalBookingEventsForOverlapCheck(
+        proposalBooking.scheduledEvents,
+        activeScheduledEvent
+      )
+    )
       ? showConfirmation({
           message: (
             <>

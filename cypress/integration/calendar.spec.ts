@@ -37,6 +37,55 @@ context('Calendar tests', () => {
   });
 
   describe('Calendar navigation', () => {
+    it('should save calendar state when navigating inside the app but not when reload and visit /calendar', () => {
+      cy.finishedLoading();
+      cy.get('[data-cy=input-instrument-select]').click();
+
+      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
+        .first()
+        .click();
+      cy.finishedLoading();
+      cy.get('[data-cy="scheduler-active-view"]').click();
+      cy.get('[data-value="Timeline"]').click();
+
+      cy.get('.rbc-toolbar button')
+        .contains('month', { matchCase: false })
+        .click();
+      cy.finishedLoading();
+      cy.get('.rbc-toolbar button')
+        .contains('today', { matchCase: false })
+        .click();
+      cy.finishedLoading();
+      cy.get('.rbc-toolbar button')
+        .contains('next', { matchCase: false })
+        .click();
+
+      cy.finishedLoading();
+
+      cy.contains('Equipment list').click();
+
+      cy.finishedLoading();
+
+      cy.contains('Calendar').click();
+
+      cy.finishedLoading();
+
+      cy.get('[data-cy="calendar-timeline-view"]').should('exist');
+      cy.get('.rbc-toolbar button.rbc-active').should('contain.text', 'Month');
+      cy.get('.react-calendar-timeline .rct-sidebar-row')
+        .should('exist')
+        .and('contain.text', 'Instrument 1');
+
+      cy.visit('/calendar');
+      cy.finishedLoading();
+
+      cy.get('[data-cy="calendar-timeline-view"]').should('not.exist');
+      cy.get('.rbc-toolbar button.rbc-active').should(
+        'not.contain.text',
+        'Month'
+      );
+    });
+
     it('should be able to collapse the event toolbar from the right', () => {
       cy.get('[data-cy="close-event-toolbar"]').click();
 

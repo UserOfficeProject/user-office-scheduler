@@ -120,13 +120,10 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
       setSelectedInstruments(
         instruments.filter((item) => queryInstrumentIds.includes(item.id))
       );
+    } else {
+      setSelectedInstruments([]);
     }
-  }, [
-    instruments,
-    queryInstrument,
-    setSelectedInstruments,
-    selectedInstruments?.length,
-  ]);
+  }, [instruments, queryInstrument, setSelectedInstruments]);
 
   const instrumentGroups = selectedInstruments.map((selectedInstrument) => ({
     id: selectedInstrument.id,
@@ -165,7 +162,11 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
     const newEnd = moment(newVisibleTimeEnd);
 
     // NOTE: Like this we prevent calling handleTimeChange on initial render because it's not needed to do one more re-render
-    if (!isInitialized || !newStart.diff(visibleTimeStart, 'hours')) {
+    if (
+      !isInitialized ||
+      !newStart.diff(visibleTimeStart, 'hours') ||
+      !selectedInstruments.length
+    ) {
       setIsInitialized(true);
 
       return;

@@ -271,8 +271,6 @@ export default function CalendarViewContainer() {
     proposalBookings,
     loading: loadingBookings,
     refresh: refreshBookings,
-    setSelectedInstruments: setProposalBookingSelectedInstruments,
-    selectedInstruments: proposalBookingSelectedInstruments,
   } = useInstrumentProposalBookings(getInstrumentIdsFromQuery(queryInstrument));
 
   const {
@@ -324,15 +322,7 @@ export default function CalendarViewContainer() {
       )
     );
     setView(queryView || view);
-  }, [
-    queryInstrument,
-    startsAt,
-    view,
-    getStartDate,
-    queryView,
-    proposalBookingSelectedInstruments,
-    setProposalBookingSelectedInstruments,
-  ]);
+  }, [queryInstrument, startsAt, view, getStartDate, queryView]);
 
   const equipmentEventsTransformed: GetScheduledEventsQuery['scheduledEvents'] =
     eqEvents
@@ -441,6 +431,14 @@ export default function CalendarViewContainer() {
     }
 
     setIsAddingNewTimeSlot(true);
+    const newEventStart = moment(start);
+    const newEventEnd = moment(end);
+
+    if (newEventEnd.diff(newEventStart, 'day')) {
+      newEventStart.set({ hour: 9, minute: 0, second: 0 });
+      newEventEnd.set({ hour: 9, minute: 0, second: 0 });
+    }
+
     const {
       createScheduledEvent: { error, scheduledEvent: createdScheduledEvent },
     } = await api().createScheduledEvent({
@@ -448,8 +446,8 @@ export default function CalendarViewContainer() {
         proposalBookingId: draggingEventDetails.proposalBookingId,
         bookingType: ScheduledEventBookingType.USER_OPERATIONS,
         instrumentId: draggingEventDetails.instrumentId,
-        startsAt: moment(start).format(TZ_LESS_DATE_TIME_FORMAT),
-        endsAt: moment(end).format(TZ_LESS_DATE_TIME_FORMAT),
+        startsAt: newEventStart.format(TZ_LESS_DATE_TIME_FORMAT),
+        endsAt: newEventEnd.format(TZ_LESS_DATE_TIME_FORMAT),
       },
     });
     if (error) {

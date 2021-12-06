@@ -116,6 +116,36 @@ context('Proposal booking tests ', () => {
           .should('exist');
       });
 
+      it('Should be able to edit time slot by resizing on the calendar', () => {
+        cy.get('[data-cy="btn-close-dialog"]').click();
+        cy.finishedLoading();
+
+        // Get the event from the calendar
+        cy.get('.rbc-time-content .rbc-event').last().as('scheduledEvent');
+
+        // Find the bottom resize icon after hovering the event using cypress-real-events(https://github.com/dmtrKovalenko/cypress-real-events) commands.
+        cy.get('@scheduledEvent')
+          .realHover()
+          .find('.rbc-addons-dnd-resize-ns-anchor')
+          .should('exist')
+          .last()
+          .find('.rbc-addons-dnd-resize-ns-icon')
+          .should('exist')
+          .as('bottomResizeIcon');
+
+        // Do the actual resize using the resize icon by triggering mousedown, mousemove and mouseup
+        cy.get('@bottomResizeIcon')
+          .realHover()
+          .realMouseDown()
+          .trigger('mousemove', 0, 200, { force: true });
+
+        cy.get('@scheduledEvent').realMouseUp();
+
+        cy.finishedLoading();
+
+        cy.get('#notistack-snackbar').contains(/scheduled event updated/i);
+      });
+
       it('should be able to add new time slot by drag and drop to calendar', () => {
         cy.contains('Proposal ID');
         cy.get('[data-cy="btn-close-dialog"]').click();

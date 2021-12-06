@@ -15,7 +15,7 @@ import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import { useHistory } from 'react-router';
 
 import { AppContext } from 'context/AppContext';
-import { ScheduledEventFilter } from 'generated/sdk';
+import { ScheduledEventBookingType, ScheduledEventFilter } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -180,6 +180,10 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         date={startsAt}
         timeslots={1}
         onDropFromOutside={onDropFromOutside}
+        resizableAccessor={(event) =>
+          // NOTE: For now allow resize only on USER_OPERATIONS events because other type of events are not editable anyway.
+          event.bookingType === ScheduledEventBookingType.USER_OPERATIONS
+        }
         onEventResize={onEventResize}
         showMultiDayTimes={true}
         dayLayoutAlgorithm={'no-overlap'}

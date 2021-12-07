@@ -64,6 +64,9 @@ export class UpdateScheduledEventInput {
 
   @Field(() => TzLessDateTime)
   endsAt: Date;
+
+  @Field(() => Int, { nullable: true })
+  localContact?: number;
 }
 
 @InputType()

@@ -65,6 +65,7 @@ export default class PostgreScheduledEventDataSource
       .update({
         starts_at: updateScheduledEvent.startsAt,
         ends_at: updateScheduledEvent.endsAt,
+        local_contact: updateScheduledEvent.localContact,
       })
       .where('scheduled_event_id', updateScheduledEvent.scheduledEventId)
       .returning<ScheduledEventRecord[]>(['*']);

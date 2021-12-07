@@ -52,6 +52,11 @@ export class ScheduledEvent implements Partial<ScheduledEventBase> {
   @Field({ nullable: true })
   scheduledBy?: User;
 
+  // external type
+  @Type(() => User)
+  @Field({ nullable: true })
+  localContact?: User;
+
   @Field(() => String, { nullable: true })
   description: string | null;
 

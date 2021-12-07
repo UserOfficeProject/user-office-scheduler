@@ -32,8 +32,6 @@ export async function buildFederatedSchema(
 
   const federatedSchema = buildSubgraphSchema({
     typeDefs: gql(printSubgraphSchema(schema)),
-    // FIXME: see if we can remove the any cast
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolvers: createResolversMap(
       schema
     ) as GraphQLResolverMap<ResolverContext>,

@@ -20,6 +20,7 @@ import clsx from 'clsx';
 import React, { useState, useContext } from 'react';
 
 import { UserContext } from 'context/UserContext';
+import { getFullUserName } from 'utils/user';
 
 export const drawerWidth = 240;
 
@@ -125,7 +126,7 @@ export default function AppToolbar({
             <Card>
               <CardHeader
                 avatar={<Avatar />}
-                title={`${user?.firstname} ${user?.lastname}`}
+                title={getFullUserName(user)}
                 subheader={user?.email}
               />
             </Card>

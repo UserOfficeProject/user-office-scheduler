@@ -11,6 +11,7 @@ import {
   ScheduledEvent,
   ScheduledEventBookingType,
 } from 'generated/sdk';
+import { getFullUserName } from 'utils/user';
 
 export type BasicProposalBooking =
   GetScheduledEventsQuery['scheduledEvents'][number]['proposalBooking'];
@@ -133,9 +134,7 @@ export default function Event({
         <EquipmentBookingInfo
           name={description ?? 'NA'}
           instrument={instrument?.name ?? 'NA'}
-          scheduledBy={
-            `${scheduledBy?.firstname} ${scheduledBy?.lastname}` ?? 'NA'
-          }
+          scheduledBy={getFullUserName(scheduledBy)}
           proposalBooking={{ status }}
         />
       );

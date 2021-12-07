@@ -9,6 +9,11 @@ query getProposalBookingScheduledEvents($proposalBookingId: Int!) {
       firstname
       lastname
     }
+    localContact {
+      id
+      firstname
+      lastname
+    }
     status
     description
   }

@@ -4,6 +4,7 @@ import React from 'react';
 import { BasicProposalBooking } from 'components/calendar/Event';
 import { ScheduledEventStatusMap } from 'components/scheduledEvent/ScheduledEventForm';
 import { ProposalBookingStatusCore } from 'generated/sdk';
+import { getFullUserName } from 'utils/user';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -57,7 +58,7 @@ function ProposalBookingInfo({
       </div>
       <div className={classes.title}>{proposal.title}</div>
       <div className={classes.proposer}>
-        {`${proposal.proposer?.firstname} ${proposal.proposer?.lastname}`}
+        {getFullUserName(proposal.proposer)}
       </div>
     </div>
   );

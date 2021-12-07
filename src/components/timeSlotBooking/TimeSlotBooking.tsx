@@ -246,6 +246,7 @@ export default function TimeSlotBooking({
           scheduledEventId: activeScheduledEvent.id,
           startsAt: toTzLessDateTime(activeScheduledEvent.startsAt),
           endsAt: toTzLessDateTime(activeScheduledEvent.endsAt),
+          localContact: activeScheduledEvent.localContact?.id,
         },
       });
 

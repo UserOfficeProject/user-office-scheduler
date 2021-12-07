@@ -44,6 +44,7 @@ import useEquipment from 'hooks/equipment/useEquipment';
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
 import { ContentContainer, StyledPaper } from 'styles/StyledComponents';
 import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
+import { getFullUserName } from 'utils/user';
 
 type TableRow = {
   id: number;
@@ -340,9 +341,7 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
                     </ListItemAvatar>
                     <ListItemText
                       primary="Owner"
-                      secondary={`${equipment?.owner?.firstname ?? 'Unknown'} ${
-                        equipment?.owner?.lastname
-                      }`}
+                      secondary={getFullUserName(equipment.owner)}
                       className={classes.listItemText}
                     />
                     <Tooltip title="Change equipment owner">
@@ -367,9 +366,7 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
                       primary="Responsible people"
                       secondary={selectedUsers.map(
                         (user, index) =>
-                          `${index ? ', ' : ''} ${user.firstname} ${
-                            user.lastname
-                          }`
+                          `${index ? ', ' : ''} ${getFullUserName(user)}`
                       )}
                       className={classes.listItemText}
                     />

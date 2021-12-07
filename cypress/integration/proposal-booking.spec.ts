@@ -1,4 +1,8 @@
-import { currentHourDateTime, getHourDateTimeAfter } from '../utils';
+import {
+  defaultEventBookingHourDateTime,
+  getCurrentHourDateTime,
+  getHourDateTimeAfter,
+} from '../utils';
 
 context('Proposal booking tests ', () => {
   before(() => {
@@ -103,12 +107,16 @@ context('Proposal booking tests ', () => {
 
         cy.finishedLoading();
 
-        cy.get('[data-cy="time-slot-booking"]').contains(currentHourDateTime);
+        cy.get('[data-cy="time-slot-booking"]').contains(
+          defaultEventBookingHourDateTime
+        );
         cy.get('[data-cy="time-slot-booking"]').contains(
           getHourDateTimeAfter(24)
         );
 
-        cy.get('[data-cy="startsAtInfo"]').contains(currentHourDateTime);
+        cy.get('[data-cy="startsAtInfo"]').contains(
+          defaultEventBookingHourDateTime
+        );
         cy.get('[data-cy="endsAtInfo"]').contains(getHourDateTimeAfter(24));
 
         cy.get('[data-cy="time-slot-booking"]')
@@ -158,7 +166,7 @@ context('Proposal booking tests ', () => {
           .first()
           .trigger('dragstart');
 
-        const slot = new Date(currentHourDateTime).toISOString();
+        const slot = new Date(defaultEventBookingHourDateTime).toISOString();
         cy.get(`.rbc-day-slot [data-cy='event-slot-${slot}']`).scrollIntoView();
 
         // NOTE: It needs to be forced because all the event slots are covered by this element .rbc-events-container and it is not possible to execute drop on event-slot
@@ -174,7 +182,7 @@ context('Proposal booking tests ', () => {
 
         cy.get('[data-cy="time-slot-booking"] [data-cy="startsAtInfo"]').should(
           'include.text',
-          currentHourDateTime
+          defaultEventBookingHourDateTime
         );
         cy.get('[data-cy="time-slot-booking"] [data-cy="endsAtInfo"]').should(
           'include.text',
@@ -186,11 +194,8 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy="btn-close-dialog"]').click();
 
         // NOTE: Using fixed proposal name and shortcode because they are inserted inside the database using a seeder and always will be the same for the test cases.
-        // .parent().parent().parent() thing is because the react big calendar component always uses that structure around an event shown on the calendar.
         cy.get('[data-cy="proposal-event-Test proposal-999999"]')
-          .parent()
-          .parent()
-          .parent()
+          .closest('.rbc-event')
           .should('have.attr', 'style')
           .and('include', 'background: rgb(')
           .and('include', 'filter: grayscale(0) opacity(0.6);');
@@ -396,7 +401,9 @@ context('Proposal booking tests ', () => {
         cy.finishedLoading();
 
         cy.get('[data-cy="startsAtInfo"]').click();
-        cy.get('[data-cy="startsAt"] input').clear().type(currentHourDateTime);
+        cy.get('[data-cy="startsAt"] input')
+          .clear()
+          .type(defaultEventBookingHourDateTime);
 
         cy.get('[data-cy=btn-time-table-save-row]').click();
 
@@ -606,7 +613,7 @@ context('Proposal booking tests ', () => {
 
         cy.contains(/Available equipment 1 - no auto accept/i)
           .parent()
-          .contains(currentHourDateTime);
+          .contains(defaultEventBookingHourDateTime);
         cy.contains(/Available equipment 1 - no auto accept/i)
           .parent()
           .contains(getHourDateTimeAfter(24));
@@ -636,7 +643,7 @@ context('Proposal booking tests ', () => {
 
         cy.contains(/Available equipment 1 - no auto accept/i);
 
-        cy.contains(currentHourDateTime);
+        cy.contains(defaultEventBookingHourDateTime);
         cy.contains(getHourDateTimeAfter(24));
 
         cy.get('[data-cy="accept-equipment-request"]').click();
@@ -700,7 +707,7 @@ context('Proposal booking tests ', () => {
 
         cy.finishedLoading();
 
-        cy.contains(currentHourDateTime);
+        cy.contains(defaultEventBookingHourDateTime);
         cy.contains(getHourDateTimeAfter(24));
       });
     });
@@ -729,10 +736,10 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy=btn-add-lost-time]').click();
 
         cy.get('[data-cy="time-slot-lost-times-table"]').contains(
-          currentHourDateTime
+          getCurrentHourDateTime()
         );
         cy.get('[data-cy="time-slot-lost-times-table"]').contains(
-          getHourDateTimeAfter(1)
+          getHourDateTimeAfter(1, 'hour', getCurrentHourDateTime())
         );
       });
 
@@ -871,8 +878,10 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy=startsAt] input').clear();
         cy.get('[data-cy=endsAt] input').clear();
 
-        cy.get('[data-cy=startsAt] input').type(currentHourDateTime);
-        cy.get('[data-cy=endsAt] input').type(getHourDateTimeAfter(1));
+        cy.get('[data-cy=startsAt] input').type(getCurrentHourDateTime());
+        cy.get('[data-cy=endsAt] input').type(
+          getHourDateTimeAfter(1, 'hour', getCurrentHourDateTime())
+        );
 
         cy.get('[data-cy="time-slot-lost-times-table"] tbody tr [title="Save"]')
           .first()
@@ -916,9 +925,7 @@ context('Proposal booking tests ', () => {
           .should('contain.text', '[Completed]');
 
         cy.get('[data-cy="proposal-event-Test proposal-999999"]')
-          .parent()
-          .parent()
-          .parent()
+          .closest('.rbc-event')
           .should('have.attr', 'style')
           .and('include', 'background: rgb(')
           .and('include', 'filter: grayscale(0.5) opacity(1)');
@@ -926,7 +933,7 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy="scheduler-active-view"]').click();
         cy.get('[data-value="Timeline"]').click();
 
-        cy.contains(currentHourDateTime)
+        cy.contains(defaultEventBookingHourDateTime)
           .first()
           .parent()
           .should('have.attr', 'style')

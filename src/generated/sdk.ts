@@ -3027,6 +3027,8 @@ export type ScheduledEventCore = {
   esi: Maybe<ExperimentSafetyInput>;
   feedback: Maybe<Feedback>;
   id: Scalars['Int'];
+  localContact: Maybe<BasicUserDetails>;
+  localContactId: Maybe<Scalars['Int']>;
   startsAt: Scalars['TzLessDateTime'];
   status: ProposalBookingStatusCore;
   visit: Maybe<Visit>;

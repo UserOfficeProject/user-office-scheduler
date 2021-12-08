@@ -27,14 +27,6 @@ export default function useInstrumentProposalBookings(instrumentIds: number[]) {
     InstrumentProposalBooking[]
   >([]);
 
-  const instrumentIdsArray = instrumentIds?.flatMap((instrumentId) =>
-    instrumentId ? [instrumentId] : []
-  );
-
-  const [selectedInstruments, setSelectedInstruments] = useState<
-    number[] | undefined
-  >(instrumentIdsArray);
-
   const [counter, setCounter] = useState<number>(0);
   // NOTE: We need to stringify the ids array before we pass it to the useEffect dependency array because of its comparison.
   const instrumentIdsStringified = JSON.stringify(instrumentIds);
@@ -89,7 +81,5 @@ export default function useInstrumentProposalBookings(instrumentIds: number[]) {
     loading,
     proposalBookings,
     refresh,
-    setSelectedInstruments,
-    selectedInstruments,
   } as const;
 }

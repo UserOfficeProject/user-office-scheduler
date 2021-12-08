@@ -80,12 +80,22 @@ export const isSchedulerViewPeriod = (
   return schedulerViewPeriods.some((element) => element === arg);
 };
 
+export type CalendarScheduledEventWithUniqeId = CalendarScheduledEvent & {
+  eventId: number;
+};
+
 // NOTE: It is better practice to convert some values here for table rendering instead of using render function which adds additional complexity for sorting and stuff like that.
 const transformEvent = (
   scheduledEvents: GetScheduledEventsQuery['scheduledEvents']
-): CalendarScheduledEvent[] =>
-  scheduledEvents.map((scheduledEvent) => ({
-    id: scheduledEvent.id,
+): CalendarScheduledEventWithUniqeId[] =>
+  scheduledEvents.map((scheduledEvent, index) => ({
+    /**
+     * NOTE: This id should be unique and we can't just use scheduledEvent.id because we are mixing scheduled events and their equipment together.
+     * They can have duplicates in the ids (equipment.id is the id of the scheduled event where that equipment is booked)
+     * This makes some problems on the material-table because it expects ids to be unique and that's why we use index as unique id.
+     */
+    id: index,
+    eventId: scheduledEvent.id,
     start: parseTzLessDateTime(scheduledEvent.startsAt).toDate(),
     startTableRenderValue: toTzLessDateTime(scheduledEvent.startsAt),
     end: parseTzLessDateTime(scheduledEvent.endsAt).toDate(),
@@ -329,7 +339,7 @@ export default function CalendarViewContainer() {
       )
     );
     setView(queryView || view);
-  }, [queryInstrument, startsAt, view, getStartDate, queryView]);
+  }, [queryInstrument, view, getStartDate, queryView]);
 
   const equipmentEventsTransformed: GetScheduledEventsQuery['scheduledEvents'] =
     eqEvents
@@ -359,11 +369,13 @@ export default function CalendarViewContainer() {
     }
   };
 
-  const onSelectEvent = (selectedScheduledEvent: CalendarScheduledEvent) => {
+  const onSelectEvent = (
+    selectedScheduledEvent: CalendarScheduledEventWithUniqeId
+  ) => {
     switch (selectedScheduledEvent.bookingType) {
       case ScheduledEventBookingType.USER_OPERATIONS: {
         const scheduledEvent = scheduledEvents.find(
-          (se) => se.id === selectedScheduledEvent.id
+          (se) => se.id === selectedScheduledEvent.eventId
         );
 
         if (scheduledEvent?.proposalBooking) {
@@ -378,7 +390,7 @@ export default function CalendarViewContainer() {
       case ScheduledEventBookingType.EQUIPMENT: {
         const equipmentScheduledEvent = equipmentEventsOnly.find(
           (se) =>
-            se.id === selectedScheduledEvent.id &&
+            se.id === selectedScheduledEvent.eventId &&
             se.equipmentId === selectedScheduledEvent.equipmentId
         );
 
@@ -390,7 +402,7 @@ export default function CalendarViewContainer() {
 
       default: {
         const scheduledEvent = scheduledEvents.find(
-          (se) => se.id === selectedScheduledEvent.id
+          (se) => se.id === selectedScheduledEvent.eventId
         );
 
         if (scheduledEvent) {

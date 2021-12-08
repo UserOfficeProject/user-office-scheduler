@@ -17,16 +17,18 @@ import { useHistory } from 'react-router';
 import { AppContext } from 'context/AppContext';
 import { ScheduledEventBookingType, ScheduledEventFilter } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
+import { TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import 'styles/react-big-calendar.css';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 
 import {
+  CalendarScheduledEventWithUniqeId,
   isSchedulerViewPeriod,
   SchedulerViewPeriod,
 } from './CalendarViewContainer';
-import Event, { CalendarScheduledEvent, eventPropGetter } from './Event';
+import Event, { eventPropGetter } from './Event';
 import Toolbar from './Toolbar';
 
 moment.locale('en-gb');
@@ -40,7 +42,7 @@ function slotPropGetter(date: Date) {
 
 function isOverlapping(
   { start, end }: { start: stringOrDate; end: stringOrDate },
-  calendarEvents: CalendarScheduledEvent[]
+  calendarEvents: CalendarScheduledEventWithUniqeId[]
 ): boolean {
   return calendarEvents.some((calendarEvent) => {
     if (
@@ -58,7 +60,7 @@ function isOverlapping(
 
 const DragAndDropCalendar = withDragAndDrop(
   BigCalendar as ComponentType<
-    CalendarProps<CalendarScheduledEvent, Record<string, unknown>>
+    CalendarProps<CalendarScheduledEventWithUniqeId, Record<string, unknown>>
   >
 );
 
@@ -77,14 +79,14 @@ const useStyles = makeStyles(() => ({
 
 type CalendarViewProps = {
   filter: ScheduledEventFilter;
-  events: CalendarScheduledEvent[];
-  onSelectEvent: (data: CalendarScheduledEvent) => void;
+  events: CalendarScheduledEventWithUniqeId[];
+  onSelectEvent: (data: CalendarScheduledEventWithUniqeId) => void;
   onDropFromOutside: (data: {
     start: stringOrDate;
     end: stringOrDate;
   }) => Promise<void>;
   onEventResize: (data: {
-    event: CalendarScheduledEvent;
+    event: CalendarScheduledEventWithUniqeId;
     start: stringOrDate;
     end: stringOrDate;
   }) => Promise<void>;
@@ -123,7 +125,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
       const newStartDate = moment(newDate).startOf(newView);
       setView(newView);
 
-      query.set('startsAt', `${newStartDate}`);
+      query.set('startsAt', newStartDate.format(TZ_LESS_DATE_TIME_FORMAT));
       history.push(`?${query}`);
     }
   };
@@ -131,7 +133,10 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   const onViewChange = (newView: View) => {
     if (isSchedulerViewPeriod(newView)) {
       query.set('viewPeriod', newView);
-      query.set('startsAt', `${moment(startsAt).startOf(newView)}`);
+      query.set(
+        'startsAt',
+        moment(startsAt).startOf(newView).format(TZ_LESS_DATE_TIME_FORMAT)
+      );
       history.push(`?${query}`);
 
       setView(newView);

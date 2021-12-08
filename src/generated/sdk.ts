@@ -2098,6 +2098,7 @@ export type ProposalTemplate = {
   group: TemplateGroup;
   groupId: TemplateGroupId;
   isArchived: Scalars['Boolean'];
+  json: Scalars['String'];
   name: Scalars['String'];
   questionaryCount: Scalars['Int'];
   steps: Array<TemplateStep>;
@@ -3230,6 +3231,7 @@ export type Template = {
   group: TemplateGroup;
   groupId: TemplateGroupId;
   isArchived: Scalars['Boolean'];
+  json: Scalars['String'];
   name: Scalars['String'];
   questionaryCount: Scalars['Int'];
   steps: Array<TemplateStep>;

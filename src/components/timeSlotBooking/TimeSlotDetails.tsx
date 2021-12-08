@@ -289,30 +289,26 @@ export default function TimeSlotDetails({
                 </ListItemAvatar>
                 <ListItemText
                   primary="Local contact"
+                  data-cy="local-contact-details"
                   secondary={
                     <>
                       {getFullUserName(scheduledEvent.localContact)}
-                      {isEditable && (
-                        <IconButton
-                          onClick={() => setShowPeopleModal(true)}
-                          data-cy="add-edit-local-contact"
-                          aria-label={`${
-                            scheduledEvent.localContact ? 'Edit' : 'Add'
-                          } local contact`}
-                        >
-                          {!scheduledEvent.localContact ? (
-                            <PersonAddIcon
-                              fontSize="small"
-                              className={classes.editIcon}
-                            />
-                          ) : (
-                            <Edit
-                              fontSize="small"
-                              className={classes.editIcon}
-                            />
-                          )}
-                        </IconButton>
-                      )}
+                      {isEditable &&
+                        (!scheduledEvent.localContact ? (
+                          <PersonAddIcon
+                            onClick={() => setShowPeopleModal(true)}
+                            fontSize="small"
+                            data-cy="add-local-contact"
+                            className={classes.editIcon}
+                          />
+                        ) : (
+                          <Edit
+                            onClick={() => setShowPeopleModal(true)}
+                            fontSize="small"
+                            data-cy="edit-local-contact"
+                            className={classes.editIcon}
+                          />
+                        ))}
                     </>
                   }
                 />

@@ -114,6 +114,7 @@ export function createPostToRabbitMQHandler({
           proposalBookingId: scheduledevent.proposalBookingId,
           status: scheduledevent.status,
           proposalPk: proposalBooking?.proposal.primaryKey,
+          localContactId: scheduledevent.localContact?.id || null,
         };
 
         const json = JSON.stringify(message);
@@ -164,6 +165,7 @@ export function createPostToRabbitMQHandler({
               proposalBookingId: scheduledEvent.proposalBookingId,
               status: scheduledEvent.status,
               proposalPk: proposalBooking?.proposal.primaryKey,
+              localContactId: scheduledEvent.localContact?.id || null,
             })),
           };
 
@@ -213,6 +215,7 @@ export function createPostToRabbitMQHandler({
             TZ_LESS_DATE_TIME
           ),
           status: scheduledevent.status,
+          localContactId: scheduledevent.localContact?.id || null,
         };
 
         const json = JSON.stringify(message);

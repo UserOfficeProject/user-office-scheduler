@@ -5,20 +5,21 @@ import React from 'react';
 import { tableIcons } from 'components/common/TableIcons';
 import { ScheduledEventFilter } from 'generated/sdk';
 
-import { CalendarScheduledEvent, getBookingTypeStyle } from './Event';
+import { CalendarScheduledEventWithUniqeId } from './CalendarViewContainer';
+import { getBookingTypeStyle } from './Event';
 import Toolbar from './Toolbar';
 
 type TableViewProps = {
   filter: ScheduledEventFilter;
-  events: CalendarScheduledEvent[];
-  onSelectEvent: (data: CalendarScheduledEvent) => void;
+  events: CalendarScheduledEventWithUniqeId[];
+  onSelectEvent: (data: CalendarScheduledEventWithUniqeId) => void;
 };
 const TableView: React.FC<TableViewProps> = ({
   filter,
   events,
   onSelectEvent,
 }) => {
-  const columns: Column<CalendarScheduledEvent>[] = [
+  const columns: Column<CalendarScheduledEventWithUniqeId>[] = [
     {
       title: 'Booking type',
       field: 'bookingTypeTableRenderValue',
@@ -38,7 +39,7 @@ const TableView: React.FC<TableViewProps> = ({
     { title: 'Proposal ID', field: 'proposalBooking.proposal.proposalId' },
   ];
 
-  const ViewTableRowIcon = (rowData: CalendarScheduledEvent) => (
+  const ViewTableRowIcon = (rowData: CalendarScheduledEventWithUniqeId) => (
     <ViewIcon
       style={{
         ...getBookingTypeStyle(rowData.bookingType, rowData.status),
@@ -61,7 +62,7 @@ const TableView: React.FC<TableViewProps> = ({
         columns={columns}
         data={events}
         options={{
-          rowStyle: (rowData: CalendarScheduledEvent) =>
+          rowStyle: (rowData: CalendarScheduledEventWithUniqeId) =>
             getBookingTypeStyle(rowData.bookingType, rowData.status),
 
           pageSize: 10,
@@ -71,7 +72,7 @@ const TableView: React.FC<TableViewProps> = ({
             icon: () => ViewTableRowIcon(rowData),
             tooltip: 'View event',
             onClick: (_event, rowData) => {
-              onSelectEvent(rowData as CalendarScheduledEvent);
+              onSelectEvent(rowData as CalendarScheduledEventWithUniqeId);
             },
             position: 'row',
           }),

@@ -269,11 +269,6 @@ context('Scheduled events timeline tests', () => {
       cy.get('[data-cy="scheduler-active-view"]').click();
       cy.get('[data-value="Timeline"]').click();
 
-      cy.get('.rbc-toolbar button')
-        .contains('today', { matchCase: false })
-        .click();
-      cy.finishedLoading();
-
       cy.contains(newScheduledEvent_1.endsAt).parent().click();
 
       cy.get('[role="none presentation"] [data-cy="startsAt"]').should('exist');
@@ -283,6 +278,13 @@ context('Scheduled events timeline tests', () => {
       );
 
       cy.get('[data-cy="btn-close-dialog"]').click();
+
+      cy.wait(500);
+
+      cy.get('.rbc-toolbar button')
+        .contains('today', { matchCase: false })
+        .click();
+      cy.finishedLoading();
 
       cy.contains(currentHourDateTime).first().parent().click();
 

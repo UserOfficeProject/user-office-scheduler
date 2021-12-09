@@ -269,7 +269,10 @@ context('Scheduled events timeline tests', () => {
       cy.get('[data-cy="scheduler-active-view"]').click();
       cy.get('[data-value="Timeline"]').click();
 
-      cy.wait(500);
+      cy.get('.rbc-toolbar button')
+        .contains('today', { matchCase: false })
+        .click();
+      cy.finishedLoading();
 
       cy.contains(newScheduledEvent_1.endsAt).parent().click();
 

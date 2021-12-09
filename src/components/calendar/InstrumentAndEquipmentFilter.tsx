@@ -12,7 +12,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 
 import { InstrumentAndEquipmentContext } from 'context/InstrumentAndEquipmentContext';
-import { Equipment } from 'generated/sdk';
+import { BasicUserDetailsFragment, Equipment } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
 import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 
@@ -36,10 +36,17 @@ export default function InstrumentAndEquipmentFilter({
   const history = useHistory();
   const query = useQuery();
 
-  const { instruments, loadingInstruments, equipments, loadingEquipments } =
-    useContext(InstrumentAndEquipmentContext);
+  const {
+    instruments,
+    loadingInstruments,
+    equipments,
+    loadingEquipments,
+    localContacts,
+    loadingLocalContacts,
+  } = useContext(InstrumentAndEquipmentContext);
   const queryInstrument = query.get('instrument');
   const queryEquipment = query.get('equipment');
+  const queryLocalContacts = query.get('localContacts');
 
   const [selectedInstrument, setSelectedInstrument] = useState<
     PartialInstrument | PartialInstrument[] | null
@@ -47,6 +54,11 @@ export default function InstrumentAndEquipmentFilter({
 
   const [selectedEquipment, setSelectedEquipment] = useState<
     Pick<Equipment, 'id' | 'name'>[] | undefined
+  >([]);
+
+  const [selectedLocalContacts, setSelectedLocalContacts] = useState<
+    | Pick<BasicUserDetailsFragment, 'id' | 'firstname' | 'lastname'>[]
+    | undefined
   >([]);
 
   useEffect(() => {
@@ -75,6 +87,18 @@ export default function InstrumentAndEquipmentFilter({
         );
     }
   }, [loadingInstruments, instruments, queryInstrument, multipleInstruments]);
+
+  useEffect(() => {
+    const localContactIds = getEquipmentIdsFromQuery(queryLocalContacts);
+
+    if (!loadingLocalContacts && localContactIds.length) {
+      const queryFilteredLocalContacts = localContacts.filter((eq) =>
+        localContactIds.includes(eq.id)
+      );
+
+      setSelectedLocalContacts(queryFilteredLocalContacts);
+    }
+  }, [loadingLocalContacts, localContacts, queryLocalContacts]);
 
   const handleMultipleInstrumentsSelectionChange = (
     newSelectedInstruments: PartialInstrument[]
@@ -142,6 +166,31 @@ export default function InstrumentAndEquipmentFilter({
     }
 
     setSelectedEquipment(newSelectedEquipment);
+    history.push(`?${query}`);
+  };
+
+  const onLocalContactChange = (
+    event: React.ChangeEvent<unknown>,
+    newSelectedLocalContacts:
+      | Pick<BasicUserDetailsFragment, 'id' | 'firstname' | 'lastname'>[]
+      | undefined
+  ) => {
+    if (
+      newSelectedLocalContacts === undefined ||
+      newSelectedLocalContacts.length === 0
+    ) {
+      query.delete('localContacts');
+    } else if (
+      JSON.stringify(newSelectedLocalContacts) !==
+      JSON.stringify(selectedLocalContacts)
+    ) {
+      query.set(
+        'localContacts',
+        `${newSelectedLocalContacts?.map((lc) => lc.id).join(',')}`
+      );
+    }
+
+    setSelectedLocalContacts(newSelectedLocalContacts);
     history.push(`?${query}`);
   };
 
@@ -253,6 +302,48 @@ export default function InstrumentAndEquipmentFilter({
           )}
           value={selectedEquipment}
           onChange={onEquipmentChange}
+        />
+      </Grid>
+      <Grid item sm={6} xs={12} data-cy="calendar-toolbar-equipment-select">
+        <Autocomplete
+          multiple
+          // renderTags={(value, getTagProps) =>
+          //   renderLimitedTags({ value, getTagProps, limitTags: 1 })
+          // }
+          loading={loadingLocalContacts}
+          disabled={loadingLocalContacts}
+          selectOnFocus
+          clearOnBlur
+          fullWidth
+          handleHomeEndKeys
+          options={localContacts}
+          getOptionLabel={(localContact) =>
+            `${localContact.firstname} ${localContact.lastname}`
+          }
+          data-cy="input-local-contact-select"
+          id="input-local-contact-select"
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Local contact"
+              placeholder="Local contact"
+              margin="dense"
+              disabled={loadingLocalContacts}
+              InputProps={{
+                ...params.InputProps,
+                endAdornment: (
+                  <>
+                    {loadingLocalContacts ? (
+                      <CircularProgress color="inherit" size={20} />
+                    ) : null}
+                    {params.InputProps.endAdornment}
+                  </>
+                ),
+              }}
+            />
+          )}
+          value={selectedLocalContacts}
+          onChange={onLocalContactChange}
         />
       </Grid>
     </Grid>

@@ -15,13 +15,19 @@ import 'react-calendar-timeline/lib/Timeline.css';
 import { useHistory } from 'react-router';
 
 import { InstrumentAndEquipmentContext } from 'context/InstrumentAndEquipmentContext';
-import { ScheduledEventFilter } from 'generated/sdk';
+import {
+  BasicUserDetailsFragment,
+  ScheduledEventBookingType,
+  ScheduledEventFilter,
+} from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
+import { PartialEquipment } from 'hooks/equipment/useEquipments';
 import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 import { toTzLessDateTime, TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
 
 import {
   CalendarScheduledEventWithUniqeId,
+  getEquipmentIdsFromQuery,
   getInstrumentIdsFromQuery,
   SchedulerViewPeriod,
 } from './CalendarViewContainer';
@@ -46,36 +52,53 @@ const handleTimeChange = debounce(
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    '& .react-calendar-timeline .rct-header-root': {
-      background: theme.palette.primary.main,
+    '& .react-calendar-timeline': {
+      '& .rct-header-root': {
+        background: theme.palette.primary.main,
 
-      '& .primaryHeader .customPrimaryHeader ~ .customPrimaryHeader': {
+        '& .primaryHeader .customPrimaryHeader ~ .customPrimaryHeader': {
+          display: 'none',
+        },
+
+        '& .customPrimaryHeader': {
+          left: '0 !important',
+          width: '100% !important',
+          textAlign: 'center',
+          padding: theme.spacing(0.5),
+          color: '#fff',
+        },
+      },
+      '& .rct-items .rct-item .rct-item-content': {
+        whiteSpace: 'nowrap',
+        textOverflow: 'ellipsis',
+        width: '100%',
+      },
+
+      '& .rct-sidebar .rct-sidebar-row': {
+        padding: 0,
+
+        '& .custom-group': {
+          background: 'lightgray',
+          padding: '0 4px',
+        },
+      },
+
+      '& .rct-scroll .row-root .rct-vertical-lines': {
         display: 'none',
       },
-
-      '& .customPrimaryHeader': {
-        left: '0 !important',
-        width: '100% !important',
-        textAlign: 'center',
-        padding: theme.spacing(0.5),
-        color: '#fff',
-      },
-    },
-
-    '& .react-calendar-timeline .rct-items .rct-item .rct-item-content': {
-      whiteSpace: 'nowrap',
-      textOverflow: 'ellipsis',
-      width: '100%',
     },
   },
 }));
 
+// TODO: Cleanup and refactor grouping logic
 const TimeLineView: React.FC<TimeLineViewProps> = ({
   events,
   filter,
   onSelectEvent,
 }) => {
-  const { instruments } = useContext(InstrumentAndEquipmentContext);
+  const { instruments, equipments, localContacts } = useContext(
+    InstrumentAndEquipmentContext
+  );
   const query = useQuery();
   const history = useHistory();
   const classes = useStyles();
@@ -84,10 +107,42 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
     (query.get('viewPeriod') as SchedulerViewPeriod) || Views.WEEK;
   const startsAt = query.get('startsAt');
   const queryInstrument = query.get('instrument');
+  const queryEquipment = query.get('equipment');
+  const queryLocalContact = query.get('localContacts');
 
   const [isInitialized, setIsInitialized] = useState(false);
   const [selectedInstruments, setSelectedInstruments] = useState<
     PartialInstrument[]
+  >([]);
+  const [selectedEquipments, setSelectedEquipments] = useState<
+    PartialEquipment[]
+  >([]);
+  const [selectedLocalContacts, setSelectedLocalContacts] = useState<
+    BasicUserDetailsFragment[]
+  >([]);
+  const [instrumentGroups, setInstrumentGroups] = useState<
+    {
+      id: string | number;
+      title: string;
+      parent: string | null;
+      root: boolean;
+    }[]
+  >([]);
+  const [equipmentGroups, setEquipmentGroups] = useState<
+    {
+      id: string | number;
+      title: string;
+      parent: string | null;
+      root: boolean;
+    }[]
+  >([]);
+  const [localContactGroups, setLocalContactGroups] = useState<
+    {
+      id: string | number;
+      title: string;
+      parent: string | null;
+      root: boolean;
+    }[]
   >([]);
 
   const initialVisibleTimeStart = moment
@@ -102,6 +157,11 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
     initialVisibleTimeStart
   );
   const [visibleTimeEnd, setVisibleTimeEnd] = useState(initialVisibleTimeEnd);
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
+    instruments_root: true,
+    equipments_root: true,
+    local_contact_root: true,
+  });
 
   useEffect(() => {
     if (startsAt) {
@@ -125,10 +185,98 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
     }
   }, [instruments, queryInstrument, setSelectedInstruments]);
 
-  const instrumentGroups = selectedInstruments.map((selectedInstrument) => ({
-    id: selectedInstrument.id,
-    title: selectedInstrument.name,
-  }));
+  useEffect(() => {
+    const queryEquipmentIds = getEquipmentIdsFromQuery(queryEquipment);
+
+    if (queryEquipmentIds?.length !== 0 && equipments.length) {
+      setSelectedEquipments(
+        equipments.filter((item) => queryEquipmentIds.includes(item.id))
+      );
+    } else {
+      setSelectedEquipments([]);
+    }
+  }, [equipments, queryEquipment, setSelectedEquipments]);
+
+  useEffect(() => {
+    const queryLocalContactIds = getEquipmentIdsFromQuery(queryLocalContact);
+
+    if (queryLocalContactIds?.length !== 0 && localContacts.length) {
+      setSelectedLocalContacts(
+        localContacts.filter((item) => queryLocalContactIds.includes(item.id))
+      );
+    } else {
+      setSelectedLocalContacts([]);
+    }
+  }, [localContacts, queryLocalContact, setSelectedLocalContacts]);
+
+  useEffect(() => {
+    if (selectedInstruments.length) {
+      const newInstrumentGroups = [
+        {
+          id: 'instruments_root',
+          title: 'Instruments',
+          parent: null,
+          root: true,
+        },
+        ...selectedInstruments.map((selectedInstrument) => ({
+          id: `INSTRUMENT_${selectedInstrument.id}`,
+          title: selectedInstrument.name,
+          parent: 'instruments_root',
+          root: false,
+        })),
+      ];
+
+      setInstrumentGroups(newInstrumentGroups);
+    }
+  }, [selectedInstruments, setInstrumentGroups]);
+
+  useEffect(() => {
+    if (selectedEquipments.length) {
+      const newEquipmentGroups = [
+        {
+          id: 'equipments_root',
+          title: 'Equipments',
+          parent: null,
+          root: true,
+        },
+        ...selectedEquipments.map((selectedEquipment) => ({
+          id: `EQUIPMENT_${selectedEquipment.id}`,
+          title: selectedEquipment.name,
+          parent: 'equipments_root',
+          root: false,
+        })),
+      ];
+
+      setEquipmentGroups(newEquipmentGroups);
+    }
+  }, [selectedEquipments, setEquipmentGroups]);
+
+  useEffect(() => {
+    if (selectedLocalContacts.length) {
+      const newLocalContactGroups = [
+        {
+          id: 'local_contact_root',
+          title: 'Local contacts',
+          parent: null,
+          root: true,
+        },
+        ...selectedLocalContacts.map((selectedLocalContact) => ({
+          id: `LOCAL_CONTACT_${selectedLocalContact.id}`,
+          title: `${selectedLocalContact.firstname} ${selectedLocalContact.lastname}`,
+          parent: 'local_contact_root',
+          root: false,
+        })),
+      ];
+
+      setLocalContactGroups(newLocalContactGroups);
+    }
+  }, [selectedLocalContacts, setLocalContactGroups]);
+
+  const allGroups = [
+    ...instrumentGroups,
+    ...equipmentGroups,
+    ...localContactGroups,
+  ];
 
   const getEventTitle = (event: CalendarScheduledEventWithUniqeId) => {
     return `${event.proposalBooking?.proposal?.title || event.title} (${
@@ -140,7 +288,10 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
 
   const eventItems = events.map((event) => ({
     id: `${event.id}_${event.bookingType}_${event.equipmentId}`,
-    group: event.instrument?.id || 0,
+    group:
+      event.bookingType === ScheduledEventBookingType.EQUIPMENT
+        ? `EQUIPMENT_${event.equipmentId}`
+        : `INSTRUMENT_${event.instrument?.id || 0}`,
     title: getEventTitle(event),
     itemProps: {
       onClick: () => onSelectEvent(event),
@@ -178,6 +329,36 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
     handleTimeChange(newStart, query, history);
   };
 
+  const toggleGroup = (id: string | number) => {
+    setOpenGroups({ ...openGroups, [id]: !openGroups[id] });
+  };
+
+  console.log(allGroups);
+
+  const timeLineReadyGroups = allGroups.length
+    ? allGroups
+        .filter((g) => g.root || (g.parent && openGroups[g.parent]))
+        .map((group) => {
+          return {
+            ...group,
+            title: group.root ? (
+              <div
+                onClick={() => toggleGroup(group.id)}
+                style={{ cursor: 'pointer' }}
+              >
+                {openGroups[group.id] ? '[-]' : '[+]'} <b>{group.title}</b>
+              </div>
+            ) : (
+              <div className="rct-sidebar-row" style={{ paddingLeft: 10 }}>
+                {group.title}
+              </div>
+            ),
+          };
+        })
+    : [];
+
+  console.log(timeLineReadyGroups);
+
   return (
     <div data-cy="calendar-timeline-view" className={classes.root}>
       <Toolbar
@@ -186,11 +367,22 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
         multipleInstruments
       />
       <Timeline
-        groups={instrumentGroups}
+        groups={timeLineReadyGroups}
+        groupRenderer={({ group }) => {
+          return (
+            <div className={`${group.root ? 'custom-group' : ''}`}>
+              <span className="title">{group.title}</span>
+              {/* <p className="tip">{group.tip}</p> */}
+            </div>
+          );
+        }}
         items={eventItems}
         visibleTimeStart={visibleTimeStart.valueOf()}
         visibleTimeEnd={visibleTimeEnd.valueOf()}
         resizeDetector={containerResizeDetector}
+        horizontalLineClassNamesForGroup={(group) =>
+          group.root ? ['row-root'] : []
+        }
         stackItems
         canMove={false}
         canResize={false}

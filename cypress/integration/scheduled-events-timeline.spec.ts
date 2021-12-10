@@ -1,6 +1,6 @@
 import moment from 'moment';
 import {
-  currentHourDateTime,
+  defaultEventBookingHourDateTime,
   getHourDateTimeAfter,
   getFormattedDateAfter,
 } from '../utils';
@@ -23,7 +23,7 @@ context('Scheduled events timeline tests', () => {
     const newScheduledEvent_1 = {
       instrumentId: '1',
       bookingType: 'MAINTENANCE',
-      startsAt: currentHourDateTime,
+      startsAt: defaultEventBookingHourDateTime,
       endsAt: getHourDateTimeAfter(1),
       description: 'Test maintenance event',
     };
@@ -79,7 +79,7 @@ context('Scheduled events timeline tests', () => {
 
       cy.finishedLoading();
 
-      cy.contains(currentHourDateTime);
+      cy.contains(defaultEventBookingHourDateTime);
       cy.contains(getHourDateTimeAfter(24));
 
       cy.get('[data-cy="btn-close-dialog"]').click();
@@ -95,7 +95,7 @@ context('Scheduled events timeline tests', () => {
         0
       );
 
-      cy.contains(currentHourDateTime)
+      cy.contains(defaultEventBookingHourDateTime)
         .parent()
         .should('have.attr', 'style')
         .and('include', 'background: rgb(')
@@ -170,7 +170,7 @@ context('Scheduled events timeline tests', () => {
       cy.contains(newScheduledEvent_1.endsAt);
 
       if (
-        moment(currentHourDateTime).month() !==
+        moment(defaultEventBookingHourDateTime).month() !==
         moment(newScheduledEvent_3.startsAt).month()
       ) {
         cy.get('[data-cy="calendar-timeline-view"]').should(
@@ -238,7 +238,7 @@ context('Scheduled events timeline tests', () => {
 
       cy.contains(newScheduledEvent_1.endsAt);
       if (
-        moment(currentHourDateTime).month() !==
+        moment(defaultEventBookingHourDateTime).month() !==
         moment(newScheduledEvent_3.startsAt).month()
       ) {
         cy.get('[data-cy="calendar-timeline-view"]').should(
@@ -280,10 +280,10 @@ context('Scheduled events timeline tests', () => {
       );
 
       cy.get('[data-cy="btn-close-dialog"]').click();
-
+      
       cy.wait(500);
-
-      cy.contains(currentHourDateTime).first().parent().click();
+ 
+      cy.contains(defaultEventBookingHourDateTime).first().parent().click();
 
       cy.get('[role="none presentation"] [data-cy="btn-save"]').should('exist');
       cy.get(
@@ -402,11 +402,8 @@ context('Scheduled events timeline tests', () => {
       cy.get('[data-cy="scheduler-active-view"]').click();
       cy.get('[data-value="Timeline"]').click();
 
-      // NOTE: Using .parent().parent() because that's how react-calendar-timeline works. They have added the event listener on that element.
-      cy.get('.react-calendar-timeline .rct-hl.rct-hl-even')
-        .parent()
-        .parent()
-        .click();
+      // NOTE: Getting the right element because that's how react-calendar-timeline works. They have added the scroll event listener on .rct scroll first and only child element.
+      cy.get('.react-calendar-timeline .rct-scroll').children().first().click();
 
       cy.get('body').trigger('keypress', { code: 39 });
 

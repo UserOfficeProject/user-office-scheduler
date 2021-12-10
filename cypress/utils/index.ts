@@ -10,6 +10,17 @@ export const toTzLessDateTime = (dateTime: Moment | Date | string): string => {
   return dateTime.format(TZ_LESS_DATE_TIME_FORMAT);
 };
 
+// NOTE: Scheduler default event booking time is 9.00 o'clock
+export const getDefaultEventBookingHourDateTime = () => {
+  const now = new Date();
+  now.setHours(9);
+  now.setMinutes(0);
+  now.setSeconds(0);
+  now.setMilliseconds(0);
+
+  return toTzLessDateTime(now);
+};
+
 export const getCurrentHourDateTime = () => {
   const now = new Date();
   now.setMinutes(0);
@@ -19,40 +30,43 @@ export const getCurrentHourDateTime = () => {
   return toTzLessDateTime(now);
 };
 
-export const currentHourDateTime = getCurrentHourDateTime();
+export const defaultEventBookingHourDateTime =
+  getDefaultEventBookingHourDateTime();
 
 export const getHourDateTimeAfter = (
   amount: number,
-  unit: DurationInputArg2 = 'hour'
+  unit: DurationInputArg2 = 'hour',
+  date = defaultEventBookingHourDateTime
 ) => {
-  const currentHourDateTimePlusHours = moment(currentHourDateTime).add(
+  const defaultEventBookingHourDateTimePlusHours = moment(date).add(
     amount,
     unit
   );
 
-  return toTzLessDateTime(currentHourDateTimePlusHours);
+  return toTzLessDateTime(defaultEventBookingHourDateTimePlusHours);
 };
 
 export const getFormattedDateAfter = (
   format = 'DD',
   amount = 0,
-  unit: DurationInputArg2 = 'days'
-) => moment(currentHourDateTime).add(amount, unit).format(format);
+  unit: DurationInputArg2 = 'days',
+  date = defaultEventBookingHourDateTime
+) => moment(date).add(amount, unit).format(format);
 
 export const getFormattedBeginningOfSelectedWeek = (
   format = 'DD',
   selectedWeek = 0
 ) =>
-  moment(currentHourDateTime)
+  moment(defaultEventBookingHourDateTime)
     .add(selectedWeek, 'week')
     .startOf('isoWeek')
     .format(format);
 
 export const getFormattedEndOfSelectedWeek = (selectedWeek = 0) => {
-  const beginningOfSelectedWeek = moment(currentHourDateTime)
+  const beginningOfSelectedWeek = moment(defaultEventBookingHourDateTime)
     .add(selectedWeek, 'week')
     .startOf('isoWeek');
-  const endOfSelectedWeek = moment(currentHourDateTime)
+  const endOfSelectedWeek = moment(defaultEventBookingHourDateTime)
     .add(selectedWeek, 'week')
     .endOf('isoWeek');
 

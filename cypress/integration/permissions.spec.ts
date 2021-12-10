@@ -1,4 +1,4 @@
-import { currentHourDateTime, getHourDateTimeAfter } from '../utils';
+import { defaultEventBookingHourDateTime, getHourDateTimeAfter } from '../utils';
 
 context('Permission tests', () => {
   before(() => {
@@ -102,7 +102,7 @@ context('Permission tests', () => {
         instrumentId: '1',
         bookingType: 'MAINTENANCE',
         endsAt: getHourDateTimeAfter(1),
-        startsAt: currentHourDateTime,
+        startsAt: defaultEventBookingHourDateTime,
         description: 'Test maintenance event',
       };
       const newScheduledEvent2 = {
@@ -122,7 +122,7 @@ context('Permission tests', () => {
         timeout: 15000,
       });
 
-      let scheduledEventSlot = new Date(currentHourDateTime).toISOString();
+      let scheduledEventSlot = new Date(defaultEventBookingHourDateTime).toISOString();
       cy.get(`.rbc-event [data-cy='event-${scheduledEventSlot}']`).should(
         'exist'
       );
@@ -139,7 +139,7 @@ context('Permission tests', () => {
         timeout: 15000,
       });
 
-      scheduledEventSlot = new Date(currentHourDateTime).toISOString();
+      scheduledEventSlot = new Date(defaultEventBookingHourDateTime).toISOString();
       cy.get(`.rbc-event [data-cy='event-${scheduledEventSlot}']`).should(
         'not.exist'
       );

@@ -2131,6 +2131,8 @@ export type ProposalView = {
   statusId: Scalars['Int'];
   statusName: Scalars['String'];
   submitted: Scalars['Boolean'];
+  technicalReviewAssignee: Maybe<Scalars['Int']>;
+  technicalReviewSubmitted: Maybe<Scalars['Int']>;
   technicalStatus: Maybe<TechnicalReviewStatus>;
   technicalTimeAllocation: Maybe<Scalars['Int']>;
   title: Scalars['String'];
@@ -2198,6 +2200,12 @@ export type ProposalsResponseWrap = {
   rejection: Maybe<Rejection>;
 };
 
+export type ProposalsViewResult = {
+  __typename?: 'ProposalsViewResult';
+  proposals: Array<ProposalView>;
+  totalCount: Scalars['Int'];
+};
+
 export type QueriesAndMutations = {
   __typename?: 'QueriesAndMutations';
   mutations: Array<Scalars['String']>;
@@ -2239,7 +2247,7 @@ export type Query = {
   instrumentProposalBookings: Array<ProposalBooking>;
   instrumentScientistHasAccess: Maybe<Scalars['Boolean']>;
   instrumentScientistHasInstrument: Maybe<Scalars['Boolean']>;
-  instrumentScientistProposals: Maybe<ProposalsQueryResult>;
+  instrumentScientistProposals: Maybe<ProposalsViewResult>;
   instruments: Maybe<InstrumentsQueryResult>;
   instrumentsBySep: Maybe<Array<InstrumentWithAvailabilityTime>>;
   isNaturalKeyPresent: Maybe<Scalars['Boolean']>;
@@ -3036,7 +3044,8 @@ export type ScheduledEventCore = {
 
 export type ScheduledEventFilter = {
   endsAt: Scalars['TzLessDateTime'];
-  instrumentIds?: Maybe<Array<Scalars['Int']>>;
+  instrumentIds: Array<Scalars['Int']>;
+  localContactIds: Array<Scalars['Int']>;
   startsAt: Scalars['TzLessDateTime'];
 };
 
@@ -4122,7 +4131,7 @@ export type GetScheduledEventsQuery = (
       & Pick<User, 'firstname' | 'lastname'>
     )>, localContact: Maybe<(
       { __typename?: 'User' }
-      & Pick<User, 'firstname' | 'lastname'>
+      & Pick<User, 'id' | 'firstname' | 'lastname'>
     )>, proposalBooking: Maybe<(
       { __typename?: 'ProposalBooking' }
       & Pick<ProposalBooking, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'allocatedTime'>
@@ -4189,7 +4198,7 @@ export type UpdateScheduledEventMutation = (
       & Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
       & { localContact: Maybe<(
         { __typename?: 'User' }
-        & Pick<User, 'firstname' | 'lastname'>
+        & Pick<User, 'id' | 'firstname' | 'lastname'>
       )> }
     )> }
   ) }
@@ -4762,6 +4771,7 @@ export const GetScheduledEventsDocument = gql`
       lastname
     }
     localContact {
+      id
       firstname
       lastname
     }
@@ -4830,6 +4840,7 @@ export const UpdateScheduledEventDocument = gql`
       startsAt
       endsAt
       localContact {
+        id
         firstname
         lastname
       }

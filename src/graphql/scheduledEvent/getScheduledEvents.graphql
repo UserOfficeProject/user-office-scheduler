@@ -19,6 +19,7 @@ query getScheduledEvents(
       lastname
     }
     localContact {
+      id
       firstname
       lastname
     }

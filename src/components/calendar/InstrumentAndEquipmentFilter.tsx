@@ -15,6 +15,7 @@ import { InstrumentAndEquipmentContext } from 'context/InstrumentAndEquipmentCon
 import { BasicUserDetailsFragment, Equipment } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
 import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
+import { getFullUserName } from 'utils/user';
 
 import {
   getEquipmentIdsFromQuery,
@@ -22,8 +23,12 @@ import {
 } from './CalendarViewContainer';
 
 const useStyles = makeStyles((theme) => ({
-  tooltip: {
+  root: {
     marginBottom: theme.spacing(1),
+
+    '& .MuiAutocomplete-tag': {
+      width: 'calc(100% - 65px)',
+    },
   },
 }));
 
@@ -46,7 +51,7 @@ export default function InstrumentAndEquipmentFilter({
   } = useContext(InstrumentAndEquipmentContext);
   const queryInstrument = query.get('instrument');
   const queryEquipment = query.get('equipment');
-  const queryLocalContacts = query.get('localContacts');
+  const queryLocalContacts = query.get('localContact');
 
   const [selectedInstrument, setSelectedInstrument] = useState<
     PartialInstrument | PartialInstrument[] | null
@@ -179,13 +184,13 @@ export default function InstrumentAndEquipmentFilter({
       newSelectedLocalContacts === undefined ||
       newSelectedLocalContacts.length === 0
     ) {
-      query.delete('localContacts');
+      query.delete('localContact');
     } else if (
       JSON.stringify(newSelectedLocalContacts) !==
       JSON.stringify(selectedLocalContacts)
     ) {
       query.set(
-        'localContacts',
+        'localContact',
         `${newSelectedLocalContacts?.map((lc) => lc.id).join(',')}`
       );
     }
@@ -221,14 +226,14 @@ export default function InstrumentAndEquipmentFilter({
     <Grid
       container
       alignItems="center"
-      className={`${classes.tooltip}`}
+      className={`${classes.root}`}
       spacing={2}
     >
-      <Grid item sm={6} xs={12} data-cy="calendar-toolbar-instrument-select">
+      <Grid item sm={4} xs={12} data-cy="calendar-toolbar-instrument-select">
         <Autocomplete
           multiple={multipleInstruments}
           renderTags={(value, getTagProps) =>
-            renderLimitedTags({ value, getTagProps, limitTags: 2 })
+            renderLimitedTags({ value, getTagProps, limitTags: 1 })
           }
           loading={loadingInstruments}
           disabled={loadingInstruments}
@@ -264,7 +269,7 @@ export default function InstrumentAndEquipmentFilter({
           onChange={onInstrumentChange}
         />
       </Grid>
-      <Grid item sm={6} xs={12} data-cy="calendar-toolbar-equipment-select">
+      <Grid item sm={4} xs={12} data-cy="calendar-toolbar-equipment-select">
         <Autocomplete
           multiple
           renderTags={(value, getTagProps) =>
@@ -304,12 +309,19 @@ export default function InstrumentAndEquipmentFilter({
           onChange={onEquipmentChange}
         />
       </Grid>
-      <Grid item sm={6} xs={12} data-cy="calendar-toolbar-equipment-select">
+      <Grid item sm={4} xs={12} data-cy="calendar-toolbar-equipment-select">
         <Autocomplete
           multiple
-          // renderTags={(value, getTagProps) =>
-          //   renderLimitedTags({ value, getTagProps, limitTags: 1 })
-          // }
+          renderTags={(value, getTagProps) =>
+            renderLimitedTags({
+              value: value.map((item) => ({
+                id: item.id,
+                name: getFullUserName(item),
+              })),
+              getTagProps,
+              limitTags: 1,
+            })
+          }
           loading={loadingLocalContacts}
           disabled={loadingLocalContacts}
           selectOnFocus

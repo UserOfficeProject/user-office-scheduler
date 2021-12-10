@@ -5,6 +5,7 @@ import { EventProps } from 'react-big-calendar';
 import EquipmentBookingInfo from 'components/equipment/EquipmentBookingInfo';
 import ProposalBookingInfo from 'components/proposalBooking/ProposalBookingInfo';
 import {
+  BasicUserDetailsFragment,
   GetScheduledEventsQuery,
   ProposalBooking,
   ProposalBookingStatusCore,
@@ -25,6 +26,10 @@ export type CalendarScheduledEvent = Pick<
   | 'equipmentId'
   | 'status'
 > & {
+  localContact: Pick<
+    BasicUserDetailsFragment,
+    'id' | 'firstname' | 'lastname'
+  > | null;
   start: Date;
   startTableRenderValue: string;
   end: Date;

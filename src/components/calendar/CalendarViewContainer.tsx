@@ -110,6 +110,7 @@ const transformEvent = (
     scheduledBy: scheduledEvent.scheduledBy,
     status: scheduledEvent.status,
     statusTableRenderValue: ScheduledEventStatusMap[scheduledEvent.status],
+    localContact: scheduledEvent.localContact,
   }));
 
 const useStyles = makeStyles((theme) => ({
@@ -213,6 +214,7 @@ export default function CalendarViewContainer() {
   const querySchedulerView = query.get('schedulerView');
   const queryView = query.get('viewPeriod') as SchedulerViewPeriod;
   const queryStartsAt = query.get('startsAt');
+  const queryLocalContact = query.get('localContact');
 
   const [schedulerActiveView, setSchedulerActiveView] = useState(
     (querySchedulerView as SchedulerViews) || SchedulerViews.CALENDAR
@@ -238,6 +240,7 @@ export default function CalendarViewContainer() {
   const [filter, setFilter] = useState(
     generateScheduledEventFilter(
       getInstrumentIdsFromQuery(queryInstrument),
+      getEquipmentIdsFromQuery(queryLocalContact),
       startsAt,
       view
     )
@@ -334,12 +337,13 @@ export default function CalendarViewContainer() {
     setFilter(
       generateScheduledEventFilter(
         getInstrumentIdsFromQuery(queryInstrument),
+        getEquipmentIdsFromQuery(queryLocalContact),
         newStartDate,
         queryView || view
       )
     );
     setView(queryView || view);
-  }, [queryInstrument, view, getStartDate, queryView]);
+  }, [queryInstrument, queryLocalContact, view, getStartDate, queryView]);
 
   const equipmentEventsTransformed: GetScheduledEventsQuery['scheduledEvents'] =
     eqEvents

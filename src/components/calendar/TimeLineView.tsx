@@ -108,7 +108,7 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
   const startsAt = query.get('startsAt');
   const queryInstrument = query.get('instrument');
   const queryEquipment = query.get('equipment');
-  const queryLocalContact = query.get('localContacts');
+  const queryLocalContact = query.get('localContact');
 
   const [isInitialized, setIsInitialized] = useState(false);
   const [selectedInstruments, setSelectedInstruments] = useState<
@@ -227,6 +227,8 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
       ];
 
       setInstrumentGroups(newInstrumentGroups);
+    } else {
+      setInstrumentGroups([]);
     }
   }, [selectedInstruments, setInstrumentGroups]);
 
@@ -248,6 +250,8 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
       ];
 
       setEquipmentGroups(newEquipmentGroups);
+    } else {
+      setEquipmentGroups([]);
     }
   }, [selectedEquipments, setEquipmentGroups]);
 
@@ -269,6 +273,8 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
       ];
 
       setLocalContactGroups(newLocalContactGroups);
+    } else {
+      setLocalContactGroups([]);
     }
   }, [selectedLocalContacts, setLocalContactGroups]);
 
@@ -286,24 +292,48 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
     )}] - ${event.status}`;
   };
 
-  const eventItems = events.map((event) => ({
-    id: `${event.id}_${event.bookingType}_${event.equipmentId}`,
-    group:
-      event.bookingType === ScheduledEventBookingType.EQUIPMENT
-        ? `EQUIPMENT_${event.equipmentId}`
-        : `INSTRUMENT_${event.instrument?.id || 0}`,
-    title: getEventTitle(event),
-    itemProps: {
-      onClick: () => onSelectEvent(event),
-      onTouchStart: () => onSelectEvent(event),
-      style: {
-        ...getBookingTypeStyle(event.bookingType, event.status),
-        overflow: 'hidden',
+  const eventItems = events
+    .map((event) => ({
+      id: `${event.id}_${event.bookingType}_${event.equipmentId}`,
+      group:
+        event.bookingType === ScheduledEventBookingType.EQUIPMENT
+          ? `EQUIPMENT_${event.equipmentId}`
+          : `INSTRUMENT_${event.instrument?.id || 0}`,
+      title: getEventTitle(event),
+      itemProps: {
+        onClick: () => onSelectEvent(event),
+        onTouchStart: () => onSelectEvent(event),
+        style: {
+          ...getBookingTypeStyle(event.bookingType, event.status),
+          overflow: 'hidden',
+        },
       },
-    },
-    start_time: moment(event.start),
-    end_time: moment(event.end),
-  }));
+      start_time: moment(event.start),
+      end_time: moment(event.end),
+    }))
+    .concat(
+      ...events
+        .filter(
+          (event) =>
+            event.bookingType === ScheduledEventBookingType.USER_OPERATIONS &&
+            event.localContact
+        )
+        .map((event) => ({
+          id: `${event.id}_${event.bookingType}_${event.equipmentId}`,
+          group: `LOCAL_CONTACT_${event.localContact!.id}`,
+          title: getEventTitle(event),
+          itemProps: {
+            onClick: () => onSelectEvent(event),
+            onTouchStart: () => onSelectEvent(event),
+            style: {
+              ...getBookingTypeStyle(event.bookingType, event.status),
+              overflow: 'hidden',
+            },
+          },
+          start_time: moment(event.start),
+          end_time: moment(event.end),
+        }))
+    );
 
   const onTimeChange = (
     newVisibleTimeStart: number,
@@ -333,8 +363,6 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
     setOpenGroups({ ...openGroups, [id]: !openGroups[id] });
   };
 
-  console.log(allGroups);
-
   const timeLineReadyGroups = allGroups.length
     ? allGroups
         .filter((g) => g.root || (g.parent && openGroups[g.parent]))
@@ -356,8 +384,6 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
           };
         })
     : [];
-
-  console.log(timeLineReadyGroups);
 
   return (
     <div data-cy="calendar-timeline-view" className={classes.root}>

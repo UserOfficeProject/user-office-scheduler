@@ -503,13 +503,15 @@ export default function CalendarViewContainer() {
     await addAndOpenNewTimeSlot({ start, end });
   };
 
-  const updateScheduledEvent = async (updatedEvent: CalendarScheduledEvent) => {
+  const updateScheduledEvent = async (
+    updatedEvent: CalendarScheduledEventWithUniqeId
+  ) => {
     try {
       const {
         updateScheduledEvent: { error, scheduledEvent: updatedScheduledEvent },
       } = await api().updateScheduledEvent({
         input: {
-          scheduledEventId: updatedEvent.id,
+          scheduledEventId: updatedEvent.eventId,
           startsAt: toTzLessDateTime(updatedEvent.start),
           endsAt: toTzLessDateTime(updatedEvent.end),
         },
@@ -548,7 +550,7 @@ export default function CalendarViewContainer() {
     start,
     end,
   }: {
-    event: CalendarScheduledEvent;
+    event: CalendarScheduledEventWithUniqeId;
     start: stringOrDate;
     end: stringOrDate;
   }) => {
@@ -568,7 +570,7 @@ export default function CalendarViewContainer() {
     const shouldNotChangeEnd =
       view === Views.WEEK && moment(end).day() !== moment(event.end).day();
 
-    const updatedEvent: CalendarScheduledEvent = {
+    const updatedEvent: CalendarScheduledEventWithUniqeId = {
       ...event,
       start: shouldNotChangeStart ? event.start : moment(start).toDate(),
       end: shouldNotChangeEnd ? event.end : moment(end).toDate(),
@@ -577,7 +579,7 @@ export default function CalendarViewContainer() {
     if (
       hasOverlappingEvents(
         getProposalBookingEventsForOverlapCheck(scheduledEvents, {
-          id: updatedEvent.id,
+          id: updatedEvent.eventId,
           startsAt: updatedEvent.start,
           endsAt: updatedEvent.end,
         })

@@ -32,7 +32,7 @@
   "author": "SWAP",
   "license": "ISC",
   "dependencies": {
-    "@apollo/federation": "^0.33.6",
+    "@apollo/federation": "^0.33.7",
     "@apollo/subgraph": "^0.1.4",
     "@esss-swap/duo-localisation": "^1.1.15",
     "@esss-swap/duo-logger": "^1.1.1",
@@ -45,7 +45,7 @@
     "bcrypt": "^5.0.1",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
-    "cookie-parser": "^1.4.5",
+    "cookie-parser": "^1.4.6",
     "dotenv": "^8.6.0",
     "express": "^4.17.1",
     "express-jwt": "^6.1.0",

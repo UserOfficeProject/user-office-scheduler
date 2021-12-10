@@ -199,6 +199,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         onSelecting={onSelecting}
         onNavigate={onNavigate}
         onView={onViewChange}
+        draggableAccessor={() => false}
         components={{
           event: Event,
           week: {

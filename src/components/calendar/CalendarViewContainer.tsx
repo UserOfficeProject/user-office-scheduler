@@ -450,6 +450,7 @@ export default function CalendarViewContainer() {
     }
 
     setIsAddingOrResizingTimeSlot(true);
+
     const newEventStart = moment(start);
     const newEventEnd = moment(end);
 

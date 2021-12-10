@@ -280,7 +280,7 @@ context('Scheduled events timeline tests', () => {
       );
 
       cy.get('[data-cy="btn-close-dialog"]').click();
-
+      
       cy.wait(500);
 
       cy.contains(defaultEventBookingHourDateTime).first().parent().click();

@@ -163,24 +163,24 @@ export default class PostgreScheduledEventDataSource
   }
 
   async getAll(filter: ScheduledEventFilter): Promise<ScheduledEvent[]> {
-    if (!filter.instrumentIds?.length) {
-      return [];
-    }
+    const scheduledEventRecords: ScheduledEventRecord[] =
+      await database<ScheduledEventRecord>(this.tableName)
+        .select()
+        .modify((query) => {
+          if (filter.instrumentIds?.length) {
+            query.whereIn('instrument_id', filter.instrumentIds);
+          }
+          if (filter.localContactIds?.length) {
+            query.orWhereIn('local_contact', filter.localContactIds);
+          }
 
-    const qb = database<ScheduledEventRecord>(this.tableName)
-      .select()
-      .whereIn('instrument_id', filter.instrumentIds)
-      .orderBy('starts_at');
-
-    if (filter.startsAt && filter.endsAt) {
-      qb.where('starts_at', '<=', filter.endsAt).andWhere(
-        'ends_at',
-        '>=',
-        filter.startsAt
-      );
-    }
-
-    const scheduledEventRecords = await qb;
+          if (filter.startsAt && filter.endsAt) {
+            query
+              .where('starts_at', '<=', filter.endsAt)
+              .andWhere('ends_at', '>=', filter.startsAt);
+          }
+        })
+        .orderBy('starts_at');
 
     return scheduledEventRecords.map(createScheduledEventObject);
   }

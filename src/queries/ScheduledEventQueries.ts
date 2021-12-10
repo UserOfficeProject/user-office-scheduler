@@ -27,7 +27,7 @@ export default class ScheduledEventQueries {
     ctx: ResolverContext,
     filter: ScheduledEventFilter
   ): Promise<ScheduledEvent[]> {
-    if (!filter.instrumentIds?.length) {
+    if (!filter.instrumentIds.length && !filter.localContactIds.length) {
       return [];
     }
 

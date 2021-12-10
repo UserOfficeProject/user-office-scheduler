@@ -12,8 +12,11 @@ export class ScheduledEventFilter {
   @Field(() => TzLessDateTime)
   endsAt: Date | null;
 
-  @Field(() => [Int], { nullable: true })
-  instrumentIds?: number[] | null;
+  @Field(() => [Int])
+  instrumentIds: number[];
+
+  @Field(() => [Int])
+  localContactIds: number[];
 }
 
 @Resolver()

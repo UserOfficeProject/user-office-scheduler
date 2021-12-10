@@ -18,7 +18,13 @@ import generateScheduledEventFilter from 'filters/scheduledEvent/scheduledEvents
 import moment from 'moment';
 import 'moment/locale/en-gb';
 import { useSnackbar } from 'notistack';
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, {
+  useState,
+  useMemo,
+  useEffect,
+  useCallback,
+  useContext,
+} from 'react';
 import { stringOrDate, View, Views } from 'react-big-calendar';
 import { useHistory } from 'react-router';
 
@@ -32,6 +38,8 @@ import {
   BookingTypesMap,
   ScheduledEventStatusMap,
 } from 'components/scheduledEvent/ScheduledEventForm';
+import { getProposalBookingEventsForOverlapCheck } from 'components/timeSlotBooking/TimeSlotBooking';
+import { AppContext } from 'context/AppContext';
 import { InstrumentAndEquipmentContextProvider } from 'context/InstrumentAndEquipmentContext';
 import {
   ScheduledEvent,
@@ -50,10 +58,7 @@ import {
   toTzLessDateTime,
   TZ_LESS_DATE_TIME_FORMAT,
 } from 'utils/date';
-
-import 'react-big-calendar/lib/css/react-big-calendar.css';
-
-import 'styles/react-big-calendar.css';
+import { hasOverlappingEvents } from 'utils/scheduledEvent';
 
 import CalendarTodoBox from './CalendarTodoBox';
 import CalendarView from './CalendarView';
@@ -201,6 +206,7 @@ export default function CalendarViewContainer() {
   const query = useQuery();
   const { enqueueSnackbar } = useSnackbar();
   const api = useDataApi();
+  const { showConfirmation } = useContext(AppContext);
 
   const queryInstrument = query.get('instrument');
   const queryEquipment = query.get('equipment');
@@ -223,7 +229,8 @@ export default function CalendarViewContainer() {
     proposalBookingId: number;
     instrumentId: number;
   } | null>(null);
-  const [isAddingNewTimeSlot, setIsAddingNewTimeSlot] = useState(false);
+  const [isAddingOrResizingTimeSlot, setIsAddingOrResizingTimeSlot] =
+    useState(false);
   const [view, setView] = useState<SchedulerViewPeriod>(
     queryView || Views.WEEK
   );
@@ -442,7 +449,16 @@ export default function CalendarViewContainer() {
       return;
     }
 
-    setIsAddingNewTimeSlot(true);
+    setIsAddingOrResizingTimeSlot(true);
+
+    const newEventStart = moment(start);
+    const newEventEnd = moment(end);
+
+    if (newEventEnd.diff(newEventStart, 'day')) {
+      newEventStart.set({ hour: 9, minute: 0, second: 0 });
+      newEventEnd.set({ hour: 9, minute: 0, second: 0 });
+    }
+
     const {
       createScheduledEvent: { error, scheduledEvent: createdScheduledEvent },
     } = await api().createScheduledEvent({
@@ -450,8 +466,8 @@ export default function CalendarViewContainer() {
         proposalBookingId: draggingEventDetails.proposalBookingId,
         bookingType: ScheduledEventBookingType.USER_OPERATIONS,
         instrumentId: draggingEventDetails.instrumentId,
-        startsAt: moment(start).format(TZ_LESS_DATE_TIME_FORMAT),
-        endsAt: moment(end).format(TZ_LESS_DATE_TIME_FORMAT),
+        startsAt: newEventStart.format(TZ_LESS_DATE_TIME_FORMAT),
+        endsAt: newEventEnd.format(TZ_LESS_DATE_TIME_FORMAT),
       },
     });
     if (error) {
@@ -474,7 +490,7 @@ export default function CalendarViewContainer() {
         });
       }
     }
-    setIsAddingNewTimeSlot(false);
+    setIsAddingOrResizingTimeSlot(false);
     setDraggingEventDetails(null);
   };
 
@@ -486,6 +502,104 @@ export default function CalendarViewContainer() {
     end: stringOrDate;
   }) => {
     await addAndOpenNewTimeSlot({ start, end });
+  };
+
+  const updateScheduledEvent = async (
+    updatedEvent: CalendarScheduledEventWithUniqeId
+  ) => {
+    try {
+      const {
+        updateScheduledEvent: { error, scheduledEvent: updatedScheduledEvent },
+      } = await api().updateScheduledEvent({
+        input: {
+          scheduledEventId: updatedEvent.eventId,
+          startsAt: toTzLessDateTime(updatedEvent.start),
+          endsAt: toTzLessDateTime(updatedEvent.end),
+        },
+      });
+
+      if (error) {
+        enqueueSnackbar(getTranslation(error as ResourceId), {
+          variant: 'error',
+        });
+      } else {
+        enqueueSnackbar('Scheduled event updated', {
+          variant: 'success',
+        });
+
+        const newScheduledEvents = scheduledEvents.map((event) => ({
+          ...event,
+          startsAt:
+            event.id === updatedScheduledEvent?.id
+              ? updatedScheduledEvent.startsAt
+              : event.startsAt,
+          endsAt:
+            event.id === updatedScheduledEvent?.id
+              ? updatedScheduledEvent.endsAt
+              : event.endsAt,
+        }));
+
+        setScheduledEvents(newScheduledEvents);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const onEventResize = async ({
+    event,
+    start,
+    end,
+  }: {
+    event: CalendarScheduledEventWithUniqeId;
+    start: stringOrDate;
+    end: stringOrDate;
+  }) => {
+    if (!start || !end) {
+      return;
+    }
+    setIsAddingOrResizingTimeSlot(true);
+
+    /** NOTE: On week view if the event is spread on multiple days,
+     *  for example if you are resizing the event from the start,
+     *  the end is set to 23:59:59 on the same day so we want to prevent updating the end if initially was different date
+     *  (same happens if you try to resize from the end).
+     *  This is how resize works in the react-big-calendar.
+     */
+    const shouldNotChangeStart =
+      view === Views.WEEK && moment(start).day() !== moment(event.start).day();
+    const shouldNotChangeEnd =
+      view === Views.WEEK && moment(end).day() !== moment(event.end).day();
+
+    const updatedEvent: CalendarScheduledEventWithUniqeId = {
+      ...event,
+      start: shouldNotChangeStart ? event.start : moment(start).toDate(),
+      end: shouldNotChangeEnd ? event.end : moment(end).toDate(),
+    };
+
+    if (
+      hasOverlappingEvents(
+        getProposalBookingEventsForOverlapCheck(scheduledEvents, {
+          id: updatedEvent.eventId,
+          startsAt: updatedEvent.start,
+          endsAt: updatedEvent.end,
+        })
+      )
+    ) {
+      showConfirmation({
+        message: (
+          <>
+            You have <strong>overlapping events</strong>, are you sure you want
+            to continue?
+          </>
+        ),
+        cb: async () => await updateScheduledEvent(updatedEvent),
+      });
+    } else {
+      await updateScheduledEvent(updatedEvent);
+    }
+
+    setIsAddingOrResizingTimeSlot(false);
   };
 
   const onSchedulerActiveViewChange = (
@@ -533,6 +647,7 @@ export default function CalendarViewContainer() {
             events={events}
             onSelectEvent={onSelectEvent}
             onDropFromOutside={onDropFromOutside}
+            onEventResize={onEventResize}
             onSelectTimeSlot={setSelectedEvent}
           />
         );
@@ -683,9 +798,9 @@ export default function CalendarViewContainer() {
                 </Collapse>
               </Grid>
             </Grid>
-            {(loadingEvents || loadingBookings || isAddingNewTimeSlot) && (
-              <Loader />
-            )}
+            {(loadingEvents ||
+              loadingBookings ||
+              isAddingOrResizingTimeSlot) && <Loader />}
           </StyledPaper>
         </Grid>
       </Grid>

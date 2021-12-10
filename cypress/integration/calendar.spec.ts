@@ -1,5 +1,5 @@
 import {
-  currentHourDateTime,
+  defaultEventBookingHourDateTime,
   getFormattedBeginningOfSelectedWeek,
   getFormattedEndOfSelectedWeek,
   getFormattedDateAfter,
@@ -324,7 +324,7 @@ context('Calendar tests', () => {
   describe('Creating new event', () => {
     it('should show warning when no instrument selected', () => {
       cy.finishedLoading();
-      const slot = new Date(currentHourDateTime).toISOString();
+      const slot = new Date(defaultEventBookingHourDateTime).toISOString();
       cy.get(`.rbc-day-slot [data-cy='event-slot-${slot}']`).scrollIntoView();
 
       clickOnEventSlot(slot);
@@ -343,14 +343,14 @@ context('Calendar tests', () => {
 
       cy.finishedLoading();
 
-      const slot = new Date(currentHourDateTime).toISOString();
+      const slot = new Date(defaultEventBookingHourDateTime).toISOString();
       cy.get(`.rbc-day-slot [data-cy='event-slot-${slot}']`).scrollIntoView();
 
       clickOnEventSlot(slot);
 
       cy.get('[data-cy=startsAt] input').should(
         'have.value',
-        currentHourDateTime
+        defaultEventBookingHourDateTime
       );
       cy.get('[data-cy=endsAt] input').should(
         'have.value',
@@ -383,7 +383,7 @@ context('Calendar tests', () => {
 
       cy.finishedLoading();
 
-      const slot = new Date(currentHourDateTime).toISOString();
+      const slot = new Date(defaultEventBookingHourDateTime).toISOString();
       cy.get(`.rbc-day-slot [data-cy='event-slot-${slot}']`).scrollIntoView();
 
       clickOnEventSlot(slot);

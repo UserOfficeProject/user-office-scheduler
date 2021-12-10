@@ -15,9 +15,13 @@ import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import { useHistory } from 'react-router';
 
 import { AppContext } from 'context/AppContext';
-import { ScheduledEventFilter } from 'generated/sdk';
+import { ScheduledEventBookingType, ScheduledEventFilter } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
 import { TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
+
+import 'react-big-calendar/lib/css/react-big-calendar.css';
+import 'styles/react-big-calendar.css';
+import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 
 import {
   CalendarScheduledEventWithUniqeId,
@@ -81,6 +85,11 @@ type CalendarViewProps = {
     start: stringOrDate;
     end: stringOrDate;
   }) => Promise<void>;
+  onEventResize: (data: {
+    event: CalendarScheduledEventWithUniqeId;
+    start: stringOrDate;
+    end: stringOrDate;
+  }) => Promise<void>;
   onSelectTimeSlot: (slotIfo: SlotInfo) => void;
 };
 const CalendarView: React.FC<CalendarViewProps> = ({
@@ -88,6 +97,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   events,
   onSelectEvent,
   onDropFromOutside,
+  onEventResize,
   onSelectTimeSlot,
 }) => {
   const classes = useStyles();
@@ -160,6 +170,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
       <DragAndDropCalendar
         popup
         selectable
+        resizable
         className={classes.calendar}
         localizer={localizer}
         events={events}
@@ -174,6 +185,11 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         date={startsAt}
         timeslots={1}
         onDropFromOutside={onDropFromOutside}
+        resizableAccessor={(event) =>
+          // NOTE: For now allow resize only on USER_OPERATIONS events because other type of events are not editable anyway.
+          event.bookingType === ScheduledEventBookingType.USER_OPERATIONS
+        }
+        onEventResize={onEventResize}
         showMultiDayTimes={true}
         dayLayoutAlgorithm={'no-overlap'}
         eventPropGetter={eventPropGetter}

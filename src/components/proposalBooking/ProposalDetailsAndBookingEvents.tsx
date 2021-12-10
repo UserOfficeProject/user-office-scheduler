@@ -204,8 +204,8 @@ export default function ProposalDetailsAndBookingEvents({
         : undefined;
     const startsAt = lastRow?.endsAt
       ? moment(lastRow?.endsAt)
-      : moment().startOf('hour');
-    const endsAt = startsAt.clone().startOf('hour').add(1, 'day');
+      : moment().set({ hour: 9, minute: 0, second: 0 }); // NOTE: Start events at 9.00 AM for easier date modifications
+    const endsAt = startsAt.clone().add(1, 'day');
 
     if (!proposalBooking.instrument) {
       return;
@@ -279,9 +279,9 @@ export default function ProposalDetailsAndBookingEvents({
         (scheduledEvent) => event.id !== scheduledEvent.id
       );
 
-      setProposalBooking({ ...proposalBooking, scheduledEvents: newEvents });
-
       setSelectedTab(newEvents.length - 1);
+
+      setProposalBooking({ ...proposalBooking, scheduledEvents: newEvents });
     }
   };
 

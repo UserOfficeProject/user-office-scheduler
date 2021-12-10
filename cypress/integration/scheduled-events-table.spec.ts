@@ -1,4 +1,7 @@
-import { currentHourDateTime, getHourDateTimeAfter } from '../utils';
+import {
+  defaultEventBookingHourDateTime,
+  getHourDateTimeAfter,
+} from '../utils';
 
 context('Scheduled events table tests', () => {
   before(() => {
@@ -18,7 +21,7 @@ context('Scheduled events table tests', () => {
     const newScheduledEvent_1 = {
       instrumentId: '1',
       bookingType: 'MAINTENANCE',
-      startsAt: currentHourDateTime,
+      startsAt: defaultEventBookingHourDateTime,
       endsAt: getHourDateTimeAfter(1),
       description: 'Test maintenance event',
     };
@@ -71,7 +74,7 @@ context('Scheduled events table tests', () => {
       cy.get('[data-cy="add-new-timeslot"]').click();
       cy.finishedLoading();
 
-      cy.contains(currentHourDateTime);
+      cy.contains(defaultEventBookingHourDateTime);
       cy.contains(getHourDateTimeAfter(24));
 
       cy.get('[data-cy="btn-close-dialog"]').click();
@@ -92,7 +95,7 @@ context('Scheduled events table tests', () => {
         'User operations'
       );
 
-      cy.contains(currentHourDateTime)
+      cy.contains(defaultEventBookingHourDateTime)
         .parent()
         .should('have.attr', 'style')
         .and('include', 'background: rgb(')
@@ -136,7 +139,7 @@ context('Scheduled events table tests', () => {
             .should('have.attr', 'style')
             .and('not.eq', eventStyle);
 
-          cy.contains(currentHourDateTime)
+          cy.contains(defaultEventBookingHourDateTime)
             .parent()
             .should('have.attr', 'style')
             .and('not.eq', eventStyle);

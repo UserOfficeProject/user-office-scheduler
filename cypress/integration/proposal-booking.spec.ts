@@ -332,6 +332,64 @@ context('Proposal booking tests ', () => {
               .should('not.contain.text', 'None')
               .invoke('text')
               .should('not.equal', selectedLocalContactText);
+
+            cy.get('[data-cy="btn-save"]').click();
+
+            cy.get('#notistack-snackbar').contains('Scheduled event updated');
+          });
+      });
+
+      it('should be able to select and see local contact events in all views view', () => {
+        cy.get('[data-cy="btn-close-dialog"]').click();
+        cy.finishedLoading();
+
+        cy.get('[data-cy="input-instrument-select"] input').focus();
+        cy.get('[data-cy="input-instrument-select"]')
+          .find('button[title="Clear"]')
+          .click();
+
+        cy.finishedLoading();
+
+        cy.get('[data-cy="input-local-contact-select"]').click();
+        cy.get(
+          '[aria-labelledby=input-local-contact-select-label] [role=option]'
+        )
+          .last()
+          .click();
+
+        cy.finishedLoading();
+
+        cy.get('.rbc-time-content .rbc-event')
+          .last()
+          .contains('999999')
+          .click();
+
+        cy.finishedLoading();
+
+        cy.contains(
+          `${getHourDateTimeAfter(2, 'days')} - ${getHourDateTimeAfter(
+            3,
+            'days'
+          )}`
+        );
+
+        cy.get('[data-cy="local-contact-details"] p')
+          .should('not.contain.text', 'None')
+          .invoke('text')
+          .then((newSelectedLocalContactText) => {
+            cy.get('[data-cy="btn-close-dialog"]').click();
+            cy.finishedLoading();
+
+            cy.get('[data-cy="scheduler-active-view"]').click();
+            cy.get('[data-value="Timeline"]').click();
+
+            cy.get('.react-calendar-timeline .rct-outer')
+              .should('contain.text', 'local contacts')
+              .and('contain.text', newSelectedLocalContactText);
+            cy.get('.react-calendar-timeline .rct-outer .rct-scroll').should(
+              'contain',
+              cy.contains(getHourDateTimeAfter(2, 'days'))
+            );
           });
       });
 

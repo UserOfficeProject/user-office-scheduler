@@ -167,17 +167,23 @@ export default class PostgreScheduledEventDataSource
       await database<ScheduledEventRecord>(this.tableName)
         .select()
         .modify((query) => {
-          if (filter.instrumentIds?.length) {
-            query.whereIn('instrument_id', filter.instrumentIds);
-          }
-          if (filter.localContactIds?.length) {
-            query.orWhereIn('local_contact', filter.localContactIds);
-          }
-
           if (filter.startsAt && filter.endsAt) {
             query
               .where('starts_at', '<=', filter.endsAt)
               .andWhere('ends_at', '>=', filter.startsAt);
+          }
+
+          if (filter.instrumentIds?.length && filter.localContactIds?.length) {
+            query.where((qb) => {
+              qb.whereIn('instrument_id', filter.instrumentIds).orWhereIn(
+                'local_contact',
+                filter.localContactIds
+              );
+            });
+          } else if (filter.instrumentIds?.length) {
+            query.whereIn('instrument_id', filter.instrumentIds);
+          } else if (filter.localContactIds?.length) {
+            query.whereIn('local_contact', filter.localContactIds);
           }
         })
         .orderBy('starts_at');

@@ -17,10 +17,7 @@ import { useQuery } from 'hooks/common/useQuery';
 import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 import { getFullUserName } from 'utils/user';
 
-import {
-  getEquipmentIdsFromQuery,
-  getInstrumentIdsFromQuery,
-} from './CalendarViewContainer';
+import { getArrayOfIdsFromQuery } from './CalendarViewContainer';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -67,7 +64,7 @@ export default function InstrumentAndEquipmentFilter({
   >([]);
 
   useEffect(() => {
-    const equipmentIds = getEquipmentIdsFromQuery(queryEquipment);
+    const equipmentIds = getArrayOfIdsFromQuery(queryEquipment);
 
     if (!loadingEquipments && equipmentIds.length && equipments.length) {
       const queryFilteredEquipments = equipments.filter((eq) =>
@@ -79,7 +76,7 @@ export default function InstrumentAndEquipmentFilter({
   }, [loadingEquipments, equipments, queryEquipment]);
 
   useEffect(() => {
-    const queryInstrumentIds = getInstrumentIdsFromQuery(queryInstrument);
+    const queryInstrumentIds = getArrayOfIdsFromQuery(queryInstrument);
 
     if (!loadingInstruments && queryInstrumentIds.length) {
       const queryFoundInstruments = instruments.filter((item) =>
@@ -94,7 +91,7 @@ export default function InstrumentAndEquipmentFilter({
   }, [loadingInstruments, instruments, queryInstrument, multipleInstruments]);
 
   useEffect(() => {
-    const localContactIds = getEquipmentIdsFromQuery(queryLocalContacts);
+    const localContactIds = getArrayOfIdsFromQuery(queryLocalContacts);
 
     if (!loadingLocalContacts && localContactIds.length) {
       const queryFilteredLocalContacts = localContacts.filter((eq) =>

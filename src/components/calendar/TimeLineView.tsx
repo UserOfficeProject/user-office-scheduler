@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/core';
+import { makeStyles, Tooltip } from '@material-ui/core';
 import * as H from 'history';
 import { debounce } from 'lodash';
 import moment from 'moment';
@@ -15,20 +15,14 @@ import 'react-calendar-timeline/lib/Timeline.css';
 import { useHistory } from 'react-router';
 
 import { InstrumentAndEquipmentContext } from 'context/InstrumentAndEquipmentContext';
-import {
-  BasicUserDetailsFragment,
-  ScheduledEventBookingType,
-  ScheduledEventFilter,
-} from 'generated/sdk';
+import { ScheduledEventBookingType, ScheduledEventFilter } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
-import { PartialEquipment } from 'hooks/equipment/useEquipments';
-import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 import { toTzLessDateTime, TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
+import { getFullUserName } from 'utils/user';
 
 import {
   CalendarScheduledEventWithUniqeId,
-  getEquipmentIdsFromQuery,
-  getInstrumentIdsFromQuery,
+  getArrayOfIdsFromQuery,
   SchedulerViewPeriod,
 } from './CalendarViewContainer';
 import { getBookingTypeStyle } from './Event';
@@ -41,6 +35,19 @@ type TimeLineViewProps = {
   onSelectEvent: (selectedEvent: CalendarScheduledEventWithUniqeId) => void;
 };
 
+type TimeLineGroupType = {
+  id: string | number;
+  title: string;
+  parent: string | null;
+  root: boolean;
+};
+
+enum RootGroups {
+  INSTRUMENT = 'instrument',
+  EQUIPMENT = 'equipment',
+  LOCAL_CONTACT = 'local_contact',
+}
+
 // NOTE: Debounce the function because there are too many calls on scroll so we want to avoid bombarding the backend with so many requests for new events
 const handleTimeChange = debounce(
   (newStart: moment.Moment, query: URLSearchParams, history: H.History) => {
@@ -49,6 +56,48 @@ const handleTimeChange = debounce(
   },
   500
 );
+
+const getRootGroupTitle = (rootGroupName: RootGroups) =>
+  `${rootGroupName.replace('_', ' ')}s`;
+
+const getRootGroupItems = (
+  rootGroupName: RootGroups,
+  items: { id: number; name: string }[]
+): TimeLineGroupType[] => [
+  {
+    id: `${rootGroupName}_root`,
+    title: getRootGroupTitle(rootGroupName),
+    parent: null,
+    root: true,
+  },
+  ...items.map((item) => ({
+    id: `${rootGroupName}_${item.id}`,
+    title: item.name,
+    parent: `${rootGroupName}_root`,
+    root: false,
+  })),
+];
+
+const getEventItemGroup = (
+  eventItem: CalendarScheduledEventWithUniqeId,
+  isLocalContactEvent = false
+) => {
+  switch (eventItem.bookingType) {
+    case ScheduledEventBookingType.EQUIPMENT:
+      return `equipment_${eventItem.equipmentId}`;
+    default:
+      return isLocalContactEvent
+        ? `local_contact_${eventItem.localContact?.id}`
+        : `instrument_${eventItem.instrument?.id || 0}`;
+  }
+};
+
+const getEventTitle = (event: CalendarScheduledEventWithUniqeId) =>
+  `${event.proposalBooking?.proposal?.title || event.title} (${
+    event.proposalBooking?.proposal?.proposalId || event.description
+  }) - [${toTzLessDateTime(event.start)} - ${toTzLessDateTime(event.end)}] - ${
+    event.status
+  }`;
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -80,6 +129,16 @@ const useStyles = makeStyles((theme) => ({
         '& .custom-group': {
           background: 'lightgray',
           padding: '0 4px',
+          textTransform: 'capitalize',
+        },
+      },
+
+      // NOTE: Better visual separation of different groups
+      '& .rct-scroll .rct-hl': {
+        borderBottom: 'none !important',
+
+        '&.row-root': {
+          borderTop: '2px solid blue !important',
         },
       },
 
@@ -96,57 +155,32 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
   filter,
   onSelectEvent,
 }) => {
-  const { instruments, equipments, localContacts } = useContext(
-    InstrumentAndEquipmentContext
-  );
   const query = useQuery();
   const history = useHistory();
   const classes = useStyles();
+  const { instruments, equipments, localContacts } = useContext(
+    InstrumentAndEquipmentContext
+  );
 
   const queryView =
     (query.get('viewPeriod') as SchedulerViewPeriod) || Views.WEEK;
-  const startsAt = query.get('startsAt');
+  const queryStartsAt = query.get('startsAt');
   const queryInstrument = query.get('instrument');
   const queryEquipment = query.get('equipment');
   const queryLocalContact = query.get('localContact');
 
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [selectedInstruments, setSelectedInstruments] = useState<
-    PartialInstrument[]
-  >([]);
-  const [selectedEquipments, setSelectedEquipments] = useState<
-    PartialEquipment[]
-  >([]);
-  const [selectedLocalContacts, setSelectedLocalContacts] = useState<
-    BasicUserDetailsFragment[]
-  >([]);
-  const [instrumentGroups, setInstrumentGroups] = useState<
-    {
-      id: string | number;
-      title: string;
-      parent: string | null;
-      root: boolean;
-    }[]
-  >([]);
-  const [equipmentGroups, setEquipmentGroups] = useState<
-    {
-      id: string | number;
-      title: string;
-      parent: string | null;
-      root: boolean;
-    }[]
-  >([]);
+  const [instrumentGroups, setInstrumentGroups] = useState<TimeLineGroupType[]>(
+    []
+  );
+  const [equipmentGroups, setEquipmentGroups] = useState<TimeLineGroupType[]>(
+    []
+  );
   const [localContactGroups, setLocalContactGroups] = useState<
-    {
-      id: string | number;
-      title: string;
-      parent: string | null;
-      root: boolean;
-    }[]
+    TimeLineGroupType[]
   >([]);
 
   const initialVisibleTimeStart = moment
-    .utc(startsAt || moment().startOf(queryView))
+    .utc(queryStartsAt || moment().startOf(queryView))
     .local();
   const initialVisibleTimeEnd = moment(initialVisibleTimeStart).add(
     1,
@@ -158,147 +192,127 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
   );
   const [visibleTimeEnd, setVisibleTimeEnd] = useState(initialVisibleTimeEnd);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
-    instruments_root: true,
-    equipments_root: true,
+    instrument_root: true,
+    equipment_root: true,
     local_contact_root: true,
   });
 
   useEffect(() => {
-    if (startsAt) {
-      const newVisibleTimeStart = moment.utc(startsAt).local();
+    if (queryStartsAt) {
+      const newVisibleTimeStart = moment.utc(queryStartsAt).local();
       const newVisibleTimeEnd = moment(newVisibleTimeStart).add(1, queryView);
 
       setVisibleTimeStart(newVisibleTimeStart);
       setVisibleTimeEnd(newVisibleTimeEnd);
     }
-  }, [startsAt, queryView]);
+  }, [queryStartsAt, queryView]);
 
   useEffect(() => {
-    const queryInstrumentIds = getInstrumentIdsFromQuery(queryInstrument);
+    const queryInstrumentIds = getArrayOfIdsFromQuery(queryInstrument);
 
     if (queryInstrumentIds?.length !== 0 && instruments.length) {
-      setSelectedInstruments(
-        instruments.filter((item) => queryInstrumentIds.includes(item.id))
+      const selectedInstruments = instruments.filter((item) =>
+        queryInstrumentIds.includes(item.id)
       );
-    } else {
-      setSelectedInstruments([]);
-    }
-  }, [instruments, queryInstrument, setSelectedInstruments]);
 
-  useEffect(() => {
-    const queryEquipmentIds = getEquipmentIdsFromQuery(queryEquipment);
-
-    if (queryEquipmentIds?.length !== 0 && equipments.length) {
-      setSelectedEquipments(
-        equipments.filter((item) => queryEquipmentIds.includes(item.id))
+      const newInstrumentGroupItems = getRootGroupItems(
+        RootGroups.INSTRUMENT,
+        selectedInstruments
       );
-    } else {
-      setSelectedEquipments([]);
-    }
-  }, [equipments, queryEquipment, setSelectedEquipments]);
 
-  useEffect(() => {
-    const queryLocalContactIds = getEquipmentIdsFromQuery(queryLocalContact);
-
-    if (queryLocalContactIds?.length !== 0 && localContacts.length) {
-      setSelectedLocalContacts(
-        localContacts.filter((item) => queryLocalContactIds.includes(item.id))
-      );
-    } else {
-      setSelectedLocalContacts([]);
-    }
-  }, [localContacts, queryLocalContact, setSelectedLocalContacts]);
-
-  useEffect(() => {
-    if (selectedInstruments.length) {
-      const newInstrumentGroups = [
-        {
-          id: 'instruments_root',
-          title: 'Instruments',
-          parent: null,
-          root: true,
-        },
-        ...selectedInstruments.map((selectedInstrument) => ({
-          id: `INSTRUMENT_${selectedInstrument.id}`,
-          title: selectedInstrument.name,
-          parent: 'instruments_root',
-          root: false,
-        })),
-      ];
-
-      setInstrumentGroups(newInstrumentGroups);
+      setInstrumentGroups(newInstrumentGroupItems);
     } else {
       setInstrumentGroups([]);
     }
-  }, [selectedInstruments, setInstrumentGroups]);
+  }, [instruments, queryInstrument]);
 
   useEffect(() => {
-    if (selectedEquipments.length) {
-      const newEquipmentGroups = [
-        {
-          id: 'equipments_root',
-          title: 'Equipments',
-          parent: null,
-          root: true,
-        },
-        ...selectedEquipments.map((selectedEquipment) => ({
-          id: `EQUIPMENT_${selectedEquipment.id}`,
-          title: selectedEquipment.name,
-          parent: 'equipments_root',
-          root: false,
-        })),
-      ];
+    const queryEquipmentIds = getArrayOfIdsFromQuery(queryEquipment);
 
-      setEquipmentGroups(newEquipmentGroups);
+    if (queryEquipmentIds?.length !== 0 && equipments.length) {
+      const selectedEquipment = equipments.filter((item) =>
+        queryEquipmentIds.includes(item.id)
+      );
+
+      const newEquipmentGroupItems = getRootGroupItems(
+        RootGroups.EQUIPMENT,
+        selectedEquipment
+      );
+
+      setEquipmentGroups(newEquipmentGroupItems);
     } else {
       setEquipmentGroups([]);
     }
-  }, [selectedEquipments, setEquipmentGroups]);
+  }, [equipments, queryEquipment]);
 
   useEffect(() => {
-    if (selectedLocalContacts.length) {
-      const newLocalContactGroups = [
-        {
-          id: 'local_contact_root',
-          title: 'Local contacts',
-          parent: null,
-          root: true,
-        },
-        ...selectedLocalContacts.map((selectedLocalContact) => ({
-          id: `LOCAL_CONTACT_${selectedLocalContact.id}`,
-          title: `${selectedLocalContact.firstname} ${selectedLocalContact.lastname}`,
-          parent: 'local_contact_root',
-          root: false,
-        })),
-      ];
+    const queryLocalContactIds = getArrayOfIdsFromQuery(queryLocalContact);
 
-      setLocalContactGroups(newLocalContactGroups);
+    if (queryLocalContactIds?.length !== 0 && localContacts.length) {
+      const selectedLocalContacts = localContacts
+        .filter((item) => queryLocalContactIds.includes(item.id))
+        .map((item) => ({ id: item.id, name: getFullUserName(item) }));
+
+      const newLocalContactGroupItems = getRootGroupItems(
+        RootGroups.LOCAL_CONTACT,
+        selectedLocalContacts
+      );
+
+      setLocalContactGroups(newLocalContactGroupItems);
     } else {
       setLocalContactGroups([]);
     }
-  }, [selectedLocalContacts, setLocalContactGroups]);
+  }, [localContacts, queryLocalContact]);
 
-  const allGroups = [
-    ...instrumentGroups,
-    ...equipmentGroups,
-    ...localContactGroups,
-  ];
+  const onTimeChange = (
+    newVisibleTimeStart: number,
+    newVisibleTimeEnd: number
+  ) => {
+    const newStart = moment(newVisibleTimeStart);
+    const newEnd = moment(newVisibleTimeEnd);
 
-  const getEventTitle = (event: CalendarScheduledEventWithUniqeId) => {
-    return `${event.proposalBooking?.proposal?.title || event.title} (${
-      event.proposalBooking?.proposal?.proposalId || event.description
-    }) - [${toTzLessDateTime(event.start)} - ${toTzLessDateTime(
-      event.end
-    )}] - ${event.status}`;
+    // NOTE: Like this we prevent calling handleTimeChange on initial render because it's not needed to do one more re-render
+    if (!newStart.diff(visibleTimeStart, 'hours')) {
+      return;
+    }
+
+    setVisibleTimeStart(newStart);
+    setVisibleTimeEnd(newEnd);
+
+    handleTimeChange(newStart, query, history);
   };
 
-  const eventItems = events
-    .map((event) => ({
+  const onToggleGroup = (id: string | number) => {
+    setOpenGroups({ ...openGroups, [id]: !openGroups[id] });
+  };
+
+  const getLocalContactTimelineEvents = () =>
+    events
+      .filter(
+        (event) =>
+          event.bookingType === ScheduledEventBookingType.USER_OPERATIONS &&
+          event.localContact
+      )
+      .map((event) => ({
+        id: `${event.id}_${event.bookingType}_${event.equipmentId}`,
+        group: getEventItemGroup(event, true),
+        title: getEventTitle(event),
+        itemProps: {
+          onClick: () => onSelectEvent(event),
+          onTouchStart: () => onSelectEvent(event),
+          style: {
+            ...getBookingTypeStyle(event.bookingType, event.status),
+            overflow: 'hidden',
+          },
+        },
+        start_time: moment(event.start),
+        end_time: moment(event.end),
+      }));
+
+  const getInstrumentAndEquipmentTimelineEvents = () =>
+    events.map((event) => ({
       id: `${event.id}_${event.bookingType}_${event.equipmentId}`,
-      group:
-        event.bookingType === ScheduledEventBookingType.EQUIPMENT
-          ? `EQUIPMENT_${event.equipmentId}`
-          : `INSTRUMENT_${event.instrument?.id || 0}`,
+      group: getEventItemGroup(event),
       title: getEventTitle(event),
       itemProps: {
         onClick: () => onSelectEvent(event),
@@ -310,68 +324,23 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
       },
       start_time: moment(event.start),
       end_time: moment(event.end),
-    }))
-    .concat(
-      ...events
-        .filter(
-          (event) =>
-            event.bookingType === ScheduledEventBookingType.USER_OPERATIONS &&
-            event.localContact
-        )
-        .map((event) => ({
-          id: `${event.id}_${event.bookingType}_${event.equipmentId}`,
-          group: `LOCAL_CONTACT_${event.localContact!.id}`,
-          title: getEventTitle(event),
-          itemProps: {
-            onClick: () => onSelectEvent(event),
-            onTouchStart: () => onSelectEvent(event),
-            style: {
-              ...getBookingTypeStyle(event.bookingType, event.status),
-              overflow: 'hidden',
-            },
-          },
-          start_time: moment(event.start),
-          end_time: moment(event.end),
-        }))
-    );
+    }));
 
-  const onTimeChange = (
-    newVisibleTimeStart: number,
-    newVisibleTimeEnd: number
-  ) => {
-    const newStart = moment(newVisibleTimeStart);
-    const newEnd = moment(newVisibleTimeEnd);
+  const timeLineGroups = [
+    ...instrumentGroups,
+    ...equipmentGroups,
+    ...localContactGroups,
+  ];
 
-    // NOTE: Like this we prevent calling handleTimeChange on initial render because it's not needed to do one more re-render
-    if (
-      !isInitialized ||
-      !newStart.diff(visibleTimeStart, 'hours') ||
-      !selectedInstruments.length
-    ) {
-      setIsInitialized(true);
-
-      return;
-    }
-
-    setVisibleTimeStart(newStart);
-    setVisibleTimeEnd(newEnd);
-
-    handleTimeChange(newStart, query, history);
-  };
-
-  const toggleGroup = (id: string | number) => {
-    setOpenGroups({ ...openGroups, [id]: !openGroups[id] });
-  };
-
-  const timeLineReadyGroups = allGroups.length
-    ? allGroups
+  const timeLineGroupsWithCustomTitle = timeLineGroups.length
+    ? timeLineGroups
         .filter((g) => g.root || (g.parent && openGroups[g.parent]))
         .map((group) => {
           return {
             ...group,
             title: group.root ? (
               <div
-                onClick={() => toggleGroup(group.id)}
+                onClick={() => onToggleGroup(group.id)}
                 style={{ cursor: 'pointer' }}
               >
                 {openGroups[group.id] ? '[-]' : '[+]'} <b>{group.title}</b>
@@ -385,6 +354,11 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
         })
     : [];
 
+  const timelineEvents = [
+    ...getInstrumentAndEquipmentTimelineEvents(),
+    ...getLocalContactTimelineEvents(),
+  ];
+
   return (
     <div data-cy="calendar-timeline-view" className={classes.root}>
       <Toolbar
@@ -393,16 +367,17 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
         multipleInstruments
       />
       <Timeline
-        groups={timeLineReadyGroups}
+        groups={timeLineGroupsWithCustomTitle}
         groupRenderer={({ group }) => {
-          return (
-            <div className={`${group.root ? 'custom-group' : ''}`}>
-              <span className="title">{group.title}</span>
-              {/* <p className="tip">{group.tip}</p> */}
-            </div>
+          return group.root ? (
+            <div className="custom-group">{group.title}</div>
+          ) : (
+            <Tooltip title={group.title} style={{ top: '-40px' }}>
+              <div className="title">{group.title}</div>
+            </Tooltip>
           );
         }}
-        items={eventItems}
+        items={timelineEvents}
         visibleTimeStart={visibleTimeStart.valueOf()}
         visibleTimeEnd={visibleTimeEnd.valueOf()}
         resizeDetector={containerResizeDetector}

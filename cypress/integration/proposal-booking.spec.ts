@@ -376,7 +376,7 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy="local-contact-details"] p')
           .should('not.contain.text', 'None')
           .invoke('text')
-          .then((newSelectedLocalContactText) => {
+          .then((selectedLocalContactText) => {
             cy.get('[data-cy="btn-close-dialog"]').click();
             cy.finishedLoading();
 
@@ -385,11 +385,9 @@ context('Proposal booking tests ', () => {
 
             cy.get('.react-calendar-timeline .rct-outer')
               .should('contain.text', 'local contacts')
-              .and('contain.text', newSelectedLocalContactText);
-            cy.get('.react-calendar-timeline .rct-outer .rct-scroll').should(
-              'contain',
-              cy.contains(getHourDateTimeAfter(2, 'days'))
-            );
+              .and('contain.text', selectedLocalContactText);
+
+            cy.contains(getHourDateTimeAfter(2, 'days'));
           });
       });
 

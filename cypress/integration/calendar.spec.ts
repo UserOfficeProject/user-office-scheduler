@@ -89,7 +89,7 @@ context('Calendar tests', () => {
     it('should be able to collapse the event toolbar from the right', () => {
       cy.get('[data-cy="close-event-toolbar"]').click();
 
-      cy.wait(1000);
+      // cy.wait(1000);
 
       cy.get('[data-cy="collapsible-event-toolbar"]').should('be.hidden');
       cy.get('[data-cy="collapsible-event-toolbar"]').should(
@@ -101,7 +101,7 @@ context('Calendar tests', () => {
 
       cy.get('[data-cy="open-event-toolbar"]').click();
 
-      cy.wait(1000);
+      // cy.wait(1000);
 
       cy.get('[data-cy="collapsible-event-toolbar"]').should('be.visible');
 

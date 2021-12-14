@@ -774,7 +774,7 @@ context('Proposal booking tests ', () => {
         cy.finishedLoading();
 
         cy.get('[role=alert]').contains(/removed/i);
-        cy.wait(100);
+        // cy.wait(100);
         cy.contains(/Available equipment 2 - auto accept/i);
         cy.should('not.contain', /Available equipment 1 - no auto accept/i);
       });
@@ -802,7 +802,7 @@ context('Proposal booking tests ', () => {
 
         cy.get('[data-cy="btn-ok"]').click();
 
-        cy.wait(100);
+        // cy.wait(100);
 
         cy.contains(/lost time/i);
         cy.get(
@@ -833,7 +833,7 @@ context('Proposal booking tests ', () => {
         cy.get('[aria-label=proposal-booking-finalization-strategy]').click();
 
         cy.contains(/restart the time slot booking/i).click();
-        cy.wait(100);
+        // cy.wait(100);
 
         cy.contains(/restart the time slot booking/i).as('restartBooking');
 
@@ -986,7 +986,7 @@ context('Proposal booking tests ', () => {
         cy.get('@completeBooking').should('not.be.disabled').click();
         cy.get('[data-cy="btn-ok"]').click();
 
-        cy.wait(500);
+        // cy.wait(500);
 
         cy.contains(
           /Proposal booking is already completed, you can not edit it/i

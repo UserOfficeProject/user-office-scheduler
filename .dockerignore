@@ -4,5 +4,6 @@
 !src
 !public
 !package*
+!cypress
 !tsconfig.json
 !default.conf.template

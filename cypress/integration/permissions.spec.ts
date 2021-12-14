@@ -1,4 +1,8 @@
-import { defaultEventBookingHourDateTime, getHourDateTimeAfter } from '../utils';
+import { ScheduledEventBookingType } from '../../src/generated/sdk';
+import {
+  defaultEventBookingHourDateTime,
+  getHourDateTimeAfter,
+} from '../utils';
 
 context('Permission tests', () => {
   before(() => {
@@ -99,21 +103,21 @@ context('Permission tests', () => {
 
     it('should show only scheduled events assigned to specific instrument', () => {
       const newScheduledEvent = {
-        instrumentId: '1',
-        bookingType: 'MAINTENANCE',
+        instrumentId: 1,
+        bookingType: ScheduledEventBookingType.MAINTENANCE,
         endsAt: getHourDateTimeAfter(1),
         startsAt: defaultEventBookingHourDateTime,
         description: 'Test maintenance event',
       };
       const newScheduledEvent2 = {
-        instrumentId: '2',
-        bookingType: 'MAINTENANCE',
+        instrumentId: 2,
+        bookingType: ScheduledEventBookingType.MAINTENANCE,
         endsAt: getHourDateTimeAfter(-1),
         startsAt: getHourDateTimeAfter(-2),
         description: 'Test maintenance event 2',
       };
-      cy.createEvent(newScheduledEvent);
-      cy.createEvent(newScheduledEvent2);
+      cy.createEvent({ input: newScheduledEvent });
+      cy.createEvent({ input: newScheduledEvent2 });
 
       cy.configureSession('InstrumentScientist_1');
 
@@ -122,7 +126,9 @@ context('Permission tests', () => {
         timeout: 15000,
       });
 
-      let scheduledEventSlot = new Date(defaultEventBookingHourDateTime).toISOString();
+      let scheduledEventSlot = new Date(
+        defaultEventBookingHourDateTime
+      ).toISOString();
       cy.get(`.rbc-event [data-cy='event-${scheduledEventSlot}']`).should(
         'exist'
       );
@@ -139,7 +145,9 @@ context('Permission tests', () => {
         timeout: 15000,
       });
 
-      scheduledEventSlot = new Date(defaultEventBookingHourDateTime).toISOString();
+      scheduledEventSlot = new Date(
+        defaultEventBookingHourDateTime
+      ).toISOString();
       cy.get(`.rbc-event [data-cy='event-${scheduledEventSlot}']`).should(
         'not.exist'
       );

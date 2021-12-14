@@ -1,4 +1,5 @@
 import {
+  Box,
   Chip,
   CircularProgress,
   Grid,
@@ -207,14 +208,26 @@ export default function InstrumentAndEquipmentFilter({
     limitTags: number;
   }) => {
     const numTags = value.length;
+    const itemsInsideTheLimit = value.slice(0, limitTags);
+    const itemsOutsideTheLimit = value.slice(limitTags);
 
     return (
       <>
-        {value.slice(0, limitTags).map((option, index) => (
-          <Chip {...getTagProps({ index })} key={index} label={option.name} />
+        {itemsInsideTheLimit.map((option, index) => (
+          <Chip
+            {...getTagProps({ index })}
+            key={index}
+            label={option.name}
+            title={option.name}
+          />
         ))}
 
-        {numTags > limitTags && ` +${numTags - limitTags}`}
+        <Box
+          title={itemsOutsideTheLimit.map((item) => item.name).join(', ')}
+          component="span"
+        >
+          {numTags > limitTags && ` +${numTags - limitTags}`}
+        </Box>
       </>
     );
   };

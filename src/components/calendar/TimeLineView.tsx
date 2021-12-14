@@ -1,4 +1,4 @@
-import { makeStyles, Tooltip } from '@material-ui/core';
+import { Box, makeStyles } from '@material-ui/core';
 import * as H from 'history';
 import { debounce } from 'lodash';
 import moment from 'moment';
@@ -126,9 +126,13 @@ const useStyles = makeStyles((theme) => ({
       '& .rct-sidebar .rct-sidebar-row': {
         padding: 0,
 
+        '& .title': {
+          paddingLeft: theme.spacing(1),
+        },
+
         '& .custom-group': {
           background: 'lightgray',
-          padding: '0 4px',
+          padding: theme.spacing(0, 0.5),
           textTransform: 'capitalize',
         },
       },
@@ -346,9 +350,13 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
                 {openGroups[group.id] ? '[-]' : '[+]'} <b>{group.title}</b>
               </div>
             ) : (
-              <div className="rct-sidebar-row" style={{ paddingLeft: 10 }}>
-                {group.title}
-              </div>
+              <Box
+                title={group.title}
+                component="div"
+                className="rct-sidebar-row"
+              >
+                <span className="title">{group.title}</span>
+              </Box>
             ),
           };
         })
@@ -368,15 +376,11 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
       />
       <Timeline
         groups={timeLineGroupsWithCustomTitle}
-        groupRenderer={({ group }) => {
-          return group.root ? (
-            <div className="custom-group">{group.title}</div>
-          ) : (
-            <Tooltip title={group.title} style={{ top: '-40px' }}>
-              <div className="title">{group.title}</div>
-            </Tooltip>
-          );
-        }}
+        groupRenderer={({ group }) => (
+          <div className={`${group.root ? 'custom-group' : ''}`}>
+            {group.title}
+          </div>
+        )}
         items={timelineEvents}
         visibleTimeStart={visibleTimeStart.valueOf()}
         visibleTimeEnd={visibleTimeEnd.valueOf()}

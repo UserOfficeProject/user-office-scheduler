@@ -8,3 +8,12 @@ export class User {
   @Field(() => Int)
   id: number;
 }
+
+@ObjectType()
+@Directive('@extends')
+@Directive('@key(fields: "id")')
+export class BasicUserDetails {
+  @Directive('@external')
+  @Field(() => Int)
+  id: number;
+}

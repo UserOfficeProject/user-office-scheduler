@@ -5,6 +5,7 @@
   "dependencies": {
     "cypress-real-events": "^1.6.0",
     "dotenv": "^8.6.0",
+    "faker": "^5.5.3",
     "graphql": "^15.7.2",
     "graphql-request": "^3.6.1",
     "graphql-tag": "2.12.6",

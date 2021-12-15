@@ -1,3 +1,4 @@
+import { ScheduledEventBookingType } from '../../src/generated/sdk';
 import {
   defaultEventBookingHourDateTime,
   getFormattedBeginningOfSelectedWeek,
@@ -23,12 +24,9 @@ function clickOnEventSlot(slot: string) {
 }
 
 context('Calendar tests', () => {
-  before(() => {
-    cy.resetDB();
-    cy.resetSchedulerDB();
-  });
-
   beforeEach(() => {
+    cy.resetDB(true);
+    cy.resetSchedulerDB(true);
     cy.initializeSession('InstrumentScientist_1');
     cy.visit({
       url: '/calendar',
@@ -89,8 +87,6 @@ context('Calendar tests', () => {
     it('should be able to collapse the event toolbar from the right', () => {
       cy.get('[data-cy="close-event-toolbar"]').click();
 
-      // cy.wait(1000);
-
       cy.get('[data-cy="collapsible-event-toolbar"]').should('be.hidden');
       cy.get('[data-cy="collapsible-event-toolbar"]').should(
         'have.css',
@@ -101,8 +97,6 @@ context('Calendar tests', () => {
 
       cy.get('[data-cy="open-event-toolbar"]').click();
 
-      // cy.wait(1000);
-
       cy.get('[data-cy="collapsible-event-toolbar"]').should('be.visible');
 
       cy.get('[data-cy="open-event-toolbar"]').should('not.exist');
@@ -110,8 +104,6 @@ context('Calendar tests', () => {
 
     it('should show the selected calendar view', () => {
       cy.get('.rbc-time-view').should('be.visible');
-
-      cy.finishedLoading();
 
       cy.get('.rbc-toolbar button')
         .contains('month', { matchCase: false })
@@ -233,7 +225,6 @@ context('Calendar tests', () => {
     });
 
     it('should show the selected month', () => {
-      cy.finishedLoading();
       cy.get('.rbc-toolbar button')
         .contains('month', { matchCase: false })
         .click();
@@ -323,7 +314,6 @@ context('Calendar tests', () => {
 
   describe('Creating new event', () => {
     it('should show warning when no instrument selected', () => {
-      cy.finishedLoading();
       const slot = new Date(defaultEventBookingHourDateTime).toISOString();
       cy.get(`.rbc-day-slot [data-cy='event-slot-${slot}']`).scrollIntoView();
 
@@ -373,8 +363,15 @@ context('Calendar tests', () => {
 
   describe('Viewing existing event', () => {
     it('should display a disabled form', () => {
+      const newScheduledEvent = {
+        instrumentId: 1,
+        bookingType: ScheduledEventBookingType.MAINTENANCE,
+        endsAt: getHourDateTimeAfter(1),
+        startsAt: defaultEventBookingHourDateTime,
+        description: 'Test maintenance event',
+      };
+      cy.createEvent({ input: newScheduledEvent });
       cy.finishedLoading();
-
       cy.get('[data-cy=input-instrument-select]').click();
 
       cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')

@@ -1,6 +1,10 @@
 import {
+  CreateEquipmentMutation,
+  CreateEquipmentMutationVariables,
   CreateScheduledEventMutation,
   CreateScheduledEventMutationVariables,
+  UpdateEquipmentMutation,
+  UpdateEquipmentMutationVariables,
 } from '../../src/generated/sdk';
 
 declare global {
@@ -15,14 +19,6 @@ declare global {
        *    cy.resetDB()
        */
       resetDB: (includeSeeds?: boolean) => void;
-      resetSchedulerDB: (includeSeeds?: boolean) => void;
-      initializeSession(token: string): void;
-      configureSession(token: string): void;
-      configureClock(): void;
-      createEvent(
-        createScheduledEventInput: CreateScheduledEventMutationVariables
-      ): Cypress.Chainable<CreateScheduledEventMutation>;
-
       /**
        * Checks if the progress bar does not exist in the dom anymore.
        *
@@ -32,6 +28,20 @@ declare global {
        *    cy.finishedLoading()
        */
       finishedLoading: () => void;
+      resetSchedulerDB: (includeSeeds?: boolean) => void;
+      initializeSession(token: string): void;
+      configureSession(token: string): void;
+      configureClock(): void;
+
+      createEvent(
+        createScheduledEventInput: CreateScheduledEventMutationVariables
+      ): Cypress.Chainable<CreateScheduledEventMutation>;
+      createEquipment(
+        createEquipmentInput: CreateEquipmentMutationVariables
+      ): Cypress.Chainable<CreateEquipmentMutation>;
+      updateEquipment(
+        updateEquipmentInput: UpdateEquipmentMutationVariables
+      ): Cypress.Chainable<UpdateEquipmentMutation>;
     }
   }
 }

@@ -1,10 +1,7 @@
 context('Not-authenticated tests', () => {
-  before(() => {
-    cy.resetDB();
-    cy.resetSchedulerDB();
-  });
-
   beforeEach(() => {
+    cy.resetDB(true);
+    cy.resetSchedulerDB(true);
     cy.clearCookies();
     cy.visit({
       url: '/calendar',
@@ -20,9 +17,7 @@ context('Not-authenticated tests', () => {
     });
 
     it('should redirect when clicking the auth button', () => {
-      // cy.wait(1000);
       cy.get('[data-cy=btn-authenticate]').click();
-      // cy.wait(1000);
       cy.url().should('include', 'authRedirect');
     });
   });

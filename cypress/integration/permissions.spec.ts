@@ -5,12 +5,9 @@ import {
 } from '../utils';
 
 context('Permission tests', () => {
-  before(() => {
-    cy.resetDB();
-    cy.resetSchedulerDB();
-  });
-
   beforeEach(() => {
+    cy.resetDB(true);
+    cy.resetSchedulerDB(true);
     cy.clearCookies();
     cy.configureClock();
   });

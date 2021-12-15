@@ -289,8 +289,8 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
   return (
     <ContentContainer maxWidth={false}>
       <PeopleModal
-        show={!!showPeopleModal}
-        close={(): void => setShowPeopleModal(false)}
+        show={showPeopleModal}
+        close={() => setShowPeopleModal(false)}
         addParticipants={addEquipmentResponsibleUsers}
         selectedUsers={selectedUsers.map((selectedUser) => selectedUser.id)}
         selection={true}
@@ -298,8 +298,8 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
         userRole={UserRole.INSTRUMENT_SCIENTIST}
       />
       <PeopleModal
-        show={!!showEquipmentOwnerSelectionModal}
-        close={(): void => setShowEquipmentOwnerSelectionModal(false)}
+        show={showEquipmentOwnerSelectionModal}
+        close={() => setShowEquipmentOwnerSelectionModal(false)}
         addParticipants={updateEquipmentOwner}
         selectedUsers={equipment.owner ? [equipment.owner.id] : []}
         title={'Select equipment owner'}

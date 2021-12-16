@@ -32,7 +32,8 @@ export class ScheduledEvent {
     public instrument: { id: number },
     public proposalBookingId: number | null,
     public status: ProposalBookingStatusCore,
-    public equipmentId: number
+    public equipmentId: number,
+    public localContact?: { id: number }
   ) {}
 }
 

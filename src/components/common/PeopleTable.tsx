@@ -13,7 +13,7 @@ function sendUserRequest(
   searchQuery: Query<any>,
   api: any,
   setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-  selectedUsers: number[] | undefined,
+  selectedUsers: number[] | undefined | null,
   selectedParticipants: number[],
   userRole: UserRole | null
 ) {
@@ -62,7 +62,7 @@ type PeopleTableProps<T extends BasicUserDetails = BasicUserDetails> = {
   search?: boolean;
   onRemove?: (item: any) => void;
   onUpdate?: (item: any[]) => void;
-  selectedUsers?: number[];
+  selectedUsers?: number[] | null;
   mtOptions?: Options<BasicUserDetails>;
   columns?: Column<any>[];
   userRole?: UserRole;

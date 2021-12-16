@@ -13,6 +13,7 @@ import { useDataApi } from 'hooks/common/useDataApi';
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
 import { ContentContainer, StyledPaper } from 'styles/StyledComponents';
 import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
+import { getFullUserName } from 'utils/user';
 
 type TableRow = {
   id: number;
@@ -80,7 +81,7 @@ export default function ViewRequests() {
               instrumentName: instrument?.name,
               proposalTitle: proposalBooking?.proposal?.title,
               proposalId: proposalBooking?.proposal?.proposalId,
-              scheduledBy: `${scheduledBy?.firstname} ${scheduledBy?.lastname}`,
+              scheduledBy: getFullUserName(scheduledBy),
             })
           )
         );

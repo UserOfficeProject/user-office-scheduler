@@ -308,6 +308,33 @@ context('Proposal booking tests ', () => {
         cy.contains(getHourDateTimeAfter(3, 'days'));
       });
 
+      it('should be able to add and edit local contact on the timeslot', () => {
+        cy.finishedLoading();
+        cy.get('.MuiTab-fullWidth').last().click();
+
+        cy.get('[data-cy="local-contact-details"]').should(
+          'contain.text',
+          'None'
+        );
+
+        cy.get('[data-cy="add-local-contact"]').click();
+        cy.get('[data-cy="select-user"]').first().click();
+
+        cy.get('[data-cy="local-contact-details"]')
+          .should('not.contain.text', 'None')
+          .invoke('text')
+          .then((selectedLocalContactText: string) => {
+            cy.get('[data-cy="edit-local-contact"]').should('exist').click();
+
+            cy.get('[data-cy="select-user"]').last().click();
+
+            cy.get('[data-cy="local-contact-details"]')
+              .should('not.contain.text', 'None')
+              .invoke('text')
+              .should('not.equal', selectedLocalContactText);
+          });
+      });
+
       it('should be able to open time slot by clicking on the calendar event', () => {
         cy.get('[data-cy="btn-close-dialog"]').click();
         cy.finishedLoading();

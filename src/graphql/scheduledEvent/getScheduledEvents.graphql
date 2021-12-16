@@ -18,6 +18,10 @@ query getScheduledEvents(
       firstname
       lastname
     }
+    localContact {
+      firstname
+      lastname
+    }
     proposalBooking {
       id
       createdAt

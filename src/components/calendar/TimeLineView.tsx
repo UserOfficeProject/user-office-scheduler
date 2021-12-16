@@ -354,6 +354,7 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
                 title={group.title}
                 component="div"
                 className="rct-sidebar-row"
+                data-cy="item-group"
               >
                 <span className="title">{group.title}</span>
               </Box>

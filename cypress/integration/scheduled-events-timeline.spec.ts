@@ -8,12 +8,9 @@ import {
 } from '../utils';
 
 context('Scheduled events timeline tests', () => {
-  before(() => {
-    cy.resetDB();
-    cy.resetSchedulerDB();
-  });
-
   beforeEach(() => {
+    cy.resetDB(true);
+    cy.resetSchedulerDB(true);
     cy.initializeSession('InstrumentScientist_1');
     cy.visit({
       url: '/calendar',
@@ -43,6 +40,14 @@ context('Scheduled events timeline tests', () => {
       endsAt: getHourDateTimeAfter(9, 'days'),
       description: 'Test maintenance event',
     };
+    const newScheduledUserOperationsEvent = {
+      instrumentId: 1,
+      proposalBookingId: 1,
+      bookingType: ScheduledEventBookingType.USER_OPERATIONS,
+      startsAt: defaultEventBookingHourDateTime,
+      endsAt: getHourDateTimeAfter(24),
+    };
+
     it('should be able to switch between scheduled events timeline view and calendar view', () => {
       cy.get('[data-cy="scheduler-active-view"]').click();
       cy.get('[data-value="Timeline"]').click();
@@ -105,9 +110,9 @@ context('Scheduled events timeline tests', () => {
     });
 
     it('should show timeline view of events in different colors depending on the event type', () => {
-      cy.finishedLoading();
       cy.createEvent({ input: newScheduledEvent1 });
       cy.createEvent({ input: newScheduledEvent2 });
+      cy.finishedLoading();
 
       cy.get('[data-cy=input-instrument-select]').click();
 
@@ -132,8 +137,10 @@ context('Scheduled events timeline tests', () => {
     });
 
     it('should be able to filter events based on the timeline toolbar filters', () => {
-      cy.finishedLoading();
+      cy.createEvent({ input: newScheduledEvent1 });
       cy.createEvent({ input: newScheduledEvent3 });
+      cy.createEvent({ input: newScheduledUserOperationsEvent });
+      cy.finishedLoading();
 
       cy.get('[data-cy=input-instrument-select]').click();
 
@@ -258,6 +265,8 @@ context('Scheduled events timeline tests', () => {
     });
 
     it('should be able to click and open events in timeline view', () => {
+      cy.createEvent({ input: newScheduledEvent1 });
+      cy.createEvent({ input: newScheduledUserOperationsEvent });
       cy.finishedLoading();
 
       cy.get('[data-cy=input-instrument-select]').click();
@@ -271,8 +280,6 @@ context('Scheduled events timeline tests', () => {
       cy.get('[data-cy="scheduler-active-view"]').click();
       cy.get('[data-value="Timeline"]').click();
 
-      // cy.wait(500);
-
       cy.contains(newScheduledEvent1.endsAt).parent().click();
 
       cy.get('[role="none presentation"] [data-cy="startsAt"]').should('exist');
@@ -283,14 +290,19 @@ context('Scheduled events timeline tests', () => {
 
       cy.get('[data-cy="btn-close-dialog"]').click();
 
-      // cy.wait(500);
-
-      cy.contains(defaultEventBookingHourDateTime).first().parent().click();
+      cy.contains(newScheduledUserOperationsEvent.endsAt)
+        .first()
+        .parent()
+        .click();
 
       cy.get('[role="none presentation"] [data-cy="btn-save"]').should('exist');
       cy.get(
         '[role="none presentation"] [data-cy="activate-time-slot-booking"]'
       ).should('exist');
+
+      cy.contains(
+        `${newScheduledUserOperationsEvent.startsAt} - ${newScheduledUserOperationsEvent.endsAt}`
+      );
     });
 
     it('should not reset dates if page reloads', () => {
@@ -362,7 +374,7 @@ context('Scheduled events timeline tests', () => {
         .click();
 
       cy.get(
-        '[data-cy="calendar-timeline-view"] .react-calendar-timeline .rct-sidebar .rct-sidebar-row'
+        '[data-cy="calendar-timeline-view"] [data-cy="item-group"]'
       ).should('have.length', '3');
 
       cy.reload();
@@ -370,7 +382,7 @@ context('Scheduled events timeline tests', () => {
       cy.finishedLoading();
 
       cy.get(
-        '[data-cy="calendar-timeline-view"] .react-calendar-timeline .rct-sidebar .rct-sidebar-row'
+        '[data-cy="calendar-timeline-view"] [data-cy="item-group"]'
       ).should('have.length', '3');
 
       cy.get(
@@ -385,6 +397,7 @@ context('Scheduled events timeline tests', () => {
     });
 
     it('should be able to scroll inside timeline view', () => {
+      const RIGHT_ARROW_KEY_CODE = 39;
       cy.initializeSession('UserOfficer');
       cy.visit({
         url: '/calendar',
@@ -407,7 +420,7 @@ context('Scheduled events timeline tests', () => {
       // NOTE: Getting the right element because that's how react-calendar-timeline works. They have added the scroll event listener on .rct scroll first and only child element.
       cy.get('.react-calendar-timeline .rct-scroll').children().first().click();
 
-      cy.get('body').trigger('keypress', { code: 39 });
+      cy.get('body').trigger('keypress', { code: RIGHT_ARROW_KEY_CODE });
 
       // NOTE: cy.tick is used to be able to execute the handleTimeChange because it's debounced with 500ms.
       cy.tick(500);

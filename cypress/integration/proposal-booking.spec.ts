@@ -1,14 +1,39 @@
+import { ScheduledEventBookingType } from '../../src/generated/sdk';
 import {
   defaultEventBookingHourDateTime,
   getCurrentHourDateTime,
   getHourDateTimeAfter,
 } from '../utils';
 
+const selectInstrumentAndClickOnProposalForBooking = () => {
+  cy.get('[data-cy=input-instrument-select]').click();
+
+  cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
+    .first()
+    .click();
+
+  cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
+
+  cy.get(
+    '#instrument-calls-tree-view [role=treeitem] [role=group] [role=treeitem]'
+  )
+    .first()
+    .click();
+};
+
 context('Proposal booking tests ', () => {
-  before(() => {
-    cy.resetDB();
-    cy.resetSchedulerDB();
+  beforeEach(() => {
+    cy.resetDB(true);
+    cy.resetSchedulerDB(true);
   });
+
+  const createdUserOperationsEvent = {
+    instrumentId: 1,
+    proposalBookingId: 1,
+    bookingType: ScheduledEventBookingType.USER_OPERATIONS,
+    startsAt: defaultEventBookingHourDateTime,
+    endsAt: getHourDateTimeAfter(24),
+  };
 
   describe('Proposal booking calls/proposals list', () => {
     it('should inform the user if the instrument has no calls', () => {
@@ -82,26 +107,13 @@ context('Proposal booking tests ', () => {
         url: '/calendar',
         timeout: 15000,
       });
-
-      cy.finishedLoading();
-
-      cy.get('[data-cy=input-instrument-select]').click();
-
-      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-        .first()
-        .click();
-
-      cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
-
-      cy.get(
-        '#instrument-calls-tree-view [role=treeitem] [role=group] [role=treeitem]'
-      )
-        .first()
-        .click();
     });
 
     describe('Book events', () => {
       it('should be able to add new time slot', () => {
+        cy.finishedLoading();
+        selectInstrumentAndClickOnProposalForBooking();
+
         cy.contains('Proposal ID');
         cy.get('[data-cy="add-new-timeslot"]').click();
 
@@ -124,137 +136,12 @@ context('Proposal booking tests ', () => {
           .should('exist');
       });
 
-      it('Should be able to edit time slot by resizing on the calendar', () => {
-        cy.get('[data-cy="btn-close-dialog"]').click();
-        cy.finishedLoading();
-
-        // Get the event from the calendar
-        cy.get('.rbc-time-content .rbc-event').last().as('scheduledEvent');
-
-        // Find the bottom resize icon after hovering the event using cypress-real-events(https://github.com/dmtrKovalenko/cypress-real-events) commands.
-        cy.get('@scheduledEvent')
-          .realHover()
-          .find('.rbc-addons-dnd-resize-ns-anchor')
-          .should('exist')
-          .last()
-          .find('.rbc-addons-dnd-resize-ns-icon')
-          .should('exist')
-          .as('bottomResizeIcon');
-
-        // Do the actual resize using the resize icon by triggering mousedown, mousemove and mouseup
-        cy.get('@bottomResizeIcon')
-          .realHover()
-          .realMouseDown()
-          .trigger('mousemove', 0, 200, { force: true });
-
-        cy.get('@scheduledEvent').realMouseUp();
-
-        cy.finishedLoading();
-
-        cy.get('#notistack-snackbar').contains(/scheduled event updated/i);
-      });
-
-      it('should be able to add new time slot by drag and drop to calendar', () => {
-        cy.contains('Proposal ID');
-        cy.get('[data-cy="btn-close-dialog"]').click();
-
-        cy.finishedLoading();
-
-        cy.get(
-          '#instrument-calls-tree-view [role=treeitem] [role=group] [role=treeitem]'
-        )
-          .first()
-          .trigger('dragstart');
-
-        const slot = new Date(defaultEventBookingHourDateTime).toISOString();
-        cy.get(`.rbc-day-slot [data-cy='event-slot-${slot}']`).scrollIntoView();
-
-        // NOTE: It needs to be forced because all the event slots are covered by this element .rbc-events-container and it is not possible to execute drop on event-slot
-        cy.get(`.rbc-day-slot [data-cy='event-slot-${slot}']`).trigger('drop', {
-          force: true,
-        });
-
-        cy.finishedLoading();
-
-        cy.get('[data-cy="time-slot-booking"]')
-          .get('[data-cy="btn-save"]')
-          .should('exist');
-
-        cy.get('[data-cy="time-slot-booking"] [data-cy="startsAtInfo"]').should(
-          'include.text',
-          defaultEventBookingHourDateTime
-        );
-        cy.get('[data-cy="time-slot-booking"] [data-cy="endsAtInfo"]').should(
-          'include.text',
-          getHourDateTimeAfter(1, 'hours')
-        );
-      });
-
-      it('Draft events should have opacity', () => {
-        cy.get('[data-cy="btn-close-dialog"]').click();
-
-        // NOTE: Using fixed proposal name and shortcode because they are inserted inside the database using a seeder and always will be the same for the test cases.
-        cy.get('[data-cy="proposal-event-Test proposal-999999"]')
-          .closest('.rbc-event')
-          .should('have.attr', 'style')
-          .and('include', 'background: rgb(')
-          .and('include', 'filter: grayscale(0) opacity(0.6);');
-      });
-
-      it('should see warning message if time slot is outside call cycle interval', () => {
-        cy.get('[data-cy="some-event-outside-cycle-interval-warning"]').should(
-          'not.exist'
-        );
-        cy.contains(
-          'Some of the time slots are booked outside call cycle start and end date'
-        ).should('not.exist');
-
-        cy.finishedLoading();
-        cy.get('.MuiTab-fullWidth').last().click();
-
-        cy.get('[data-cy="event-outside-cycle-interval-warning"]').should(
-          'not.exist'
-        );
-        cy.contains(
-          'Time slot should be booked between call cycle start and end date'
-        ).should('not.exist');
-
-        cy.get('[data-cy="startsAtInfo"]').click();
-        cy.get('[data-cy="startsAt"] input').clear();
-
-        cy.get('[data-cy=startsAt] input').type(getHourDateTimeAfter(2));
-
-        cy.get('[data-cy=btn-time-table-save-row]').click();
-
-        cy.get('[data-cy="endsAtInfo"]').click();
-        cy.get('[data-cy="endsAt"] input').clear();
-        cy.get('[data-cy=endsAt] input').type(getHourDateTimeAfter(50, 'days'));
-
-        cy.get('[data-cy=btn-time-table-save-row]').click();
-
-        cy.get('[data-cy="event-outside-cycle-interval-warning"]').should(
-          'exist'
-        );
-        cy.get('[data-cy="event-outside-cycle-interval-warning"]').should(
-          'contain.text',
-          'Time slot should be booked between call cycle start and end date'
-        );
-
-        cy.get('[data-cy="btn-save"]').click();
-        cy.finishedLoading();
-
-        cy.get('[data-cy="some-event-outside-cycle-interval-warning"]').should(
-          'exist'
-        );
-        cy.get('[data-cy="some-event-outside-cycle-interval-warning"]').should(
-          'contain.text',
-          'Some of the time slots are booked outside call cycle start and end date'
-        );
-      });
-
       it('should be able to edit time slot', () => {
+        cy.createEvent({ input: createdUserOperationsEvent });
         cy.finishedLoading();
-        cy.get('.MuiTab-fullWidth').last().click();
+        selectInstrumentAndClickOnProposalForBooking();
+
+        cy.finishedLoading();
 
         cy.get('[data-cy="startsAtInfo"]').click();
         cy.get('[data-cy="startsAt"] input').clear();
@@ -308,9 +195,141 @@ context('Proposal booking tests ', () => {
         cy.contains(getHourDateTimeAfter(3, 'days'));
       });
 
-      it('should be able to add and edit local contact on the timeslot', () => {
+      it('Should be able to edit time slot by resizing on the calendar', () => {
+        cy.createEvent({ input: createdUserOperationsEvent });
+        cy.finishedLoading();
+
+        // Get the event from the calendar
+        cy.get('.rbc-time-content .rbc-event').last().as('scheduledEvent');
+
+        // Find the bottom resize icon after hovering the event using cypress-real-events(https://github.com/dmtrKovalenko/cypress-real-events) commands.
+        cy.get('@scheduledEvent')
+          .realHover()
+          .find('.rbc-addons-dnd-resize-ns-anchor')
+          .should('exist')
+          .last()
+          .find('.rbc-addons-dnd-resize-ns-icon')
+          .should('exist')
+          .as('bottomResizeIcon');
+
+        // Do the actual resize using the resize icon by triggering mousedown, mousemove and mouseup
+        cy.get('@bottomResizeIcon')
+          .realHover()
+          .realMouseDown()
+          .trigger('mousemove', 0, 200, { force: true });
+
+        cy.get('@scheduledEvent').realMouseUp();
+
+        cy.finishedLoading();
+
+        cy.get('#notistack-snackbar').contains(/scheduled event updated/i);
+      });
+
+      it('should be able to add new time slot by drag and drop to calendar', () => {
+        cy.finishedLoading();
+        cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
+
+        cy.get(
+          '#instrument-calls-tree-view [role=treeitem] [role=group] [role=treeitem]'
+        )
+          .first()
+          .trigger('dragstart');
+
+        const slot = new Date(defaultEventBookingHourDateTime).toISOString();
+        cy.get(`.rbc-day-slot [data-cy='event-slot-${slot}']`).scrollIntoView();
+
+        // NOTE: It needs to be forced because all the event slots are covered by this element .rbc-events-container and it is not possible to execute drop on event-slot
+        cy.get(`.rbc-day-slot [data-cy='event-slot-${slot}']`).trigger('drop', {
+          force: true,
+        });
+
+        cy.finishedLoading();
+
+        cy.get('[data-cy="time-slot-booking"]')
+          .get('[data-cy="btn-save"]')
+          .should('exist');
+
+        cy.get('[data-cy="time-slot-booking"] [data-cy="startsAtInfo"]').should(
+          'include.text',
+          defaultEventBookingHourDateTime
+        );
+        cy.get('[data-cy="time-slot-booking"] [data-cy="endsAtInfo"]').should(
+          'include.text',
+          getHourDateTimeAfter(1, 'hours')
+        );
+      });
+
+      it('Draft events should have opacity', () => {
+        cy.createEvent({ input: createdUserOperationsEvent });
+        cy.finishedLoading();
+
+        // NOTE: Using fixed proposal name and shortcode because they are inserted inside the database using a seeder and always will be the same for the test cases.
+        cy.get('[data-cy="proposal-event-Test proposal-999999"]')
+          .closest('.rbc-event')
+          .should('have.attr', 'style')
+          .and('include', 'background: rgb(')
+          .and('include', 'filter: grayscale(0) opacity(0.6);');
+      });
+
+      it('should see warning message if time slot is outside call cycle interval', () => {
+        cy.createEvent({ input: createdUserOperationsEvent });
+        cy.finishedLoading();
+        selectInstrumentAndClickOnProposalForBooking();
+        cy.get('[data-cy="some-event-outside-cycle-interval-warning"]').should(
+          'not.exist'
+        );
+        cy.contains(
+          'Some of the time slots are booked outside call cycle start and end date'
+        ).should('not.exist');
+
         cy.finishedLoading();
         cy.get('.MuiTab-fullWidth').last().click();
+
+        cy.get('[data-cy="event-outside-cycle-interval-warning"]').should(
+          'not.exist'
+        );
+        cy.contains(
+          'Time slot should be booked between call cycle start and end date'
+        ).should('not.exist');
+
+        cy.get('[data-cy="startsAtInfo"]').click();
+        cy.get('[data-cy="startsAt"] input').clear();
+
+        cy.get('[data-cy=startsAt] input').type(getHourDateTimeAfter(2));
+
+        cy.get('[data-cy=btn-time-table-save-row]').click();
+
+        cy.get('[data-cy="endsAtInfo"]').click();
+        cy.get('[data-cy="endsAt"] input').clear();
+        cy.get('[data-cy=endsAt] input').type(getHourDateTimeAfter(50, 'days'));
+
+        cy.get('[data-cy=btn-time-table-save-row]').click();
+
+        cy.get('[data-cy="event-outside-cycle-interval-warning"]').should(
+          'exist'
+        );
+        cy.get('[data-cy="event-outside-cycle-interval-warning"]').should(
+          'contain.text',
+          'Time slot should be booked between call cycle start and end date'
+        );
+
+        cy.get('[data-cy="btn-save"]').click();
+        cy.finishedLoading();
+
+        cy.get('[data-cy="some-event-outside-cycle-interval-warning"]').should(
+          'exist'
+        );
+        cy.get('[data-cy="some-event-outside-cycle-interval-warning"]').should(
+          'contain.text',
+          'Some of the time slots are booked outside call cycle start and end date'
+        );
+      });
+
+      it('should be able to add and edit local contact on the timeslot', () => {
+        cy.createEvent({ input: createdUserOperationsEvent });
+        cy.finishedLoading();
+        selectInstrumentAndClickOnProposalForBooking();
+        cy.finishedLoading();
 
         cy.get('[data-cy="local-contact-details"]').should(
           'contain.text',
@@ -339,8 +358,8 @@ context('Proposal booking tests ', () => {
           });
       });
 
-      it('should be able to select and see local contact events in all views view', () => {
-        cy.get('[data-cy="btn-close-dialog"]').click();
+      it('should be able to select and see local contact events in all views', () => {
+        cy.createEvent({ input: createdUserOperationsEvent });
         cy.finishedLoading();
 
         cy.get('[data-cy="input-instrument-select"] input').focus();

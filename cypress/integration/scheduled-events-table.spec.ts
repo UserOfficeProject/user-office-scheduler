@@ -5,12 +5,9 @@ import {
 } from '../utils';
 
 context('Scheduled events table tests', () => {
-  before(() => {
-    cy.resetDB();
-    cy.resetSchedulerDB();
-  });
-
   beforeEach(() => {
+    cy.resetDB(true);
+    cy.resetSchedulerDB(true);
     cy.initializeSession('InstrumentScientist_1');
     cy.visit({
       url: '/calendar',
@@ -40,6 +37,15 @@ context('Scheduled events table tests', () => {
       endsAt: getHourDateTimeAfter(9, 'days'),
       description: 'Test maintenance event',
     };
+
+    const newScheduledUserOperationsEvent = {
+      instrumentId: 1,
+      proposalBookingId: 1,
+      bookingType: ScheduledEventBookingType.USER_OPERATIONS,
+      startsAt: defaultEventBookingHourDateTime,
+      endsAt: getHourDateTimeAfter(24),
+    };
+
     it('should be able to switch between scheduled events table view and calendar view', () => {
       cy.get('[data-cy="scheduler-active-view"]').click();
       cy.get('[data-value="Table"]').click();
@@ -107,6 +113,7 @@ context('Scheduled events table tests', () => {
       cy.finishedLoading();
       cy.createEvent({ input: newScheduledEvent1 });
       cy.createEvent({ input: newScheduledEvent2 });
+      cy.createEvent({ input: newScheduledUserOperationsEvent });
 
       cy.get('[data-cy=input-instrument-select]').click();
 
@@ -148,8 +155,10 @@ context('Scheduled events table tests', () => {
     });
 
     it('should be able to use table navigation to filter events the same way as calendar navigation', () => {
-      cy.finishedLoading();
+      cy.createEvent({ input: newScheduledEvent1 });
       cy.createEvent({ input: newScheduledEvent3 });
+      cy.createEvent({ input: newScheduledUserOperationsEvent });
+      cy.finishedLoading();
 
       cy.get('[data-cy=input-instrument-select]').click();
 
@@ -204,6 +213,8 @@ context('Scheduled events table tests', () => {
     });
 
     it('should be able to click and open events in table view', () => {
+      cy.createEvent({ input: newScheduledEvent1 });
+      cy.createEvent({ input: newScheduledUserOperationsEvent });
       cy.finishedLoading();
 
       cy.get('[data-cy=input-instrument-select]').click();
@@ -240,9 +251,14 @@ context('Scheduled events table tests', () => {
       cy.get(
         '[role="none presentation"] [data-cy="activate-time-slot-booking"]'
       ).should('exist');
+      cy.contains(
+        `${newScheduledUserOperationsEvent.startsAt} - ${newScheduledUserOperationsEvent.endsAt}`
+      );
     });
 
     it('should not reset dates if instrument is changed in filters', () => {
+      cy.createEvent({ input: newScheduledEvent3 });
+      cy.createEvent({ input: newScheduledUserOperationsEvent });
       cy.initializeSession('UserOfficer');
       cy.finishedLoading();
 
@@ -257,18 +273,23 @@ context('Scheduled events table tests', () => {
       cy.get('[data-cy="scheduler-active-view"]').click();
       cy.get('[data-value="Table"]').click();
 
+      cy.get('[data-cy="scheduled-events-table"]').should(
+        'not.contain',
+        newScheduledEvent3.startsAt
+      );
+      cy.contains(newScheduledUserOperationsEvent.startsAt);
+
       cy.get('.rbc-toolbar button')
         .contains('next', { matchCase: false })
         .click();
 
       cy.finishedLoading();
 
-      cy.get('[data-cy=input-instrument-select]').click();
-      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-        .last()
-        .click();
-
-      cy.finishedLoading();
+      cy.contains(newScheduledEvent3.startsAt);
+      cy.get('[data-cy="scheduled-events-table"]').should(
+        'not.contain',
+        newScheduledUserOperationsEvent.startsAt
+      );
 
       cy.reload();
 
@@ -276,7 +297,11 @@ context('Scheduled events table tests', () => {
 
       cy.get('[data-cy="scheduled-events-table"]').should('exist');
 
-      cy.contains(getHourDateTimeAfter(8, 'days'));
+      cy.contains(newScheduledEvent3.startsAt);
+      cy.get('[data-cy="scheduled-events-table"]').should(
+        'not.contain',
+        newScheduledUserOperationsEvent.startsAt
+      );
     });
   });
 });

@@ -280,7 +280,7 @@ context('Scheduled events timeline tests', () => {
       );
 
       cy.get('[data-cy="btn-close-dialog"]').click();
-      
+
       cy.wait(500);
 
       cy.contains(defaultEventBookingHourDateTime).first().parent().click();
@@ -360,7 +360,7 @@ context('Scheduled events timeline tests', () => {
         .click();
 
       cy.get(
-        '[data-cy="calendar-timeline-view"] .react-calendar-timeline .rct-sidebar .rct-sidebar-row'
+        '[data-cy="calendar-timeline-view"] [data-cy="item-group"]'
       ).should('have.length', '3');
 
       cy.reload();
@@ -368,7 +368,7 @@ context('Scheduled events timeline tests', () => {
       cy.finishedLoading();
 
       cy.get(
-        '[data-cy="calendar-timeline-view"] .react-calendar-timeline .rct-sidebar .rct-sidebar-row'
+        '[data-cy="calendar-timeline-view"] [data-cy="item-group"]'
       ).should('have.length', '3');
 
       cy.get(

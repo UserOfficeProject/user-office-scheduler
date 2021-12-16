@@ -34,7 +34,6 @@ import {
   BasicUserDetails,
   ProposalBookingStatusCore,
   ScheduledEvent,
-  User,
   UserRole,
 } from 'generated/sdk';
 import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
@@ -170,7 +169,7 @@ export default function TimeSlotDetails({
       handleSetDirty(true);
       onSave({
         ...scheduledEvent,
-        localContact: selectedLocalContact as unknown as User,
+        localContact: selectedLocalContact,
       });
     }
 
@@ -192,15 +191,15 @@ export default function TimeSlotDetails({
         </Alert>
       )}
       <PeopleModal
-        show={!!showPeopleModal}
-        close={(): void => setShowPeopleModal(false)}
+        show={showPeopleModal}
+        close={() => setShowPeopleModal(false)}
         addParticipants={addLocalContact}
         selectedUsers={
           scheduledEvent.localContact && [scheduledEvent.localContact.id]
         }
         title={'Select local contact'}
         userRole={UserRole.INSTRUMENT_SCIENTIST}
-        data={localContactOptions as BasicUserDetails[]}
+        data={localContactOptions}
       />
       <Grid container spacing={2}>
         <MuiPickersUtilsProvider utils={MomentUtils}>

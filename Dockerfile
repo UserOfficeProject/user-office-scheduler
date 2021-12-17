@@ -1,6 +1,9 @@
-FROM node:16-alpine AS build-stage
+FROM node:16.13-alpine AS build-stage
 
 WORKDIR /app
+
+RUN echo "GENERATE_SOURCEMAP=false" >> .env
+
 COPY package*.json /app/
 
 RUN CYPRESS_INSTALL_BINARY=0 npm ci --loglevel error --no-fund

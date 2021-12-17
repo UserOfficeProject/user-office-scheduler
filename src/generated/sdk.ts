@@ -1381,12 +1381,10 @@ export type MutationImportProposalArgs = {
   users?: Maybe<Array<Scalars['Int']>>;
 };
 
-
 export type MutationImportTemplateArgs = {
   conflictResolutions: Array<ConflictResolution>;
   templateAsJson: Scalars['String'];
 };
-
 
 export type MutationLoginArgs = {
   email: Scalars['String'];
@@ -2972,7 +2970,8 @@ export type ScheduledEventCore = {
 
 export type ScheduledEventFilter = {
   endsAt: Scalars['TzLessDateTime'];
-  instrumentIds?: Maybe<Array<Scalars['Int']>>;
+  instrumentIds: Array<Scalars['Int']>;
+  localContactIds: Array<Scalars['Int']>;
   startsAt: Scalars['TzLessDateTime'];
 };
 
@@ -3645,7 +3644,6 @@ export type GetProposalBookingQueryVariables = Exact<{
   filter: ProposalBookingScheduledEventFilter;
 }>;
 
-
 export type GetProposalBookingQuery = { proposalBooking: Maybe<(
     Pick<ProposalBooking, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'allocatedTime'>
     & { call: Maybe<Pick<Call, 'id' | 'shortCode' | 'startCycle' | 'endCycle' | 'cycleComment'>>, proposal: Maybe<Pick<Proposal, 'primaryKey' | 'title' | 'proposalId'>>, scheduledEvents: Array<(
@@ -3729,7 +3727,6 @@ export type GetProposalBookingScheduledEventsQueryVariables = Exact<{
   proposalBookingId: Scalars['Int'];
 }>;
 
-
 export type GetProposalBookingScheduledEventsQuery = { proposalBookingScheduledEvents: Array<(
     Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt' | 'bookingType' | 'status' | 'description'>
     & { scheduledBy: Maybe<Pick<User, 'id' | 'firstname' | 'lastname'>>, localContact: Maybe<Pick<BasicUserDetails, 'id' | 'firstname' | 'lastname'>> }
@@ -3766,10 +3763,9 @@ export type GetScheduledEventsQueryVariables = Exact<{
   scheduledEventFilter: ProposalBookingScheduledEventFilter;
 }>;
 
-
 export type GetScheduledEventsQuery = { scheduledEvents: Array<(
     Pick<ScheduledEvent, 'id' | 'bookingType' | 'equipmentId' | 'startsAt' | 'endsAt' | 'status' | 'description'>
-    & { instrument: Maybe<Pick<Instrument, 'id' | 'name'>>, scheduledBy: Maybe<Pick<User, 'firstname' | 'lastname'>>, localContact: Maybe<Pick<BasicUserDetails, 'firstname' | 'lastname'>>, proposalBooking: Maybe<(
+    & { instrument: Maybe<Pick<Instrument, 'id' | 'name'>>, scheduledBy: Maybe<Pick<User, 'firstname' | 'lastname'>>, localContact: Maybe<Pick<BasicUserDetails, 'id' | 'firstname' | 'lastname'>>, proposalBooking: Maybe<(
       Pick<ProposalBooking, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'allocatedTime'>
       & { proposal: Maybe<(
         Pick<Proposal, 'primaryKey' | 'title' | 'proposalId'>
@@ -3804,7 +3800,7 @@ export type UpdateScheduledEventMutation = { updateScheduledEvent: (
     Pick<ScheduledEventResponseWrap, 'error'>
     & { scheduledEvent: Maybe<(
       Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>
-      & { localContact: Maybe<Pick<BasicUserDetails, 'firstname' | 'lastname'>> }
+      & { localContact: Maybe<Pick<BasicUserDetails, 'id' | 'firstname' | 'lastname'>> }
     )> }
   ) };
 
@@ -4365,6 +4361,7 @@ export const GetScheduledEventsDocument = gql`
       lastname
     }
     localContact {
+      id
       firstname
       lastname
     }
@@ -4433,6 +4430,7 @@ export const UpdateScheduledEventDocument = gql`
       startsAt
       endsAt
       localContact {
+        id
         firstname
         lastname
       }

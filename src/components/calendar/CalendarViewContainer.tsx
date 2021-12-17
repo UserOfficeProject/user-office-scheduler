@@ -110,6 +110,7 @@ const transformEvent = (
     scheduledBy: scheduledEvent.scheduledBy,
     status: scheduledEvent.status,
     statusTableRenderValue: ScheduledEventStatusMap[scheduledEvent.status],
+    localContact: scheduledEvent.localContact,
   }));
 
 const useStyles = makeStyles((theme) => ({
@@ -180,20 +181,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const getInstrumentIdsFromQuery = (queryInstrument: string | null) => {
-  const queryInstrumentArray = queryInstrument?.split(',');
-  const queryInstrumentIds = queryInstrumentArray?.map((item) =>
-    parseInt(item)
-  );
+export const getArrayOfIdsFromQuery = (query: string | null) => {
+  const queryArray = query?.split(',');
+  const queryIds = queryArray?.map((item) => parseInt(item));
 
-  return queryInstrumentIds || [];
-};
-
-export const getEquipmentIdsFromQuery = (queryEquipment: string | null) => {
-  const queryEquipmentArray = queryEquipment?.split(',');
-  const queryEquipmentIds = queryEquipmentArray?.map((item) => parseInt(item));
-
-  return queryEquipmentIds || [];
+  return queryIds || [];
 };
 
 export default function CalendarViewContainer() {
@@ -213,6 +205,7 @@ export default function CalendarViewContainer() {
   const querySchedulerView = query.get('schedulerView');
   const queryView = query.get('viewPeriod') as SchedulerViewPeriod;
   const queryStartsAt = query.get('startsAt');
+  const queryLocalContact = query.get('localContact');
 
   const [schedulerActiveView, setSchedulerActiveView] = useState(
     (querySchedulerView as SchedulerViews) || SchedulerViews.CALENDAR
@@ -237,7 +230,8 @@ export default function CalendarViewContainer() {
   const [startsAt, setStartsAt] = useState(moment().startOf(view).toDate());
   const [filter, setFilter] = useState(
     generateScheduledEventFilter(
-      getInstrumentIdsFromQuery(queryInstrument),
+      getArrayOfIdsFromQuery(queryInstrument),
+      getArrayOfIdsFromQuery(queryLocalContact),
       startsAt,
       view
     )
@@ -275,7 +269,7 @@ export default function CalendarViewContainer() {
       schedulerActiveView === SchedulerViews.CALENDAR ||
       schedulerActiveView === SchedulerViews.TABLE
     ) {
-      const queryInstrumentIds = getInstrumentIdsFromQuery(queryInstrument);
+      const queryInstrumentIds = getArrayOfIdsFromQuery(queryInstrument);
       // NOTE: If table or calendar view set the selected instrument to first one if multiple are selected in timeline view.
       if (queryInstrumentIds && queryInstrumentIds.length > 1) {
         query.set('instrument', `${queryInstrumentIds[0]}`);
@@ -288,7 +282,7 @@ export default function CalendarViewContainer() {
     proposalBookings,
     loading: loadingBookings,
     refresh: refreshBookings,
-  } = useInstrumentProposalBookings(getInstrumentIdsFromQuery(queryInstrument));
+  } = useInstrumentProposalBookings(getArrayOfIdsFromQuery(queryInstrument));
 
   const {
     scheduledEvents,
@@ -299,7 +293,7 @@ export default function CalendarViewContainer() {
 
   const { scheduledEvents: eqEvents, refresh: refreshEquipments } =
     useEquipmentScheduledEvents({
-      equipmentIds: getEquipmentIdsFromQuery(queryEquipment),
+      equipmentIds: getArrayOfIdsFromQuery(queryEquipment),
       startsAt: filter.startsAt,
       endsAt: filter.endsAt,
     });
@@ -333,13 +327,14 @@ export default function CalendarViewContainer() {
     const newStartDate = getStartDate();
     setFilter(
       generateScheduledEventFilter(
-        getInstrumentIdsFromQuery(queryInstrument),
+        getArrayOfIdsFromQuery(queryInstrument),
+        getArrayOfIdsFromQuery(queryLocalContact),
         newStartDate,
         queryView || view
       )
     );
     setView(queryView || view);
-  }, [queryInstrument, view, getStartDate, queryView]);
+  }, [queryInstrument, queryLocalContact, view, getStartDate, queryView]);
 
   const equipmentEventsTransformed: GetScheduledEventsQuery['scheduledEvents'] =
     eqEvents
@@ -672,7 +667,7 @@ export default function CalendarViewContainer() {
               <ScheduledEventDialog
                 selectedEvent={selectedEvent}
                 selectedInstrumentId={
-                  getInstrumentIdsFromQuery(queryInstrument)[0] || 0
+                  getArrayOfIdsFromQuery(queryInstrument)[0] || 0
                 }
                 isDialogOpen={selectedEvent !== null}
                 closeDialog={closeDialog}

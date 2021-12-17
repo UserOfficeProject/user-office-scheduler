@@ -7,6 +7,7 @@ export default function useScheduledEvents({
   endsAt,
   startsAt,
   instrumentIds,
+  localContactIds,
 }: ScheduledEventFilter) {
   const [loading, setLoading] = useState(true);
   const [scheduledEvents, setScheduledEvents] = useState<
@@ -18,6 +19,7 @@ export default function useScheduledEvents({
   const [counter, setCounter] = useState<number>(0);
   // NOTE: We need to stringify the ids array before we pass it to the useEffect dependency array because of its comparison.
   const instrumentIdsStringified = JSON.stringify(instrumentIds);
+  const localContactIdsStringified = JSON.stringify(localContactIds);
 
   const api = useDataApi();
 
@@ -28,10 +30,11 @@ export default function useScheduledEvents({
   useEffect(() => {
     let unmount = false;
     const instrumentIdsArray = JSON.parse(instrumentIdsStringified);
+    const localContactIdsArray = JSON.parse(localContactIdsStringified);
 
     setLoading(true);
 
-    if (!instrumentIdsArray?.length) {
+    if (!instrumentIdsArray?.length && !localContactIdsArray?.length) {
       setScheduledEvents([]);
       setLoading(false);
 
@@ -40,7 +43,12 @@ export default function useScheduledEvents({
 
     api()
       .getScheduledEvents({
-        filter: { startsAt, endsAt, instrumentIds: instrumentIdsArray },
+        filter: {
+          startsAt,
+          endsAt,
+          instrumentIds: instrumentIdsArray,
+          localContactIds: localContactIdsArray,
+        },
         scheduledEventFilter: {},
       })
       .then((data) => {
@@ -58,7 +66,14 @@ export default function useScheduledEvents({
     return () => {
       unmount = true;
     };
-  }, [counter, startsAt, endsAt, instrumentIdsStringified, api]);
+  }, [
+    counter,
+    startsAt,
+    endsAt,
+    instrumentIdsStringified,
+    localContactIdsStringified,
+    api,
+  ]);
 
   return {
     loading,

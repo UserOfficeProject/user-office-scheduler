@@ -11,16 +11,10 @@ import { Link } from 'react-router-dom';
 import { ActionButtonContainer } from 'components/common/ActionButtonContainer';
 import { tableIcons } from 'components/common/TableIcons';
 import { PATH_CREATE_EQUIPMENT } from 'components/paths';
-import useEquipments from 'hooks/equipment/useEquipments';
+import useEquipments, { PartialEquipment } from 'hooks/equipment/useEquipments';
 import { ContentContainer, StyledPaper } from 'styles/StyledComponents';
 
-export type EquipmentTableRow = {
-  id: number;
-  name: string;
-  description: string | null;
-};
-
-const columns: Column<EquipmentTableRow>[] = [
+const columns: Column<PartialEquipment>[] = [
   { field: 'name', title: 'Name' },
   { field: 'description', title: 'Description' },
 ];
@@ -49,7 +43,7 @@ export default function Equipments() {
                   icon: VisibilityIcon,
                   tooltip: 'View equipment',
                   onClick: (_event, rowData) =>
-                    setEditEquipmentId((rowData as EquipmentTableRow).id),
+                    setEditEquipmentId((rowData as PartialEquipment).id),
                   position: 'row',
                 },
               ]}

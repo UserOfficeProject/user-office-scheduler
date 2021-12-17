@@ -50,7 +50,7 @@ type TableRow = {
   id: number;
   startsAt: Moment;
   endsAt: Moment;
-  equipmentAssignmentStatus: EquipmentAssignmentStatus | null;
+  equipmentAssignmentStatus?: EquipmentAssignmentStatus | null;
 };
 
 const useStyles = makeStyles((theme) => ({
@@ -83,8 +83,8 @@ const MaintenanceInfo = ({
   startsAt,
   endsAt,
 }: {
-  startsAt: string | null;
-  endsAt: string | null;
+  startsAt?: string | null;
+  endsAt?: string | null;
 }) => {
   if (startsAt && !endsAt) {
     return <>Under maintenance indefinitely</>;

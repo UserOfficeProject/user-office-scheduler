@@ -26,10 +26,10 @@ export type CalendarScheduledEvent = Pick<
   | 'equipmentId'
   | 'status'
 > & {
-  localContact: Pick<
-    BasicUserDetailsFragment,
-    'id' | 'firstname' | 'lastname'
-  > | null;
+  localContact:
+    | Pick<BasicUserDetailsFragment, 'id' | 'firstname' | 'lastname'>
+    | null
+    | undefined;
   start: Date;
   startTableRenderValue: string;
   end: Date;

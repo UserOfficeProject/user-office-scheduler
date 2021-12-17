@@ -9,7 +9,7 @@ import {
 
 export type MetaFields = 'created_at' | 'updated_at';
 
-export type PaginatedRecord<T extends unknown> = T & { _total: number };
+export type PaginatedRecord<T> = T & { _total: number };
 
 export interface ScheduledEventRecord {
   readonly scheduled_event_id: number;

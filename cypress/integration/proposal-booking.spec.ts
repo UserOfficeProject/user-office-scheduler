@@ -308,6 +308,89 @@ context('Proposal booking tests ', () => {
         cy.contains(getHourDateTimeAfter(3, 'days'));
       });
 
+      it('should be able to add and edit local contact on the timeslot', () => {
+        cy.finishedLoading();
+        cy.get('.MuiTab-fullWidth').last().click();
+
+        cy.get('[data-cy="local-contact-details"]').should(
+          'contain.text',
+          'None'
+        );
+
+        cy.get('[data-cy="add-local-contact"]').click();
+        cy.get('[data-cy="select-user"]').first().click();
+
+        cy.get('[data-cy="local-contact-details"]')
+          .should('not.contain.text', 'None')
+          .invoke('text')
+          .then((selectedLocalContactText: string) => {
+            cy.get('[data-cy="edit-local-contact"]').should('exist').click();
+
+            cy.get('[data-cy="select-user"]').last().click();
+
+            cy.get('[data-cy="local-contact-details"]')
+              .should('not.contain.text', 'None')
+              .invoke('text')
+              .should('not.equal', selectedLocalContactText);
+
+            cy.get('[data-cy="btn-save"]').click();
+
+            cy.get('#notistack-snackbar').contains('Scheduled event updated');
+          });
+      });
+
+      it('should be able to select and see local contact events in all views view', () => {
+        cy.get('[data-cy="btn-close-dialog"]').click();
+        cy.finishedLoading();
+
+        cy.get('[data-cy="input-instrument-select"] input').focus();
+        cy.get('[data-cy="input-instrument-select"]')
+          .find('button[title="Clear"]')
+          .click();
+
+        cy.finishedLoading();
+
+        cy.get('[data-cy="input-local-contact-select"]').click();
+        cy.get(
+          '[aria-labelledby=input-local-contact-select-label] [role=option]'
+        )
+          .last()
+          .click();
+
+        cy.finishedLoading();
+
+        cy.get('.rbc-time-content .rbc-event')
+          .last()
+          .contains('999999')
+          .click();
+
+        cy.finishedLoading();
+
+        cy.contains(
+          `${getHourDateTimeAfter(2, 'days')} - ${getHourDateTimeAfter(
+            3,
+            'days'
+          )}`
+        );
+
+        cy.get('[data-cy="local-contact-details"] p')
+          .should('not.contain.text', 'None')
+          .invoke('text')
+          .then((selectedLocalContactText) => {
+            cy.get('[data-cy="btn-close-dialog"]').click();
+            cy.finishedLoading();
+
+            cy.get('[data-cy="scheduler-active-view"]').click();
+            cy.get('[data-value="Timeline"]').click();
+
+            cy.get('.react-calendar-timeline .rct-outer')
+              .should('contain.text', 'local contacts')
+              .and('contain.text', selectedLocalContactText);
+
+            cy.contains(getHourDateTimeAfter(2, 'days'));
+          });
+      });
+
       it('should be able to open time slot by clicking on the calendar event', () => {
         cy.get('[data-cy="btn-close-dialog"]').click();
         cy.finishedLoading();

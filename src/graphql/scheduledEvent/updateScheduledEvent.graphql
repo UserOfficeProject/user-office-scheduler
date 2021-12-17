@@ -5,6 +5,11 @@ mutation updateScheduledEvent($input: UpdateScheduledEventInput!) {
       id
       startsAt
       endsAt
+      localContact {
+        id
+        firstname
+        lastname
+      }
     }
   }
 }

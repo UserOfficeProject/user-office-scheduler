@@ -13,10 +13,12 @@ import {
 import {
   CalendarToday as CalendarTodayIcon,
   HourglassEmpty as HourglassEmptyIcon,
-  People as PeopleIcon,
+  Person as PersonIcon,
   Check as CheckIcon,
   Clear as ClearIcon,
   Info as InfoIcon,
+  AssignmentInd as PersonAssignedIcon,
+  PersonAdd as PersonAddIcon,
   Edit,
 } from '@material-ui/icons';
 import { Alert, AlertTitle } from '@material-ui/lab';
@@ -27,12 +29,19 @@ import {
 import moment, { Moment } from 'moment';
 import React, { useState } from 'react';
 
-import { ProposalBookingStatusCore, ScheduledEvent } from 'generated/sdk';
+import PeopleModal from 'components/common/PeopleModal';
+import {
+  BasicUserDetails,
+  ProposalBookingStatusCore,
+  ScheduledEvent,
+  UserRole,
+} from 'generated/sdk';
 import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
 import {
   toTzLessDateTime,
   TZ_LESS_DATE_TIME_LOW_PREC_FORMAT,
 } from 'utils/date';
+import { getFullUserName } from 'utils/user';
 
 const useStyles = makeStyles((theme) => ({
   list: {
@@ -102,8 +111,8 @@ export default function TimeSlotDetails({
   handleSetDirty,
 }: TimeSlotDetailsProps) {
   const [editingStartDate, setEditingStartDate] = useState(false);
-
   const [editingEndDate, setEditingEndDate] = useState(false);
+  const [showPeopleModal, setShowPeopleModal] = useState(false);
 
   const isStepReadOnly =
     scheduledEvent.status === ProposalBookingStatusCore.COMPLETED;
@@ -153,6 +162,27 @@ export default function TimeSlotDetails({
     );
   };
 
+  const addLocalContact = (data: BasicUserDetails[]) => {
+    const [selectedLocalContact] = data;
+
+    if (selectedLocalContact) {
+      handleSetDirty(true);
+      onSave({
+        ...scheduledEvent,
+        localContact: selectedLocalContact,
+      });
+    }
+
+    setShowPeopleModal(false);
+  };
+
+  const localContactOptions = proposalBooking.instrument
+    ? [
+        proposalBooking.instrument.beamlineManager,
+        ...proposalBooking.instrument.scientists,
+      ]
+    : [];
+
   return (
     <>
       {isStepReadOnly && (
@@ -160,6 +190,17 @@ export default function TimeSlotDetails({
           Time slot booking is already completed, you can not edit it.
         </Alert>
       )}
+      <PeopleModal
+        show={showPeopleModal}
+        close={() => setShowPeopleModal(false)}
+        addParticipants={addLocalContact}
+        selectedUsers={
+          scheduledEvent.localContact && [scheduledEvent.localContact.id]
+        }
+        title={'Select local contact'}
+        userRole={UserRole.INSTRUMENT_SCIENTIST}
+        data={localContactOptions}
+      />
       <Grid container spacing={2}>
         <MuiPickersUtilsProvider utils={MomentUtils}>
           <Grid item sm={6} xs={12}>
@@ -242,12 +283,49 @@ export default function TimeSlotDetails({
               <ListItem disableGutters>
                 <ListItemAvatar>
                   <Avatar>
-                    <PeopleIcon />
+                    <PersonAssignedIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText
+                  primary="Local contact"
+                  data-cy="local-contact-details"
+                  secondary={
+                    <>
+                      {getFullUserName(scheduledEvent.localContact)}
+                      {isEditable &&
+                        (!scheduledEvent.localContact ? (
+                          <PersonAddIcon
+                            onClick={() => setShowPeopleModal(true)}
+                            fontSize="small"
+                            data-cy="add-local-contact"
+                            className={classes.editIcon}
+                          />
+                        ) : (
+                          <Edit
+                            onClick={() => setShowPeopleModal(true)}
+                            fontSize="small"
+                            data-cy="edit-local-contact"
+                            className={classes.editIcon}
+                          />
+                        ))}
+                    </>
+                  }
+                />
+              </ListItem>
+              <Divider
+                variant="inset"
+                component="li"
+                className={classes.divider}
+              />
+              <ListItem disableGutters>
+                <ListItemAvatar>
+                  <Avatar>
+                    <PersonIcon />
                   </Avatar>
                 </ListItemAvatar>
                 <ListItemText
                   primary="Scheduled by"
-                  secondary={`${scheduledEvent.scheduledBy?.firstname} ${scheduledEvent.scheduledBy?.lastname}`}
+                  secondary={getFullUserName(scheduledEvent.scheduledBy)}
                 />
               </ListItem>
             </List>
@@ -335,6 +413,11 @@ export default function TimeSlotDetails({
                   secondary={scheduledEvent.status}
                 />
               </ListItem>
+              <Divider
+                variant="inset"
+                component="li"
+                className={classes.divider}
+              />
             </List>
           </Grid>
         </MuiPickersUtilsProvider>

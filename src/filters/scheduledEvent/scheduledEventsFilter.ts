@@ -6,17 +6,17 @@ import { toTzLessDateTime } from 'utils/date';
 
 export default function generateScheduledEventFilter(
   instrumentIds: number[],
+  localContactIds: number[],
   startsAt: Date,
   activeView: View
 ): ScheduledEventFilter {
-  instrumentIds = instrumentIds?.length ? instrumentIds : [0];
-
   switch (activeView) {
     case 'day': {
       const newStartsAt = moment(startsAt);
 
       return {
         instrumentIds,
+        localContactIds,
         startsAt: toTzLessDateTime(newStartsAt),
         endsAt: toTzLessDateTime(newStartsAt.add(1, 'day')),
       };
@@ -26,6 +26,7 @@ export default function generateScheduledEventFilter(
 
       return {
         instrumentIds,
+        localContactIds,
         startsAt: toTzLessDateTime(newStartsAt),
         endsAt: toTzLessDateTime(newStartsAt.add(1, 'week')),
       };
@@ -35,6 +36,7 @@ export default function generateScheduledEventFilter(
 
       return {
         instrumentIds,
+        localContactIds,
         startsAt: toTzLessDateTime(newStartsAt),
         endsAt: toTzLessDateTime(newStartsAt.add(1, 'month')),
       };
@@ -47,6 +49,7 @@ export default function generateScheduledEventFilter(
         startsAt: toTzLessDateTime(newStartsAt),
         endsAt: toTzLessDateTime(newStartsAt.add(1, 'week')),
         instrumentIds,
+        localContactIds,
       };
   }
 }

@@ -10,8 +10,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { useQuery } from 'hooks/common/useQuery';
 
 import {
-  getEquipmentIdsFromQuery,
-  getInstrumentIdsFromQuery,
+  getArrayOfIdsFromQuery,
   SchedulerViewPeriod,
 } from './calendar/CalendarViewContainer';
 import { PATH_CALENDAR, PATH_EQUIPMENTS, PATH_REQUESTS } from './paths';
@@ -26,6 +25,14 @@ const generateCalendarPath = (calendarState: CalendarLocalStorageState) => {
   if (calendarState.instrumentIds?.length) {
     path.push(
       `instrument=${encodeURIComponent(calendarState.instrumentIds.join(','))}`
+    );
+  }
+
+  if (calendarState.localContactIds?.length) {
+    path.push(
+      `localContact=${encodeURIComponent(
+        calendarState.localContactIds.join(',')
+      )}`
     );
   }
 
@@ -55,6 +62,7 @@ const getCalendarLocalStorageState = (): CalendarLocalStorageState | null => {
 type CalendarLocalStorageState = {
   instrumentIds: number[] | null;
   equipmentIds: number[] | null;
+  localContactIds: number[] | null;
   schedulerView: string | null;
   activeView: string | null;
   startsAt: string | null;
@@ -68,6 +76,7 @@ export default function MenuItems() {
 
   const queryInstrument = query.get('instrument');
   const queryEquipment = query.get('equipment');
+  const queryLocalContact = query.get('localContact');
   const querySchedulerView = query.get('schedulerView');
   const queryView = query.get('viewPeriod') as SchedulerViewPeriod;
   const queryStartsAt = query.get('startsAt');
@@ -80,6 +89,7 @@ export default function MenuItems() {
     const calendarInitialState: CalendarLocalStorageState = {
       instrumentIds: null,
       equipmentIds: null,
+      localContactIds: null,
       schedulerView: null,
       activeView: null,
       startsAt: null,
@@ -89,8 +99,9 @@ export default function MenuItems() {
       getCalendarLocalStorageState() || calendarInitialState;
 
     const calendarNewState = {
-      instrumentIds: getInstrumentIdsFromQuery(queryInstrument),
-      equipmentIds: getEquipmentIdsFromQuery(queryEquipment),
+      instrumentIds: getArrayOfIdsFromQuery(queryInstrument),
+      equipmentIds: getArrayOfIdsFromQuery(queryEquipment),
+      localContactIds: getArrayOfIdsFromQuery(queryLocalContact),
       schedulerView: querySchedulerView,
       activeView: queryView || calendarlocalStorageState.activeView,
       startsAt: queryStartsAt || calendarlocalStorageState.startsAt,
@@ -104,6 +115,7 @@ export default function MenuItems() {
     queryStartsAt,
     queryInstrument,
     queryEquipment,
+    queryLocalContact,
     location.pathname,
   ]);
 

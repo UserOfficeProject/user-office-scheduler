@@ -1,4 +1,5 @@
 import {
+  Box,
   Chip,
   CircularProgress,
   Grid,
@@ -12,18 +13,20 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 
 import { InstrumentAndEquipmentContext } from 'context/InstrumentAndEquipmentContext';
-import { Equipment } from 'generated/sdk';
+import { BasicUserDetailsFragment, Equipment } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
 import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
+import { getFullUserName } from 'utils/user';
 
-import {
-  getEquipmentIdsFromQuery,
-  getInstrumentIdsFromQuery,
-} from './CalendarViewContainer';
+import { getArrayOfIdsFromQuery } from './CalendarViewContainer';
 
 const useStyles = makeStyles((theme) => ({
-  tooltip: {
+  root: {
     marginBottom: theme.spacing(1),
+
+    '& .MuiAutocomplete-tag': {
+      width: 'calc(100% - 65px)',
+    },
   },
 }));
 
@@ -36,10 +39,17 @@ export default function InstrumentAndEquipmentFilter({
   const history = useHistory();
   const query = useQuery();
 
-  const { instruments, loadingInstruments, equipments, loadingEquipments } =
-    useContext(InstrumentAndEquipmentContext);
+  const {
+    instruments,
+    loadingInstruments,
+    equipments,
+    loadingEquipments,
+    localContacts,
+    loadingLocalContacts,
+  } = useContext(InstrumentAndEquipmentContext);
   const queryInstrument = query.get('instrument');
   const queryEquipment = query.get('equipment');
+  const queryLocalContacts = query.get('localContact');
 
   const [selectedInstrument, setSelectedInstrument] = useState<
     PartialInstrument | PartialInstrument[] | null
@@ -49,8 +59,13 @@ export default function InstrumentAndEquipmentFilter({
     Pick<Equipment, 'id' | 'name'>[] | undefined
   >([]);
 
+  const [selectedLocalContacts, setSelectedLocalContacts] = useState<
+    | Pick<BasicUserDetailsFragment, 'id' | 'firstname' | 'lastname'>[]
+    | undefined
+  >([]);
+
   useEffect(() => {
-    const equipmentIds = getEquipmentIdsFromQuery(queryEquipment);
+    const equipmentIds = getArrayOfIdsFromQuery(queryEquipment);
 
     if (!loadingEquipments && equipmentIds.length && equipments.length) {
       const queryFilteredEquipments = equipments.filter((eq) =>
@@ -62,7 +77,7 @@ export default function InstrumentAndEquipmentFilter({
   }, [loadingEquipments, equipments, queryEquipment]);
 
   useEffect(() => {
-    const queryInstrumentIds = getInstrumentIdsFromQuery(queryInstrument);
+    const queryInstrumentIds = getArrayOfIdsFromQuery(queryInstrument);
 
     if (!loadingInstruments && queryInstrumentIds.length) {
       const queryFoundInstruments = instruments.filter((item) =>
@@ -75,6 +90,18 @@ export default function InstrumentAndEquipmentFilter({
         );
     }
   }, [loadingInstruments, instruments, queryInstrument, multipleInstruments]);
+
+  useEffect(() => {
+    const localContactIds = getArrayOfIdsFromQuery(queryLocalContacts);
+
+    if (!loadingLocalContacts && localContactIds.length) {
+      const queryFilteredLocalContacts = localContacts.filter((eq) =>
+        localContactIds.includes(eq.id)
+      );
+
+      setSelectedLocalContacts(queryFilteredLocalContacts);
+    }
+  }, [loadingLocalContacts, localContacts, queryLocalContacts]);
 
   const handleMultipleInstrumentsSelectionChange = (
     newSelectedInstruments: PartialInstrument[]
@@ -145,6 +172,31 @@ export default function InstrumentAndEquipmentFilter({
     history.push(`?${query}`);
   };
 
+  const onLocalContactChange = (
+    event: React.ChangeEvent<unknown>,
+    newSelectedLocalContacts:
+      | Pick<BasicUserDetailsFragment, 'id' | 'firstname' | 'lastname'>[]
+      | undefined
+  ) => {
+    if (
+      newSelectedLocalContacts === undefined ||
+      newSelectedLocalContacts.length === 0
+    ) {
+      query.delete('localContact');
+    } else if (
+      JSON.stringify(newSelectedLocalContacts) !==
+      JSON.stringify(selectedLocalContacts)
+    ) {
+      query.set(
+        'localContact',
+        `${newSelectedLocalContacts?.map((lc) => lc.id).join(',')}`
+      );
+    }
+
+    setSelectedLocalContacts(newSelectedLocalContacts);
+    history.push(`?${query}`);
+  };
+
   // NOTE: Limited tags rendering to save some space and it looks a bit ugly when too many items are selected on the autocomplete.
   const renderLimitedTags = ({
     value,
@@ -156,14 +208,26 @@ export default function InstrumentAndEquipmentFilter({
     limitTags: number;
   }) => {
     const numTags = value.length;
+    const itemsInsideTheLimit = value.slice(0, limitTags);
+    const itemsOutsideTheLimit = value.slice(limitTags);
 
     return (
       <>
-        {value.slice(0, limitTags).map((option, index) => (
-          <Chip {...getTagProps({ index })} key={index} label={option.name} />
+        {itemsInsideTheLimit.map((option, index) => (
+          <Chip
+            {...getTagProps({ index })}
+            key={index}
+            label={option.name}
+            title={option.name}
+          />
         ))}
 
-        {numTags > limitTags && ` +${numTags - limitTags}`}
+        <Box
+          title={itemsOutsideTheLimit.map((item) => item.name).join(', ')}
+          component="span"
+        >
+          {numTags > limitTags && ` +${numTags - limitTags}`}
+        </Box>
       </>
     );
   };
@@ -172,14 +236,14 @@ export default function InstrumentAndEquipmentFilter({
     <Grid
       container
       alignItems="center"
-      className={`${classes.tooltip}`}
+      className={`${classes.root}`}
       spacing={2}
     >
-      <Grid item sm={6} xs={12} data-cy="calendar-toolbar-instrument-select">
+      <Grid item sm={4} xs={12} data-cy="calendar-toolbar-instrument-select">
         <Autocomplete
           multiple={multipleInstruments}
           renderTags={(value, getTagProps) =>
-            renderLimitedTags({ value, getTagProps, limitTags: 2 })
+            renderLimitedTags({ value, getTagProps, limitTags: 1 })
           }
           loading={loadingInstruments}
           disabled={loadingInstruments}
@@ -215,7 +279,7 @@ export default function InstrumentAndEquipmentFilter({
           onChange={onInstrumentChange}
         />
       </Grid>
-      <Grid item sm={6} xs={12} data-cy="calendar-toolbar-equipment-select">
+      <Grid item sm={4} xs={12} data-cy="calendar-toolbar-equipment-select">
         <Autocomplete
           multiple
           renderTags={(value, getTagProps) =>
@@ -253,6 +317,55 @@ export default function InstrumentAndEquipmentFilter({
           )}
           value={selectedEquipment}
           onChange={onEquipmentChange}
+        />
+      </Grid>
+      <Grid item sm={4} xs={12} data-cy="calendar-toolbar-equipment-select">
+        <Autocomplete
+          multiple
+          renderTags={(value, getTagProps) =>
+            renderLimitedTags({
+              value: value.map((item) => ({
+                id: item.id,
+                name: getFullUserName(item),
+              })),
+              getTagProps,
+              limitTags: 1,
+            })
+          }
+          loading={loadingLocalContacts}
+          disabled={loadingLocalContacts}
+          selectOnFocus
+          clearOnBlur
+          fullWidth
+          handleHomeEndKeys
+          options={localContacts}
+          getOptionLabel={(localContact) =>
+            `${localContact.firstname} ${localContact.lastname}`
+          }
+          data-cy="input-local-contact-select"
+          id="input-local-contact-select"
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Local contact"
+              placeholder="Local contact"
+              margin="dense"
+              disabled={loadingLocalContacts}
+              InputProps={{
+                ...params.InputProps,
+                endAdornment: (
+                  <>
+                    {loadingLocalContacts ? (
+                      <CircularProgress color="inherit" size={20} />
+                    ) : null}
+                    {params.InputProps.endAdornment}
+                  </>
+                ),
+              }}
+            />
+          )}
+          value={selectedLocalContacts}
+          onChange={onLocalContactChange}
         />
       </Grid>
     </Grid>

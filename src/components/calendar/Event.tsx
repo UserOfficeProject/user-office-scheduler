@@ -5,12 +5,14 @@ import { EventProps } from 'react-big-calendar';
 import EquipmentBookingInfo from 'components/equipment/EquipmentBookingInfo';
 import ProposalBookingInfo from 'components/proposalBooking/ProposalBookingInfo';
 import {
+  BasicUserDetailsFragment,
   GetScheduledEventsQuery,
   ProposalBooking,
   ProposalBookingStatusCore,
   ScheduledEvent,
   ScheduledEventBookingType,
 } from 'generated/sdk';
+import { getFullUserName } from 'utils/user';
 
 export type BasicProposalBooking =
   GetScheduledEventsQuery['scheduledEvents'][number]['proposalBooking'];
@@ -24,6 +26,10 @@ export type CalendarScheduledEvent = Pick<
   | 'equipmentId'
   | 'status'
 > & {
+  localContact: Pick<
+    BasicUserDetailsFragment,
+    'id' | 'firstname' | 'lastname'
+  > | null;
   start: Date;
   startTableRenderValue: string;
   end: Date;
@@ -133,9 +139,7 @@ export default function Event({
         <EquipmentBookingInfo
           name={description ?? 'NA'}
           instrument={instrument?.name ?? 'NA'}
-          scheduledBy={
-            `${scheduledBy?.firstname} ${scheduledBy?.lastname}` ?? 'NA'
-          }
+          scheduledBy={getFullUserName(scheduledBy)}
           proposalBooking={{ status }}
         />
       );

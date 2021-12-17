@@ -26,12 +26,29 @@ query getProposalBooking(
         firstname
         lastname
       }
+      localContact {
+        id
+        firstname
+        lastname
+      }
       status
       description
     }
     instrument {
       id
       name
+      beamlineManager {
+        id
+        firstname
+        lastname
+        organisation
+      }
+      scientists {
+        id
+        firstname
+        lastname
+        organisation
+      }
     }
     createdAt
     updatedAt

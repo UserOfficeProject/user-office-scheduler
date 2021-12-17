@@ -5,7 +5,7 @@ BEGIN
   BEGIN
 
     ALTER TABLE "scheduled_events"
-    ADD COLUMN IF NOT EXISTS "local_contact" int DEFAULT NULL; -- comes from a different db?
+    ADD COLUMN IF NOT EXISTS "local_contact" int DEFAULT NULL; -- comes from a different db
 
   END;
   END IF;

@@ -11,6 +11,7 @@ import {
 } from '../../resolvers/mutations/ScheduledEventMutation';
 import { ScheduledEventFilter } from '../../resolvers/queries/ScheduledEventQuery';
 import { ProposalBookingScheduledEventFilter } from '../../resolvers/types/ProposalBooking';
+import { isSetAndPopulated } from '../../utils/helperFunctions';
 import { ScheduledEventDataSource } from '../ScheduledEventDataSource';
 import database from './database';
 import {
@@ -163,24 +164,33 @@ export default class PostgreScheduledEventDataSource
   }
 
   async getAll(filter: ScheduledEventFilter): Promise<ScheduledEvent[]> {
-    if (!filter.instrumentIds?.length) {
-      return [];
-    }
+    const scheduledEventRecords: ScheduledEventRecord[] =
+      await database<ScheduledEventRecord>(this.tableName)
+        .select()
+        .modify((query) => {
+          if (filter.startsAt && filter.endsAt) {
+            query
+              .where('starts_at', '<=', filter.endsAt)
+              .andWhere('ends_at', '>=', filter.startsAt);
+          }
 
-    const qb = database<ScheduledEventRecord>(this.tableName)
-      .select()
-      .whereIn('instrument_id', filter.instrumentIds)
-      .orderBy('starts_at');
-
-    if (filter.startsAt && filter.endsAt) {
-      qb.where('starts_at', '<=', filter.endsAt).andWhere(
-        'ends_at',
-        '>=',
-        filter.startsAt
-      );
-    }
-
-    const scheduledEventRecords = await qb;
+          if (
+            isSetAndPopulated(filter.instrumentIds) &&
+            isSetAndPopulated(filter.localContactIds)
+          ) {
+            query.where((qb) => {
+              qb.whereIn('instrument_id', filter.instrumentIds).orWhereIn(
+                'local_contact',
+                filter.localContactIds
+              );
+            });
+          } else if (isSetAndPopulated(filter.instrumentIds)) {
+            query.whereIn('instrument_id', filter.instrumentIds);
+          } else if (isSetAndPopulated(filter.localContactIds)) {
+            query.whereIn('local_contact', filter.localContactIds);
+          }
+        })
+        .orderBy('starts_at');
 
     return scheduledEventRecords.map(createScheduledEventObject);
   }

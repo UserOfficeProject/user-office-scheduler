@@ -1382,10 +1382,6 @@ export type MutationImportProposalArgs = {
   users?: Maybe<Array<Scalars['Int']>>;
 };
 
-export type MutationImportTemplateArgs = {
-  conflictResolutions: Array<ConflictResolution>;
-  templateAsJson: Scalars['String'];
-};
 
 export type MutationImportTemplateArgs = {
   conflictResolutions: Array<ConflictResolution>;
@@ -3675,6 +3671,7 @@ export type GetProposalBookingQueryVariables = Exact<{
   filter: ProposalBookingScheduledEventFilter;
 }>;
 
+
 export type GetProposalBookingQuery = { proposalBooking: Maybe<(
     Pick<ProposalBooking, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'allocatedTime'>
     & { call: Maybe<Pick<Call, 'id' | 'shortCode' | 'startCycle' | 'endCycle' | 'cycleComment'>>, proposal: Maybe<Pick<Proposal, 'primaryKey' | 'title' | 'proposalId'>>, scheduledEvents: Array<(
@@ -3758,6 +3755,7 @@ export type GetProposalBookingScheduledEventsQueryVariables = Exact<{
   proposalBookingId: Scalars['Int'];
 }>;
 
+
 export type GetProposalBookingScheduledEventsQuery = { proposalBookingScheduledEvents: Array<(
     Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt' | 'bookingType' | 'status' | 'description'>
     & { scheduledBy: Maybe<Pick<User, 'id' | 'firstname' | 'lastname'>>, localContact: Maybe<Pick<BasicUserDetails, 'id' | 'firstname' | 'lastname'>> }
@@ -3793,6 +3791,7 @@ export type GetScheduledEventsQueryVariables = Exact<{
   filter: ScheduledEventFilter;
   scheduledEventFilter: ProposalBookingScheduledEventFilter;
 }>;
+
 
 export type GetScheduledEventsQuery = { scheduledEvents: Array<(
     Pick<ScheduledEvent, 'id' | 'bookingType' | 'equipmentId' | 'startsAt' | 'endsAt' | 'status' | 'description'>

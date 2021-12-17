@@ -43,7 +43,7 @@ export const createScheduledEventObject = (
     scheduledEvent.proposal_booking_id,
     scheduledEvent.status,
     scheduledEvent.equipment_id,
-    scheduledEvent.local_contact
+    scheduledEvent.local_contact !== null // NOTE: because we can have 0 as local_contact
       ? { id: scheduledEvent.local_contact }
       : undefined // federation expect `{[@key field1]: $value, [@key field2]}` format
   );

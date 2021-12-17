@@ -15,6 +15,7 @@ import {
   EquipmentResponsibleInput,
   UpdateEquipmentOwnerInput,
 } from '../../resolvers/mutations/EquipmentMutation';
+import { isSetAndPopulated } from '../../utils/helperFunctions';
 import { EquipmentDataSource } from '../EquipmentDataSource';
 import database, { UNIQUE_CONSTRAINT_VIOLATION } from './database';
 import {
@@ -77,7 +78,7 @@ export default class PostgresEquipmentDataSource
       .select('*')
       .orderBy('name', 'asc')
       .modify((qb) => {
-        if (equipmentIds?.length) {
+        if (isSetAndPopulated(equipmentIds)) {
           qb.whereIn('equipment_id', equipmentIds);
         }
       });
@@ -115,7 +116,7 @@ export default class PostgresEquipmentDataSource
         userInstrumentIds
       )
       .modify((qb) => {
-        if (equipmentIds?.length) {
+        if (isSetAndPopulated(equipmentIds)) {
           qb.whereIn(`${this.tableName}.equipment_id`, equipmentIds);
         }
       });

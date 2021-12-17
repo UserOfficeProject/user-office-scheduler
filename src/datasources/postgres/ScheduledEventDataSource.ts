@@ -11,6 +11,7 @@ import {
 } from '../../resolvers/mutations/ScheduledEventMutation';
 import { ScheduledEventFilter } from '../../resolvers/queries/ScheduledEventQuery';
 import { ProposalBookingScheduledEventFilter } from '../../resolvers/types/ProposalBooking';
+import { isSetAndPopulated } from '../../utils/helperFunctions';
 import { ScheduledEventDataSource } from '../ScheduledEventDataSource';
 import database from './database';
 import {
@@ -173,16 +174,19 @@ export default class PostgreScheduledEventDataSource
               .andWhere('ends_at', '>=', filter.startsAt);
           }
 
-          if (filter.instrumentIds?.length && filter.localContactIds?.length) {
+          if (
+            isSetAndPopulated(filter.instrumentIds) &&
+            isSetAndPopulated(filter.localContactIds)
+          ) {
             query.where((qb) => {
               qb.whereIn('instrument_id', filter.instrumentIds).orWhereIn(
                 'local_contact',
                 filter.localContactIds
               );
             });
-          } else if (filter.instrumentIds?.length) {
+          } else if (isSetAndPopulated(filter.instrumentIds)) {
             query.whereIn('instrument_id', filter.instrumentIds);
-          } else if (filter.localContactIds?.length) {
+          } else if (isSetAndPopulated(filter.localContactIds)) {
             query.whereIn('local_contact', filter.localContactIds);
           }
         })

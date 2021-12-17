@@ -10,6 +10,7 @@ import { ScheduledEvent } from '../models/ScheduledEvent';
 import { ScheduledEventFilter } from '../resolvers/queries/ScheduledEventQuery';
 import { ProposalBookingScheduledEventFilter } from '../resolvers/types/ProposalBooking';
 import { Roles } from '../types/shared';
+import { isSetAndPopulated } from '../utils/helperFunctions';
 
 export default class ScheduledEventQueries {
   constructor(private scheduledEventDataSource: ScheduledEventDataSource) {}
@@ -27,7 +28,10 @@ export default class ScheduledEventQueries {
     ctx: ResolverContext,
     filter: ScheduledEventFilter
   ): Promise<ScheduledEvent[]> {
-    if (!filter.instrumentIds.length && !filter.localContactIds.length) {
+    if (
+      !isSetAndPopulated(filter.instrumentIds) &&
+      !isSetAndPopulated(filter.localContactIds)
+    ) {
       return [];
     }
 

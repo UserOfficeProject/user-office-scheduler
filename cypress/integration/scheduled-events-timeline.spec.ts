@@ -1,4 +1,6 @@
 import moment from 'moment';
+
+import { ScheduledEventBookingType } from '../../src/generated/sdk';
 import {
   defaultEventBookingHourDateTime,
   getHourDateTimeAfter,
@@ -6,12 +8,9 @@ import {
 } from '../utils';
 
 context('Scheduled events timeline tests', () => {
-  before(() => {
-    cy.resetDB();
-    cy.resetSchedulerDB();
-  });
-
   beforeEach(() => {
+    cy.resetDB(true);
+    cy.resetSchedulerDB(true);
     cy.initializeSession('InstrumentScientist_1');
     cy.visit({
       url: '/calendar',
@@ -20,27 +19,35 @@ context('Scheduled events timeline tests', () => {
   });
 
   describe('Scheduled events timeline', () => {
-    const newScheduledEvent_1 = {
-      instrumentId: '1',
-      bookingType: 'MAINTENANCE',
+    const newScheduledEvent1 = {
+      instrumentId: 1,
+      bookingType: ScheduledEventBookingType.MAINTENANCE,
       startsAt: defaultEventBookingHourDateTime,
       endsAt: getHourDateTimeAfter(1),
       description: 'Test maintenance event',
     };
-    const newScheduledEvent_2 = {
-      instrumentId: '1',
-      bookingType: 'SHUTDOWN',
+    const newScheduledEvent2 = {
+      instrumentId: 1,
+      bookingType: ScheduledEventBookingType.SHUTDOWN,
       startsAt: getHourDateTimeAfter(-2),
       endsAt: getHourDateTimeAfter(-1),
       description: 'Test shutdown event',
     };
-    const newScheduledEvent_3 = {
-      instrumentId: '1',
-      bookingType: 'MAINTENANCE',
+    const newScheduledEvent3 = {
+      instrumentId: 1,
+      bookingType: ScheduledEventBookingType.MAINTENANCE,
       startsAt: getHourDateTimeAfter(8, 'days'),
       endsAt: getHourDateTimeAfter(9, 'days'),
       description: 'Test maintenance event',
     };
+    const newScheduledUserOperationsEvent = {
+      instrumentId: 1,
+      proposalBookingId: 1,
+      bookingType: ScheduledEventBookingType.USER_OPERATIONS,
+      startsAt: defaultEventBookingHourDateTime,
+      endsAt: getHourDateTimeAfter(24),
+    };
+
     it('should be able to switch between scheduled events timeline view and calendar view', () => {
       cy.get('[data-cy="scheduler-active-view"]').click();
       cy.get('[data-value="Timeline"]').click();
@@ -103,9 +110,9 @@ context('Scheduled events timeline tests', () => {
     });
 
     it('should show timeline view of events in different colors depending on the event type', () => {
+      cy.createEvent({ input: newScheduledEvent1 });
+      cy.createEvent({ input: newScheduledEvent2 });
       cy.finishedLoading();
-      cy.createEvent(newScheduledEvent_1);
-      cy.createEvent(newScheduledEvent_2);
 
       cy.get('[data-cy=input-instrument-select]').click();
 
@@ -118,20 +125,22 @@ context('Scheduled events timeline tests', () => {
       cy.get('[data-cy="scheduler-active-view"]').click();
       cy.get('[data-value="Timeline"]').click();
 
-      cy.contains(newScheduledEvent_1.endsAt)
+      cy.contains(newScheduledEvent1.endsAt)
         .parent()
         .should('have.attr', 'style')
         .and('include', 'background: rgb(');
 
-      cy.contains(newScheduledEvent_2.endsAt)
+      cy.contains(newScheduledEvent2.endsAt)
         .parent()
         .should('have.attr', 'style')
         .and('include', 'background: rgb(');
     });
 
     it('should be able to filter events based on the timeline toolbar filters', () => {
+      cy.createEvent({ input: newScheduledEvent1 });
+      cy.createEvent({ input: newScheduledEvent3 });
+      cy.createEvent({ input: newScheduledUserOperationsEvent });
       cy.finishedLoading();
-      cy.createEvent(newScheduledEvent_3);
 
       cy.get('[data-cy=input-instrument-select]').click();
 
@@ -146,13 +155,13 @@ context('Scheduled events timeline tests', () => {
 
       cy.get('[data-cy="input-instrument-select"]').should('exist');
 
-      cy.contains(newScheduledEvent_1.endsAt);
+      cy.contains(newScheduledEvent1.endsAt);
 
       cy.contains(getFormattedDateAfter('dddd, D MMMM YYYY'));
 
       cy.get('[data-cy="calendar-timeline-view"]').should(
         'not.contain',
-        newScheduledEvent_3.startsAt
+        newScheduledEvent3.startsAt
       );
 
       cy.get('.rbc-toolbar button')
@@ -167,18 +176,18 @@ context('Scheduled events timeline tests', () => {
 
       cy.finishedLoading();
 
-      cy.contains(newScheduledEvent_1.endsAt);
+      cy.contains(newScheduledEvent1.endsAt);
 
       if (
         moment(defaultEventBookingHourDateTime).month() !==
-        moment(newScheduledEvent_3.startsAt).month()
+        moment(newScheduledEvent3.startsAt).month()
       ) {
         cy.get('[data-cy="calendar-timeline-view"]').should(
           'not.contain',
-          newScheduledEvent_3.startsAt
+          newScheduledEvent3.startsAt
         );
       } else {
-        cy.contains(newScheduledEvent_3.startsAt);
+        cy.contains(newScheduledEvent3.startsAt);
       }
 
       cy.contains(getFormattedDateAfter('MMMM YYYY'));
@@ -193,19 +202,19 @@ context('Scheduled events timeline tests', () => {
 
       if (
         moment(getFormattedDateAfter('MMMM YYYY', 1, 'month')).month() !==
-        moment(newScheduledEvent_3.startsAt).month()
+        moment(newScheduledEvent3.startsAt).month()
       ) {
         cy.get('[data-cy="calendar-timeline-view"]').should(
           'not.contain',
-          newScheduledEvent_3.startsAt
+          newScheduledEvent3.startsAt
         );
       } else {
-        cy.contains(newScheduledEvent_3.startsAt);
+        cy.contains(newScheduledEvent3.startsAt);
       }
 
       cy.get('[data-cy="calendar-timeline-view"]').should(
         'not.contain',
-        newScheduledEvent_1.endsAt
+        newScheduledEvent1.endsAt
       );
 
       cy.get('.rbc-toolbar button')
@@ -221,12 +230,12 @@ context('Scheduled events timeline tests', () => {
 
       cy.get('[data-cy="calendar-timeline-view"]').should(
         'not.contain',
-        newScheduledEvent_3.startsAt
+        newScheduledEvent3.startsAt
       );
 
       cy.get('[data-cy="calendar-timeline-view"]').should(
         'not.contain',
-        newScheduledEvent_1.startsAt
+        newScheduledEvent1.startsAt
       );
 
       cy.get('.rbc-toolbar button')
@@ -236,17 +245,17 @@ context('Scheduled events timeline tests', () => {
 
       cy.contains(getFormattedDateAfter('MMMM YYYY'));
 
-      cy.contains(newScheduledEvent_1.endsAt);
+      cy.contains(newScheduledEvent1.endsAt);
       if (
         moment(defaultEventBookingHourDateTime).month() !==
-        moment(newScheduledEvent_3.startsAt).month()
+        moment(newScheduledEvent3.startsAt).month()
       ) {
         cy.get('[data-cy="calendar-timeline-view"]').should(
           'not.contain',
-          newScheduledEvent_3.startsAt
+          newScheduledEvent3.startsAt
         );
       } else {
-        cy.contains(newScheduledEvent_3.startsAt);
+        cy.contains(newScheduledEvent3.startsAt);
       }
 
       cy.get('.rbc-toolbar button').contains('Day').click();
@@ -256,6 +265,8 @@ context('Scheduled events timeline tests', () => {
     });
 
     it('should be able to click and open events in timeline view', () => {
+      cy.createEvent({ input: newScheduledEvent1 });
+      cy.createEvent({ input: newScheduledUserOperationsEvent });
       cy.finishedLoading();
 
       cy.get('[data-cy=input-instrument-select]').click();
@@ -269,9 +280,10 @@ context('Scheduled events timeline tests', () => {
       cy.get('[data-cy="scheduler-active-view"]').click();
       cy.get('[data-value="Timeline"]').click();
 
-      cy.wait(500);
+      cy.get('.rbc-toolbar button').contains('Today').click();
+      cy.finishedLoading();
 
-      cy.contains(newScheduledEvent_1.endsAt).parent().click();
+      cy.contains(newScheduledEvent1.endsAt).parent().click();
 
       cy.get('[role="none presentation"] [data-cy="startsAt"]').should('exist');
       cy.get('[role="none presentation"] [data-cy="endsAt"]').should('exist');
@@ -281,14 +293,21 @@ context('Scheduled events timeline tests', () => {
 
       cy.get('[data-cy="btn-close-dialog"]').click();
 
-      cy.wait(500);
+      cy.finishedLoading();
 
-      cy.contains(defaultEventBookingHourDateTime).first().parent().click();
+      cy.contains(newScheduledUserOperationsEvent.endsAt)
+        .first()
+        .parent()
+        .click();
 
       cy.get('[role="none presentation"] [data-cy="btn-save"]').should('exist');
       cy.get(
         '[role="none presentation"] [data-cy="activate-time-slot-booking"]'
       ).should('exist');
+
+      cy.contains(
+        `${newScheduledUserOperationsEvent.startsAt} - ${newScheduledUserOperationsEvent.endsAt}`
+      );
     });
 
     it('should not reset dates if page reloads', () => {
@@ -383,6 +402,7 @@ context('Scheduled events timeline tests', () => {
     });
 
     it('should be able to scroll inside timeline view', () => {
+      const RIGHT_ARROW_KEY_CODE = 39;
       cy.initializeSession('UserOfficer');
       cy.visit({
         url: '/calendar',
@@ -405,7 +425,7 @@ context('Scheduled events timeline tests', () => {
       // NOTE: Getting the right element because that's how react-calendar-timeline works. They have added the scroll event listener on .rct scroll first and only child element.
       cy.get('.react-calendar-timeline .rct-scroll').children().first().click();
 
-      cy.get('body').trigger('keypress', { code: 39 });
+      cy.get('body').trigger('keypress', { code: RIGHT_ARROW_KEY_CODE });
 
       // NOTE: cy.tick is used to be able to execute the handleTimeChange because it's debounced with 500ms.
       cy.tick(500);

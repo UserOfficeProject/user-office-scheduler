@@ -808,6 +808,7 @@ export type Mutation = {
   importTemplate: TemplateResponseWrap;
   login: TokenResponseWrap;
   logout: LogoutTokenWrap;
+  mergeInstitutions: InstitutionResponseWrap;
   moveProposalWorkflowStatus: ProposalWorkflowConnectionResponseWrap;
   notifyProposal: ProposalResponseWrap;
   prepareDB: PrepareDbResponseWrap;
@@ -1381,10 +1382,12 @@ export type MutationImportProposalArgs = {
   users?: Maybe<Array<Scalars['Int']>>;
 };
 
+
 export type MutationImportTemplateArgs = {
   conflictResolutions: Array<ConflictResolution>;
   templateAsJson: Scalars['String'];
 };
+
 
 export type MutationLoginArgs = {
   email: Scalars['String'];
@@ -1394,6 +1397,13 @@ export type MutationLoginArgs = {
 
 export type MutationLogoutArgs = {
   token: Scalars['String'];
+};
+
+
+export type MutationMergeInstitutionsArgs = {
+  institutionIdFrom: Scalars['Int'];
+  institutionIdInto: Scalars['Int'];
+  newTitle: Scalars['String'];
 };
 
 
@@ -3456,6 +3466,23 @@ export type VisitsFilter = {
   scheduledEventId?: Maybe<Scalars['Int']>;
 };
 
+export type PrepareDbMutationVariables = Exact<{
+  includeSeeds: Scalars['Boolean'];
+}>;
+
+
+export type PrepareDbMutation = { prepareDB: (
+    Pick<PrepareDbResponseWrap, 'log'>
+    & { rejection: Maybe<Pick<Rejection, 'reason'>> }
+  ) };
+
+export type PrepareSchedulerDbMutationVariables = Exact<{
+  includeSeeds: Scalars['Boolean'];
+}>;
+
+
+export type PrepareSchedulerDbMutation = Pick<Mutation, 'resetSchedulerDb'>;
+
 export type AddEquipmentResponsibleMutationVariables = Exact<{
   equipmentResponsibleInput: EquipmentResponsibleInput;
 }>;
@@ -3644,6 +3671,7 @@ export type GetProposalBookingQueryVariables = Exact<{
   filter: ProposalBookingScheduledEventFilter;
 }>;
 
+
 export type GetProposalBookingQuery = { proposalBooking: Maybe<(
     Pick<ProposalBooking, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'allocatedTime'>
     & { call: Maybe<Pick<Call, 'id' | 'shortCode' | 'startCycle' | 'endCycle' | 'cycleComment'>>, proposal: Maybe<Pick<Proposal, 'primaryKey' | 'title' | 'proposalId'>>, scheduledEvents: Array<(
@@ -3727,6 +3755,7 @@ export type GetProposalBookingScheduledEventsQueryVariables = Exact<{
   proposalBookingId: Scalars['Int'];
 }>;
 
+
 export type GetProposalBookingScheduledEventsQuery = { proposalBookingScheduledEvents: Array<(
     Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt' | 'bookingType' | 'status' | 'description'>
     & { scheduledBy: Maybe<Pick<User, 'id' | 'firstname' | 'lastname'>>, localContact: Maybe<Pick<BasicUserDetails, 'id' | 'firstname' | 'lastname'>> }
@@ -3762,6 +3791,7 @@ export type GetScheduledEventsQueryVariables = Exact<{
   filter: ScheduledEventFilter;
   scheduledEventFilter: ProposalBookingScheduledEventFilter;
 }>;
+
 
 export type GetScheduledEventsQuery = { scheduledEvents: Array<(
     Pick<ScheduledEvent, 'id' | 'bookingType' | 'equipmentId' | 'startsAt' | 'endsAt' | 'status' | 'description'>
@@ -3829,6 +3859,21 @@ export const BasicUserDetailsFragmentDoc = gql`
   position
   created
   placeholder
+}
+    `;
+export const PrepareDbDocument = gql`
+    mutation prepareDB($includeSeeds: Boolean!) {
+  prepareDB(includeSeeds: $includeSeeds) {
+    log
+    rejection {
+      reason
+    }
+  }
+}
+    `;
+export const PrepareSchedulerDbDocument = gql`
+    mutation prepareSchedulerDB($includeSeeds: Boolean!) {
+  resetSchedulerDb(includeSeeds: $includeSeeds)
 }
     `;
 export const AddEquipmentResponsibleDocument = gql`
@@ -4461,6 +4506,12 @@ export type SdkFunctionWrapper = <T>(action: () => Promise<T>) => Promise<T>;
 const defaultWrapper: SdkFunctionWrapper = sdkFunction => sdkFunction();
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
+    prepareDB(variables: PrepareDbMutationVariables): Promise<PrepareDbMutation> {
+      return withWrapper(() => client.request<PrepareDbMutation>(print(PrepareDbDocument), variables));
+    },
+    prepareSchedulerDB(variables: PrepareSchedulerDbMutationVariables): Promise<PrepareSchedulerDbMutation> {
+      return withWrapper(() => client.request<PrepareSchedulerDbMutation>(print(PrepareSchedulerDbDocument), variables));
+    },
     addEquipmentResponsible(variables: AddEquipmentResponsibleMutationVariables): Promise<AddEquipmentResponsibleMutation> {
       return withWrapper(() => client.request<AddEquipmentResponsibleMutation>(print(AddEquipmentResponsibleDocument), variables));
     },

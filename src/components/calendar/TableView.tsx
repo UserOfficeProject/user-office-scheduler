@@ -42,7 +42,7 @@ const TableView: React.FC<TableViewProps> = ({
   const ViewTableRowIcon = (rowData: CalendarScheduledEventWithUniqeId) => (
     <ViewIcon
       style={{
-        ...getBookingTypeStyle(rowData.bookingType, rowData.status),
+        ...getBookingTypeStyle(rowData),
         backgroundColor: 'inherit',
         filter: 'none',
       }}
@@ -63,7 +63,7 @@ const TableView: React.FC<TableViewProps> = ({
         data={events}
         options={{
           rowStyle: (rowData: CalendarScheduledEventWithUniqeId) =>
-            getBookingTypeStyle(rowData.bookingType, rowData.status),
+            getBookingTypeStyle(rowData),
 
           pageSize: 10,
         }}

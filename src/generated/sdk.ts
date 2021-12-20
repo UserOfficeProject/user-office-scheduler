@@ -345,6 +345,8 @@ export type Entry = {
 
 export type Equipment = {
   autoAccept: Scalars['Boolean'];
+  backgroundColor: Maybe<Scalars['String']>;
+  color: Maybe<Scalars['String']>;
   createdAt: Scalars['DateTime'];
   description: Maybe<Scalars['String']>;
   equipmentResponsible: Array<User>;
@@ -371,6 +373,8 @@ export enum EquipmentAssignmentStatus {
 
 export type EquipmentInput = {
   autoAccept: Scalars['Boolean'];
+  backgroundColor?: Maybe<Scalars['String']>;
+  color?: Maybe<Scalars['String']>;
   description: Scalars['String'];
   maintenanceEndsAt?: Maybe<Scalars['TzLessDateTime']>;
   maintenanceStartsAt?: Maybe<Scalars['TzLessDateTime']>;
@@ -389,6 +393,8 @@ export type EquipmentResponsibleInput = {
 
 export type EquipmentWithAssignmentStatus = {
   autoAccept: Scalars['Boolean'];
+  backgroundColor: Maybe<Scalars['String']>;
+  color: Maybe<Scalars['String']>;
   createdAt: Scalars['DateTime'];
   description: Maybe<Scalars['String']>;
   equipmentResponsible: Array<User>;
@@ -2939,7 +2945,9 @@ export type SaveSepMeetingDecisionInput = {
 };
 
 export type ScheduledEvent = {
+  backgroundColor: Maybe<Scalars['String']>;
   bookingType: ScheduledEventBookingType;
+  color: Maybe<Scalars['String']>;
   createdAt: Scalars['DateTime'];
   description: Maybe<Scalars['String']>;
   endsAt: Scalars['TzLessDateTime'];
@@ -3511,7 +3519,7 @@ export type CreateEquipmentMutationVariables = Exact<{
 
 export type CreateEquipmentMutation = { createEquipment: (
     Pick<EquipmentResponseWrap, 'error'>
-    & { equipment: Maybe<Pick<Equipment, 'id' | 'createdAt' | 'updatedAt' | 'name' | 'description' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'>> }
+    & { equipment: Maybe<Pick<Equipment, 'id' | 'createdAt' | 'updatedAt' | 'name' | 'description' | 'color' | 'backgroundColor' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'>> }
   ) };
 
 export type DeleteEquipmentAssignmentMutationVariables = Exact<{
@@ -3526,7 +3534,7 @@ export type GetAvailableEquipmentsQueryVariables = Exact<{
 }>;
 
 
-export type GetAvailableEquipmentsQuery = { availableEquipments: Array<Pick<Equipment, 'id' | 'createdAt' | 'updatedAt' | 'name' | 'description' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'>> };
+export type GetAvailableEquipmentsQuery = { availableEquipments: Array<Pick<Equipment, 'id' | 'createdAt' | 'updatedAt' | 'name' | 'description' | 'color' | 'backgroundColor' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'>> };
 
 export type GetEquipmentQueryVariables = Exact<{
   id: Scalars['Int'];
@@ -3534,14 +3542,14 @@ export type GetEquipmentQueryVariables = Exact<{
 
 
 export type GetEquipmentQuery = { equipment: Maybe<(
-    Pick<Equipment, 'id' | 'createdAt' | 'updatedAt' | 'name' | 'description' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'>
+    Pick<Equipment, 'id' | 'createdAt' | 'updatedAt' | 'name' | 'description' | 'color' | 'backgroundColor' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'>
     & { owner: Maybe<Pick<User, 'id' | 'firstname' | 'lastname'>>, equipmentResponsible: Array<Pick<User, 'id' | 'firstname' | 'lastname'>> }
   )> };
 
 export type GetEquipmentsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetEquipmentsQuery = { equipments: Array<Pick<Equipment, 'id' | 'createdAt' | 'updatedAt' | 'name' | 'description' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'>> };
+export type GetEquipmentsQuery = { equipments: Array<Pick<Equipment, 'id' | 'createdAt' | 'updatedAt' | 'name' | 'description' | 'color' | 'backgroundColor' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'>> };
 
 export type UpdateEquipmentMutationVariables = Exact<{
   id: Scalars['Int'];
@@ -3551,7 +3559,7 @@ export type UpdateEquipmentMutationVariables = Exact<{
 
 export type UpdateEquipmentMutation = { updateEquipment: (
     Pick<EquipmentResponseWrap, 'error'>
-    & { equipment: Maybe<Pick<Equipment, 'id' | 'name' | 'description' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'>> }
+    & { equipment: Maybe<Pick<Equipment, 'id' | 'name' | 'description' | 'color' | 'backgroundColor' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'autoAccept'>> }
   ) };
 
 export type UpdateEquipmentOwnerMutationVariables = Exact<{
@@ -3738,7 +3746,7 @@ export type GetEquipmentScheduledEventsQueryVariables = Exact<{
 
 
 export type GetEquipmentScheduledEventsQuery = { equipments: Array<(
-    Pick<Equipment, 'id' | 'name'>
+    Pick<Equipment, 'id' | 'name' | 'color' | 'backgroundColor'>
     & { events: Array<(
       Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt' | 'status' | 'equipmentAssignmentStatus' | 'equipmentId'>
       & { proposalBooking: Maybe<(
@@ -3794,7 +3802,7 @@ export type GetScheduledEventsQueryVariables = Exact<{
 
 
 export type GetScheduledEventsQuery = { scheduledEvents: Array<(
-    Pick<ScheduledEvent, 'id' | 'bookingType' | 'equipmentId' | 'startsAt' | 'endsAt' | 'status' | 'description'>
+    Pick<ScheduledEvent, 'id' | 'bookingType' | 'equipmentId' | 'startsAt' | 'endsAt' | 'status' | 'description' | 'color' | 'backgroundColor'>
     & { instrument: Maybe<Pick<Instrument, 'id' | 'name'>>, scheduledBy: Maybe<Pick<User, 'firstname' | 'lastname'>>, localContact: Maybe<Pick<BasicUserDetails, 'id' | 'firstname' | 'lastname'>>, proposalBooking: Maybe<(
       Pick<ProposalBooking, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'allocatedTime'>
       & { proposal: Maybe<(
@@ -3905,6 +3913,8 @@ export const CreateEquipmentDocument = gql`
       updatedAt
       name
       description
+      color
+      backgroundColor
       maintenanceStartsAt
       maintenanceEndsAt
       autoAccept
@@ -3927,6 +3937,8 @@ export const GetAvailableEquipmentsDocument = gql`
     updatedAt
     name
     description
+    color
+    backgroundColor
     maintenanceStartsAt
     maintenanceEndsAt
     autoAccept
@@ -3941,6 +3953,8 @@ export const GetEquipmentDocument = gql`
     updatedAt
     name
     description
+    color
+    backgroundColor
     maintenanceStartsAt
     maintenanceEndsAt
     autoAccept
@@ -3965,6 +3979,8 @@ export const GetEquipmentsDocument = gql`
     updatedAt
     name
     description
+    color
+    backgroundColor
     maintenanceStartsAt
     maintenanceEndsAt
     autoAccept
@@ -3979,6 +3995,8 @@ export const UpdateEquipmentDocument = gql`
       id
       name
       description
+      color
+      backgroundColor
       maintenanceStartsAt
       maintenanceEndsAt
       autoAccept
@@ -4261,6 +4279,8 @@ export const GetEquipmentScheduledEventsDocument = gql`
   equipments(equipmentIds: $equipmentIds) {
     id
     name
+    color
+    backgroundColor
     events(startsAt: $startsAt, endsAt: $endsAt) {
       id
       startsAt
@@ -4397,6 +4417,8 @@ export const GetScheduledEventsDocument = gql`
     endsAt
     status
     description
+    color
+    backgroundColor
     instrument {
       id
       name

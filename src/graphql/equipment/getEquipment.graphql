@@ -5,6 +5,8 @@ query getEquipment($id: Int!) {
     updatedAt
     name
     description
+    color
+    backgroundColor
     maintenanceStartsAt
     maintenanceEndsAt
     autoAccept

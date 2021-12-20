@@ -3464,6 +3464,20 @@ export type VisitsFilter = {
   scheduledEventId?: InputMaybe<Scalars['Int']>;
 };
 
+export type PrepareDbMutationVariables = Exact<{
+  includeSeeds: Scalars['Boolean'];
+}>;
+
+
+export type PrepareDbMutation = { prepareDB: { log: string | null | undefined, rejection: { reason: string } | null | undefined } };
+
+export type PrepareSchedulerDbMutationVariables = Exact<{
+  includeSeeds: Scalars['Boolean'];
+}>;
+
+
+export type PrepareSchedulerDbMutation = { resetSchedulerDb: string };
+
 export type AddEquipmentResponsibleMutationVariables = Exact<{
   equipmentResponsibleInput: EquipmentResponsibleInput;
 }>;
@@ -3741,6 +3755,21 @@ export const BasicUserDetailsFragmentDoc = gql`
   position
   created
   placeholder
+}
+    `;
+export const PrepareDbDocument = gql`
+    mutation prepareDB($includeSeeds: Boolean!) {
+  prepareDB(includeSeeds: $includeSeeds) {
+    log
+    rejection {
+      reason
+    }
+  }
+}
+    `;
+export const PrepareSchedulerDbDocument = gql`
+    mutation prepareSchedulerDB($includeSeeds: Boolean!) {
+  resetSchedulerDb(includeSeeds: $includeSeeds)
 }
     `;
 export const AddEquipmentResponsibleDocument = gql`
@@ -4374,6 +4403,12 @@ const defaultWrapper: SdkFunctionWrapper = (action, _operationName) => action();
 
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
+    prepareDB(variables: PrepareDbMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<PrepareDbMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<PrepareDbMutation>(PrepareDbDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'prepareDB');
+    },
+    prepareSchedulerDB(variables: PrepareSchedulerDbMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<PrepareSchedulerDbMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<PrepareSchedulerDbMutation>(PrepareSchedulerDbDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'prepareSchedulerDB');
+    },
     addEquipmentResponsible(variables: AddEquipmentResponsibleMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<AddEquipmentResponsibleMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<AddEquipmentResponsibleMutation>(AddEquipmentResponsibleDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'addEquipmentResponsible');
     },

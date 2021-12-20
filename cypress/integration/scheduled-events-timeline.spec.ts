@@ -293,6 +293,8 @@ context('Scheduled events timeline tests', () => {
 
       cy.get('[data-cy="btn-close-dialog"]').click();
 
+      cy.finishedLoading();
+
       cy.contains(newScheduledUserOperationsEvent.endsAt)
         .first()
         .parent()

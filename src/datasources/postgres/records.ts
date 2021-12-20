@@ -101,6 +101,8 @@ export interface EquipmentRecord {
   readonly updated_at: Date;
   readonly name: string;
   readonly description: string;
+  readonly color: string | null;
+  readonly backgroundColor: string | null;
   readonly maintenance_starts_at: Date;
   readonly maintenance_ends_at: Date;
   readonly auto_accept: boolean;
@@ -120,6 +122,8 @@ export const createEquipmentObject = (equipment: EquipmentRecord) =>
     equipment.updated_at,
     equipment.name,
     equipment.description,
+    equipment.color,
+    equipment.backgroundColor,
     equipment.maintenance_starts_at,
     equipment.maintenance_ends_at,
     equipment.auto_accept

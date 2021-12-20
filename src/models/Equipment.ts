@@ -11,6 +11,8 @@ export class Equipment {
     public updatedAt: Date,
     public name: string,
     public description: string,
+    public color: string | null,
+    public backgroundColor: string | null,
     public maintenanceStartsAt: Date,
     public maintenanceEndsAt: Date,
     public autoAccept: boolean

@@ -40,6 +40,8 @@ export default class PostgresEquipmentDataSource
         owner_id: userId,
         name: input.name,
         description: input.description,
+        color: input.color,
+        backgroundColor: input.backgroundColor,
         maintenance_starts_at: input.maintenanceStartsAt,
         maintenance_ends_at: input.maintenanceEndsAt,
         auto_accept: input.autoAccept,
@@ -54,6 +56,8 @@ export default class PostgresEquipmentDataSource
       .update({
         name: input.name,
         description: input.description,
+        color: input.color,
+        backgroundColor: input.backgroundColor,
         maintenance_starts_at: input.maintenanceStartsAt,
         maintenance_ends_at: input.maintenanceEndsAt,
         auto_accept: input.autoAccept,

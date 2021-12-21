@@ -92,7 +92,7 @@ export const getBookingTypeStyle = (
       };
     case ScheduledEventBookingType.EQUIPMENT:
       return {
-        background: event.backgroundColor || 'rgb(255, 166, 158)', // Default background some blueish variant.
+        background: event.backgroundColor || 'rgb(124, 181, 236)', // Default background some blue-ish variant.
         color: event.color || '#000', // Default text color white.
         filter: filter,
       };

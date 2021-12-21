@@ -73,6 +73,33 @@ context('Equipment tests', () => {
       cy.contains(newEquipment.name).parent().contains(newDescription);
     });
 
+    it('should be able to change equipment background color', () => {
+      const newBackgroundColor = '#ff0000'; // Red color
+
+      cy.get('[data-cy=btn-edit-equipment]').click();
+
+      cy.get('[data-cy="backgroundColor"] input[type="color"]')
+        .invoke('val', newBackgroundColor)
+        .trigger('input');
+
+      // NOTE: cy.tick and wait is used to be able to execute the handleColorChange because it's debounced with 500ms.
+      cy.tick(500);
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.wait(500);
+
+      cy.get('[data-cy=btn-save-equipment]').click();
+      cy.finishedLoading();
+      cy.contains(newBackgroundColor);
+
+      cy.get('.MuiDrawer-root').contains('Equipment list').click();
+
+      cy.contains('5 rows').click();
+      cy.get('.MuiTablePagination-menuItem[data-value="10"]').click();
+
+      cy.finishedLoading();
+      cy.contains(newEquipment.name).parent().contains(newBackgroundColor);
+    });
+
     it('should be able to turn on auto accept', () => {
       cy.get('[data-cy=btn-edit-equipment]').click();
       cy.get('[data-cy=autoAccept]').click();

@@ -380,6 +380,23 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
                       </IconButton>
                     </Tooltip>
                   </ListItem>
+                  <ListItem disableGutters>
+                    <ListItemAvatar>
+                      <div
+                        className="MuiAvatar-root"
+                        data-cy="equipment-background-color"
+                        style={{
+                          backgroundColor:
+                            equipment.backgroundColor || '#bdbdbd',
+                          border: '1px solid #bdbdbd',
+                        }}
+                      />
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary="Equipment background color"
+                      secondary={equipment.backgroundColor || 'None'}
+                    />
+                  </ListItem>
                 </List>
               </Grid>
               <Grid item sm={6}>
@@ -423,6 +440,22 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
                       primary="Auto accept equipment requests"
                       secondary={equipment.autoAccept ? 'Yes' : 'No'}
                       data-cy="autoAccept"
+                    />
+                  </ListItem>
+                  <ListItem disableGutters>
+                    <ListItemAvatar>
+                      <div
+                        className="MuiAvatar-root"
+                        data-cy="equipment-text-color"
+                        style={{
+                          backgroundColor: equipment.color || '#bdbdbd',
+                          border: '1px solid #bdbdbd',
+                        }}
+                      />
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary="Equipment text color"
+                      secondary={equipment.color || 'None'}
                     />
                   </ListItem>
                 </List>

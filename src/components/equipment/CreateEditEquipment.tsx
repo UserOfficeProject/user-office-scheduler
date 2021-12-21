@@ -24,6 +24,7 @@ import { useSnackbar } from 'notistack';
 import React, { useState, useEffect } from 'react';
 import { useParams, useHistory, generatePath } from 'react-router';
 
+import FormikColorPicker from 'components/common/FormikColorPicker';
 import Loader from 'components/common/Loader';
 import { PATH_VIEW_EQUIPMENT } from 'components/paths';
 import { Equipment, EquipmentInput } from 'generated/sdk';
@@ -89,6 +90,8 @@ export default function CreateEditEquipment() {
           ? parseTzLessDateTime(equipment.maintenanceEndsAt)
           : null,
         autoAccept: equipment.autoAccept,
+        color: equipment.color || '#ffffff',
+        backgroundColor: equipment.backgroundColor || '#7cb5ec', // This blue-ish color is used in the calendar as a default one if no color is set
       }
     : {
         name: '',
@@ -96,6 +99,8 @@ export default function CreateEditEquipment() {
         maintenanceStartsAt: null,
         maintenanceEndsAt: null,
         autoAccept: false,
+        color: '#ffffff',
+        backgroundColor: '#7cb5ec', // This blue-ish color is used in the calendar as a default one if no color is set
       };
 
   return (
@@ -127,6 +132,8 @@ export default function CreateEditEquipment() {
                   description: values.description || '',
                   maintenanceStartsAt: null,
                   maintenanceEndsAt: null,
+                  color: values.color,
+                  backgroundColor: values.backgroundColor,
                 };
 
                 if (!underMaintenance) {
@@ -295,7 +302,28 @@ export default function CreateEditEquipment() {
                       </>
                     )}
 
-                    <Box display="flex" justifyContent="flex-end">
+                    <Grid container spacing={1}>
+                      <Grid item sm={6} xs={12}>
+                        <Field
+                          component={FormikColorPicker}
+                          name="backgroundColor"
+                          label="Equipment background color"
+                          data-cy="backgroundColor"
+                          reqired
+                        />
+                      </Grid>
+                      <Grid item sm={6} xs={12}>
+                        <Field
+                          component={FormikColorPicker}
+                          name="color"
+                          label="Equipment text color"
+                          data-cy="color"
+                          reqired
+                        />
+                      </Grid>
+                    </Grid>
+
+                    <Box display="flex" justifyContent="flex-end" marginTop={1}>
                       <Button
                         type="submit"
                         variant="contained"

@@ -1,5 +1,8 @@
 import { logger } from '@esss-swap/duo-logger';
-import { Queue, RabbitMQMessageBroker } from '@esss-swap/duo-message-broker';
+import {
+  Queue,
+  RabbitMQMessageBroker,
+} from '@user-office-software/duo-message-broker';
 import { DateTime } from 'luxon';
 
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';

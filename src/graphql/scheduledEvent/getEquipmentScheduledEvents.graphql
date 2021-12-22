@@ -7,7 +7,6 @@ query getEquipmentScheduledEvents(
     id
     name
     color
-    backgroundColor
     events(startsAt: $startsAt, endsAt: $endsAt) {
       id
       startsAt

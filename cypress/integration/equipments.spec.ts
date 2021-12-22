@@ -1,11 +1,27 @@
 import faker from 'faker';
 
-import { getCurrentHourDateTime, getHourDateTimeAfter } from '../utils';
+import { ScheduledEventBookingType } from '../../src/generated/sdk';
+import {
+  defaultEventBookingHourDateTime,
+  getCurrentHourDateTime,
+  getHourDateTimeAfter,
+} from '../utils';
+
+const existingProposalBookingId = 1;
+const existingInstrumentId = 1;
 
 const newEquipment = {
   name: faker.random.words(2),
   description: '',
   autoAccept: false,
+};
+
+const createdUserOperationsEvent = {
+  instrumentId: existingInstrumentId,
+  proposalBookingId: existingProposalBookingId,
+  bookingType: ScheduledEventBookingType.USER_OPERATIONS,
+  startsAt: defaultEventBookingHourDateTime,
+  endsAt: getHourDateTimeAfter(24),
 };
 
 context('Equipment tests', () => {
@@ -73,13 +89,26 @@ context('Equipment tests', () => {
       cy.contains(newEquipment.name).parent().contains(newDescription);
     });
 
-    it('should be able to change equipment background color', () => {
-      const newBackgroundColor = '#ff0000'; // Red color
+    it('should be able to change equipment color', () => {
+      const newColorHex = '#ff0000'; // Red color HEX
+      const newColorRgb = 'rgb(255, 0, 0)'; // Red color RGB
+      cy.createEvent({ input: createdUserOperationsEvent }).then((result) => {
+        const newCreatedEvent = result.createScheduledEvent.scheduledEvent;
+        if (newCreatedEvent) {
+          cy.assignEquipmentToScheduledEvent({
+            assignEquipmentsToScheduledEventInput: {
+              equipmentIds: [createdEquipmentId],
+              scheduledEventId: newCreatedEvent.id,
+              proposalBookingId: existingProposalBookingId,
+            },
+          });
+        }
+      });
 
       cy.get('[data-cy=btn-edit-equipment]').click();
 
-      cy.get('[data-cy="backgroundColor"] input[type="color"]')
-        .invoke('val', newBackgroundColor)
+      cy.get('[data-cy="color"] input[type="color"]')
+        .invoke('val', newColorHex)
         .trigger('input');
 
       // NOTE: cy.tick and wait is used to be able to execute the handleColorChange because it's debounced with 500ms.
@@ -89,7 +118,7 @@ context('Equipment tests', () => {
 
       cy.get('[data-cy=btn-save-equipment]').click();
       cy.finishedLoading();
-      cy.contains(newBackgroundColor);
+      cy.contains(newColorHex);
 
       cy.get('.MuiDrawer-root').contains('Equipment list').click();
 
@@ -97,7 +126,25 @@ context('Equipment tests', () => {
       cy.get('.MuiTablePagination-menuItem[data-value="10"]').click();
 
       cy.finishedLoading();
-      cy.contains(newEquipment.name).parent().contains(newBackgroundColor);
+      cy.contains(newEquipment.name).parent().contains(newColorHex);
+
+      cy.contains('Calendar').click();
+
+      cy.finishedLoading();
+
+      cy.get('[data-cy=input-equipment-select]').click();
+
+      cy.get('[aria-labelledby=input-equipment-select-label] [role=option]')
+        .contains(newEquipment.name)
+        .click();
+
+      cy.finishedLoading();
+
+      cy.get('.rbc-calendar')
+        .contains(newEquipment.name)
+        .closest('.rbc-event')
+        .should('have.attr', 'style')
+        .and('include', `background: ${newColorRgb}`);
     });
 
     it('should be able to turn on auto accept', () => {

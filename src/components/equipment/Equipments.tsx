@@ -18,7 +18,7 @@ export type EquipmentTableRow = {
   id: number;
   name: string;
   description: string | null;
-  backgroundColor: string | null;
+  color: string | null;
 };
 
 const columns: Column<EquipmentTableRow>[] = [
@@ -27,16 +27,16 @@ const columns: Column<EquipmentTableRow>[] = [
   {
     title: 'Color',
     render: (rowData) =>
-      rowData.backgroundColor ? (
+      rowData.color ? (
         <>
           <span
             style={{
-              backgroundColor: rowData.backgroundColor,
+              backgroundColor: rowData.color,
               padding: '2px 20px',
               marginRight: '8px',
             }}
           ></span>
-          {rowData.backgroundColor}
+          {rowData.color}
         </>
       ) : (
         'None'

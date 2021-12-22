@@ -6,7 +6,6 @@ query getEquipments {
     name
     description
     color
-    backgroundColor
     maintenanceStartsAt
     maintenanceEndsAt
     autoAccept

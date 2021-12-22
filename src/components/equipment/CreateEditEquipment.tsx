@@ -90,8 +90,7 @@ export default function CreateEditEquipment() {
           ? parseTzLessDateTime(equipment.maintenanceEndsAt)
           : null,
         autoAccept: equipment.autoAccept,
-        color: equipment.color || '#ffffff',
-        backgroundColor: equipment.backgroundColor || '#7cb5ec', // This blue-ish color is used in the calendar as a default one if no color is set
+        color: equipment.color || '#7cb5ec',
       }
     : {
         name: '',
@@ -99,8 +98,7 @@ export default function CreateEditEquipment() {
         maintenanceStartsAt: null,
         maintenanceEndsAt: null,
         autoAccept: false,
-        color: '#ffffff',
-        backgroundColor: '#7cb5ec', // This blue-ish color is used in the calendar as a default one if no color is set
+        color: '#7cb5ec',
       };
 
   return (
@@ -133,7 +131,6 @@ export default function CreateEditEquipment() {
                   maintenanceStartsAt: null,
                   maintenanceEndsAt: null,
                   color: values.color,
-                  backgroundColor: values.backgroundColor,
                 };
 
                 if (!underMaintenance) {
@@ -207,123 +204,116 @@ export default function CreateEditEquipment() {
                       data-cy="description"
                     />
 
-                    <Field
-                      component={CheckboxWithLabel}
-                      name="autoAccept"
-                      type="checkbox"
-                      Label={{
-                        label: 'Auto accept equipment requests',
-                        margin: 'normal',
-                      }}
-                      data-cy="autoAccept"
-                    />
-
-                    <FormGroup row>
-                      <FormControlLabel
-                        disabled={isSubmitting}
-                        control={
-                          <MuiCheckbox
-                            name="underMaintenance"
-                            checked={underMaintenance}
-                            onChange={(_, newValue) => {
-                              setUnderMaintenance(newValue);
-                            }}
-                          />
-                        }
-                        label="Under maintenance"
-                        data-cy="underMaintenance"
-                      />
-                    </FormGroup>
-
-                    {underMaintenance && (
-                      <>
-                        <FormGroup row>
-                          <FormControl
-                            component="fieldset"
-                            margin="normal"
-                            disabled={isSubmitting}
-                          >
-                            <FormLabel component="legend">
-                              Maintenance time
-                            </FormLabel>
-                            <RadioGroup
-                              aria-label="maintenance time"
-                              name="maintenanceTime"
-                              value={indefiniteMaintenance}
-                              onChange={(_, newValue) => {
-                                setIndefiniteMaintenance(newValue);
-                              }}
-                            >
-                              <FormControlLabel
-                                value="1"
-                                control={<Radio />}
-                                label="Indefinite"
-                                data-cy="maintenanceTime-indefinite"
-                              />
-                              <FormControlLabel
-                                value="0"
-                                control={<Radio />}
-                                label="Defined"
-                                data-cy="maintenanceTime-defined"
-                              />
-                            </RadioGroup>
-                          </FormControl>
-                        </FormGroup>
-                        {indefiniteMaintenance === '0' && (
-                          <FormGroup row>
-                            <FormControl margin="normal">
-                              <MuiPickersUtilsProvider utils={MomentUtils}>
-                                <Field
-                                  component={KeyboardDateTimePicker}
-                                  name="maintenanceStartsAt"
-                                  margin="normal"
-                                  label="Starts at"
-                                  format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
-                                  ampm={false}
-                                  minutesStep={60}
-                                  fullWidth
-                                  data-cy="maintenanceStartsAt"
-                                />
-                                <Field
-                                  component={KeyboardDateTimePicker}
-                                  name="maintenanceEndsAt"
-                                  margin="normal"
-                                  label="Ends at"
-                                  format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
-                                  ampm={false}
-                                  minutesStep={60}
-                                  fullWidth
-                                  data-cy="maintenanceEndsAt"
-                                />
-                              </MuiPickersUtilsProvider>
-                            </FormControl>
-                          </FormGroup>
-                        )}
-                      </>
-                    )}
-
-                    <Grid container spacing={1}>
-                      <Grid item sm={6} xs={12}>
+                    <Grid container>
+                      <Grid item sm={4} xs={12}>
                         <Field
-                          component={FormikColorPicker}
-                          name="backgroundColor"
-                          label="Equipment background color"
-                          data-cy="backgroundColor"
-                          reqired
+                          component={CheckboxWithLabel}
+                          name="autoAccept"
+                          type="checkbox"
+                          Label={{
+                            label: 'Auto accept equipment requests',
+                            margin: 'normal',
+                          }}
+                          data-cy="autoAccept"
                         />
                       </Grid>
-                      <Grid item sm={6} xs={12}>
+                      <Grid item sm={4} xs={12}>
+                        <FormGroup row>
+                          <FormControlLabel
+                            disabled={isSubmitting}
+                            control={
+                              <MuiCheckbox
+                                name="underMaintenance"
+                                checked={underMaintenance}
+                                onChange={(_, newValue) => {
+                                  setUnderMaintenance(newValue);
+                                }}
+                              />
+                            }
+                            label="Under maintenance"
+                            data-cy="underMaintenance"
+                          />
+                        </FormGroup>
+
+                        {underMaintenance && (
+                          <>
+                            <FormGroup row>
+                              <FormControl
+                                component="fieldset"
+                                margin="normal"
+                                disabled={isSubmitting}
+                              >
+                                <FormLabel component="legend">
+                                  Maintenance time
+                                </FormLabel>
+                                <RadioGroup
+                                  aria-label="maintenance time"
+                                  name="maintenanceTime"
+                                  value={indefiniteMaintenance}
+                                  onChange={(_, newValue) => {
+                                    setIndefiniteMaintenance(newValue);
+                                  }}
+                                >
+                                  <FormControlLabel
+                                    value="1"
+                                    control={<Radio />}
+                                    label="Indefinite"
+                                    data-cy="maintenanceTime-indefinite"
+                                  />
+                                  <FormControlLabel
+                                    value="0"
+                                    control={<Radio />}
+                                    label="Defined"
+                                    data-cy="maintenanceTime-defined"
+                                  />
+                                </RadioGroup>
+                              </FormControl>
+                            </FormGroup>
+                            {indefiniteMaintenance === '0' && (
+                              <FormGroup row>
+                                <FormControl margin="normal">
+                                  <MuiPickersUtilsProvider utils={MomentUtils}>
+                                    <Field
+                                      component={KeyboardDateTimePicker}
+                                      name="maintenanceStartsAt"
+                                      margin="normal"
+                                      label="Starts at"
+                                      format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
+                                      ampm={false}
+                                      minutesStep={60}
+                                      fullWidth
+                                      data-cy="maintenanceStartsAt"
+                                    />
+                                    <Field
+                                      component={KeyboardDateTimePicker}
+                                      name="maintenanceEndsAt"
+                                      margin="normal"
+                                      label="Ends at"
+                                      format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
+                                      ampm={false}
+                                      minutesStep={60}
+                                      fullWidth
+                                      data-cy="maintenanceEndsAt"
+                                    />
+                                  </MuiPickersUtilsProvider>
+                                </FormControl>
+                              </FormGroup>
+                            )}
+                          </>
+                        )}
+                      </Grid>
+                      <Grid item sm={4} xs={12}>
                         <Field
                           component={FormikColorPicker}
                           name="color"
-                          label="Equipment text color"
+                          label="Equipment color"
                           data-cy="color"
                           reqired
                         />
                       </Grid>
                     </Grid>
 
-                    <Box display="flex" justifyContent="flex-end" marginTop={1}>
+                    <Box display="flex" justifyContent="flex-end" marginTop={2}>
                       <Button
                         type="submit"
                         variant="contained"

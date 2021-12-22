@@ -384,17 +384,16 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
                     <ListItemAvatar>
                       <div
                         className="MuiAvatar-root"
-                        data-cy="equipment-background-color"
+                        data-cy="equipment-color"
                         style={{
-                          backgroundColor:
-                            equipment.backgroundColor || '#bdbdbd',
+                          backgroundColor: equipment.color || '#bdbdbd',
                           border: '1px solid #bdbdbd',
                         }}
                       />
                     </ListItemAvatar>
                     <ListItemText
-                      primary="Equipment background color"
-                      secondary={equipment.backgroundColor || 'None'}
+                      primary="Equipment color"
+                      secondary={equipment.color || 'None'}
                     />
                   </ListItem>
                 </List>
@@ -440,22 +439,6 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
                       primary="Auto accept equipment requests"
                       secondary={equipment.autoAccept ? 'Yes' : 'No'}
                       data-cy="autoAccept"
-                    />
-                  </ListItem>
-                  <ListItem disableGutters>
-                    <ListItemAvatar>
-                      <div
-                        className="MuiAvatar-root"
-                        data-cy="equipment-text-color"
-                        style={{
-                          backgroundColor: equipment.color || '#bdbdbd',
-                          border: '1px solid #bdbdbd',
-                        }}
-                      />
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary="Equipment text color"
-                      secondary={equipment.color || 'None'}
                     />
                   </ListItem>
                 </List>

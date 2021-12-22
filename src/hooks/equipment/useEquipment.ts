@@ -11,7 +11,6 @@ export type DetailedEquipment = Pick<
   | 'name'
   | 'description'
   | 'color'
-  | 'backgroundColor'
   | 'maintenanceStartsAt'
   | 'maintenanceEndsAt'
   | 'autoAccept'

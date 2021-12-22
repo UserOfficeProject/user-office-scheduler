@@ -23,7 +23,6 @@ export type CalendarScheduledEvent = Pick<
   | 'bookingType'
   | 'description'
   | 'color'
-  | 'backgroundColor'
   | 'bookingType'
   | 'equipmentId'
   | 'status'
@@ -92,8 +91,8 @@ export const getBookingTypeStyle = (
       };
     case ScheduledEventBookingType.EQUIPMENT:
       return {
-        background: event.backgroundColor || 'rgb(124, 181, 236)', // Default background some blue-ish variant.
-        color: event.color || '#000', // Default text color white.
+        background: event.color || 'rgb(124, 181, 236)', // Default background some blue-ish variant.
+        color: '#fff', // Default text color white.
         filter: filter,
       };
     default:

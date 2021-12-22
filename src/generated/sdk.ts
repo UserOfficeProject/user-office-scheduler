@@ -3771,7 +3771,7 @@ export type GetScheduledEventEquipmentsQueryVariables = Exact<{
 }>;
 
 
-export type GetScheduledEventEquipmentsQuery = { proposalBookingScheduledEvent: Maybe<{ equipments: Array<Pick<EquipmentWithAssignmentStatus, 'id' | 'name' | 'description' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'status'>> }> };
+export type GetScheduledEventEquipmentsQuery = { proposalBookingScheduledEvent: Maybe<{ equipments: Array<Pick<EquipmentWithAssignmentStatus, 'id' | 'name' | 'description' | 'color' | 'maintenanceStartsAt' | 'maintenanceEndsAt' | 'status'>> }> };
 
 export type GetScheduledEventWithEquipmentsQueryVariables = Exact<{
   proposalBookingId: Scalars['Int'];
@@ -4340,6 +4340,7 @@ export const GetScheduledEventEquipmentsDocument = gql`
       id
       name
       description
+      color
       maintenanceStartsAt
       maintenanceEndsAt
       status

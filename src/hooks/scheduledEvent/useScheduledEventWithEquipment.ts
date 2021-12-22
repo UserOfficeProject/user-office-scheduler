@@ -8,6 +8,7 @@ export type ScheduledEventEquipment = Pick<
   | 'id'
   | 'name'
   | 'description'
+  | 'color'
   | 'maintenanceStartsAt'
   | 'maintenanceEndsAt'
   | 'status'

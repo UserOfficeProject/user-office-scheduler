@@ -5,8 +5,7 @@ BEGIN
   BEGIN
 
     ALTER TABLE "equipments"
-    ADD COLUMN IF NOT EXISTS "color" varchar(20) DEFAULT NULL,
-    ADD COLUMN IF NOT EXISTS "backgroundColor" varchar(20) DEFAULT NULL;
+    ADD COLUMN IF NOT EXISTS "color" varchar(20) DEFAULT NULL;
 
   END;
   END IF;

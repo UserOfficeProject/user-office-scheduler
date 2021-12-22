@@ -44,9 +44,6 @@ export class Equipment implements Partial<EquipmentBase> {
   @Field(() => String, { nullable: true })
   color: string | null;
 
-  @Field(() => String, { nullable: true })
-  backgroundColor: string | null;
-
   @Field(() => TzLessDateTime, { nullable: true })
   maintenanceStartsAt?: Date;
 

@@ -6,8 +6,6 @@ import {
   CircularProgress,
   Divider,
   Grid,
-  List,
-  ListItem,
   ListItemAvatar,
   ListItemText,
   makeStyles,
@@ -20,6 +18,7 @@ import {
   HourglassEmpty as HourglassEmptyIcon,
   Description as DescriptionIcon,
   Add as AddIcon,
+  Person,
 } from '@material-ui/icons';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import clsx from 'clsx';
@@ -48,6 +47,7 @@ import { ProposalBookingScheduledEvent } from 'hooks/scheduledEvent/useProposalB
 import { ScheduledEventWithEquipments } from 'hooks/scheduledEvent/useScheduledEventWithEquipment';
 import { ButtonContainer } from 'styles/StyledComponents';
 import { toTzLessDateTime, TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
+import { getFullUserName } from 'utils/user';
 
 const formatDuration = (durSec: number) =>
   humanizeDuration(durSec * 1000, {
@@ -82,6 +82,7 @@ const useStyles = makeStyles((theme) => ({
   timeSlotsToolbar: {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(1),
+    marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
   },
   timeSlotsTitle: {
@@ -133,8 +134,8 @@ export default function ProposalDetailsAndBookingEvents({
   setProposalBooking,
 }: ProposalDetailsAndBookingEventsProps) {
   const {
-    call: { startCycle, endCycle, cycleComment },
-    proposal: { title, proposalId },
+    call: { startCycle, endCycle, cycleComment, shortCode: cycleShortCode },
+    proposal: { title, proposalId, proposer },
   } = proposalBooking;
 
   const classes = useStyles();
@@ -297,69 +298,48 @@ export default function ProposalDetailsAndBookingEvents({
 
       <Grid container spacing={2}>
         <Grid item sm={6}>
-          <List className={classes.list} dense>
-            <ListItem disableGutters>
-              <ListItemAvatar>
-                <Avatar>
-                  <CommentIcon />
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText primary="Cycle comment" secondary={cycleComment} />
-            </ListItem>
-            <Divider
-              variant="inset"
-              component="li"
-              className={classes.divider}
-            />
-            <ListItem disableGutters>
-              <ListItemAvatar>
-                <Avatar>
-                  <CalendarTodayIcon />
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText
-                primary="Cycle starts"
-                secondary={toTzLessDateTime(startCycle)}
-              />
-              <ListItemText
-                primary="Cycle ends"
-                secondary={toTzLessDateTime(endCycle)}
-              />
-            </ListItem>
-          </List>
-        </Grid>
-        <Grid item sm={6}>
-          <List className={classes.list} dense>
-            <ListItem disableGutters>
+          <Typography variant="h6" component="h6" align="left">
+            Proposal information
+          </Typography>
+          <Grid container alignItems="center">
+            <Grid item sm={1} xs={12}>
               <ListItemAvatar>
                 <Avatar>
                   <DescriptionIcon />
                 </Avatar>
               </ListItemAvatar>
+            </Grid>
+            <Grid item xs={5}>
               <ListItemText primary="Proposal title" secondary={title} />
+            </Grid>
+            <Grid item sm={1} xs={12}>
               <ListItemAvatar>
                 <Avatar>
                   <IdentifierIcon />
                 </Avatar>
               </ListItemAvatar>
+            </Grid>
+            <Grid item xs={5}>
               <ListItemText primary="Proposal ID" secondary={proposalId} />
-            </ListItem>
-            <Divider
-              variant="inset"
-              component="li"
-              className={classes.divider}
-            />
-            <ListItem disableGutters>
+            </Grid>
+          </Grid>
+          <Divider variant="inset" className={classes.divider} />
+          <Grid container alignItems="center">
+            <Grid item sm={1} xs={12}>
               <ListItemAvatar>
                 <Avatar>
                   <HourglassEmptyIcon />
                 </Avatar>
               </ListItemAvatar>
+            </Grid>
+            <Grid item xs={5}>
               <ListItemText
                 primary="Allocated time"
                 secondary={formatDuration(allocated)}
                 className={classes.flexColumn}
               />
+            </Grid>
+            <Grid item xs={6}>
               <ListItemText
                 primary="Allocatable time"
                 className={classes.flexColumn}
@@ -378,8 +358,69 @@ export default function ProposalDetailsAndBookingEvents({
                   </>
                 }
               />
-            </ListItem>
-          </List>
+            </Grid>
+          </Grid>
+          <Divider variant="inset" className={classes.divider} />
+          <Grid container alignItems="center">
+            <Grid item sm={1} xs={12}>
+              <ListItemAvatar>
+                <Avatar>
+                  <Person />
+                </Avatar>
+              </ListItemAvatar>
+            </Grid>
+            <Grid item xs={5}>
+              <ListItemText
+                primary="Principal investigator"
+                secondary={getFullUserName(proposer)}
+              />
+            </Grid>
+          </Grid>
+        </Grid>
+        <Grid item sm={6}>
+          <Typography variant="h6" component="h6" align="left">
+            Cycle information
+          </Typography>
+          <Grid container alignItems="center">
+            <Grid item sm={1} xs={12}>
+              <ListItemAvatar>
+                <Avatar>
+                  <CommentIcon />
+                </Avatar>
+              </ListItemAvatar>
+            </Grid>
+            <Grid item xs={5}>
+              <ListItemText
+                primary="Cycle shortcode"
+                secondary={cycleShortCode}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <ListItemText primary="Cycle comment" secondary={cycleComment} />
+            </Grid>
+          </Grid>
+          <Divider variant="inset" className={classes.divider} />
+          <Grid container alignItems="center">
+            <Grid item sm={1} xs={12}>
+              <ListItemAvatar>
+                <Avatar>
+                  <CalendarTodayIcon />
+                </Avatar>
+              </ListItemAvatar>
+            </Grid>
+            <Grid item xs={5}>
+              <ListItemText
+                primary="Cycle starts"
+                secondary={toTzLessDateTime(startCycle)}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <ListItemText
+                primary="Cycle ends"
+                secondary={toTzLessDateTime(endCycle)}
+              />
+            </Grid>
+          </Grid>
         </Grid>
       </Grid>
 

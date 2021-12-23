@@ -3663,7 +3663,10 @@ export type GetInstrumentProposalBookingsQueryVariables = Exact<{
 
 export type GetInstrumentProposalBookingsQuery = { instrumentProposalBookings: Array<(
     Pick<ProposalBooking, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'allocatedTime'>
-    & { call: Maybe<Pick<Call, 'id' | 'shortCode' | 'startCycle' | 'endCycle' | 'cycleComment'>>, proposal: Maybe<Pick<Proposal, 'primaryKey' | 'title' | 'proposalId'>>, instrument: Maybe<Pick<Instrument, 'id' | 'name'>>, scheduledEvents: Array<Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>> }
+    & { call: Maybe<Pick<Call, 'id' | 'shortCode' | 'startCycle' | 'endCycle' | 'cycleComment'>>, proposal: Maybe<(
+      Pick<Proposal, 'primaryKey' | 'title' | 'proposalId'>
+      & { proposer: Maybe<Pick<BasicUserDetails, 'id' | 'firstname' | 'lastname'>> }
+    )>, instrument: Maybe<Pick<Instrument, 'id' | 'name'>>, scheduledEvents: Array<Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt'>> }
   )> };
 
 export type GetProposalBookingQueryVariables = Exact<{
@@ -3674,7 +3677,10 @@ export type GetProposalBookingQueryVariables = Exact<{
 
 export type GetProposalBookingQuery = { proposalBooking: Maybe<(
     Pick<ProposalBooking, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'allocatedTime'>
-    & { call: Maybe<Pick<Call, 'id' | 'shortCode' | 'startCycle' | 'endCycle' | 'cycleComment'>>, proposal: Maybe<Pick<Proposal, 'primaryKey' | 'title' | 'proposalId'>>, scheduledEvents: Array<(
+    & { call: Maybe<Pick<Call, 'id' | 'shortCode' | 'startCycle' | 'endCycle' | 'cycleComment'>>, proposal: Maybe<(
+      Pick<Proposal, 'primaryKey' | 'title' | 'proposalId'>
+      & { proposer: Maybe<Pick<BasicUserDetails, 'id' | 'firstname' | 'lastname'>> }
+    )>, scheduledEvents: Array<(
       Pick<ScheduledEvent, 'id' | 'startsAt' | 'endsAt' | 'bookingType' | 'status' | 'description'>
       & { scheduledBy: Maybe<Pick<User, 'id' | 'firstname' | 'lastname'>>, localContact: Maybe<Pick<BasicUserDetails, 'id' | 'firstname' | 'lastname'>> }
     )>, instrument: Maybe<(
@@ -4121,6 +4127,11 @@ export const GetInstrumentProposalBookingsDocument = gql`
       primaryKey
       title
       proposalId
+      proposer {
+        id
+        firstname
+        lastname
+      }
     }
     createdAt
     updatedAt
@@ -4153,6 +4164,11 @@ export const GetProposalBookingDocument = gql`
       primaryKey
       title
       proposalId
+      proposer {
+        id
+        firstname
+        lastname
+      }
     }
     scheduledEvents(filter: $filter) {
       id

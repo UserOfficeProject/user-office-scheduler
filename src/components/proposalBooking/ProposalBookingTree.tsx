@@ -17,6 +17,7 @@ import React, {
 
 import { ProposalBookingStatusCore } from 'generated/sdk';
 import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
+import { getFullUserName } from 'utils/user';
 
 import ProposalBookingDialog from './ProposalBookingDialog';
 import ProposalBookingTreeTitle from './ProposalBookingTreeTitle';
@@ -26,6 +27,8 @@ type RenderTree = {
   title: ReactNode;
   proposalBookingId?: number;
   completed?: boolean;
+  proposalId?: string;
+  proposalPI?: string;
   instrumentId?: number;
   children?: RenderTree[];
   onClick?: React.MouseEventHandler;
@@ -85,6 +88,8 @@ export default function ProposalBookingTree({
           children: proposalBookings.map((proposalBooking) => ({
             id: `proposal-${proposalBooking.proposal.primaryKey}`, // avoid numerical ID collision
             proposalBookingId: proposalBooking.id,
+            proposalId: proposalBooking.proposal.proposalId,
+            proposalPI: getFullUserName(proposalBooking.proposal.proposer),
             completed:
               proposalBooking.status === ProposalBookingStatusCore.COMPLETED,
             instrumentId: proposalBooking.instrument?.id,
@@ -103,7 +108,11 @@ export default function ProposalBookingTree({
       <TreeItem
         key={nodes.id}
         nodeId={nodes.id}
-        label={nodes.title}
+        label={
+          nodes.proposalBookingId && nodes.instrumentId
+            ? `${nodes.proposalPI} - (${nodes.proposalId})`
+            : nodes.title
+        }
         onClick={nodes.onClick}
         draggable={!!nodes.proposalBookingId && !nodes.completed}
         onDragStart={() => {

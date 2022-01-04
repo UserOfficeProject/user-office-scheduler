@@ -60,6 +60,10 @@ export class ScheduledEvent implements Partial<ScheduledEventBase> {
   @Field(() => String, { nullable: true })
   description: string | null;
 
+  // defaultValue is null for scheduled events for now and might be added later but we have value for equipment events
+  @Field(() => String, { defaultValue: null, nullable: true })
+  color?: string | null;
+
   // external type
   @Type(() => Instrument)
   @Field({ nullable: true })

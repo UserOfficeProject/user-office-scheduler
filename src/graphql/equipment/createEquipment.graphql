@@ -7,6 +7,7 @@ mutation createEquipment($newEquipmentInput: EquipmentInput!) {
       updatedAt
       name
       description
+      color
       maintenanceStartsAt
       maintenanceEndsAt
       autoAccept

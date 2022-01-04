@@ -5,6 +5,7 @@ query getEquipments {
     updatedAt
     name
     description
+    color
     maintenanceStartsAt
     maintenanceEndsAt
     autoAccept

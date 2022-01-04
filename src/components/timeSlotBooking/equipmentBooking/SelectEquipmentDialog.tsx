@@ -22,6 +22,7 @@ export type EquipmentTableRow = {
   id: number;
   name: string;
   description: string | null;
+  color: string | null;
   autoAccept: boolean;
 };
 
@@ -30,6 +31,10 @@ const defaultHeadCells: HeadCell<EquipmentTableRow>[] = [
   {
     id: 'description',
     label: 'Description',
+  },
+  {
+    id: 'color',
+    label: 'Color',
   },
   {
     id: 'autoAccept',
@@ -116,6 +121,22 @@ export default function SelectEquipmentDialog({
               <>
                 <TableCell align="left">{row.name}</TableCell>
                 <TableCell align="left">{row.description}</TableCell>
+                <TableCell align="left">
+                  {row.color ? (
+                    <>
+                      <span
+                        style={{
+                          backgroundColor: row.color,
+                          padding: '2px 20px',
+                          marginRight: '8px',
+                        }}
+                      ></span>
+                      {row.color}
+                    </>
+                  ) : (
+                    'None'
+                  )}
+                </TableCell>
                 <TableCell align="left">
                   {row.autoAccept ? 'yes' : 'no'}
                 </TableCell>

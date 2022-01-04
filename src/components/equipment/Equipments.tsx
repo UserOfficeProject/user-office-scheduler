@@ -18,11 +18,30 @@ export type EquipmentTableRow = {
   id: number;
   name: string;
   description: string | null;
+  color: string | null;
 };
 
 const columns: Column<EquipmentTableRow>[] = [
   { field: 'name', title: 'Name' },
   { field: 'description', title: 'Description' },
+  {
+    title: 'Color',
+    render: (rowData) =>
+      rowData.color ? (
+        <>
+          <span
+            style={{
+              backgroundColor: rowData.color,
+              padding: '2px 20px',
+              marginRight: '8px',
+            }}
+          ></span>
+          {rowData.color}
+        </>
+      ) : (
+        'None'
+      ),
+  },
 ];
 
 export default function Equipments() {

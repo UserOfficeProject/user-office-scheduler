@@ -10,6 +10,7 @@ query getScheduledEvents(
     endsAt
     status
     description
+    color
     instrument {
       id
       name

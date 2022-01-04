@@ -6,6 +6,7 @@ query getEquipmentScheduledEvents(
   equipments(equipmentIds: $equipmentIds) {
     id
     name
+    color
     events(startsAt: $startsAt, endsAt: $endsAt) {
       id
       startsAt

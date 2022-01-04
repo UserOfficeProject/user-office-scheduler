@@ -380,6 +380,22 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
                       </IconButton>
                     </Tooltip>
                   </ListItem>
+                  <ListItem disableGutters>
+                    <ListItemAvatar>
+                      <div
+                        className="MuiAvatar-root"
+                        data-cy="equipment-color"
+                        style={{
+                          backgroundColor: equipment.color || '#bdbdbd',
+                          border: '1px solid #bdbdbd',
+                        }}
+                      />
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary="Equipment color"
+                      secondary={equipment.color || 'None'}
+                    />
+                  </ListItem>
                 </List>
               </Grid>
               <Grid item sm={6}>

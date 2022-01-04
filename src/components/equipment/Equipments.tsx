@@ -17,6 +17,24 @@ import { ContentContainer, StyledPaper } from 'styles/StyledComponents';
 const columns: Column<PartialEquipment>[] = [
   { field: 'name', title: 'Name' },
   { field: 'description', title: 'Description' },
+  {
+    title: 'Color',
+    render: (rowData) =>
+      rowData.color ? (
+        <>
+          <span
+            style={{
+              backgroundColor: rowData.color,
+              padding: '2px 20px',
+              marginRight: '8px',
+            }}
+          ></span>
+          {rowData.color}
+        </>
+      ) : (
+        'None'
+      ),
+  },
 ];
 
 export default function Equipments() {

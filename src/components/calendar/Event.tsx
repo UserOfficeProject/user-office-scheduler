@@ -22,6 +22,7 @@ export type CalendarScheduledEvent = Pick<
   | 'id'
   | 'bookingType'
   | 'description'
+  | 'color'
   | 'bookingType'
   | 'equipmentId'
   | 'status'
@@ -56,15 +57,14 @@ export const isCompletedEvent = (
 ) => proposalBooking?.status === ProposalBookingStatusCore.COMPLETED;
 
 export const getBookingTypeStyle = (
-  bookingType: ScheduledEventBookingType,
-  status: ProposalBookingStatusCore
+  event: CalendarScheduledEvent
 ): CSSProperties => {
-  const opacity = isDraftEvent({ status }) ? 0.6 : 1;
-  const grayscale = isCompletedEvent({ status }) ? 0.5 : 0;
+  const opacity = isDraftEvent({ status: event.status }) ? 0.6 : 1;
+  const grayscale = isCompletedEvent({ status: event.status }) ? 0.5 : 0;
 
   const filter = `grayscale(${grayscale}) opacity(${opacity})`;
 
-  switch (bookingType) {
+  switch (event.bookingType) {
     case ScheduledEventBookingType.COMMISSIONING:
       return {
         background: 'rgb(147, 225, 216)',
@@ -91,8 +91,8 @@ export const getBookingTypeStyle = (
       };
     case ScheduledEventBookingType.EQUIPMENT:
       return {
-        background: 'rgb(124, 181, 236)',
-        color: '#fff',
+        background: event.color || 'rgb(124, 181, 236)', // Default background some blue-ish variant.
+        color: '#fff', // Default text color white.
         filter: filter,
       };
     default:
@@ -109,7 +109,7 @@ export const eventPropGetter = (
   style: {
     borderRadius: 0,
     border: '1px solid #FFF',
-    ...getBookingTypeStyle(event.bookingType, event.status),
+    ...getBookingTypeStyle(event),
   },
 });
 

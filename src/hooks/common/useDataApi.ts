@@ -2,7 +2,7 @@
 import { getTranslation } from '@esss-swap/duo-localisation';
 import { GraphQLClient } from 'graphql-request';
 import { Variables } from 'graphql-request/dist/types';
-import { decode } from 'jsonwebtoken';
+import jwtDecode from 'jwt-decode';
 import { useSnackbar, WithSnackbarProps } from 'notistack';
 import { useCallback, useContext } from 'react';
 
@@ -75,11 +75,7 @@ class UnauthorizedGraphQLClient extends GraphQLClient {
     super(endpoint);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async request<T extends any>(
-    query: string,
-    variables?: Variables
-  ): Promise<T> {
+  async request(query: string, variables?: Variables) {
     return super.request(query, variables).catch((error) => {
       // if the `notificationWithClientLog` fails
       // and it fails while reporting an error, it can
@@ -103,7 +99,7 @@ class UnauthorizedGraphQLClient extends GraphQLClient {
       }
 
       return error;
-    }) as T;
+    });
   }
 }
 
@@ -122,10 +118,7 @@ class AuthorizedGraphQLClient extends GraphQLClient {
     this.renewalDate = this.getRenewalDate(token);
   }
 
-  async request<T extends any>(
-    query: string,
-    variables?: Variables
-  ): Promise<T> {
+  async request(query: string, variables?: Variables) {
     const nowTimestampSeconds = Date.now() / 1000;
 
     if (this.renewalDate < nowTimestampSeconds) {
@@ -168,13 +161,13 @@ class AuthorizedGraphQLClient extends GraphQLClient {
       this.error && this.error(error);
 
       return error;
-    }) as T;
+    });
   }
 
   private getRenewalDate(token: string): number {
     const after = 8 * 3600;
 
-    return (decode(token) as any).iat + after;
+    return (jwtDecode(token) as any).iat + after;
   }
 
   private checkNamedErrors(errObj: any) {

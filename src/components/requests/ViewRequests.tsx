@@ -24,7 +24,7 @@ type TableRow = {
   startsAt: Moment;
   endsAt: Moment;
   equipmentId?: number | null;
-  equipmentAssignmentStatus: EquipmentAssignmentStatus | null;
+  equipmentAssignmentStatus?: EquipmentAssignmentStatus | null;
   scheduledBy: string;
 };
 

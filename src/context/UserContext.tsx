@@ -1,5 +1,5 @@
 import { getTranslation } from '@esss-swap/duo-localisation';
-import { decode } from 'jsonwebtoken';
+import jwtDecode from 'jwt-decode';
 import { useSnackbar } from 'notistack';
 import React, { createContext, useContext, useEffect, useReducer } from 'react';
 import { useCookies } from 'react-cookie';
@@ -87,7 +87,7 @@ export function UserContextProvider({ children }: UserContextProviderProps) {
     let decodedToken = null;
     if (token) {
       try {
-        decodedToken = decode(token);
+        decodedToken = jwtDecode(token);
       } catch (error) {
         // malformed token?
         console.error(error);

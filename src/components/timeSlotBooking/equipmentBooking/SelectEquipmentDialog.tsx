@@ -21,8 +21,8 @@ import {
 export type EquipmentTableRow = {
   id: number;
   name: string;
-  description: string | null;
-  color: string | null;
+  description?: string | null;
+  color?: string | null;
   autoAccept: boolean;
 };
 

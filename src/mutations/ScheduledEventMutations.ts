@@ -1,10 +1,10 @@
-import { logger } from '@esss-swap/duo-logger';
+import { logger } from '@user-office-software/duo-logger';
 import {
   createScheduledEventValidationSchema,
   updateScheduledEventValidationSchema,
   activateBookingValidationSchema,
   finalizeBookingValidationSchema,
-} from '@esss-swap/duo-validation';
+} from '@user-office-software/duo-validation';
 
 import { ResolverContext } from '../context';
 import { EquipmentDataSource } from '../datasources/EquipmentDataSource';

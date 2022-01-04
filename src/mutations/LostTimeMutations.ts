@@ -1,5 +1,5 @@
-import { logger } from '@esss-swap/duo-logger';
-// import { bulkUpsertLostTimeValidationSchema } from '@esss-swap/duo-validation';
+import { logger } from '@user-office-software/duo-logger';
+// import { bulkUpsertLostTimeValidationSchema } from '@user-office-software/duo-validation';
 
 import { ResolverContext } from '../context';
 import { LostTimeDataSource } from '../datasources/LostTimeDataSource';

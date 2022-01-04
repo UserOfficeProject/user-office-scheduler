@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ResourceId } from '@esss-swap/duo-localisation';
+import { ResourceId } from '@user-office-software/duo-localisation';
 import * as Yup from 'yup';
 
 import { Rejection, rejection } from '../rejection';

@@ -1,4 +1,4 @@
-import { logger } from '@esss-swap/duo-logger';
+import { logger } from '@user-office-software/duo-logger';
 import Knex from 'knex';
 
 export const UNIQUE_CONSTRAINT_VIOLATION = '23505';

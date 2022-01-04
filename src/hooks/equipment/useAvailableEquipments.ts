@@ -8,6 +8,7 @@ export type EquipmentPartial = Pick<
   | 'id'
   | 'name'
   | 'description'
+  | 'color'
   | 'maintenanceStartsAt'
   | 'maintenanceEndsAt'
   | 'autoAccept'

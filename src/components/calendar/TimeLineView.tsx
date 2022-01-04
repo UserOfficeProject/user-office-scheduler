@@ -305,7 +305,7 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
           onClick: () => onSelectEvent(event),
           onTouchStart: () => onSelectEvent(event),
           style: {
-            ...getBookingTypeStyle(event.bookingType, event.status),
+            ...getBookingTypeStyle(event),
             overflow: 'hidden',
           },
         },
@@ -322,7 +322,7 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
         onClick: () => onSelectEvent(event),
         onTouchStart: () => onSelectEvent(event),
         style: {
-          ...getBookingTypeStyle(event.bookingType, event.status),
+          ...getBookingTypeStyle(event),
           overflow: 'hidden',
         },
       },

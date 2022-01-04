@@ -85,6 +85,24 @@ export default function TimeSlotEquipmentBookingTable({
       title: 'Description',
       field: 'description',
     },
+    {
+      title: 'Color',
+      render: (rowData) =>
+        rowData.color ? (
+          <>
+            <span
+              style={{
+                backgroundColor: rowData.color,
+                padding: '2px 20px',
+                marginRight: '8px',
+              }}
+            ></span>
+            {rowData.color}
+          </>
+        ) : (
+          'None'
+        ),
+    },
     { title: 'Status', field: 'status' },
   ];
 

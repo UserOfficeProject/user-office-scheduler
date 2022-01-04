@@ -10,6 +10,7 @@ query getScheduledEventEquipments(
       id
       name
       description
+      color
       maintenanceStartsAt
       maintenanceEndsAt
       status

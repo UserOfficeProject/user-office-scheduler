@@ -1,7 +1,7 @@
 import { promises } from 'fs';
 import { join } from 'path';
 
-import { logger } from '@esss-swap/duo-logger';
+import { logger } from '@user-office-software/duo-logger';
 import { Resolver, Query, Ctx, ObjectType, Field } from 'type-graphql';
 
 import { ResolverContext } from '../../context';

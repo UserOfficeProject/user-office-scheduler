@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { equipmentValidationSchema } from '@esss-swap/duo-validation';
+import { equipmentValidationSchema } from '@user-office-software/duo-validation';
 
 import { ResolverContext } from '../context';
 import { EquipmentDataSource } from '../datasources/EquipmentDataSource';

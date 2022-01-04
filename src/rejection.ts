@@ -1,4 +1,4 @@
-import { ResourceId } from '@esss-swap/duo-localisation'; // import
+import { ResourceId } from '@user-office-software/duo-localisation'; // import
 
 const REJECTION = Symbol('REJECTION');
 

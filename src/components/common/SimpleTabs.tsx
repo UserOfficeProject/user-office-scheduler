@@ -1,10 +1,9 @@
 import { Paper } from '@material-ui/core';
-import AppBar from '@material-ui/core/AppBar';
+// import AppBar from '@material-ui/core/AppBar';
 import Box from '@material-ui/core/Box';
-import useTheme from '@material-ui/core/styles/useTheme';
+import { makeStyles, Theme } from '@material-ui/core/styles';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
-import Typography from '@material-ui/core/Typography';
 import React, { useEffect } from 'react';
 
 interface TabPanelProps {
@@ -18,42 +17,53 @@ function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
 
   return (
-    <Typography
-      component="div"
+    <Box
       role="tabpanel"
       hidden={value !== index}
-      id={`full-width-tabpanel-${index}`}
-      aria-labelledby={`full-width-tab-${index}`}
+      id={`vertical-tabpanel-${index}`}
+      aria-labelledby={`vertical-tab-${index}`}
+      width="100%"
       {...other}
     >
-      {value === index && (
-        <Box p={3} position="relative" minHeight={200}>
-          {children}
-        </Box>
-      )}
-    </Typography>
+      {value === index && <Box p={3}>{children}</Box>}
+    </Box>
   );
 }
 
 function a11yProps(index: number) {
   return {
-    id: `full-width-tab-${index}`,
-    'aria-controls': `full-width-tabpanel-${index}`,
+    id: `vertical-tab-${index}`,
+    'aria-controls': `vertical-tabpanel-${index}`,
   };
 }
 
-type FullWidthTabsProps = {
+type VerticalTabsProps = {
   children: React.ReactNode[];
   tab?: number;
   tabNames: string[];
 };
 
-const FullWidthTabs: React.FC<FullWidthTabsProps> = ({
+const useStyles = makeStyles((theme: Theme) => ({
+  root: {
+    flexGrow: 1,
+    backgroundColor: theme.palette.background.paper,
+    display: 'flex',
+  },
+  tabs: {
+    borderRight: `1px solid ${theme.palette.divider}`,
+    width: 'auto',
+    flexShrink: 2,
+  },
+}));
+
+// TODO: Work a bit on the mobile view because the tab controls are not visible when screen is too small.
+// Maybe it will be good to show controls on top when mobile or somehow make it a bit better when it comes to responsiveness
+const VerticalTabs: React.FC<VerticalTabsProps> = ({
   tabNames,
   children,
   tab,
 }) => {
-  const theme = useTheme();
+  const classes = useStyles();
   const [value, setValue] = React.useState(tab || 0);
 
   useEffect(() => {
@@ -68,24 +78,26 @@ const FullWidthTabs: React.FC<FullWidthTabsProps> = ({
   };
 
   return (
-    <Paper elevation={3}>
-      <AppBar position="static" color="default">
-        <Tabs
-          value={value}
-          textColor="primary"
-          variant="fullWidth"
-          onChange={handleChange}
-          aria-label="full width tabs example"
-          indicatorColor="primary"
-        >
-          {tabNames.map((tabName, i) => (
-            <Tab key={i} label={tabName} {...a11yProps(i)} />
-          ))}
-        </Tabs>
-      </AppBar>
+    <Paper elevation={3} className={classes.root}>
+      {/* <AppBar position="static" color="default" > */}
+      <Tabs
+        value={value}
+        textColor="primary"
+        variant="scrollable"
+        onChange={handleChange}
+        aria-label="Vertical tabs example"
+        indicatorColor="primary"
+        orientation="vertical"
+        className={classes.tabs}
+      >
+        {tabNames.map((tabName, i) => (
+          <Tab key={i} label={tabName} {...a11yProps(i)} />
+        ))}
+      </Tabs>
+      {/* </AppBar> */}
 
       {children.map((tabContent, i) => (
-        <TabPanel key={i} value={value} index={i} dir={theme.direction}>
+        <TabPanel key={i} value={value} index={i}>
           {tabContent}
         </TabPanel>
       ))}
@@ -93,4 +105,4 @@ const FullWidthTabs: React.FC<FullWidthTabsProps> = ({
   );
 };
 
-export default FullWidthTabs;
+export default VerticalTabs;

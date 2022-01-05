@@ -34,6 +34,7 @@ import React, {
 } from 'react';
 
 import IdentifierIcon from 'components/common/icons/IdentifierIcon';
+import ScienceIcon from 'components/common/icons/ScienceIcon';
 import SimpleTabs from 'components/common/SimpleTabs';
 import TimeSlotBooking from 'components/timeSlotBooking/TimeSlotBooking';
 import {
@@ -134,8 +135,9 @@ export default function ProposalDetailsAndBookingEvents({
   setProposalBooking,
 }: ProposalDetailsAndBookingEventsProps) {
   const {
-    call: { startCycle, endCycle, cycleComment, shortCode: cycleShortCode },
+    call: { startCycle, endCycle, cycleComment, shortCode: callShortCode },
     proposal: { title, proposalId, proposer },
+    instrument,
   } = proposalBooking;
 
   const classes = useStyles();
@@ -165,8 +167,8 @@ export default function ProposalDetailsAndBookingEvents({
   ] = useState(
     checkIfSomeScheduledEventIsOutsideCallCycleInterval(
       scheduledEvents,
-      proposalBooking.call?.startCycle,
-      proposalBooking.call?.endCycle
+      startCycle,
+      endCycle
     )
   );
 
@@ -187,15 +189,11 @@ export default function ProposalDetailsAndBookingEvents({
     setHasEventOutsideCallCycleInterval(
       checkIfSomeScheduledEventIsOutsideCallCycleInterval(
         scheduledEvents,
-        proposalBooking.call.startCycle,
-        proposalBooking.call.endCycle
+        startCycle,
+        endCycle
       )
     );
-  }, [
-    scheduledEvents,
-    proposalBooking.call.startCycle,
-    proposalBooking.call.endCycle,
-  ]);
+  }, [scheduledEvents, startCycle, endCycle]);
 
   const handleAdd = async () => {
     setIsAddingNewTimeSlot(true);
@@ -208,7 +206,7 @@ export default function ProposalDetailsAndBookingEvents({
       : moment().set({ hour: 9, minute: 0, second: 0 }); // NOTE: Start events at 9.00 AM for easier date modifications
     const endsAt = startsAt.clone().add(1, 'day');
 
-    if (!proposalBooking.instrument) {
+    if (!instrument) {
       return;
     }
 
@@ -218,7 +216,7 @@ export default function ProposalDetailsAndBookingEvents({
       input: {
         proposalBookingId: proposalBooking.id,
         bookingType: ScheduledEventBookingType.USER_OPERATIONS,
-        instrumentId: proposalBooking.instrument.id,
+        instrumentId: instrument.id,
         startsAt: startsAt.format(TZ_LESS_DATE_TIME_FORMAT),
         endsAt: endsAt.format(TZ_LESS_DATE_TIME_FORMAT),
       },
@@ -252,7 +250,7 @@ export default function ProposalDetailsAndBookingEvents({
   };
 
   const handleDelete = async (event: ScheduledEventWithEquipments) => {
-    if (!proposalBooking.instrument) {
+    if (!instrument) {
       return;
     }
 
@@ -263,7 +261,7 @@ export default function ProposalDetailsAndBookingEvents({
       input: {
         ids: [event.id],
         proposalBookingId: proposalBooking.id,
-        instrumentId: proposalBooking.instrument.id,
+        instrumentId: instrument.id,
       },
     });
 
@@ -328,6 +326,32 @@ export default function ProposalDetailsAndBookingEvents({
             <Grid item sm={1} xs={12}>
               <ListItemAvatar>
                 <Avatar>
+                  <Person />
+                </Avatar>
+              </ListItemAvatar>
+            </Grid>
+            <Grid item xs={5}>
+              <ListItemText
+                primary="Principal investigator"
+                secondary={getFullUserName(proposer)}
+              />
+            </Grid>
+            <Grid item sm={1} xs={12}>
+              <ListItemAvatar>
+                <Avatar>
+                  <ScienceIcon />
+                </Avatar>
+              </ListItemAvatar>
+            </Grid>
+            <Grid item xs={5}>
+              <ListItemText primary="Instrument" secondary={instrument?.name} />
+            </Grid>
+          </Grid>
+          <Divider variant="inset" className={classes.divider} />
+          <Grid container alignItems="center">
+            <Grid item sm={1} xs={12}>
+              <ListItemAvatar>
+                <Avatar>
                   <HourglassEmptyIcon />
                 </Avatar>
               </ListItemAvatar>
@@ -360,22 +384,6 @@ export default function ProposalDetailsAndBookingEvents({
               />
             </Grid>
           </Grid>
-          <Divider variant="inset" className={classes.divider} />
-          <Grid container alignItems="center">
-            <Grid item sm={1} xs={12}>
-              <ListItemAvatar>
-                <Avatar>
-                  <Person />
-                </Avatar>
-              </ListItemAvatar>
-            </Grid>
-            <Grid item xs={5}>
-              <ListItemText
-                primary="Principal investigator"
-                secondary={getFullUserName(proposer)}
-              />
-            </Grid>
-          </Grid>
         </Grid>
         <Grid item sm={6}>
           <Typography variant="h6" component="h6" align="left">
@@ -391,8 +399,8 @@ export default function ProposalDetailsAndBookingEvents({
             </Grid>
             <Grid item xs={5}>
               <ListItemText
-                primary="Cycle shortcode"
-                secondary={cycleShortCode}
+                primary="Call short code"
+                secondary={callShortCode}
               />
             </Grid>
             <Grid item xs={6}>

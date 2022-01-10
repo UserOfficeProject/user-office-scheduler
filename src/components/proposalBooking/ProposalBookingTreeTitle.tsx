@@ -6,6 +6,7 @@ import { ScheduledEventStatusMap } from 'components/scheduledEvent/ScheduledEven
 import { ProposalBookingStatusCore } from 'generated/sdk';
 import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
 import { parseTzLessDateTime } from 'utils/date';
+import { getFullUserName } from 'utils/user';
 
 const useStyles = makeStyles((theme) => ({
   heading1: {
@@ -70,7 +71,9 @@ function ProposalBookingTreeTitle({
           isProposalBookingCompleted ? classes.headingCompleted : ''
         }`}
       >
-        {proposalBooking.proposal.title}{' '}
+        {`${getFullUserName(proposalBooking.proposal.proposer)} - (${
+          proposalBooking.proposal.proposalId
+        })`}{' '}
         {isProposalBookingCompleted
           ? `- [${ScheduledEventStatusMap[proposalBooking.status]}]`
           : ''}

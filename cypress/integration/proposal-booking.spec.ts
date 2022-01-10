@@ -38,6 +38,12 @@ context('Proposal booking tests ', () => {
     endsAt: getHourDateTimeAfter(24),
   };
 
+  const existingProposalData = {
+    proposalId: '999999',
+    title: 'Test proposal',
+    proposer: 'Carl Carlsson',
+  };
+
   const existingInstrumentScientistId = 100;
 
   describe('Proposal booking calls/proposals list', () => {
@@ -290,7 +296,9 @@ context('Proposal booking tests ', () => {
         cy.finishedLoading();
 
         // NOTE: Using fixed proposal name and shortcode because they are inserted inside the database using a seeder and always will be the same for the test cases.
-        cy.get('[data-cy="proposal-event-Test proposal-999999"]')
+        cy.get(
+          `[data-cy="proposal-event-${existingProposalData.title}-${existingProposalData.proposalId}"]`
+        )
           .closest('.rbc-event')
           .should('have.attr', 'style')
           .and('include', 'background: rgb(')
@@ -410,7 +418,7 @@ context('Proposal booking tests ', () => {
 
         cy.get('.rbc-time-content .rbc-event')
           .last()
-          .contains('999999')
+          .contains(existingProposalData.proposalId)
           .click();
 
         cy.finishedLoading();
@@ -449,7 +457,7 @@ context('Proposal booking tests ', () => {
 
         cy.get('.rbc-time-content .rbc-event')
           .last()
-          .contains('999999')
+          .contains(existingProposalData.proposalId)
           .click();
 
         cy.finishedLoading();
@@ -1092,18 +1100,23 @@ context('Proposal booking tests ', () => {
         cy.finishedLoading();
         cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
 
-        cy.get('[data-cy="proposal-event-Test proposal-999999"]').should(
-          'contain.text',
-          '[Completed]'
-        );
+        cy.get(
+          `[data-cy="proposal-event-${existingProposalData.title}-${existingProposalData.proposalId}"]`
+        ).should('contain.text', '[Completed]');
 
         cy.get(
           '#instrument-calls-tree-view [role=treeitem] [role=group] [role=treeitem]'
         )
           .first()
-          .should('contain.text', '[Completed]');
+          .should(
+            'contain.text',
+            `${existingProposalData.proposer} - (${existingProposalData.proposalId})`
+          )
+          .and('contain.text', '[Completed]');
 
-        cy.get('[data-cy="proposal-event-Test proposal-999999"]')
+        cy.get(
+          `[data-cy="proposal-event-${existingProposalData.title}-${existingProposalData.proposalId}"]`
+        )
           .closest('.rbc-event')
           .should('have.attr', 'style')
           .and('include', 'background: rgb(')

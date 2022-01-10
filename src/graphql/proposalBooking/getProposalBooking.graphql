@@ -15,6 +15,11 @@ query getProposalBooking(
       primaryKey
       title
       proposalId
+      proposer {
+        id
+        firstname
+        lastname
+      }
     }
     scheduledEvents(filter: $filter) {
       id

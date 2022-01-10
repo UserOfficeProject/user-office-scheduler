@@ -1,3 +1,15 @@
 .MuiPaper-elevation2.MuiPaper-root {
   box-shadow: none;
 }
+
+.tinyScroll::-webkit-scrollbar {
+  -webkit-appearance: none;
+  max-height: 10px;
+  max-width: 10px;
+}
+
+.tinyScroll::-webkit-scrollbar-thumb {
+  border: 2px solid white;
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.3);
+}

@@ -9,6 +9,7 @@ import {
   ListItemAvatar,
   ListItemText,
   makeStyles,
+  Typography,
 } from '@material-ui/core';
 import {
   CalendarToday as CalendarTodayIcon,
@@ -185,6 +186,9 @@ export default function TimeSlotDetails({
 
   return (
     <>
+      <Typography variant="h6" component="h4" align="left">
+        Experiment information
+      </Typography>
       {isStepReadOnly && (
         <Alert severity="info">
           Time slot booking is already completed, you can not edit it.

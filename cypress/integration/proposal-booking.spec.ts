@@ -185,7 +185,7 @@ context('Proposal booking tests ', () => {
           .first()
           .click();
 
-        cy.get('.MuiTab-fullWidth').last().click();
+        cy.get('[id^=vertical-tab-]').last().click();
 
         cy.contains(getHourDateTimeAfter(2, 'days'));
         cy.contains(getHourDateTimeAfter(3, 'days'));
@@ -317,7 +317,7 @@ context('Proposal booking tests ', () => {
         ).should('not.exist');
 
         cy.finishedLoading();
-        cy.get('.MuiTab-fullWidth').last().click();
+        cy.get('[id^=vertical-tab-]').last().click();
 
         cy.get('[data-cy="event-outside-cycle-interval-warning"]').should(
           'not.exist'
@@ -507,7 +507,9 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy="btn-ok"]').click();
         cy.finishedLoading();
 
-        cy.contains(/No records to display\. Start by adding new time slot/i);
+        cy.contains(
+          /No records to display\. Start by adding new experiment time/i
+        );
       });
 
       it('should show warning when `startsAt` is after `endsAt`', () => {
@@ -1064,16 +1066,24 @@ context('Proposal booking tests ', () => {
         cy.contains(/you have overlapping events/i);
       });
 
-      it('should be able to complete the booking process', () => {
+      it('should be able to complete the time slot booking process', () => {
         cy.finishedLoading();
         selectInstrumentAndClickOnProposalForBooking();
         cy.finishedLoading();
 
-        cy.contains(/complete proposal booking/i).as('completeBooking');
+        cy.contains(/complete the time slot booking/i).as(
+          'completeTimeSlotBooking'
+        );
 
-        cy.get('@completeBooking').should('not.be.disabled').click();
+        cy.get('@completeTimeSlotBooking')
+          .scrollIntoView()
+          .should('not.be.disabled')
+          .click();
         cy.get('[data-cy="btn-ok"]').click();
 
+        cy.contains(
+          /Time slot booking is already completed, you can not edit it/i
+        );
         cy.contains(
           /Proposal booking is already completed, you can not edit it/i
         );
@@ -1161,9 +1171,7 @@ context('Proposal booking tests ', () => {
           .first()
           .click();
 
-        cy.get('[data-cy="btn-reopen-booking"]').should('not.exist');
-
-        cy.get('.MuiTab-fullWidth').first().click();
+        cy.get('#vertical-tab-0').click();
 
         cy.finishedLoading();
 
@@ -1198,12 +1206,7 @@ context('Proposal booking tests ', () => {
           .first()
           .click();
 
-        cy.get('[data-cy="btn-reopen-booking"]').should(
-          'include.text',
-          'Reopen proposal booking'
-        );
-
-        cy.get('.MuiTab-fullWidth').first().click();
+        cy.get('#vertical-tab-0').click();
 
         cy.finishedLoading();
 
@@ -1218,10 +1221,8 @@ context('Proposal booking tests ', () => {
 
         cy.finishedLoading();
 
-        cy.get('[title="Add lost time"]').should('exist');
+        cy.get('[title="Add experiment lost time"]').should('exist');
         cy.contains('Complete the time slot booking');
-
-        cy.get('[data-cy="btn-reopen-booking"]').should('not.exist');
       });
     });
   });

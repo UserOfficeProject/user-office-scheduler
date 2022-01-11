@@ -268,6 +268,8 @@ export default function ProposalDetailsAndBookingEvents({
       enqueueSnackbar(getTranslation(error as ResourceId), {
         variant: 'error',
       });
+
+      throw error;
     } else {
       enqueueSnackbar('Time slot deleted successfully', {
         variant: 'success',
@@ -277,13 +279,11 @@ export default function ProposalDetailsAndBookingEvents({
         (scheduledEvent) => event.id !== scheduledEvent.id
       );
 
-      setSelectedTab(newEvents.length - 1);
+      setSelectedTab(newEvents.length ? newEvents.length - 1 : 0);
 
       setProposalBooking({ ...proposalBooking, scheduledEvents: newEvents });
     }
   };
-
-  const hasTimeSlots = !!scheduledEvents.length;
 
   return (
     <div className={classes.root}>

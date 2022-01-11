@@ -4,6 +4,7 @@ import { equipmentValidationSchema } from '@user-office-software/duo-validation'
 import { ResolverContext } from '../context';
 import { EquipmentDataSource } from '../datasources/EquipmentDataSource';
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
+import { ScheduledEventDataSource } from '../datasources/ScheduledEventDataSource';
 import Authorized from '../decorators/Authorized';
 import ValidateArgs from '../decorators/ValidateArgs';
 import { ProposalBookingStatusCore } from '../generated/sdk';
@@ -22,7 +23,8 @@ import { Roles, User } from '../types/shared';
 export default class EquipmentMutations {
   constructor(
     private equipmentDataSource: EquipmentDataSource,
-    private proposalBookingDataSource: ProposalBookingDataSource
+    private proposalBookingDataSource: ProposalBookingDataSource,
+    private scheduledEventDataSource: ScheduledEventDataSource
   ) {}
 
   @ValidateArgs(equipmentValidationSchema)
@@ -66,10 +68,15 @@ export default class EquipmentMutations {
       assignEquipmentsToScheduledEventInput.proposalBookingId
     );
 
+    const scheduledEvent = await this.scheduledEventDataSource.get(
+      assignEquipmentsToScheduledEventInput.scheduledEventId
+    );
+
     if (
       !proposalBooking ||
-      // if the booking is not in DRAFT state disallow assigning any equipment
-      proposalBooking.status !== ProposalBookingStatusCore.DRAFT
+      !scheduledEvent ||
+      // if the scheduled event is not DRAFT state disallow assigning any equipment
+      scheduledEvent.status !== ProposalBookingStatusCore.DRAFT
     ) {
       return false;
     }
@@ -91,10 +98,15 @@ export default class EquipmentMutations {
       deleteEquipmentAssignmentInput.proposalBookingId
     );
 
+    const scheduledEvent = await this.scheduledEventDataSource.get(
+      deleteEquipmentAssignmentInput.scheduledEventId
+    );
+
     if (
       !proposalBooking ||
-      // if the booking is not in DRAFT state disallow delete any assigned equipment
-      proposalBooking.status !== ProposalBookingStatusCore.DRAFT
+      !scheduledEvent ||
+      // if the scheduled event is not DRAFT state disallow delete any assigned equipment
+      scheduledEvent.status !== ProposalBookingStatusCore.DRAFT
     ) {
       return false;
     }

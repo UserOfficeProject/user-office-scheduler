@@ -166,7 +166,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
   return (
     <>
-      <Toolbar filter={filter} />
+      <Toolbar filter={filter} multipleInstruments />
       <DragAndDropCalendar
         popup
         selectable

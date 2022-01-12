@@ -265,20 +265,6 @@ export default function CalendarViewContainer() {
     }
   }, [querySchedulerView]);
 
-  useEffect(() => {
-    if (
-      schedulerActiveView === SchedulerViews.CALENDAR ||
-      schedulerActiveView === SchedulerViews.TABLE
-    ) {
-      const queryInstrumentIds = getArrayOfIdsFromQuery(queryInstrument);
-      // NOTE: If table or calendar view set the selected instrument to first one if multiple are selected in timeline view.
-      if (queryInstrumentIds && queryInstrumentIds.length > 1) {
-        query.set('instrument', `${queryInstrumentIds[0]}`);
-        history.push(`?${query}`);
-      }
-    }
-  }, [schedulerActiveView, history, query, queryInstrument]);
-
   const {
     proposalBookings,
     loading: loadingBookings,

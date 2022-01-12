@@ -323,6 +323,64 @@ context('Calendar tests', () => {
       cy.contains(/You have to select an instrument/i);
     });
 
+    it('should be able to select multiple instruments and select instrument on event creation', () => {
+      cy.initializeSession('UserOfficer');
+      cy.visit({
+        url: '/calendar',
+        timeout: 15000,
+      });
+
+      const newScheduledEvent = {
+        instrumentId: 1,
+        bookingType: ScheduledEventBookingType.MAINTENANCE,
+        startsAt: defaultEventBookingHourDateTime,
+        endsAt: getHourDateTimeAfter(1),
+        description: 'Test maintenance event on instrument 1',
+      };
+      cy.createEvent({ input: newScheduledEvent });
+      const newScheduledEvent2 = {
+        instrumentId: 3,
+        bookingType: ScheduledEventBookingType.SHUTDOWN,
+        startsAt: getHourDateTimeAfter(2),
+        endsAt: getHourDateTimeAfter(3),
+        description: 'Test maintenance event on instrument 3',
+      };
+      cy.createEvent({ input: newScheduledEvent2 });
+      cy.finishedLoading();
+
+      cy.get('[data-cy=input-instrument-select]').click();
+      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
+        .first()
+        .click();
+
+      cy.finishedLoading();
+
+      cy.get('[data-cy=input-instrument-select] input').click();
+      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
+        .last()
+        .click();
+
+      cy.finishedLoading();
+
+      cy.get('[data-cy=input-instrument-select]').should('contain.text', '+1');
+
+      const slot = new Date(defaultEventBookingHourDateTime).toISOString();
+      cy.get(`.rbc-day-slot [data-cy='event-slot-${slot}']`).should('exist');
+      const slot1 = new Date(getHourDateTimeAfter(2)).toISOString();
+      cy.get(`.rbc-day-slot [data-cy='event-slot-${slot1}']`).should('exist');
+
+      cy.get('[data-cy="btn-new-event"]').click();
+
+      cy.get('[data-cy="instrument"]')
+        .should('exist')
+        .find('input')
+        .should('not.be.disabled');
+
+      cy.get('[data-cy="instrument"]').click();
+
+      cy.get('#menu-instrument ul li').should('have.length', '3');
+    });
+
     it('should create a new event with right input', () => {
       cy.finishedLoading();
       cy.get('[data-cy=input-instrument-select]').click();

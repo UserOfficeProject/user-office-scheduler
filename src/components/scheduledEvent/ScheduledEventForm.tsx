@@ -1,5 +1,5 @@
 import MomentUtils from '@date-io/moment';
-import { MenuItem } from '@material-ui/core';
+import { MenuItem, TextField as MuiTextField } from '@material-ui/core';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import { Field } from 'formik';
 import { TextField } from 'formik-material-ui';
@@ -10,6 +10,7 @@ import {
   ProposalBookingStatusCore,
   ScheduledEventBookingType,
 } from 'generated/sdk';
+import useUserInstruments from 'hooks/instrument/useUserInstruments';
 import { TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
 
 export type BookingTypes = typeof ScheduledEventBookingType;
@@ -42,9 +43,49 @@ export const ScheduledEventStatusMap: Record<
 };
 
 export default function ScheduledEventForm() {
+  const { instruments, loading } = useUserInstruments();
+
+  /**
+   * Looks like if the items for a select are updated
+   * after the  select field was mounted
+   * you will get warning about out of range values.
+   * To fix that just avoid mounting the real select until it's loaded
+   */
+  const instrumentSelection = loading ? (
+    <MuiTextField
+      label="Instrument"
+      defaultValue="Loading..."
+      disabled
+      margin="normal"
+      InputLabelProps={{
+        shrink: true,
+      }}
+      fullWidth
+      required
+    />
+  ) : (
+    <Field
+      component={TextField}
+      select
+      required
+      name="instrument"
+      label="Instrument"
+      margin="normal"
+      fullWidth
+      data-cy="instrument"
+    >
+      {instruments.map((instrument) => (
+        <MenuItem key={instrument.id} value={instrument.id}>
+          {instrument.name}
+        </MenuItem>
+      ))}
+    </Field>
+  );
+
   return (
     <>
       <MuiPickersUtilsProvider utils={MomentUtils}>
+        {instrumentSelection}
         <Field
           component={KeyboardDateTimePicker}
           required
@@ -85,12 +126,6 @@ export default function ScheduledEventForm() {
         </MenuItem>
         <MenuItem value={ScheduledEventBookingType.SHUTDOWN}>
           {BookingTypesMap[ScheduledEventBookingType.SHUTDOWN]}
-        </MenuItem>
-        <MenuItem value={ScheduledEventBookingType.COMMISSIONING} disabled>
-          {BookingTypesMap[ScheduledEventBookingType.COMMISSIONING]}
-        </MenuItem>
-        <MenuItem value={ScheduledEventBookingType.USER_OPERATIONS} disabled>
-          {BookingTypesMap[ScheduledEventBookingType.USER_OPERATIONS]}
         </MenuItem>
       </Field>
       <Field

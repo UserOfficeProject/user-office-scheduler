@@ -46,9 +46,11 @@ import {
   ScheduledEventBookingType,
   GetScheduledEventsQuery,
   ProposalBooking,
+  Maybe,
 } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import { useQuery } from 'hooks/common/useQuery';
+import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 import useInstrumentProposalBookings from 'hooks/proposalBooking/useInstrumentProposalBookings';
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
 import useScheduledEvents from 'hooks/scheduledEvent/useScheduledEvents';
@@ -212,10 +214,10 @@ export default function CalendarViewContainer() {
     (querySchedulerView as SchedulerViews) || SchedulerViews.CALENDAR
   );
   const [selectedEvent, setSelectedEvent] = useState<
-    | Pick<
+    | (Pick<
         ScheduledEvent,
         'id' | 'bookingType' | 'startsAt' | 'endsAt' | 'description'
-      >
+      > & { instrument: Maybe<PartialInstrument> })
     | SlotInfo
     | null
   >(null);
@@ -654,9 +656,7 @@ export default function CalendarViewContainer() {
             {queryInstrument && (
               <ScheduledEventDialog
                 selectedEvent={selectedEvent}
-                selectedInstrumentId={
-                  getArrayOfIdsFromQuery(queryInstrument)[0] || 0
-                }
+                selectedInstrumentIds={getArrayOfIdsFromQuery(queryInstrument)}
                 isDialogOpen={selectedEvent !== null}
                 closeDialog={closeDialog}
               />

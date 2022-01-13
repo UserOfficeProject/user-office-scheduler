@@ -377,8 +377,11 @@ export default function TimeSlotBooking({
       ),
       cb: async () => {
         setIsLoading(true);
-        await onDelete(activeScheduledEvent);
-        setIsLoading(false);
+        try {
+          await onDelete(activeScheduledEvent);
+        } catch {
+          setIsLoading(false);
+        }
       },
     });
   };

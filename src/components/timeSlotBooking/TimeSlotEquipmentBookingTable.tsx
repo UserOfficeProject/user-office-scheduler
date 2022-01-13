@@ -1,5 +1,5 @@
 import MaterialTable, { Column } from '@material-table/core';
-import { Button, makeStyles } from '@material-ui/core';
+import { Button, makeStyles, Typography } from '@material-ui/core';
 import { Add as AddIcon } from '@material-ui/icons';
 import Alert from '@material-ui/lab/Alert';
 import AlertTitle from '@material-ui/lab/AlertTitle';
@@ -162,7 +162,11 @@ export default function TimeSlotEquipmentBookingTable({
       )}
       <MaterialTable
         icons={tableIcons}
-        title="Time slot equipments"
+        title={
+          <Typography component="h4" variant="h6">
+            Equipments
+          </Typography>
+        }
         isLoading={loadingEquipments}
         columns={columns}
         data={equipments}
@@ -181,7 +185,7 @@ export default function TimeSlotEquipmentBookingTable({
           {
             icon: () => (
               <Button
-                variant="contained"
+                variant="outlined"
                 color="primary"
                 component="span"
                 data-cy="btn-book-equipment"
@@ -195,7 +199,7 @@ export default function TimeSlotEquipmentBookingTable({
             onClick: () => setEquipmentDialog(true),
             isFreeAction: true,
             hidden: isStepReadOnly,
-            tooltip: !equipmentDialog ? 'Book equipment' : '',
+            tooltip: !equipmentDialog ? 'Book experiment equipment' : '',
           },
         ]}
       />

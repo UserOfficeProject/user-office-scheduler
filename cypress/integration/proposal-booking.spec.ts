@@ -356,7 +356,7 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy="some-event-outside-cycle-interval-warning"]').should(
           'have.attr',
           'title',
-          'Some of the experiment times are booked outside of the call cycle start and end date'
+          'Some of the experiment times are booked outside of the call cycle start and end date.'
         );
       });
 
@@ -1088,7 +1088,7 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy="proposal-booking-completed-info"]').should(
           'have.attr',
           'title',
-          /Proposal booking is already completed and it's not editable/i
+          /Proposal booking is already completed and it\'s not editable/i
         );
       });
 

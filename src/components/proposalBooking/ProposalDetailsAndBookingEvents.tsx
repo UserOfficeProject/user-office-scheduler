@@ -7,6 +7,8 @@ import {
   ListItemAvatar,
   ListItemText,
   makeStyles,
+  useTheme,
+  Tooltip,
   Typography,
 } from '@material-ui/core';
 import {
@@ -17,8 +19,9 @@ import {
   HourglassEmpty as HourglassEmptyIcon,
   Description as DescriptionIcon,
   Person,
+  WarningOutlined,
 } from '@material-ui/icons';
-import { Alert, AlertTitle } from '@material-ui/lab';
+import { Alert } from '@material-ui/lab';
 import clsx from 'clsx';
 import humanizeDuration from 'humanize-duration';
 import moment from 'moment';
@@ -138,6 +141,7 @@ export default function ProposalDetailsAndBookingEvents({
   } = proposalBooking;
 
   const classes = useStyles();
+  const theme = useTheme();
 
   const { scheduledEvents } = proposalBooking;
 
@@ -445,7 +449,16 @@ export default function ProposalDetailsAndBookingEvents({
         align="left"
         className={classes.timeSlotsTitle}
       >
-        Experiment time
+        Experiment time{' '}
+        {hasEventOutsideCallCycleInterval && (
+          <Tooltip
+            title="Some of the experiment times are booked outside of the call cycle start and end
+          date."
+            data-cy="some-event-outside-cycle-interval-warning"
+          >
+            <WarningOutlined style={{ color: theme.palette.warning.main }} />
+          </Tooltip>
+        )}
       </Typography>
 
       <SimpleTabs
@@ -469,18 +482,6 @@ export default function ProposalDetailsAndBookingEvents({
           );
         })}
       </SimpleTabs>
-
-      {hasEventOutsideCallCycleInterval && (
-        <Alert
-          severity="warning"
-          className={classes.spacingTop}
-          data-cy="some-event-outside-cycle-interval-warning"
-        >
-          <AlertTitle>Warning</AlertTitle>
-          Some of the time slots are booked outside call cycle start and end
-          date.
-        </Alert>
-      )}
     </div>
   );
 }

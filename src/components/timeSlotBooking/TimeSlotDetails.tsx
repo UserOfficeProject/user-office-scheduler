@@ -205,6 +205,17 @@ export default function TimeSlotDetails({
         userRole={UserRole.INSTRUMENT_SCIENTIST}
         data={localContactOptions}
       />
+      {isOutsideCallCycleInterval && (
+        <Alert
+          severity="warning"
+          className={classes.spacingTop}
+          data-cy="event-outside-cycle-interval-warning"
+        >
+          <AlertTitle>Warning</AlertTitle>
+          Experiment time should be booked between call cycle start and end
+          date.
+        </Alert>
+      )}
       <Grid container spacing={2}>
         <MuiPickersUtilsProvider utils={MomentUtils}>
           <Grid item sm={6} xs={12}>
@@ -426,16 +437,6 @@ export default function TimeSlotDetails({
           </Grid>
         </MuiPickersUtilsProvider>
       </Grid>
-      {isOutsideCallCycleInterval && (
-        <Alert
-          severity="warning"
-          className={classes.spacingTop}
-          data-cy="event-outside-cycle-interval-warning"
-        >
-          <AlertTitle>Warning</AlertTitle>
-          Time slot should be booked between call cycle start and end date.
-        </Alert>
-      )}
     </>
   );
 }

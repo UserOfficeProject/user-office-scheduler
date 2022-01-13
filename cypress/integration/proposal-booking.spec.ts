@@ -313,7 +313,7 @@ context('Proposal booking tests ', () => {
           'not.exist'
         );
         cy.contains(
-          'Some of the time slots are booked outside call cycle start and end date'
+          'Some of the experiment times are booked outside of the call cycle start and end date'
         ).should('not.exist');
 
         cy.finishedLoading();
@@ -323,7 +323,7 @@ context('Proposal booking tests ', () => {
           'not.exist'
         );
         cy.contains(
-          'Time slot should be booked between call cycle start and end date'
+          'Experiment time should be booked between call cycle start and end date'
         ).should('not.exist');
 
         cy.get('[data-cy="startsAtInfo"]').click();
@@ -344,7 +344,7 @@ context('Proposal booking tests ', () => {
         );
         cy.get('[data-cy="event-outside-cycle-interval-warning"]').should(
           'contain.text',
-          'Time slot should be booked between call cycle start and end date'
+          'Experiment time should be booked between call cycle start and end date'
         );
 
         cy.get('[data-cy="btn-save"]').click();
@@ -354,8 +354,9 @@ context('Proposal booking tests ', () => {
           'exist'
         );
         cy.get('[data-cy="some-event-outside-cycle-interval-warning"]').should(
-          'contain.text',
-          'Some of the time slots are booked outside call cycle start and end date'
+          'have.attr',
+          'title',
+          'Some of the experiment times are booked outside of the call cycle start and end date'
         );
       });
 

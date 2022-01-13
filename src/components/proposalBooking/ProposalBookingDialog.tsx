@@ -1,4 +1,3 @@
-import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
 import {
   Button,
   Dialog,
@@ -7,18 +6,9 @@ import {
   DialogTitle,
   makeStyles,
 } from '@material-ui/core';
-import { useSnackbar } from 'notistack';
-import React, { useContext, useState } from 'react';
+import React from 'react';
 
 import Loader from 'components/common/Loader';
-import { AppContext } from 'context/AppContext';
-import { useCheckAccess } from 'context/UserContext';
-import {
-  ProposalBookingFinalizeAction,
-  ProposalBookingStatusCore,
-  UserRole,
-} from 'generated/sdk';
-import { useDataApi } from 'hooks/common/useDataApi';
 import useProposalBooking from 'hooks/proposalBooking/useProposalBooking';
 
 import ProposalDetailsAndBookingEvents from './ProposalDetailsAndBookingEvents';
@@ -47,12 +37,6 @@ export default function ProposalBookingDialog({
   closeDialog,
 }: ProposalBookingDialogProps) {
   const classes = useStyles();
-  const { enqueueSnackbar } = useSnackbar();
-  const api = useDataApi();
-  const isUserOfficer = useCheckAccess([UserRole.USER_OFFICER]);
-
-  const { showConfirmation } = useContext(AppContext);
-  const [isLoading, setIsLoading] = useState(false);
 
   const { loading, proposalBooking, setProposalBooking } = useProposalBooking(
     activeProposalBookingId
@@ -78,120 +62,6 @@ export default function ProposalBookingDialog({
     );
   }
 
-  const isStepReadOnly = proposalBooking.scheduledEvents.length
-    ? proposalBooking.scheduledEvents.every(
-        (scheduledEvent) =>
-          scheduledEvent.status === ProposalBookingStatusCore.COMPLETED
-      )
-    : proposalBooking.status === ProposalBookingStatusCore.COMPLETED;
-
-  const completeBooking = () => {
-    showConfirmation({
-      message: (
-        <>
-          Are you sure you want to <strong>complete</strong> the selected
-          booking with all the events?
-        </>
-      ),
-      cb: async () => {
-        try {
-          setIsLoading(true);
-
-          const {
-            finalizeProposalBooking: { error },
-          } = await api().finalizeProposalBooking({
-            action: ProposalBookingFinalizeAction.COMPLETE,
-            id: proposalBooking.id,
-          });
-
-          if (error) {
-            enqueueSnackbar(getTranslation(error as ResourceId), {
-              variant: 'error',
-            });
-
-            setIsLoading(false);
-          } else {
-            enqueueSnackbar('Proposal booking completed', {
-              variant: 'success',
-            });
-            setIsLoading(false);
-
-            const newScheduledEvents = proposalBooking.scheduledEvents.map(
-              (event) => ({
-                ...event,
-                status: ProposalBookingStatusCore.COMPLETED,
-              })
-            );
-
-            setProposalBooking({
-              ...proposalBooking,
-              scheduledEvents: newScheduledEvents,
-              status: ProposalBookingStatusCore.COMPLETED,
-            });
-          }
-        } catch (e) {
-          // TODO
-
-          setIsLoading(false);
-          console.error(e);
-        }
-      },
-    });
-  };
-
-  const reopenBooking = () => {
-    showConfirmation({
-      message: (
-        <>
-          Are you sure you want to <strong>re-open</strong> the selected booking
-          with all the events?
-        </>
-      ),
-      cb: async () => {
-        try {
-          setIsLoading(true);
-
-          const {
-            reopenProposalBooking: { error },
-          } = await api().reopenProposalBooking({
-            id: proposalBooking.id,
-          });
-
-          if (error) {
-            enqueueSnackbar(getTranslation(error as ResourceId), {
-              variant: 'error',
-            });
-
-            setIsLoading(false);
-          } else {
-            enqueueSnackbar('Proposal booking re-opened', {
-              variant: 'success',
-            });
-            setIsLoading(false);
-
-            const newScheduledEvents = proposalBooking.scheduledEvents.map(
-              (event) => ({
-                ...event,
-                status: ProposalBookingStatusCore.ACTIVE,
-              })
-            );
-
-            setProposalBooking({
-              ...proposalBooking,
-              scheduledEvents: newScheduledEvents,
-              status: ProposalBookingStatusCore.ACTIVE,
-            });
-          }
-        } catch (e) {
-          // TODO
-
-          setIsLoading(false);
-          console.error(e);
-        }
-      },
-    });
-  };
-
   return (
     <Dialog
       open={isDialogOpen}
@@ -205,7 +75,6 @@ export default function ProposalBookingDialog({
     >
       <DialogTitle>Proposal booking</DialogTitle>
       <DialogContent>
-        {isLoading && <Loader />}
         <ProposalDetailsAndBookingEvents
           proposalBooking={proposalBooking}
           setProposalBooking={setProposalBooking}
@@ -220,26 +89,6 @@ export default function ProposalBookingDialog({
         >
           Close
         </Button>
-        {!isStepReadOnly && (
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={completeBooking}
-            data-cy="btn-complete-booking"
-          >
-            Complete proposal booking
-          </Button>
-        )}
-        {isStepReadOnly && isUserOfficer && (
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={reopenBooking}
-            data-cy="btn-reopen-booking"
-          >
-            Reopen proposal booking
-          </Button>
-        )}
       </DialogActions>
     </Dialog>
   );

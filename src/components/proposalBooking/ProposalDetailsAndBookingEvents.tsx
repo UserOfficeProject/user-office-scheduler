@@ -1,23 +1,21 @@
 import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
 import {
   Avatar,
-  Box,
-  Button,
-  CircularProgress,
   Divider,
   Grid,
+  ListItem,
   ListItemAvatar,
   ListItemText,
   makeStyles,
-  Paper,
   Typography,
 } from '@material-ui/core';
 import {
   Comment as CommentIcon,
-  CalendarToday as CalendarTodayIcon,
+  EventAvailable as EventAvailableIcon,
+  EventBusy as EventBusyIcon,
+  HourglassFull as HourglassFullIcon,
   HourglassEmpty as HourglassEmptyIcon,
   Description as DescriptionIcon,
-  Add as AddIcon,
   Person,
 } from '@material-ui/icons';
 import { Alert, AlertTitle } from '@material-ui/lab';
@@ -46,7 +44,6 @@ import { useDataApi } from 'hooks/common/useDataApi';
 import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
 import { ProposalBookingScheduledEvent } from 'hooks/scheduledEvent/useProposalBookingScheduledEvents';
 import { ScheduledEventWithEquipments } from 'hooks/scheduledEvent/useScheduledEventWithEquipment';
-import { ButtonContainer } from 'styles/StyledComponents';
 import { toTzLessDateTime, TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
 import { getFullUserName } from 'utils/user';
 
@@ -87,7 +84,7 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(2),
   },
   timeSlotsTitle: {
-    marginRight: 'auto',
+    margin: theme.spacing(1, 0),
   },
   root: {
     '& .MuiToolbar-root button.MuiIconButton-root': {
@@ -135,7 +132,7 @@ export default function ProposalDetailsAndBookingEvents({
   setProposalBooking,
 }: ProposalDetailsAndBookingEventsProps) {
   const {
-    call: { startCycle, endCycle, cycleComment, shortCode: callShortCode },
+    call: { startCycle, endCycle, shortCode: callShortCode },
     proposal: { title, proposalId, proposer },
     instrument,
   } = proposalBooking;
@@ -144,7 +141,7 @@ export default function ProposalDetailsAndBookingEvents({
 
   const { scheduledEvents } = proposalBooking;
 
-  const isStepReadOnly = scheduledEvents.length
+  const isProposalBookingCompleted = scheduledEvents.length
     ? scheduledEvents.every(
         (scheduledEvent) =>
           scheduledEvent.status === ProposalBookingStatusCore.COMPLETED
@@ -196,57 +193,59 @@ export default function ProposalDetailsAndBookingEvents({
   }, [scheduledEvents, startCycle, endCycle]);
 
   const handleAdd = async () => {
-    setIsAddingNewTimeSlot(true);
-    const lastRow =
-      scheduledEvents.length > 0
-        ? scheduledEvents[scheduledEvents.length - 1]
-        : undefined;
-    const startsAt = lastRow?.endsAt
-      ? moment(lastRow?.endsAt)
-      : moment().set({ hour: 9, minute: 0, second: 0 }); // NOTE: Start events at 9.00 AM for easier date modifications
-    const endsAt = startsAt.clone().add(1, 'day');
+    if (!isAddingNewTimeSlot) {
+      setIsAddingNewTimeSlot(true);
+      const lastRow =
+        scheduledEvents.length > 0
+          ? scheduledEvents[scheduledEvents.length - 1]
+          : undefined;
+      const startsAt = lastRow?.endsAt
+        ? moment(lastRow?.endsAt)
+        : moment().set({ hour: 9, minute: 0, second: 0 }); // NOTE: Start events at 9.00 AM for easier date modifications
+      const endsAt = startsAt.clone().add(1, 'day');
 
-    if (!instrument) {
-      return;
-    }
-
-    const {
-      createScheduledEvent: { error, scheduledEvent: createdScheduledEvent },
-    } = await api().createScheduledEvent({
-      input: {
-        proposalBookingId: proposalBooking.id,
-        bookingType: ScheduledEventBookingType.USER_OPERATIONS,
-        instrumentId: instrument.id,
-        startsAt: startsAt.format(TZ_LESS_DATE_TIME_FORMAT),
-        endsAt: endsAt.format(TZ_LESS_DATE_TIME_FORMAT),
-      },
-    });
-
-    if (error) {
-      enqueueSnackbar(getTranslation(error as ResourceId), {
-        variant: 'error',
-      });
-    } else {
-      enqueueSnackbar('Time slot added successfully', {
-        variant: 'success',
-      });
-
-      const newScheduledEvents = [
-        ...scheduledEvents,
-        createdScheduledEvent as ScheduledEvent,
-      ];
-
-      if (createdScheduledEvent) {
-        setProposalBooking({
-          ...proposalBooking,
-          scheduledEvents: newScheduledEvents,
-        });
-        // NOTE: Open the event right after creation
-        setSelectedTab(newScheduledEvents.length - 1);
+      if (!instrument) {
+        return;
       }
-    }
 
-    setIsAddingNewTimeSlot(false);
+      const {
+        createScheduledEvent: { error, scheduledEvent: createdScheduledEvent },
+      } = await api().createScheduledEvent({
+        input: {
+          proposalBookingId: proposalBooking.id,
+          bookingType: ScheduledEventBookingType.USER_OPERATIONS,
+          instrumentId: instrument.id,
+          startsAt: startsAt.format(TZ_LESS_DATE_TIME_FORMAT),
+          endsAt: endsAt.format(TZ_LESS_DATE_TIME_FORMAT),
+        },
+      });
+
+      if (error) {
+        enqueueSnackbar(getTranslation(error as ResourceId), {
+          variant: 'error',
+        });
+      } else {
+        enqueueSnackbar('Time slot added successfully', {
+          variant: 'success',
+        });
+
+        const newScheduledEvents = [
+          ...scheduledEvents,
+          createdScheduledEvent as ScheduledEvent,
+        ];
+
+        if (createdScheduledEvent) {
+          setProposalBooking({
+            ...proposalBooking,
+            scheduledEvents: newScheduledEvents,
+          });
+          // NOTE: Open the event right after creation
+          setSelectedTab(newScheduledEvents.length - 1);
+        }
+      }
+
+      setIsAddingNewTimeSlot(false);
+    }
   };
 
   const handleDelete = async (event: ScheduledEventWithEquipments) => {
@@ -269,6 +268,8 @@ export default function ProposalDetailsAndBookingEvents({
       enqueueSnackbar(getTranslation(error as ResourceId), {
         variant: 'error',
       });
+
+      throw error;
     } else {
       enqueueSnackbar('Time slot deleted successfully', {
         variant: 'success',
@@ -278,217 +279,196 @@ export default function ProposalDetailsAndBookingEvents({
         (scheduledEvent) => event.id !== scheduledEvent.id
       );
 
-      setSelectedTab(newEvents.length - 1);
+      setSelectedTab(newEvents.length ? newEvents.length - 1 : 0);
 
       setProposalBooking({ ...proposalBooking, scheduledEvents: newEvents });
     }
   };
 
-  const hasTimeSlots = !!scheduledEvents.length;
-
   return (
     <div className={classes.root}>
-      {isStepReadOnly && (
+      {isProposalBookingCompleted && (
         <Alert severity="info">
           Proposal booking is already completed, you can not edit it.
         </Alert>
       )}
 
       <Grid container spacing={2}>
-        <Grid item sm={6}>
-          <Typography variant="h6" component="h6" align="left">
+        <Grid item sm={12}>
+          <Typography variant="h6" component="h3" align="left">
             Proposal information
           </Typography>
           <Grid container alignItems="center">
-            <Grid item sm={1} xs={12}>
-              <ListItemAvatar>
-                <Avatar>
-                  <DescriptionIcon />
-                </Avatar>
-              </ListItemAvatar>
+            <Grid item xs={12} sm={4}>
+              <ListItem>
+                <ListItemAvatar>
+                  <Avatar>
+                    <IdentifierIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText primary="Proposal ID" secondary={proposalId} />
+              </ListItem>
             </Grid>
-            <Grid item xs={5}>
-              <ListItemText primary="Proposal title" secondary={title} />
+            <Grid item xs={12} sm={4}>
+              <ListItem>
+                <ListItemAvatar>
+                  <Avatar>
+                    <DescriptionIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText primary="Proposal title" secondary={title} />
+              </ListItem>
             </Grid>
-            <Grid item sm={1} xs={12}>
-              <ListItemAvatar>
-                <Avatar>
-                  <IdentifierIcon />
-                </Avatar>
-              </ListItemAvatar>
-            </Grid>
-            <Grid item xs={5}>
-              <ListItemText primary="Proposal ID" secondary={proposalId} />
-            </Grid>
-          </Grid>
-          <Divider variant="inset" className={classes.divider} />
-          <Grid container alignItems="center">
-            <Grid item sm={1} xs={12}>
-              <ListItemAvatar>
-                <Avatar>
-                  <Person />
-                </Avatar>
-              </ListItemAvatar>
-            </Grid>
-            <Grid item xs={5}>
-              <ListItemText
-                primary="Principal investigator"
-                secondary={getFullUserName(proposer)}
-              />
-            </Grid>
-            <Grid item sm={1} xs={12}>
-              <ListItemAvatar>
-                <Avatar>
-                  <ScienceIcon />
-                </Avatar>
-              </ListItemAvatar>
-            </Grid>
-            <Grid item xs={5}>
-              <ListItemText primary="Instrument" secondary={instrument?.name} />
+            <Grid item xs={12} sm={4}>
+              <ListItem>
+                <ListItemAvatar>
+                  <Avatar>
+                    <Person />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText
+                  primary="Principal investigator"
+                  secondary={getFullUserName(proposer)}
+                />
+              </ListItem>
             </Grid>
           </Grid>
           <Divider variant="inset" className={classes.divider} />
           <Grid container alignItems="center">
-            <Grid item sm={1} xs={12}>
-              <ListItemAvatar>
-                <Avatar>
-                  <HourglassEmptyIcon />
-                </Avatar>
-              </ListItemAvatar>
+            <Grid item sm={4} xs={12}>
+              <ListItem>
+                <ListItemAvatar>
+                  <Avatar>
+                    <ScienceIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText
+                  primary="Instrument"
+                  secondary={instrument?.name}
+                />
+              </ListItem>
             </Grid>
-            <Grid item xs={5}>
-              <ListItemText
-                primary="Allocated time"
-                secondary={formatDuration(allocated)}
-                className={classes.flexColumn}
-              />
+            <Grid item sm={4} xs={12}>
+              <ListItem>
+                <ListItemAvatar>
+                  <Avatar>
+                    <HourglassFullIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText
+                  primary="Allocated time"
+                  secondary={formatDuration(allocated)}
+                  className={classes.flexColumn}
+                />
+              </ListItem>
             </Grid>
-            <Grid item xs={6}>
-              <ListItemText
-                primary="Allocatable time"
-                className={classes.flexColumn}
-                secondary={
-                  <>
-                    <span
-                      className={clsx({
-                        [classes.allocatablePositive]: allocatable > 0,
-                        [classes.allocatableNegative]: allocatable < 0,
-                      })}
-                    >
-                      {allocatable < 0
-                        ? `0 seconds (+${formatDuration(allocatable)})`
-                        : formatDuration(allocatable)}
-                    </span>
-                  </>
-                }
-              />
+            <Grid item sm={4} xs={12}>
+              <ListItem>
+                <ListItemAvatar>
+                  <Avatar>
+                    <HourglassEmptyIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText
+                  primary="Allocatable time"
+                  className={classes.flexColumn}
+                  secondary={
+                    <>
+                      <span
+                        className={clsx({
+                          [classes.allocatablePositive]: allocatable > 0,
+                          [classes.allocatableNegative]: allocatable < 0,
+                        })}
+                      >
+                        {allocatable < 0
+                          ? `0 seconds (+${formatDuration(allocatable)})`
+                          : formatDuration(allocatable)}
+                      </span>
+                    </>
+                  }
+                />
+              </ListItem>
             </Grid>
           </Grid>
         </Grid>
-        <Grid item sm={6}>
-          <Typography variant="h6" component="h6" align="left">
+        <Grid item sm={12}>
+          <Typography variant="h6" component="h3" align="left">
             Cycle information
           </Typography>
           <Grid container alignItems="center">
-            <Grid item sm={1} xs={12}>
-              <ListItemAvatar>
-                <Avatar>
-                  <CommentIcon />
-                </Avatar>
-              </ListItemAvatar>
+            <Grid item sm={4} xs={12}>
+              <ListItem>
+                <ListItemAvatar>
+                  <Avatar>
+                    <CommentIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText
+                  primary="Call short code"
+                  secondary={callShortCode}
+                />
+              </ListItem>
             </Grid>
-            <Grid item xs={5}>
-              <ListItemText
-                primary="Call short code"
-                secondary={callShortCode}
-              />
+            <Grid item sm={4} xs={12}>
+              <ListItem>
+                <ListItemAvatar>
+                  <Avatar>
+                    <EventAvailableIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText
+                  primary="Cycle starts"
+                  secondary={toTzLessDateTime(startCycle)}
+                />
+              </ListItem>
             </Grid>
-            <Grid item xs={6}>
-              <ListItemText primary="Cycle comment" secondary={cycleComment} />
-            </Grid>
-          </Grid>
-          <Divider variant="inset" className={classes.divider} />
-          <Grid container alignItems="center">
-            <Grid item sm={1} xs={12}>
-              <ListItemAvatar>
-                <Avatar>
-                  <CalendarTodayIcon />
-                </Avatar>
-              </ListItemAvatar>
-            </Grid>
-            <Grid item xs={5}>
-              <ListItemText
-                primary="Cycle starts"
-                secondary={toTzLessDateTime(startCycle)}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <ListItemText
-                primary="Cycle ends"
-                secondary={toTzLessDateTime(endCycle)}
-              />
+            <Grid item sm={4} xs={12}>
+              <ListItem>
+                <ListItemAvatar>
+                  <Avatar>
+                    <EventBusyIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText
+                  primary="Cycle ends"
+                  secondary={toTzLessDateTime(endCycle)}
+                />
+              </ListItem>
             </Grid>
           </Grid>
         </Grid>
       </Grid>
 
-      <ButtonContainer className={classes.timeSlotsToolbar}>
-        <Typography
-          variant="h6"
-          component="h6"
-          align="left"
-          className={classes.timeSlotsTitle}
-        >
-          Time slots
-        </Typography>
-        {!isStepReadOnly && (
-          <Button
-            variant="contained"
-            color="primary"
-            component="span"
-            onClick={handleAdd}
-            data-cy="add-new-timeslot"
-            startIcon={
-              isAddingNewTimeSlot ? (
-                <CircularProgress size={20} color="inherit" />
-              ) : (
-                <AddIcon />
-              )
-            }
-            disabled={isAddingNewTimeSlot}
-          >
-            Add time slot
-          </Button>
-        )}
-      </ButtonContainer>
+      <Typography
+        variant="h6"
+        component="h3"
+        align="left"
+        className={classes.timeSlotsTitle}
+      >
+        Experiment time
+      </Typography>
 
-      {hasTimeSlots && (
-        <SimpleTabs
-          tab={selectedTab}
-          tabNames={scheduledEvents.map(
-            (item) => `${item.startsAt} - ${item.endsAt}`
-          )}
-        >
-          {scheduledEvents.map((event) => {
-            return (
-              <TimeSlotBooking
-                key={event.id}
-                onDelete={handleDelete}
-                activeScheduledEvent={event}
-                proposalBooking={proposalBooking}
-                setProposalBooking={setProposalBooking}
-              />
-            );
-          })}
-        </SimpleTabs>
-      )}
-      {!hasTimeSlots && (
-        <Paper elevation={3}>
-          <Box padding={2} textAlign="center">
-            No records to display. Start by adding new time slot
-          </Box>
-        </Paper>
-      )}
+      <SimpleTabs
+        tab={selectedTab}
+        tabNames={scheduledEvents.map(
+          (item) => `${item.startsAt} - ${item.endsAt}`
+        )}
+        orientation="vertical"
+        handleAdd={!isProposalBookingCompleted ? handleAdd : undefined}
+        noItemsText="No records to display. Start by adding new experiment time"
+      >
+        {scheduledEvents.map((event) => {
+          return (
+            <TimeSlotBooking
+              key={event.id}
+              onDelete={handleDelete}
+              activeScheduledEvent={event}
+              proposalBooking={proposalBooking}
+              setProposalBooking={setProposalBooking}
+            />
+          );
+        })}
+      </SimpleTabs>
 
       {hasEventOutsideCallCycleInterval && (
         <Alert

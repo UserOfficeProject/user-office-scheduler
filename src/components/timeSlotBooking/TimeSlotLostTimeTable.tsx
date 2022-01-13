@@ -4,7 +4,12 @@ import MaterialTable, {
   Column,
   EditComponentProps,
 } from '@material-table/core';
-import { Button, CircularProgress, makeStyles } from '@material-ui/core';
+import {
+  Button,
+  CircularProgress,
+  makeStyles,
+  Typography,
+} from '@material-ui/core';
 import { Add as AddIcon } from '@material-ui/icons';
 import {
   KeyboardDateTimePicker,
@@ -246,7 +251,11 @@ function TimeSlotLostTimeTable({
     <div className={classes.root} data-cy="time-slot-lost-times-table">
       <MaterialTable
         icons={tableIcons}
-        title="Lost times"
+        title={
+          <Typography component="h4" variant="h6">
+            Lost times
+          </Typography>
+        }
         isLoading={loading || isLoading}
         columns={columns}
         data={lostTimes}
@@ -267,7 +276,7 @@ function TimeSlotLostTimeTable({
           {
             icon: () => (
               <Button
-                variant="contained"
+                variant="outlined"
                 color="primary"
                 component="span"
                 data-cy="btn-add-lost-time"
@@ -287,7 +296,7 @@ function TimeSlotLostTimeTable({
             hidden: isStepReadOnly,
             onClick: handleAdd,
             isFreeAction: true,
-            tooltip: 'Add lost time',
+            tooltip: 'Add experiment lost time',
           },
         ]}
       />

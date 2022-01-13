@@ -51,7 +51,8 @@ const equipmentQueries = new EquipmentQueries(
 );
 const equipmentMutations = new EquipmentMutations(
   equipmentDataSource,
-  proposalBookingDataSource
+  proposalBookingDataSource,
+  scheduledEventDataSource
 );
 
 const context: BasicResolverContext = {

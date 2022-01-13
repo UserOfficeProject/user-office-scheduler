@@ -21,6 +21,9 @@ export default class MockupProposalBookingDataSource
   get(id: number): Promise<ProposalBooking | null> {
     throw new Error('Method not implemented.');
   }
+  delete(proposalPk: number): Promise<ProposalBooking | null> {
+    throw new Error('Method not implemented.');
+  }
   instrumentProposalBookings(
     instrumentIds: number[]
   ): Promise<ProposalBooking[]> {

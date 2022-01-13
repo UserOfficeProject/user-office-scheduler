@@ -8,6 +8,7 @@ export interface ProposalBookingDataSource {
   // TODO(asztalos): validate input
   upsert(event: any): Promise<void>;
   get(id: number): Promise<ProposalBooking | null>;
+  delete(id: number): Promise<ProposalBooking | null>;
   getByProposalPk(
     proposalPk: number,
     filter?: ProposalProposalBookingFilter

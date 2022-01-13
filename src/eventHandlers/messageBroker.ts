@@ -48,6 +48,19 @@ export function createListenToRabbitMQHandler({
         await proposalBookingDataSource.upsert(message);
 
         return;
+
+      case Event.PROPOSAL_DELETED:
+        logger.logDebug(
+          `Listener on ${Queue.SCHEDULING_PROPOSAL}: Received event`,
+          {
+            type,
+            message,
+          }
+        );
+
+        await proposalBookingDataSource.delete((message as any).proposalPk);
+
+        return;
       default:
         // captured and logged by duo-message-broker
         // message forwarded to dead-letter queue (DL__PROPOSALS)

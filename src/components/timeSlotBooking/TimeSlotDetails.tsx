@@ -191,7 +191,7 @@ export default function TimeSlotDetails({
       </Typography>
       {isStepReadOnly && (
         <Alert severity="info">
-          Experiment time is already completed and it&apos;s not editable.
+          Experiment time is already completed and it&apos;s not editable
         </Alert>
       )}
       <PeopleModal

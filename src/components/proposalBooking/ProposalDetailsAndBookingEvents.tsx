@@ -20,8 +20,8 @@ import {
   Description as DescriptionIcon,
   Person,
   WarningOutlined,
+  Info,
 } from '@material-ui/icons';
-import { Alert } from '@material-ui/lab';
 import clsx from 'clsx';
 import humanizeDuration from 'humanize-duration';
 import moment from 'moment';
@@ -291,16 +291,18 @@ export default function ProposalDetailsAndBookingEvents({
 
   return (
     <div className={classes.root}>
-      {isProposalBookingCompleted && (
-        <Alert severity="info">
-          Proposal booking is already completed, you can not edit it.
-        </Alert>
-      )}
-
       <Grid container spacing={2}>
         <Grid item sm={12}>
           <Typography variant="h6" component="h3" align="left">
-            Proposal information
+            Proposal information{' '}
+            {isProposalBookingCompleted && (
+              <Tooltip
+                data-cy="proposal-booking-completed-info"
+                title="Proposal booking is already completed and it's not editable."
+              >
+                <Info style={{ color: theme.palette.info.main }} />
+              </Tooltip>
+            )}
           </Typography>
           <Grid container alignItems="center">
             <Grid item xs={12} sm={4}>

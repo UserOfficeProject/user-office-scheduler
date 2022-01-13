@@ -1083,10 +1083,12 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy="btn-ok"]').click();
 
         cy.contains(
-          /Time slot booking is already completed, you can not edit it/i
+          /Experiment time is already completed and it's not editable/i
         );
-        cy.contains(
-          /Proposal booking is already completed, you can not edit it/i
+        cy.get('[data-cy="proposal-booking-completed-info"]').should(
+          'have.attr',
+          'title',
+          /Proposal booking is already completed and it's not editable/i
         );
       });
 

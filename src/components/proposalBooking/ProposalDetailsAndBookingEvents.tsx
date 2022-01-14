@@ -298,7 +298,7 @@ export default function ProposalDetailsAndBookingEvents({
             {isProposalBookingCompleted && (
               <Tooltip
                 data-cy="proposal-booking-completed-info"
-                title="Proposal booking is already completed and it's not editable."
+                title="Proposal booking is already completed and it's not editable"
               >
                 <Info style={{ color: theme.palette.info.main }} />
               </Tooltip>

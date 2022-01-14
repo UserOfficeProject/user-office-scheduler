@@ -46,9 +46,11 @@ import {
   ScheduledEventBookingType,
   GetScheduledEventsQuery,
   ProposalBooking,
+  Maybe,
 } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import { useQuery } from 'hooks/common/useQuery';
+import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 import useInstrumentProposalBookings from 'hooks/proposalBooking/useInstrumentProposalBookings';
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
 import useScheduledEvents from 'hooks/scheduledEvent/useScheduledEvents';
@@ -212,10 +214,10 @@ export default function CalendarViewContainer() {
     (querySchedulerView as SchedulerViews) || SchedulerViews.CALENDAR
   );
   const [selectedEvent, setSelectedEvent] = useState<
-    | Pick<
+    | (Pick<
         ScheduledEvent,
         'id' | 'bookingType' | 'startsAt' | 'endsAt' | 'description'
-      >
+      > & { instrument: Maybe<PartialInstrument> })
     | SlotInfo
     | null
   >(null);
@@ -264,20 +266,6 @@ export default function CalendarViewContainer() {
       setSchedulerActiveView(SchedulerViews.CALENDAR);
     }
   }, [querySchedulerView]);
-
-  useEffect(() => {
-    if (
-      schedulerActiveView === SchedulerViews.CALENDAR ||
-      schedulerActiveView === SchedulerViews.TABLE
-    ) {
-      const queryInstrumentIds = getArrayOfIdsFromQuery(queryInstrument);
-      // NOTE: If table or calendar view set the selected instrument to first one if multiple are selected in timeline view.
-      if (queryInstrumentIds && queryInstrumentIds.length > 1) {
-        query.set('instrument', `${queryInstrumentIds[0]}`);
-        history.push(`?${query}`);
-      }
-    }
-  }, [schedulerActiveView, history, query, queryInstrument]);
 
   const {
     proposalBookings,
@@ -668,9 +656,7 @@ export default function CalendarViewContainer() {
             {queryInstrument && (
               <ScheduledEventDialog
                 selectedEvent={selectedEvent}
-                selectedInstrumentId={
-                  getArrayOfIdsFromQuery(queryInstrument)[0] || 0
-                }
+                selectedInstrumentIds={getArrayOfIdsFromQuery(queryInstrument)}
                 isDialogOpen={selectedEvent !== null}
                 closeDialog={closeDialog}
               />

@@ -55,6 +55,7 @@ const TableView: React.FC<TableViewProps> = ({
         filter={filter}
         shouldIncludeCalendarNavigation
         shouldIncludeLabelText
+        multipleInstruments
       />
       <MaterialTable
         icons={tableIcons}

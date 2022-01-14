@@ -313,7 +313,7 @@ context('Proposal booking tests ', () => {
           'not.exist'
         );
         cy.contains(
-          'Some of the time slots are booked outside call cycle start and end date'
+          'Some of the experiment times are booked outside of the call cycle start and end date'
         ).should('not.exist');
 
         cy.finishedLoading();
@@ -323,7 +323,7 @@ context('Proposal booking tests ', () => {
           'not.exist'
         );
         cy.contains(
-          'Time slot should be booked between call cycle start and end date'
+          'Experiment time should be booked between call cycle start and end date'
         ).should('not.exist');
 
         cy.get('[data-cy="startsAtInfo"]').click();
@@ -344,7 +344,7 @@ context('Proposal booking tests ', () => {
         );
         cy.get('[data-cy="event-outside-cycle-interval-warning"]').should(
           'contain.text',
-          'Time slot should be booked between call cycle start and end date'
+          'Experiment time should be booked between call cycle start and end date'
         );
 
         cy.get('[data-cy="btn-save"]').click();
@@ -353,10 +353,11 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy="some-event-outside-cycle-interval-warning"]').should(
           'exist'
         );
-        cy.get('[data-cy="some-event-outside-cycle-interval-warning"]').should(
-          'contain.text',
-          'Some of the time slots are booked outside call cycle start and end date'
-        );
+        cy.get('[data-cy="some-event-outside-cycle-interval-warning"]')
+          .should('have.attr', 'title')
+          .then((title) => {
+            expect(title).not.to.be.empty;
+          });
       });
 
       it('should be able to add and edit local contact on the timeslot', () => {
@@ -1082,11 +1083,13 @@ context('Proposal booking tests ', () => {
         cy.get('[data-cy="btn-ok"]').click();
 
         cy.contains(
-          /Time slot booking is already completed, you can not edit it/i
+          /Experiment time is already completed and it's not editable/i
         );
-        cy.contains(
-          /Proposal booking is already completed, you can not edit it/i
-        );
+        cy.get('[data-cy="proposal-booking-completed-info"]')
+          .should('have.attr', 'title')
+          .then((title) => {
+            expect(title).not.to.be.empty;
+          });
       });
 
       it('Completed events should have gray color and opacity', () => {

@@ -14,8 +14,13 @@ import { useSnackbar } from 'notistack';
 import React from 'react';
 import { stringOrDate } from 'react-big-calendar';
 
-import { ScheduledEventBookingType, ScheduledEvent } from 'generated/sdk';
+import {
+  ScheduledEventBookingType,
+  ScheduledEvent,
+  Maybe,
+} from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
+import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
 
 import ScheduledEventForm, {
@@ -35,37 +40,40 @@ const createValidationSchema = createScheduledEventValidationSchema(
 
 type ScheduledEventDialogProps = {
   selectedEvent:
-    | Pick<
+    | (Pick<
         ScheduledEvent,
         'id' | 'bookingType' | 'startsAt' | 'endsAt' | 'description'
-      >
+      > & { instrument: Maybe<PartialInstrument> })
     | SlotInfo
     | null;
   isDialogOpen: boolean;
-  selectedInstrumentId: number;
+  selectedInstrumentIds: number[];
   closeDialog: (shouldRefresh?: boolean) => void;
 };
 
 export default function ScheduledEventDialog({
   selectedEvent,
   isDialogOpen,
-  selectedInstrumentId,
+  selectedInstrumentIds,
   closeDialog,
 }: ScheduledEventDialogProps) {
   const { enqueueSnackbar } = useSnackbar();
   const api = useDataApi();
 
   const isEdit = selectedEvent && 'id' in selectedEvent;
+  const firstSelectedInstrumentId = selectedInstrumentIds[0] ?? '';
 
   const initialValues =
     selectedEvent && 'id' in selectedEvent
       ? {
+          instrument: selectedEvent.instrument?.id,
           bookingType: selectedEvent.bookingType,
           startsAt: parseTzLessDateTime(selectedEvent.startsAt),
           endsAt: parseTzLessDateTime(selectedEvent.endsAt),
           description: selectedEvent.description ?? '',
         }
       : {
+          instrument: firstSelectedInstrumentId,
           bookingType: '',
           startsAt: moment(selectedEvent?.start),
           endsAt: moment(selectedEvent?.end),
@@ -78,11 +86,15 @@ export default function ScheduledEventDialog({
         initialValues={initialValues}
         validationSchema={createValidationSchema}
         onSubmit={async (values): Promise<void> => {
+          if (!values.instrument) {
+            return;
+          }
+
           const {
             createScheduledEvent: { error },
           } = await api().createScheduledEvent({
             input: {
-              instrumentId: selectedInstrumentId,
+              instrumentId: +values.instrument,
               // validation should take care about this
               bookingType: values.bookingType as ScheduledEventBookingType,
               endsAt: toTzLessDateTime(values.endsAt),

@@ -7,6 +7,8 @@ import {
   ListItemAvatar,
   ListItemText,
   makeStyles,
+  useTheme,
+  Tooltip,
   Typography,
 } from '@material-ui/core';
 import {
@@ -17,8 +19,9 @@ import {
   HourglassEmpty as HourglassEmptyIcon,
   Description as DescriptionIcon,
   Person,
+  WarningOutlined,
+  Info,
 } from '@material-ui/icons';
-import { Alert, AlertTitle } from '@material-ui/lab';
 import clsx from 'clsx';
 import humanizeDuration from 'humanize-duration';
 import moment from 'moment';
@@ -138,6 +141,7 @@ export default function ProposalDetailsAndBookingEvents({
   } = proposalBooking;
 
   const classes = useStyles();
+  const theme = useTheme();
 
   const { scheduledEvents } = proposalBooking;
 
@@ -287,16 +291,18 @@ export default function ProposalDetailsAndBookingEvents({
 
   return (
     <div className={classes.root}>
-      {isProposalBookingCompleted && (
-        <Alert severity="info">
-          Proposal booking is already completed, you can not edit it.
-        </Alert>
-      )}
-
       <Grid container spacing={2}>
         <Grid item sm={12}>
           <Typography variant="h6" component="h3" align="left">
-            Proposal information
+            Proposal information{' '}
+            {isProposalBookingCompleted && (
+              <Tooltip
+                data-cy="proposal-booking-completed-info"
+                title="Proposal booking is already completed and it's not editable"
+              >
+                <Info style={{ color: theme.palette.info.main }} />
+              </Tooltip>
+            )}
           </Typography>
           <Grid container alignItems="center">
             <Grid item xs={12} sm={4}>
@@ -445,7 +451,16 @@ export default function ProposalDetailsAndBookingEvents({
         align="left"
         className={classes.timeSlotsTitle}
       >
-        Experiment time
+        Experiment time{' '}
+        {hasEventOutsideCallCycleInterval && (
+          <Tooltip
+            title="Some of the experiment times are booked outside of the call cycle start and end
+          date."
+            data-cy="some-event-outside-cycle-interval-warning"
+          >
+            <WarningOutlined style={{ color: theme.palette.warning.main }} />
+          </Tooltip>
+        )}
       </Typography>
 
       <SimpleTabs
@@ -469,18 +484,6 @@ export default function ProposalDetailsAndBookingEvents({
           );
         })}
       </SimpleTabs>
-
-      {hasEventOutsideCallCycleInterval && (
-        <Alert
-          severity="warning"
-          className={classes.spacingTop}
-          data-cy="some-event-outside-cycle-interval-warning"
-        >
-          <AlertTitle>Warning</AlertTitle>
-          Some of the time slots are booked outside call cycle start and end
-          date.
-        </Alert>
-      )}
     </div>
   );
 }

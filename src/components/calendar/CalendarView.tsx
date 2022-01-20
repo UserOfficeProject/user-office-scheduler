@@ -15,7 +15,11 @@ import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import { useHistory } from 'react-router';
 
 import { AppContext } from 'context/AppContext';
-import { ScheduledEventBookingType, ScheduledEventFilter } from 'generated/sdk';
+import {
+  ProposalBookingStatusCore,
+  ScheduledEventBookingType,
+  ScheduledEventFilter,
+} from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
 import { TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
 
@@ -89,6 +93,7 @@ type CalendarViewProps = {
     event: CalendarScheduledEventWithUniqeId;
     start: stringOrDate;
     end: stringOrDate;
+    isAllDay: boolean;
   }) => Promise<void>;
   onSelectTimeSlot: (slotIfo: SlotInfo) => void;
 };
@@ -186,8 +191,9 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         timeslots={1}
         onDropFromOutside={onDropFromOutside}
         resizableAccessor={(event) =>
-          // NOTE: For now allow resize only on USER_OPERATIONS events because other type of events are not editable anyway.
-          event.bookingType === ScheduledEventBookingType.USER_OPERATIONS
+          // NOTE: For now allow resize only on DRAFT state USER_OPERATIONS events because other type of events are not editable anyway.
+          event.bookingType === ScheduledEventBookingType.USER_OPERATIONS &&
+          event.status === ProposalBookingStatusCore.DRAFT
         }
         onEventResize={onEventResize}
         showMultiDayTimes={true}

@@ -271,6 +271,7 @@ export default function CalendarViewContainer() {
     proposalBookings,
     loading: loadingBookings,
     refresh: refreshBookings,
+    setProposalBookings,
   } = useInstrumentProposalBookings(getArrayOfIdsFromQuery(queryInstrument));
 
   const {
@@ -489,6 +490,27 @@ export default function CalendarViewContainer() {
     await addAndOpenNewTimeSlot({ start, end });
   };
 
+  const getUpdatedProposalBookings = (
+    updatedEvent: CalendarScheduledEventWithUniqeId
+  ) =>
+    proposalBookings.map((booking) => ({
+      ...booking,
+      scheduledEvents:
+        booking.id === updatedEvent.proposalBooking?.id
+          ? booking.scheduledEvents.map((scheduledEvent) => ({
+              ...scheduledEvent,
+              startsAt:
+                scheduledEvent.id === updatedEvent.eventId
+                  ? toTzLessDateTime(updatedEvent.start)
+                  : scheduledEvent.startsAt,
+              endsAt:
+                scheduledEvent.id === updatedEvent.eventId
+                  ? toTzLessDateTime(updatedEvent.end)
+                  : scheduledEvent.endsAt,
+            }))
+          : booking.scheduledEvents,
+    }));
+
   const updateScheduledEvent = async (
     updatedEvent: CalendarScheduledEventWithUniqeId
   ) => {
@@ -525,6 +547,11 @@ export default function CalendarViewContainer() {
         }));
 
         setScheduledEvents(newScheduledEvents);
+
+        //NOTE: Update bookins so the right todo toolbar stays up to date after event is changed.
+        const updatedProposalBookings =
+          getUpdatedProposalBookings(updatedEvent);
+        setProposalBookings(updatedProposalBookings);
       }
     } catch (error) {
       console.error(error);
@@ -535,26 +562,33 @@ export default function CalendarViewContainer() {
     event,
     start,
     end,
+    isAllDay,
   }: {
     event: CalendarScheduledEventWithUniqeId;
     start: stringOrDate;
     end: stringOrDate;
+    isAllDay: boolean;
   }) => {
     if (!start || !end) {
       return;
     }
+
     setIsAddingOrResizingTimeSlot(true);
 
-    /** NOTE: On week view if the event is spread on multiple days,
+    /** NOTE: On week/day view if the event is spread on multiple days,
      *  for example if you are resizing the event from the start,
      *  the end is set to 23:59:59 on the same day so we want to prevent updating the end if initially was different date
      *  (same happens if you try to resize from the end).
      *  This is how resize works in the react-big-calendar.
      */
     const shouldNotChangeStart =
-      view === Views.WEEK && moment(start).day() !== moment(event.start).day();
+      !isAllDay &&
+      view !== Views.MONTH &&
+      moment(start).day() !== moment(event.start).day();
     const shouldNotChangeEnd =
-      view === Views.WEEK && moment(end).day() !== moment(event.end).day();
+      !isAllDay &&
+      view !== Views.MONTH &&
+      moment(end).day() !== moment(event.end).day();
 
     const updatedEvent: CalendarScheduledEventWithUniqeId = {
       ...event,

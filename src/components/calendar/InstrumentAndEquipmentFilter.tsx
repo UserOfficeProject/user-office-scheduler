@@ -1,14 +1,13 @@
 import {
+  AutocompleteGetTagProps,
   Box,
   Chip,
   CircularProgress,
   Grid,
-  makeStyles,
   TextField,
-} from '@material-ui/core';
-import Autocomplete, {
-  AutocompleteGetTagProps,
-} from '@material-ui/lab/Autocomplete';
+  Autocomplete,
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import React, { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 
@@ -261,6 +260,7 @@ export default function InstrumentAndEquipmentFilter({
               label="Instrument"
               placeholder="Instrument"
               margin="dense"
+              variant="standard"
               disabled={loadingInstruments}
               InputProps={{
                 ...params.InputProps,
@@ -301,6 +301,7 @@ export default function InstrumentAndEquipmentFilter({
               label="Equipment"
               placeholder="Equipment"
               margin="dense"
+              variant="standard"
               disabled={loadingEquipments}
               InputProps={{
                 ...params.InputProps,
@@ -350,6 +351,7 @@ export default function InstrumentAndEquipmentFilter({
               label="Local contact"
               placeholder="Local contact"
               margin="dense"
+              variant="standard"
               disabled={loadingLocalContacts}
               InputProps={{
                 ...params.InputProps,

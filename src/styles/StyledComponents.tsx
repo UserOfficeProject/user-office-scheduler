@@ -1,36 +1,61 @@
-import { Container, Paper, styled } from '@material-ui/core';
-import React from 'react';
-import { getTheme } from 'theme';
+import {
+  PaperProps,
+  Paper,
+  styled,
+  Theme,
+  ContainerProps,
+  Container,
+} from '@mui/material';
 
-const getSpacing = (
-  userValue: [number, number, number, number],
-  defaultValue: [number, (number | string)?, number?, number?]
-): string => {
-  // eslint-disable-next-line prefer-spread
-  return getTheme().spacing.apply(getTheme(), userValue || defaultValue);
-};
+const getValueFromArrayProperty = (
+  prop: [number, number?, number?, number?],
+  theme: Theme
+) =>
+  prop.map((item) => `${item !== undefined && theme.spacing(item)}`).join(' ');
 
-export const StyledPaper = styled(({ style, ...other }) => (
-  <Paper {...other} style={{ position: 'relative', ...style }} />
-))({
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  margin: (props: any) => getSpacing(props.margin, [3, 0]),
-  padding: (props) => getSpacing(props.padding, [2]),
-  [getTheme().breakpoints.up(600 + getTheme().spacing(3) * 2)]: {
-    margin: (props) => getSpacing(props.margin, [6, 0]),
-    padding: (props) => getSpacing(props.padding, [3]),
-  },
+interface StyledPaperProps extends PaperProps {
+  margin?: [number, number?, number?, number?];
+  padding?: [number, number?, number?, number?];
+}
+
+export const StyledPaper = styled(Paper, {
+  shouldForwardProp: (prop) => prop !== 'margin' && prop !== 'padding',
+})<StyledPaperProps>(({ margin, padding, theme }) => {
+  const marginValue: string | number | undefined = Array.isArray(margin)
+    ? getValueFromArrayProperty(margin, theme)
+    : margin;
+  const paddingValue: string | number | undefined = Array.isArray(padding)
+    ? getValueFromArrayProperty(padding, theme)
+    : padding;
+
+  return {
+    position: 'relative',
+    margin: marginValue || theme.spacing(3, 0),
+    padding: paddingValue || theme.spacing(2),
+    [theme.breakpoints.up(600)]: {
+      margin: marginValue || theme.spacing(6, 0),
+      padding: paddingValue || theme.spacing(3),
+    },
+  };
 });
 
-export const ContentContainer = styled(({ ...other }) => (
-  <Container maxWidth="lg" {...other} />
-))({
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  margin: (props: any) => getSpacing(props.margin, [0, 'auto']),
-  padding: (props) => getSpacing(props.padding, [4, 0]),
+interface StyledContainerProps extends ContainerProps {
+  padding?: [number, number?, number?, number?];
+}
+
+export const StyledContainer = styled(Container, {
+  shouldForwardProp: (prop) => prop !== 'margin' && prop !== 'padding',
+})<StyledContainerProps>(({ padding, theme }) => {
+  const paddingValue: string | number | undefined = Array.isArray(padding)
+    ? getValueFromArrayProperty(padding, theme)
+    : padding;
+
+  return {
+    padding: paddingValue || theme.spacing(4, 0),
+  };
 });
 
-export const ButtonContainer = styled(({ ...other }) => <div {...other} />)({
+export const ButtonContainer = styled('div')({
   display: 'flex',
   justifyContent: 'flex-end',
 });

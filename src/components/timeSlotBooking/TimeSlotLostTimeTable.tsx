@@ -5,16 +5,12 @@ import MaterialTable, {
   EditComponentProps,
 } from '@material-table/core';
 import {
-  Button,
-  CircularProgress,
-  makeStyles,
-  Typography,
-} from '@material-ui/core';
-import { Add as AddIcon } from '@material-ui/icons';
-import {
   KeyboardDateTimePicker,
   MuiPickersUtilsProvider,
 } from '@material-ui/pickers';
+import { Add as AddIcon } from '@mui/icons-material';
+import { Button, CircularProgress, Typography } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import moment, { Moment } from 'moment';
 import { useSnackbar } from 'notistack';
 import React, { Dispatch, SetStateAction, useState } from 'react';

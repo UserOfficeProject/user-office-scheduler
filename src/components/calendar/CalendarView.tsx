@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/core';
+import makeStyles from '@mui/styles/makeStyles';
 import moment from 'moment';
 import React, { ComponentType, useContext, useEffect, useState } from 'react';
 import {
@@ -67,7 +67,7 @@ const DragAndDropCalendar = withDragAndDrop(
 const useStyles = makeStyles(() => ({
   calendar: {
     // NOTE: This calculation in height is mainly because of toolbar height
-    height: 'calc(100% - 70px)',
+    height: 'calc(100% - 70px) !important',
     '& .rbc-month-view': {
       overflowY: 'auto',
       '& .rbc-month-row': {

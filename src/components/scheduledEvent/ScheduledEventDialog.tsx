@@ -7,7 +7,7 @@ import {
   DialogActions,
   Button,
   CircularProgress,
-} from '@material-ui/core';
+} from '@mui/material';
 import { Formik, Form } from 'formik';
 import moment from 'moment';
 import { useSnackbar } from 'notistack';

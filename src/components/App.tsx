@@ -1,4 +1,4 @@
-import { ThemeProvider } from '@material-ui/core';
+// import { StylesProvider } from '@mui/styles';
 import { SnackbarProvider } from 'notistack';
 import React, { useContext } from 'react';
 import { CookiesProvider } from 'react-cookie';
@@ -9,9 +9,10 @@ import {
   RouteProps,
   Redirect,
 } from 'react-router-dom';
-import { getTheme } from 'theme';
+import Theme from 'theme';
 
 import { AppContextProvider } from 'context/AppContext';
+import { SettingsContextProvider } from 'context/SettingsContextProvider';
 import { UserContextProvider, UserContext } from 'context/UserContext';
 // import { useUnauthorizedApi } from 'hooks/common/useDataApi';
 
@@ -59,30 +60,34 @@ class App extends React.Component {
 
   render() {
     return (
-      <ThemeProvider theme={getTheme()}>
+      // <StylesProvider>
+      <Theme>
         <SnackbarProvider
           anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
           maxSnack={1}
         >
           <CookiesProvider>
-            <AppContextProvider>
-              <UserContextProvider>
-                <Router basename={process.env.PUBLIC_URL}>
-                  <div className="App">
-                    <Switch>
-                      <Route
-                        path={PATH_NOT_AUTHENTICATED}
-                        component={NotAuthenticated}
-                      />
-                      <PrivateRoute path={PATH_ROOT} component={Dashboard} />
-                    </Switch>
-                  </div>
-                </Router>
-              </UserContextProvider>
-            </AppContextProvider>
+            <UserContextProvider>
+              <SettingsContextProvider>
+                <AppContextProvider>
+                  <Router basename={process.env.PUBLIC_URL}>
+                    <div className="App">
+                      <Switch>
+                        <Route
+                          path={PATH_NOT_AUTHENTICATED}
+                          component={NotAuthenticated}
+                        />
+                        <PrivateRoute path={PATH_ROOT} component={Dashboard} />
+                      </Switch>
+                    </div>
+                  </Router>
+                </AppContextProvider>
+              </SettingsContextProvider>
+            </UserContextProvider>
           </CookiesProvider>
         </SnackbarProvider>
-      </ThemeProvider>
+      </Theme>
+      // </StylesProvider>
     );
   }
 }

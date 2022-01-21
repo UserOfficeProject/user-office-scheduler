@@ -1,13 +1,13 @@
+import { ChevronLeft } from '@mui/icons-material';
 import {
   CssBaseline,
   Divider,
   Drawer,
   IconButton,
   List,
-  makeStyles,
   useMediaQuery,
-} from '@material-ui/core';
-import { ChevronLeft } from '@material-ui/icons';
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import clsx from 'clsx';
 import React, { useEffect } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
@@ -97,6 +97,8 @@ export default function Dashboard() {
     localStorage.setItem('drawerOpen', '0');
     setOpen(false);
   };
+
+  console.log(isTabletOrMobile, open);
 
   return (
     <div className={classes.root}>

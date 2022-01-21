@@ -1,7 +1,8 @@
 import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
-import { Button, makeStyles } from '@material-ui/core';
-import { Save as SaveIcon, Delete as DeleteIcon } from '@material-ui/icons';
-import { Alert, AlertTitle } from '@material-ui/lab';
+import { Save as SaveIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { Alert, AlertTitle } from '@mui/lab';
+import { Button } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import moment from 'moment';
 import { useSnackbar } from 'notistack';
 import React, { Dispatch, SetStateAction, useContext, useState } from 'react';

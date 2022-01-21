@@ -1,7 +1,10 @@
 import {
+  Menu as MenuIcon,
+  AccountCircle as AccountCircleIcon,
+} from '@mui/icons-material';
+import {
   AppBar,
   IconButton,
-  makeStyles,
   Toolbar,
   Typography,
   Badge,
@@ -11,11 +14,8 @@ import {
   CardHeader,
   Avatar,
   useMediaQuery,
-} from '@material-ui/core';
-import {
-  Menu as MenuIcon,
-  AccountCircle as AccountCircleIcon,
-} from '@material-ui/icons';
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import clsx from 'clsx';
 import React, { useState, useContext } from 'react';
 

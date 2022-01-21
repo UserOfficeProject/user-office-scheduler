@@ -1,15 +1,16 @@
 import MomentUtils from '@date-io/moment';
-import { IconButton, makeStyles, TableCell } from '@material-ui/core';
+import {
+  MuiPickersUtilsProvider,
+  KeyboardDateTimePicker,
+} from '@material-ui/pickers';
 import {
   Check as CheckIcon,
   Clear as ClearIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
-} from '@material-ui/icons';
-import {
-  MuiPickersUtilsProvider,
-  KeyboardDateTimePicker,
-} from '@material-ui/pickers';
+} from '@mui/icons-material';
+import { IconButton, TableCell } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import { Moment } from 'moment';
 import React, {
   useContext,

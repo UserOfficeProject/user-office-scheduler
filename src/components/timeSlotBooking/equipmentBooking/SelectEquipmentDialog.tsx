@@ -4,7 +4,7 @@ import {
   Button,
   TableCell,
   Dialog,
-} from '@material-ui/core';
+} from '@mui/material';
 import { useSnackbar } from 'notistack';
 import React, { useState } from 'react';
 

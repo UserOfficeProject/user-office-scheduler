@@ -1,16 +1,3 @@
-import MomentUtils from '@date-io/moment';
-import {
-  Avatar,
-  Divider,
-  Grid,
-  IconButton,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  makeStyles,
-  Typography,
-} from '@material-ui/core';
 import {
   CalendarToday as CalendarTodayIcon,
   HourglassEmpty as HourglassEmptyIcon,
@@ -21,12 +8,25 @@ import {
   AssignmentInd as PersonAssignedIcon,
   PersonAdd as PersonAddIcon,
   Edit,
-} from '@material-ui/icons';
-import { Alert, AlertTitle } from '@material-ui/lab';
+} from '@mui/icons-material';
+import AdapterMoment from '@mui/lab/AdapterMoment';
+import Alert from '@mui/lab/Alert';
+import AlertTitle from '@mui/lab/AlertTitle';
+import DateTimePicker from '@mui/lab/DateTimePicker';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import {
-  KeyboardDateTimePicker,
-  MuiPickersUtilsProvider,
-} from '@material-ui/pickers';
+  Avatar,
+  Divider,
+  Grid,
+  IconButton,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  TextField,
+  Typography,
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import moment, { Moment } from 'moment';
 import React, { useState } from 'react';
 
@@ -217,7 +217,7 @@ export default function TimeSlotDetails({
         </Alert>
       )}
       <Grid container spacing={2}>
-        <MuiPickersUtilsProvider utils={MomentUtils}>
+        <LocalizationProvider dateAdapter={AdapterMoment}>
           <Grid item sm={6} xs={12}>
             <List className={classes.list} dense>
               <ListItem disableGutters>
@@ -250,16 +250,12 @@ export default function TimeSlotDetails({
                 )}
                 {editingStartDate && (
                   <>
-                    <KeyboardDateTimePicker
-                      required
+                    <DateTimePicker
                       label="Starts at"
-                      name={`startsAt`}
-                      margin="none"
-                      size="small"
-                      format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
+                      renderInput={(props) => <TextField {...props} />}
+                      inputFormat={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
                       ampm={false}
                       minutesStep={60}
-                      fullWidth
                       data-cy="startsAt"
                       InputProps={{
                         className: classes.smaller,
@@ -269,7 +265,7 @@ export default function TimeSlotDetails({
                         if (newValue !== startsAt) {
                           handleSetDirty(true);
                         }
-                        setStartsAt(newValue);
+                        setStartsAt(newValue as Moment | null);
                       }}
                     />
                     <IconButton
@@ -372,16 +368,12 @@ export default function TimeSlotDetails({
                 )}
                 {editingEndDate && (
                   <>
-                    <KeyboardDateTimePicker
-                      required
+                    <DateTimePicker
                       label="Ends at"
-                      name="endsAt"
-                      margin="none"
-                      size="small"
-                      format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
+                      renderInput={(props) => <TextField {...props} />}
+                      inputFormat={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
                       ampm={false}
                       minutesStep={60}
-                      fullWidth
                       data-cy="endsAt"
                       InputProps={{
                         className: classes.smaller,
@@ -391,7 +383,7 @@ export default function TimeSlotDetails({
                         if (newValue !== startsAt) {
                           handleSetDirty(true);
                         }
-                        setEndsAt(newValue);
+                        setEndsAt(newValue as Moment | null);
                       }}
                     />
                     <IconButton
@@ -435,7 +427,7 @@ export default function TimeSlotDetails({
               />
             </List>
           </Grid>
-        </MuiPickersUtilsProvider>
+        </LocalizationProvider>
       </Grid>
     </>
   );

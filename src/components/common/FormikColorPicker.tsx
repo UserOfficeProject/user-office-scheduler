@@ -1,9 +1,5 @@
-import {
-  FormControlLabel,
-  Input,
-  InputLabel,
-  makeStyles,
-} from '@material-ui/core';
+import { FormControlLabel, Input, InputLabel } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import { FormikHelpers, FormikValues } from 'formik';
 import { debounce } from 'lodash';
 import React, { useState } from 'react';

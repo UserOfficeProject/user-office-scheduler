@@ -1,6 +1,8 @@
 import MomentUtils from '@date-io/moment';
 import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
 import { equipmentValidationSchema } from '@esss-swap/duo-validation';
+import { MuiPickersUtilsProvider } from '@material-ui/pickers';
+import { Save as SaveIcon } from '@mui/icons-material';
 import {
   Grid,
   FormControlLabel,
@@ -13,9 +15,9 @@ import {
   Button,
   CircularProgress,
   Box,
-} from '@material-ui/core';
-import { Save as SaveIcon } from '@material-ui/icons';
-import { MuiPickersUtilsProvider } from '@material-ui/pickers';
+  Container,
+  Paper,
+} from '@mui/material';
 import { Formik, Form, Field } from 'formik';
 import { TextField, CheckboxWithLabel } from 'formik-material-ui';
 import { KeyboardDateTimePicker } from 'formik-material-ui-pickers';
@@ -30,7 +32,6 @@ import { PATH_VIEW_EQUIPMENT } from 'components/paths';
 import { Equipment, EquipmentInput } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import useEquipment from 'hooks/equipment/useEquipment';
-import { ContentContainer, StyledPaper } from 'styles/StyledComponents';
 import {
   toTzLessDateTime,
   parseTzLessDateTime,
@@ -102,10 +103,10 @@ export default function CreateEditEquipment() {
       };
 
   return (
-    <ContentContainer maxWidth={false}>
+    <Container maxWidth={false}>
       <Grid container>
         <Grid item xs={12}>
-          <StyledPaper margin={[0, 1]}>
+          <Paper sx={{ margin: [0, 1] }}>
             <Formik
               initialValues={initialValues}
               validationSchema={equipmentValidationSchema}
@@ -329,9 +330,9 @@ export default function CreateEditEquipment() {
                 );
               }}
             </Formik>
-          </StyledPaper>
+          </Paper>
         </Grid>
       </Grid>
-    </ContentContainer>
+    </Container>
   );
 }

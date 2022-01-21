@@ -1,6 +1,6 @@
 import MomentUtils from '@date-io/moment';
-import { MenuItem, TextField as MuiTextField } from '@material-ui/core';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
+import { MenuItem, TextField as MuiTextField } from '@mui/material';
 import { Field } from 'formik';
 import { TextField } from 'formik-material-ui';
 import { KeyboardDateTimePicker } from 'formik-material-ui-pickers';
@@ -56,6 +56,7 @@ export default function ScheduledEventForm() {
       label="Instrument"
       defaultValue="Loading..."
       disabled
+      variant="standard"
       margin="normal"
       InputLabelProps={{
         shrink: true,

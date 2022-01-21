@@ -1,5 +1,6 @@
-import { Button, makeStyles, useMediaQuery } from '@material-ui/core';
-import { Add as AddIcon, Info as InfoIcon } from '@material-ui/icons';
+import { Add as AddIcon, Info as InfoIcon } from '@mui/icons-material';
+import { Button, useMediaQuery } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import clsx from 'clsx';
 import React, { Dispatch, SetStateAction } from 'react';
 

@@ -1,8 +1,8 @@
 import { GraphQLClient } from 'graphql-request';
 import * as Dom from 'graphql-request/dist/types.dom';
 import gql from 'graphql-tag';
-export type Maybe<T> = T | null | undefined;
-export type InputMaybe<T> = T | null | undefined;
+export type Maybe<T> = T | null;
+export type InputMaybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
@@ -425,6 +425,17 @@ export type FeedbackBasisConfig = {
   tooltip: Scalars['String'];
 };
 
+export type FeedbackRequest = {
+  id: Scalars['Int'];
+  requestedAt: Scalars['DateTime'];
+  scheduledEventId: Scalars['Int'];
+};
+
+export type FeedbackRequestWrap = {
+  rejection: Maybe<Rejection>;
+  request: Maybe<FeedbackRequest>;
+};
+
 export type FeedbackResponseWrap = {
   feedback: Maybe<Feedback>;
   rejection: Maybe<Rejection>;
@@ -675,6 +686,7 @@ export type Mutation = {
   removeScientistFromInstrument: SuccessResponseWrap;
   removeUserForReview: ReviewResponseWrap;
   reorderSepMeetingDecisionProposals: SepMeetingDecisionResponseWrap;
+  requestFeedback: FeedbackRequestWrap;
   resetPassword: BasicUserDetailsResponseWrap;
   resetPasswordEmail: SuccessResponseWrap;
   saveSepMeetingDecision: SepMeetingDecisionResponseWrap;
@@ -965,8 +977,8 @@ export type MutationCreateSampleEsiArgs = {
 
 export type MutationCreateShipmentArgs = {
   proposalPk: Scalars['Int'];
+  scheduledEventId: Scalars['Int'];
   title: Scalars['String'];
-  visitId: Scalars['Int'];
 };
 
 
@@ -1248,6 +1260,11 @@ export type MutationRemoveUserForReviewArgs = {
 
 export type MutationReorderSepMeetingDecisionProposalsArgs = {
   reorderSepMeetingDecisionProposalsInput: ReorderSepMeetingDecisionProposalsInput;
+};
+
+
+export type MutationRequestFeedbackArgs = {
+  scheduledEventId: Scalars['Int'];
 };
 
 
@@ -1918,6 +1935,7 @@ export type Query = {
   sampleEsi: Maybe<SampleExperimentSafetyInput>;
   samples: Maybe<Array<Sample>>;
   samplesByCallId: Maybe<Array<Sample>>;
+  scheduledEventsCore: Maybe<Array<ScheduledEventCore>>;
   sep: Maybe<Sep>;
   sepMembers: Maybe<Array<SepReviewer>>;
   sepProposal: Maybe<SepProposal>;
@@ -2175,6 +2193,12 @@ export type QuerySamplesArgs = {
 
 export type QuerySamplesByCallIdArgs = {
   callId: Scalars['Int'];
+};
+
+
+export type QueryScheduledEventsCoreArgs = {
+  endsAfter?: InputMaybe<Scalars['TzLessDateTime']>;
+  endsBefore?: InputMaybe<Scalars['TzLessDateTime']>;
 };
 
 
@@ -2587,9 +2611,11 @@ export type ScheduledEventCore = {
   endsAt: Scalars['TzLessDateTime'];
   esi: Maybe<ExperimentSafetyInput>;
   feedback: Maybe<Feedback>;
+  feedbackRequests: Array<FeedbackRequest>;
   id: Scalars['Int'];
   localContact: Maybe<BasicUserDetails>;
   localContactId: Maybe<Scalars['Int']>;
+  shipments: Array<Shipment>;
   startsAt: Scalars['TzLessDateTime'];
   status: ProposalBookingStatusCore;
   visit: Maybe<Visit>;
@@ -2627,6 +2653,9 @@ export type Settings = {
 
 export enum SettingsId {
   EXTERNAL_AUTH_LOGIN_URL = 'EXTERNAL_AUTH_LOGIN_URL',
+  FEEDBACK_EXHAUST_DAYS = 'FEEDBACK_EXHAUST_DAYS',
+  FEEDBACK_FREQUENCY_DAYS = 'FEEDBACK_FREQUENCY_DAYS',
+  FEEDBACK_MAX_REQUESTS = 'FEEDBACK_MAX_REQUESTS',
   HEADER_LOGO_FILENAME = 'HEADER_LOGO_FILENAME',
   PALETTE_ERROR_MAIN = 'PALETTE_ERROR_MAIN',
   PALETTE_INFO_MAIN = 'PALETTE_INFO_MAIN',
@@ -2654,9 +2683,9 @@ export type Shipment = {
   questionary: Questionary;
   questionaryId: Scalars['Int'];
   samples: Array<Sample>;
+  scheduledEventId: Scalars['Int'];
   status: ShipmentStatus;
   title: Scalars['String'];
-  visitId: Scalars['Int'];
 };
 
 export type ShipmentBasisConfig = {
@@ -2680,10 +2709,10 @@ export type ShipmentsFilter = {
   externalRef?: InputMaybe<Scalars['String']>;
   proposalPk?: InputMaybe<Scalars['Int']>;
   questionaryIds?: InputMaybe<Array<Scalars['Int']>>;
+  scheduledEventId?: InputMaybe<Scalars['Int']>;
   shipmentIds?: InputMaybe<Array<Scalars['Int']>>;
   status?: InputMaybe<ShipmentStatus>;
   title?: InputMaybe<Scalars['String']>;
-  visitId?: InputMaybe<Scalars['Int']>;
 };
 
 export type StatusChangingEvent = {
@@ -2992,7 +3021,6 @@ export type Visit = {
   registrations: Array<VisitRegistration>;
   samples: Array<Sample>;
   scheduledEventId: Scalars['Int'];
-  shipments: Array<Shipment>;
   status: VisitStatus;
   teamLead: BasicUserDetails;
   teamLeadUserId: Scalars['Int'];
@@ -3049,26 +3077,26 @@ export type InstrumentScientistHasAccessQueryVariables = Exact<{
 }>;
 
 
-export type InstrumentScientistHasAccessQuery = { instrumentScientistHasAccess: boolean | null | undefined };
+export type InstrumentScientistHasAccessQuery = { instrumentScientistHasAccess: boolean | null };
 
 export type InstrumentScientistHasInstrumentQueryVariables = Exact<{
   instrumentId: Scalars['Int'];
 }>;
 
 
-export type InstrumentScientistHasInstrumentQuery = { instrumentScientistHasInstrument: boolean | null | undefined };
+export type InstrumentScientistHasInstrumentQuery = { instrumentScientistHasInstrument: boolean | null };
 
 export type UserInstrumentsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UserInstrumentsQuery = { userInstruments: { instruments: Array<{ id: number }> } | null | undefined };
+export type UserInstrumentsQuery = { userInstruments: { instruments: Array<{ id: number }> } | null };
 
 export type UserHasAccessQueryVariables = Exact<{
   proposalPk: Scalars['Int'];
 }>;
 
 
-export type UserHasAccessQuery = { userHasAccessToProposal: boolean | null | undefined };
+export type UserHasAccessQuery = { userHasAccessToProposal: boolean | null };
 
 
 export const InstrumentScientistHasAccessDocument = gql`

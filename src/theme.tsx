@@ -21,8 +21,6 @@ const ThemeWrapper: React.FC = (props) => {
   const { settings } = useContext(SettingsContext);
   const defaultTheme = useTheme();
 
-  console.log(settings);
-
   const palette = {
     primary: {
       dark:
@@ -74,16 +72,9 @@ const ThemeWrapper: React.FC = (props) => {
     })
   );
 
-  console.log(
-    theme,
-    palette,
-    settings.get(SettingsId.PALETTE_PRIMARY_MAIN)?.settingsValue
-  );
-
   const updateCssPalette = useCallback(
     async function () {
       settings.forEach((setting) => {
-        console.log('test', settings);
         if (setting.id.startsWith('PALETTE') && setting.settingsValue) {
           document.documentElement.style.setProperty(
             '--' + setting.id,

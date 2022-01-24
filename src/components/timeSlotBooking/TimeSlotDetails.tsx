@@ -10,11 +10,11 @@ import {
   Edit,
 } from '@mui/icons-material';
 import AdapterMoment from '@mui/lab/AdapterMoment';
-import Alert from '@mui/lab/Alert';
-import AlertTitle from '@mui/lab/AlertTitle';
 import DateTimePicker from '@mui/lab/DateTimePicker';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import {
+  Alert,
+  AlertTitle,
   Avatar,
   Divider,
   Grid,
@@ -41,6 +41,7 @@ import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentPr
 import {
   toTzLessDateTime,
   TZ_LESS_DATE_TIME_LOW_PREC_FORMAT,
+  TZ_LESS_DATE_TIME_LOW_PREC_MASK,
 } from 'utils/date';
 import { getFullUserName } from 'utils/user';
 
@@ -252,7 +253,10 @@ export default function TimeSlotDetails({
                   <>
                     <DateTimePicker
                       label="Starts at"
-                      renderInput={(props) => <TextField {...props} />}
+                      renderInput={(props) => (
+                        <TextField {...props} variant="standard" />
+                      )}
+                      mask={TZ_LESS_DATE_TIME_LOW_PREC_MASK}
                       inputFormat={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
                       ampm={false}
                       minutesStep={60}
@@ -370,7 +374,10 @@ export default function TimeSlotDetails({
                   <>
                     <DateTimePicker
                       label="Ends at"
-                      renderInput={(props) => <TextField {...props} />}
+                      renderInput={(props) => (
+                        <TextField {...props} variant="standard" />
+                      )}
+                      mask={TZ_LESS_DATE_TIME_LOW_PREC_MASK}
                       inputFormat={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
                       ampm={false}
                       minutesStep={60}

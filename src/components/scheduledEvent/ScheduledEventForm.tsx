@@ -1,9 +1,9 @@
-import MomentUtils from '@date-io/moment';
-import { MuiPickersUtilsProvider } from '@material-ui/pickers';
+import AdapterMoment from '@mui/lab/AdapterMoment';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import { MenuItem, TextField as MuiTextField } from '@mui/material';
 import { Field } from 'formik';
-import { TextField } from 'formik-material-ui';
-import { KeyboardDateTimePicker } from 'formik-material-ui-pickers';
+import { TextField } from 'formik-mui';
+import { DateTimePicker } from 'formik-mui-lab';
 import React from 'react';
 
 import {
@@ -11,7 +11,7 @@ import {
   ScheduledEventBookingType,
 } from 'generated/sdk';
 import useUserInstruments from 'hooks/instrument/useUserInstruments';
-import { TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
+import { TZ_LESS_DATE_TIME_FORMAT, TZ_LESS_DATE_TIME_MASK } from 'utils/date';
 
 export type BookingTypes = typeof ScheduledEventBookingType;
 
@@ -67,6 +67,7 @@ export default function ScheduledEventForm() {
   ) : (
     <Field
       component={TextField}
+      variant="standard"
       select
       required
       name="instrument"
@@ -85,37 +86,48 @@ export default function ScheduledEventForm() {
 
   return (
     <>
-      <MuiPickersUtilsProvider utils={MomentUtils}>
+      <LocalizationProvider dateAdapter={AdapterMoment}>
         {instrumentSelection}
         <Field
-          component={KeyboardDateTimePicker}
+          component={DateTimePicker}
           required
           name="startsAt"
-          margin="normal"
+          textField={{
+            variant: 'standard',
+            margin: 'normal',
+            fullWidth: true,
+          }}
           label="Starts at"
-          format={TZ_LESS_DATE_TIME_FORMAT}
+          mask={TZ_LESS_DATE_TIME_MASK}
+          inputFormat={TZ_LESS_DATE_TIME_FORMAT}
           ampm={false}
           minutesStep={60}
           fullWidth
           data-cy="startsAt"
         />
         <Field
-          component={KeyboardDateTimePicker}
+          component={DateTimePicker}
           required
           name="endsAt"
-          margin="normal"
+          textField={{
+            variant: 'standard',
+            margin: 'normal',
+            fullWidth: true,
+          }}
           label="Ends at"
-          format={TZ_LESS_DATE_TIME_FORMAT}
+          mask={TZ_LESS_DATE_TIME_MASK}
+          inputFormat={TZ_LESS_DATE_TIME_FORMAT}
           ampm={false}
           minutesStep={60}
           fullWidth
           data-cy="endsAt"
         />
-      </MuiPickersUtilsProvider>
+      </LocalizationProvider>
       <Field
         component={TextField}
         select
         required
+        variant="standard"
         name="bookingType"
         label="Booking type"
         margin="normal"
@@ -134,6 +146,7 @@ export default function ScheduledEventForm() {
         name="description"
         label="Short description"
         helperText="Optional"
+        variant="standard"
         margin="normal"
         fullWidth
         data-cy="description"

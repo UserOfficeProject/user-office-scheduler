@@ -1,17 +1,18 @@
-import MomentUtils from '@date-io/moment';
-import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
 import MaterialTable, {
   Column,
   EditComponentProps,
 } from '@material-table/core';
-import {
-  KeyboardDateTimePicker,
-  MuiPickersUtilsProvider,
-} from '@material-ui/pickers';
 import { Add as AddIcon } from '@mui/icons-material';
-import { Button, CircularProgress, Typography } from '@mui/material';
+import AdapterMoment from '@mui/lab/AdapterMoment';
+import DateTimePicker from '@mui/lab/DateTimePicker';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import { Button, CircularProgress, TextField, Typography } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
-import moment, { Moment } from 'moment';
+import {
+  getTranslation,
+  ResourceId,
+} from '@user-office-software/duo-localisation';
+import moment from 'moment';
 import { useSnackbar } from 'notistack';
 import React, { Dispatch, SetStateAction, useState } from 'react';
 
@@ -23,6 +24,7 @@ import { ScheduledEventWithEquipments } from 'hooks/scheduledEvent/useScheduledE
 import {
   toTzLessDateTime,
   TZ_LESS_DATE_TIME_LOW_PREC_FORMAT,
+  TZ_LESS_DATE_TIME_LOW_PREC_MASK,
 } from 'utils/date';
 
 const useStyles = makeStyles((theme) => ({
@@ -176,25 +178,31 @@ function TimeSlotLostTimeTable({
       title: 'Starts at',
       field: 'startsAt',
       editComponent: (props) => (
-        <MuiPickersUtilsProvider utils={MomentUtils}>
-          <KeyboardDateTimePicker
-            required
+        <LocalizationProvider dateAdapter={AdapterMoment}>
+          <DateTimePicker
             label="Starts at"
-            name={`startsAt`}
-            margin="none"
-            size="small"
-            format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
+            renderInput={(props) => (
+              <TextField
+                {...props}
+                variant="standard"
+                required
+                margin="none"
+                size="small"
+                fullWidth
+              />
+            )}
+            mask={TZ_LESS_DATE_TIME_LOW_PREC_MASK}
+            inputFormat={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
             ampm={false}
             minutesStep={60}
-            fullWidth
             data-cy="startsAt"
             value={props.value}
-            onChange={(value: Moment | null) => {
+            onChange={(value) => {
               handleSetDirty(true);
               props.onChange(value);
             }}
           />
-        </MuiPickersUtilsProvider>
+        </LocalizationProvider>
       ),
     },
     {
@@ -218,27 +226,33 @@ function TimeSlotLostTimeTable({
           helperText?: string;
         }
       ) => (
-        <MuiPickersUtilsProvider utils={MomentUtils}>
-          <KeyboardDateTimePicker
-            required
+        <LocalizationProvider dateAdapter={AdapterMoment}>
+          <DateTimePicker
             label="Ends at"
-            name={`endsAt`}
-            margin="none"
-            size="small"
-            format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
+            renderInput={(inputProps) => (
+              <TextField
+                {...inputProps}
+                variant="standard"
+                required
+                margin="none"
+                size="small"
+                fullWidth
+                helperText={props.helperText}
+                error={props.error}
+              />
+            )}
+            mask={TZ_LESS_DATE_TIME_LOW_PREC_MASK}
+            inputFormat={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
             ampm={false}
             minutesStep={60}
-            fullWidth
-            error={props.error}
-            helperText={props.helperText}
             data-cy="endsAt"
             value={props.value}
-            onChange={(value: Moment | null) => {
+            onChange={(value) => {
               handleSetDirty(true);
               props.onChange(value);
             }}
           />
-        </MuiPickersUtilsProvider>
+        </LocalizationProvider>
       ),
     },
   ];

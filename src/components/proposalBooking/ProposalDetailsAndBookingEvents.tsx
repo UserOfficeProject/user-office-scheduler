@@ -1,4 +1,3 @@
-import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
 import {
   Comment as CommentIcon,
   EventAvailable as EventAvailableIcon,
@@ -22,6 +21,10 @@ import {
   Typography,
 } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
+import {
+  getTranslation,
+  ResourceId,
+} from '@user-office-software/duo-localisation';
 import clsx from 'clsx';
 import humanizeDuration from 'humanize-duration';
 import moment from 'moment';

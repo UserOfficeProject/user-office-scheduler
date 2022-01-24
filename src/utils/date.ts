@@ -1,8 +1,10 @@
 import moment, { Moment } from 'moment';
 
 export const TZ_LESS_DATE_TIME_FORMAT = 'yyyy-MM-DD HH:mm:ss';
+export const TZ_LESS_DATE_TIME_MASK = '____-__-__ __:__:__';
 
 export const TZ_LESS_DATE_TIME_LOW_PREC_FORMAT = 'yyyy-MM-DD HH:mm';
+export const TZ_LESS_DATE_TIME_LOW_PREC_MASK = '____-__-__ __:__';
 
 export const parseTzLessDateTime = (tzLessDateTime: string): Moment =>
   moment(tzLessDateTime, TZ_LESS_DATE_TIME_FORMAT);

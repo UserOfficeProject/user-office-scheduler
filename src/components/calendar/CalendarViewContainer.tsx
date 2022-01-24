@@ -1,4 +1,3 @@
-import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
 import { ChevronLeft, Close as CloseIcon } from '@mui/icons-material';
 import {
   IconButton,
@@ -14,6 +13,10 @@ import {
   SelectChangeEvent,
 } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
+import {
+  getTranslation,
+  ResourceId,
+} from '@user-office-software/duo-localisation';
 import generateScheduledEventFilter from 'filters/scheduledEvent/scheduledEventsFilter';
 import moment from 'moment';
 import 'moment/locale/en-gb';

@@ -98,8 +98,6 @@ export default function Dashboard() {
     setOpen(false);
   };
 
-  console.log(isTabletOrMobile, open);
-
   return (
     <div className={classes.root}>
       <CssBaseline />

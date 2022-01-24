@@ -1,8 +1,6 @@
-import MomentUtils from '@date-io/moment';
-import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
-import { equipmentValidationSchema } from '@esss-swap/duo-validation';
-import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import { Save as SaveIcon } from '@mui/icons-material';
+import AdapterMoment from '@mui/lab/AdapterMoment';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import {
   Grid,
   FormControlLabel,
@@ -18,9 +16,14 @@ import {
   Container,
   Paper,
 } from '@mui/material';
+import {
+  getTranslation,
+  ResourceId,
+} from '@user-office-software/duo-localisation';
+import { equipmentValidationSchema } from '@user-office-software/duo-validation';
 import { Formik, Form, Field } from 'formik';
-import { TextField, CheckboxWithLabel } from 'formik-material-ui';
-import { KeyboardDateTimePicker } from 'formik-material-ui-pickers';
+import { TextField, CheckboxWithLabel } from 'formik-mui';
+import { DateTimePicker } from 'formik-mui-lab';
 import moment, { Moment } from 'moment';
 import { useSnackbar } from 'notistack';
 import React, { useState, useEffect } from 'react';
@@ -36,6 +39,7 @@ import {
   toTzLessDateTime,
   parseTzLessDateTime,
   TZ_LESS_DATE_TIME_LOW_PREC_FORMAT,
+  TZ_LESS_DATE_TIME_LOW_PREC_MASK,
 } from 'utils/date';
 
 export default function CreateEditEquipment() {
@@ -189,6 +193,7 @@ export default function CreateEditEquipment() {
                       name="name"
                       label="Equipment name"
                       margin="normal"
+                      variant="standard"
                       fullWidth
                       data-cy="name"
                     />
@@ -198,6 +203,7 @@ export default function CreateEditEquipment() {
                       name="description"
                       label="Equipment description"
                       margin="normal"
+                      variant="standard"
                       fullWidth
                       multiline
                       minRows="3"
@@ -273,30 +279,42 @@ export default function CreateEditEquipment() {
                             {indefiniteMaintenance === '0' && (
                               <FormGroup row>
                                 <FormControl margin="normal">
-                                  <MuiPickersUtilsProvider utils={MomentUtils}>
+                                  <LocalizationProvider
+                                    dateAdapter={AdapterMoment}
+                                  >
                                     <Field
-                                      component={KeyboardDateTimePicker}
+                                      component={DateTimePicker}
                                       name="maintenanceStartsAt"
-                                      margin="normal"
                                       label="Starts at"
-                                      format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
+                                      textField={{
+                                        variant: 'standard',
+                                        margin: 'normal',
+                                      }}
+                                      inputFormat={
+                                        TZ_LESS_DATE_TIME_LOW_PREC_FORMAT
+                                      }
+                                      mask={TZ_LESS_DATE_TIME_LOW_PREC_MASK}
                                       ampm={false}
                                       minutesStep={60}
-                                      fullWidth
                                       data-cy="maintenanceStartsAt"
                                     />
                                     <Field
-                                      component={KeyboardDateTimePicker}
+                                      component={DateTimePicker}
+                                      textField={{
+                                        variant: 'standard',
+                                        margin: 'normal',
+                                      }}
                                       name="maintenanceEndsAt"
-                                      margin="normal"
                                       label="Ends at"
-                                      format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
+                                      inputFormat={
+                                        TZ_LESS_DATE_TIME_LOW_PREC_FORMAT
+                                      }
+                                      mask={TZ_LESS_DATE_TIME_LOW_PREC_MASK}
                                       ampm={false}
                                       minutesStep={60}
-                                      fullWidth
                                       data-cy="maintenanceEndsAt"
                                     />
-                                  </MuiPickersUtilsProvider>
+                                  </LocalizationProvider>
                                 </FormControl>
                               </FormGroup>
                             )}

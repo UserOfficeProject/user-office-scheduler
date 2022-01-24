@@ -1,4 +1,4 @@
-// import { StylesProvider } from '@mui/styles';
+import { StyledEngineProvider } from '@mui/material/styles';
 import { SnackbarProvider } from 'notistack';
 import React, { useContext } from 'react';
 import { CookiesProvider } from 'react-cookie';
@@ -60,34 +60,37 @@ class App extends React.Component {
 
   render() {
     return (
-      // <StylesProvider>
-      <Theme>
+      <StyledEngineProvider injectFirst>
         <SnackbarProvider
           anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
           maxSnack={1}
         >
           <CookiesProvider>
-            <UserContextProvider>
-              <SettingsContextProvider>
-                <AppContextProvider>
-                  <Router basename={process.env.PUBLIC_URL}>
-                    <div className="App">
-                      <Switch>
-                        <Route
-                          path={PATH_NOT_AUTHENTICATED}
-                          component={NotAuthenticated}
-                        />
-                        <PrivateRoute path={PATH_ROOT} component={Dashboard} />
-                      </Switch>
-                    </div>
-                  </Router>
-                </AppContextProvider>
-              </SettingsContextProvider>
-            </UserContextProvider>
+            <SettingsContextProvider>
+              <Theme>
+                <UserContextProvider>
+                  <AppContextProvider>
+                    <Router basename={process.env.PUBLIC_URL}>
+                      <div className="App">
+                        <Switch>
+                          <Route
+                            path={PATH_NOT_AUTHENTICATED}
+                            component={NotAuthenticated}
+                          />
+                          <PrivateRoute
+                            path={PATH_ROOT}
+                            component={Dashboard}
+                          />
+                        </Switch>
+                      </div>
+                    </Router>
+                  </AppContextProvider>
+                </UserContextProvider>
+              </Theme>
+            </SettingsContextProvider>
           </CookiesProvider>
         </SnackbarProvider>
-      </Theme>
-      // </StylesProvider>
+      </StyledEngineProvider>
     );
   }
 }

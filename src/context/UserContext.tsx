@@ -1,4 +1,4 @@
-import { getTranslation } from '@esss-swap/duo-localisation';
+import { getTranslation } from '@user-office-software/duo-localisation';
 import jwtDecode from 'jwt-decode';
 import { useSnackbar } from 'notistack';
 import React, { createContext, useContext, useEffect, useReducer } from 'react';

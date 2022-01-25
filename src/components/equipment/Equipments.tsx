@@ -3,7 +3,7 @@ import {
   Visibility as VisibilityIcon,
   Add as AddIcon,
 } from '@mui/icons-material';
-import { Button, Container, Grid, Paper } from '@mui/material';
+import { Button, Grid } from '@mui/material';
 import React, { useState } from 'react';
 import { Redirect } from 'react-router';
 import { Link } from 'react-router-dom';
@@ -12,6 +12,7 @@ import { ActionButtonContainer } from 'components/common/ActionButtonContainer';
 import { tableIcons } from 'components/common/TableIcons';
 import { PATH_CREATE_EQUIPMENT } from 'components/paths';
 import useEquipments, { PartialEquipment } from 'hooks/equipment/useEquipments';
+import { StyledContainer, StyledPaper } from 'styles/StyledComponents';
 
 const columns: Column<PartialEquipment>[] = [
   { field: 'name', title: 'Name' },
@@ -45,10 +46,10 @@ export default function Equipments() {
   }
 
   return (
-    <Container maxWidth={false}>
+    <StyledContainer maxWidth={false}>
       <Grid container>
         <Grid item xs={12}>
-          <Paper sx={{ margin: [0, 1] }} data-cy="role-selection-table">
+          <StyledPaper sx={{ margin: [0, 1] }} data-cy="role-selection-table">
             <MaterialTable
               icons={tableIcons}
               title="Equipments"
@@ -77,9 +78,9 @@ export default function Equipments() {
                 New equipment
               </Button>
             </ActionButtonContainer>
-          </Paper>
+          </StyledPaper>
         </Grid>
       </Grid>
-    </Container>
+    </StyledContainer>
   );
 }

@@ -274,7 +274,7 @@ export default function TimeSlotDetails({
                     <IconButton
                       sx={{ ml: 2 }}
                       onClick={handleOnSave}
-                      data-cy="btn-time-table-save-row"
+                      data-cy="btn-save-experiment-range-change"
                     >
                       <CheckIcon />
                     </IconButton>
@@ -286,7 +286,7 @@ export default function TimeSlotDetails({
                         ]);
                         setEditingDate(false);
                       }}
-                      data-cy="btn-time-table-reset-row"
+                      data-cy="btn-reset-experiment-range-change"
                     >
                       <ClearIcon />
                     </IconButton>

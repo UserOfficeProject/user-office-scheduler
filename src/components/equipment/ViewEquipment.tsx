@@ -20,8 +20,6 @@ import {
   IconButton,
   Box,
   Tooltip,
-  Container,
-  Paper,
 } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import moment, { Moment } from 'moment';
@@ -44,6 +42,7 @@ import {
 import { useDataApi } from 'hooks/common/useDataApi';
 import useEquipment from 'hooks/equipment/useEquipment';
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
+import { StyledContainer, StyledPaper } from 'styles/StyledComponents';
 import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
 import { getFullUserName } from 'utils/user';
 
@@ -288,7 +287,7 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
   ): JSX.Element => <ClearIcon {...props} />;
 
   return (
-    <Container maxWidth={false}>
+    <StyledContainer maxWidth={false}>
       <PeopleModal
         show={showPeopleModal}
         close={() => setShowPeopleModal(false)}
@@ -308,7 +307,7 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
       />
       <Grid container>
         <Grid item xs={12}>
-          <Paper sx={{ margin: [0, 1] }}>
+          <StyledPaper sx={{ margin: [0, 1] }}>
             {confirmationLoading && <Loader />}
 
             <Box display="flex" justifyContent="flex-end">
@@ -383,14 +382,15 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
                   </ListItem>
                   <ListItem disableGutters>
                     <ListItemAvatar>
-                      <div
-                        className="MuiAvatar-root"
+                      <Avatar
                         data-cy="equipment-color"
                         style={{
                           backgroundColor: equipment.color || '#bdbdbd',
                           border: '1px solid #bdbdbd',
                         }}
-                      />
+                      >
+                        <></>
+                      </Avatar>
                     </ListItemAvatar>
                     <ListItemText
                       primary="Equipment color"
@@ -482,9 +482,9 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
                 ]}
               />
             </div>
-          </Paper>
+          </StyledPaper>
         </Grid>
       </Grid>
-    </Container>
+    </StyledContainer>
   );
 }

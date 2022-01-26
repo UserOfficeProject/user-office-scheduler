@@ -64,7 +64,7 @@ context('Equipment tests', () => {
 
       cy.contains(newEquipment.name)
         .parent()
-        .find('[title="View equipment"]')
+        .find('[data-testid="VisibilityIcon"]')
         .click();
 
       cy.contains(newEquipment.name);

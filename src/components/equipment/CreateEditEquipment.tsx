@@ -13,8 +13,6 @@ import {
   Button,
   CircularProgress,
   Box,
-  Container,
-  Paper,
 } from '@mui/material';
 import {
   getTranslation,
@@ -35,6 +33,7 @@ import { PATH_VIEW_EQUIPMENT } from 'components/paths';
 import { Equipment, EquipmentInput } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import useEquipment from 'hooks/equipment/useEquipment';
+import { StyledContainer, StyledPaper } from 'styles/StyledComponents';
 import {
   toTzLessDateTime,
   parseTzLessDateTime,
@@ -107,10 +106,10 @@ export default function CreateEditEquipment() {
       };
 
   return (
-    <Container maxWidth={false}>
+    <StyledContainer maxWidth={false}>
       <Grid container>
         <Grid item xs={12}>
-          <Paper sx={{ margin: [0, 1] }}>
+          <StyledPaper sx={{ margin: [0, 1] }}>
             <Formik
               initialValues={initialValues}
               validationSchema={equipmentValidationSchema}
@@ -348,9 +347,9 @@ export default function CreateEditEquipment() {
                 );
               }}
             </Formik>
-          </Paper>
+          </StyledPaper>
         </Grid>
       </Grid>
-    </Container>
+    </StyledContainer>
   );
 }

@@ -1027,7 +1027,7 @@ context('Proposal booking tests ', () => {
           '[data-cy="time-slot-lost-times-table"] tbody tr span[aria-label="Save"] button'
         ).should('be.disabled');
 
-        cy.get('[data-cy="end-experiment-time-range"] p.Mui-error').should(
+        cy.get('[data-cy="endsAt"] p.Mui-error').should(
           'include.text',
           'End date should be after start date'
         );

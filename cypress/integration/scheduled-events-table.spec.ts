@@ -2,6 +2,8 @@ import { ScheduledEventBookingType } from '../../src/generated/sdk';
 import {
   defaultEventBookingHourDateTime,
   getHourDateTimeAfter,
+  openProposalBookingFromRightToolbar,
+  selectInstrument,
 } from '../utils';
 
 context('Scheduled events table tests', () => {
@@ -64,19 +66,9 @@ context('Scheduled events table tests', () => {
 
     it('should be able to see scheduled events in table view when instrument is selected', () => {
       cy.finishedLoading();
-      cy.get('[data-cy=input-instrument-select]').click();
-
-      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-        .first()
-        .click();
-
-      cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
-
-      cy.get(
-        '#instrument-calls-tree-view [role=treeitem] [role=group] [role=treeitem]'
-      )
-        .first()
-        .click();
+      selectInstrument();
+      cy.finishedLoading();
+      openProposalBookingFromRightToolbar();
 
       cy.get('[data-cy="add-new-timeslot"]').click();
       cy.finishedLoading();
@@ -115,13 +107,7 @@ context('Scheduled events table tests', () => {
       cy.createEvent({ input: newScheduledEvent2 });
       cy.createEvent({ input: newScheduledUserOperationsEvent });
 
-      cy.get('[data-cy=input-instrument-select]').click();
-
-      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-        .first()
-        .click();
-
-      cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
+      selectInstrument();
 
       cy.get('[data-cy="scheduler-active-view"]').click();
       cy.get('[data-value="Table"]').click();
@@ -160,13 +146,7 @@ context('Scheduled events table tests', () => {
       cy.createEvent({ input: newScheduledUserOperationsEvent });
       cy.finishedLoading();
 
-      cy.get('[data-cy=input-instrument-select]').click();
-
-      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-        .first()
-        .click();
-
-      cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
+      selectInstrument();
 
       cy.get('[data-cy="scheduler-active-view"]').click();
       cy.get('[data-value="Table"]').click();
@@ -217,13 +197,7 @@ context('Scheduled events table tests', () => {
       cy.createEvent({ input: newScheduledUserOperationsEvent });
       cy.finishedLoading();
 
-      cy.get('[data-cy=input-instrument-select]').click();
-
-      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-        .first()
-        .click();
-
-      cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
+      selectInstrument();
 
       cy.get('[data-cy="scheduler-active-view"]').click();
       cy.get('[data-value="Table"]').click();
@@ -262,13 +236,7 @@ context('Scheduled events table tests', () => {
       cy.initializeSession('UserOfficer');
       cy.finishedLoading();
 
-      cy.get('[data-cy=input-instrument-select]').click();
-
-      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-        .first()
-        .click();
-
-      cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
+      selectInstrument();
 
       cy.get('[data-cy="scheduler-active-view"]').click();
       cy.get('[data-value="Table"]').click();

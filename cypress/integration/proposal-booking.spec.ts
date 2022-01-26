@@ -4,35 +4,12 @@ import {
 } from '../../src/generated/sdk';
 import {
   defaultEventBookingHourDateTime,
+  existingInstruments,
   getCurrentHourDateTime,
   getHourDateTimeAfter,
+  openProposalBookingFromRightToolbar,
+  selectInstrument,
 } from '../utils';
-
-const selectInstrument = (instrument?: string) => {
-  cy.get('[data-cy=input-instrument-select] input').should('not.be.disabled');
-
-  cy.get('[data-cy=input-instrument-select] [title="Open"]').click();
-
-  if (instrument) {
-    cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-      .contains(instrument)
-      .click();
-  } else {
-    cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-      .first()
-      .click();
-  }
-};
-
-const openProposalBookingFromRightToolbar = () => {
-  cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
-
-  cy.get(
-    '#instrument-calls-tree-view [role=treeitem] [role=group] [role=treeitem]'
-  )
-    .first()
-    .click();
-};
 
 context('Proposal booking tests ', () => {
   beforeEach(() => {
@@ -53,12 +30,6 @@ context('Proposal booking tests ', () => {
     title: 'Test proposal',
     proposer: 'Carl Carlsson',
   };
-
-  const existingInstruments = [
-    { name: 'Instrument 1' },
-    { name: 'Instrument 2' },
-    { name: 'Instrument 3' },
-  ];
 
   const existingInstrumentScientistId = 100;
 

@@ -1,8 +1,8 @@
 import { GraphQLClient } from 'graphql-request';
 import * as Dom from 'graphql-request/dist/types.dom';
 import gql from 'graphql-tag';
-export type Maybe<T> = T | null | undefined;
-export type InputMaybe<T> = T | null | undefined;
+export type Maybe<T> = T | null;
+export type InputMaybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
@@ -3499,14 +3499,14 @@ export type VisitsFilter = {
 export type GetSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetSettingsQuery = { settings: Array<{ id: SettingsId, settingsValue: string | null | undefined, description: string | null | undefined }> };
+export type GetSettingsQuery = { settings: Array<{ id: SettingsId, settingsValue: string | null, description: string | null }> };
 
 export type PrepareDbMutationVariables = Exact<{
   includeSeeds: Scalars['Boolean'];
 }>;
 
 
-export type PrepareDbMutation = { prepareDB: { log: string | null | undefined, rejection: { reason: string } | null | undefined } };
+export type PrepareDbMutation = { prepareDB: { log: string | null, rejection: { reason: string } | null } };
 
 export type PrepareSchedulerDbMutationVariables = Exact<{
   includeSeeds: Scalars['Boolean'];
@@ -3541,7 +3541,7 @@ export type CreateEquipmentMutationVariables = Exact<{
 }>;
 
 
-export type CreateEquipmentMutation = { createEquipment: { error: string | null | undefined, equipment: { id: number, createdAt: any, updatedAt: any, name: string, description: string | null | undefined, color: string | null | undefined, maintenanceStartsAt: string | null | undefined, maintenanceEndsAt: string | null | undefined, autoAccept: boolean } | null | undefined } };
+export type CreateEquipmentMutation = { createEquipment: { error: string | null, equipment: { id: number, createdAt: any, updatedAt: any, name: string, description: string | null, color: string | null, maintenanceStartsAt: string | null, maintenanceEndsAt: string | null, autoAccept: boolean } | null } };
 
 export type DeleteEquipmentAssignmentMutationVariables = Exact<{
   deleteEquipmentAssignmentInput: DeleteEquipmentAssignmentInput;
@@ -3555,19 +3555,19 @@ export type GetAvailableEquipmentsQueryVariables = Exact<{
 }>;
 
 
-export type GetAvailableEquipmentsQuery = { availableEquipments: Array<{ id: number, createdAt: any, updatedAt: any, name: string, description: string | null | undefined, color: string | null | undefined, maintenanceStartsAt: string | null | undefined, maintenanceEndsAt: string | null | undefined, autoAccept: boolean }> };
+export type GetAvailableEquipmentsQuery = { availableEquipments: Array<{ id: number, createdAt: any, updatedAt: any, name: string, description: string | null, color: string | null, maintenanceStartsAt: string | null, maintenanceEndsAt: string | null, autoAccept: boolean }> };
 
 export type GetEquipmentQueryVariables = Exact<{
   id: Scalars['Int'];
 }>;
 
 
-export type GetEquipmentQuery = { equipment: { id: number, createdAt: any, updatedAt: any, name: string, description: string | null | undefined, color: string | null | undefined, maintenanceStartsAt: string | null | undefined, maintenanceEndsAt: string | null | undefined, autoAccept: boolean, owner: { id: number, firstname: string, lastname: string } | null | undefined, equipmentResponsible: Array<{ id: number, firstname: string, lastname: string }> } | null | undefined };
+export type GetEquipmentQuery = { equipment: { id: number, createdAt: any, updatedAt: any, name: string, description: string | null, color: string | null, maintenanceStartsAt: string | null, maintenanceEndsAt: string | null, autoAccept: boolean, owner: { id: number, firstname: string, lastname: string } | null, equipmentResponsible: Array<{ id: number, firstname: string, lastname: string }> } | null };
 
 export type GetEquipmentsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetEquipmentsQuery = { equipments: Array<{ id: number, createdAt: any, updatedAt: any, name: string, description: string | null | undefined, color: string | null | undefined, maintenanceStartsAt: string | null | undefined, maintenanceEndsAt: string | null | undefined, autoAccept: boolean }> };
+export type GetEquipmentsQuery = { equipments: Array<{ id: number, createdAt: any, updatedAt: any, name: string, description: string | null, color: string | null, maintenanceStartsAt: string | null, maintenanceEndsAt: string | null, autoAccept: boolean }> };
 
 export type UpdateEquipmentMutationVariables = Exact<{
   id: Scalars['Int'];
@@ -3575,7 +3575,7 @@ export type UpdateEquipmentMutationVariables = Exact<{
 }>;
 
 
-export type UpdateEquipmentMutation = { updateEquipment: { error: string | null | undefined, equipment: { id: number, name: string, description: string | null | undefined, color: string | null | undefined, maintenanceStartsAt: string | null | undefined, maintenanceEndsAt: string | null | undefined, autoAccept: boolean } | null | undefined } };
+export type UpdateEquipmentMutation = { updateEquipment: { error: string | null, equipment: { id: number, name: string, description: string | null, color: string | null, maintenanceStartsAt: string | null, maintenanceEndsAt: string | null, autoAccept: boolean } | null } };
 
 export type UpdateEquipmentOwnerMutationVariables = Exact<{
   updateEquipmentOwnerInput: UpdateEquipmentOwnerInput;
@@ -3587,21 +3587,21 @@ export type UpdateEquipmentOwnerMutation = { updateEquipmentOwner: boolean };
 export type GetUserInstrumentsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetUserInstrumentsQuery = { userInstruments: { totalCount: number, instruments: Array<{ id: number, name: string }> } | null | undefined };
+export type GetUserInstrumentsQuery = { userInstruments: { totalCount: number, instruments: Array<{ id: number, name: string }> } | null };
 
 export type AddLostTimeMutationVariables = Exact<{
   input: AddLostTimeInput;
 }>;
 
 
-export type AddLostTimeMutation = { addLostTime: { error: string | null | undefined, lostTime: { id: number, startsAt: string, endsAt: string, scheduledEventId: number } | null | undefined } };
+export type AddLostTimeMutation = { addLostTime: { error: string | null, lostTime: { id: number, startsAt: string, endsAt: string, scheduledEventId: number } | null } };
 
 export type DeleteLostTimeMutationVariables = Exact<{
   input: DeleteLostTimeInput;
 }>;
 
 
-export type DeleteLostTimeMutation = { deleteLostTime: { error: string | null | undefined, lostTime: { id: number, startsAt: string, endsAt: string, scheduledEventId: number } | null | undefined } };
+export type DeleteLostTimeMutation = { deleteLostTime: { error: string | null, lostTime: { id: number, startsAt: string, endsAt: string, scheduledEventId: number } | null } };
 
 export type GetProposalBookingLostTimesQueryVariables = Exact<{
   proposalBookingId: Scalars['Int'];
@@ -3616,21 +3616,21 @@ export type UpdateLostTimeMutationVariables = Exact<{
 }>;
 
 
-export type UpdateLostTimeMutation = { updateLostTime: { error: string | null | undefined, lostTime: { id: number, startsAt: string, endsAt: string, scheduledEventId: number } | null | undefined } };
+export type UpdateLostTimeMutation = { updateLostTime: { error: string | null, lostTime: { id: number, startsAt: string, endsAt: string, scheduledEventId: number } | null } };
 
 export type AddClientLogMutationVariables = Exact<{
   error: Scalars['String'];
 }>;
 
 
-export type AddClientLogMutation = { addClientLog: { isSuccess: boolean | null | undefined, rejection: { reason: string } | null | undefined } };
+export type AddClientLogMutation = { addClientLog: { isSuccess: boolean | null, rejection: { reason: string } | null } };
 
 export type GetRefreshedTokenMutationVariables = Exact<{
   token: Scalars['String'];
 }>;
 
 
-export type GetRefreshedTokenMutation = { token: { token: string | null | undefined, rejection: { reason: string } | null | undefined } };
+export type GetRefreshedTokenMutation = { token: { token: string | null, rejection: { reason: string } | null } };
 
 export type GetSchedulerConfigQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -3640,14 +3640,14 @@ export type GetSchedulerConfigQuery = { schedulerConfig: { authRedirect: string 
 export type ServerHealthCheckQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ServerHealthCheckQuery = { healthCheck: { message: string, dbStats: Array<{ total: number, state: string | null | undefined }> } };
+export type ServerHealthCheckQuery = { healthCheck: { message: string, dbStats: Array<{ total: number, state: string | null }> } };
 
 export type ActivateProposalBookingMutationVariables = Exact<{
   id: Scalars['Int'];
 }>;
 
 
-export type ActivateProposalBookingMutation = { activateProposalBooking: { error: string | null | undefined } };
+export type ActivateProposalBookingMutation = { activateProposalBooking: { error: string | null } };
 
 export type FinalizeProposalBookingMutationVariables = Exact<{
   action: ProposalBookingFinalizeAction;
@@ -3655,7 +3655,7 @@ export type FinalizeProposalBookingMutationVariables = Exact<{
 }>;
 
 
-export type FinalizeProposalBookingMutation = { finalizeProposalBooking: { error: string | null | undefined } };
+export type FinalizeProposalBookingMutation = { finalizeProposalBooking: { error: string | null } };
 
 export type GetInstrumentProposalBookingsQueryVariables = Exact<{
   instrumentIds: Array<Scalars['Int']> | Scalars['Int'];
@@ -3663,7 +3663,7 @@ export type GetInstrumentProposalBookingsQueryVariables = Exact<{
 }>;
 
 
-export type GetInstrumentProposalBookingsQuery = { instrumentProposalBookings: Array<{ id: number, createdAt: any, updatedAt: any, status: ProposalBookingStatusCore, allocatedTime: number, call: { id: number, shortCode: string, startCycle: any, endCycle: any, cycleComment: string } | null | undefined, proposal: { primaryKey: number, title: string, proposalId: string, proposer: { id: number, firstname: string, lastname: string } | null | undefined } | null | undefined, instrument: { id: number, name: string } | null | undefined, scheduledEvents: Array<{ id: number, startsAt: string, endsAt: string }> }> };
+export type GetInstrumentProposalBookingsQuery = { instrumentProposalBookings: Array<{ id: number, createdAt: any, updatedAt: any, status: ProposalBookingStatusCore, allocatedTime: number, call: { id: number, shortCode: string, startCycle: any, endCycle: any, cycleComment: string } | null, proposal: { primaryKey: number, title: string, proposalId: string, proposer: { id: number, firstname: string, lastname: string } | null } | null, instrument: { id: number, name: string } | null, scheduledEvents: Array<{ id: number, startsAt: string, endsAt: string }> }> };
 
 export type GetProposalBookingQueryVariables = Exact<{
   id: Scalars['Int'];
@@ -3671,42 +3671,42 @@ export type GetProposalBookingQueryVariables = Exact<{
 }>;
 
 
-export type GetProposalBookingQuery = { proposalBooking: { id: number, createdAt: any, updatedAt: any, status: ProposalBookingStatusCore, allocatedTime: number, call: { id: number, shortCode: string, startCycle: any, endCycle: any, cycleComment: string } | null | undefined, proposal: { primaryKey: number, title: string, proposalId: string, proposer: { id: number, firstname: string, lastname: string } | null | undefined } | null | undefined, scheduledEvents: Array<{ id: number, startsAt: string, endsAt: string, bookingType: ScheduledEventBookingType, status: ProposalBookingStatusCore, description: string | null | undefined, scheduledBy: { id: number, firstname: string, lastname: string } | null | undefined, localContact: { id: number, firstname: string, lastname: string } | null | undefined }>, instrument: { id: number, name: string, beamlineManager: { id: number, firstname: string, lastname: string, organisation: string }, scientists: Array<{ id: number, firstname: string, lastname: string, organisation: string }> } | null | undefined } | null | undefined };
+export type GetProposalBookingQuery = { proposalBooking: { id: number, createdAt: any, updatedAt: any, status: ProposalBookingStatusCore, allocatedTime: number, call: { id: number, shortCode: string, startCycle: any, endCycle: any, cycleComment: string } | null, proposal: { primaryKey: number, title: string, proposalId: string, proposer: { id: number, firstname: string, lastname: string } | null } | null, scheduledEvents: Array<{ id: number, startsAt: string, endsAt: string, bookingType: ScheduledEventBookingType, status: ProposalBookingStatusCore, description: string | null, scheduledBy: { id: number, firstname: string, lastname: string } | null, localContact: { id: number, firstname: string, lastname: string } | null }>, instrument: { id: number, name: string, beamlineManager: { id: number, firstname: string, lastname: string, organisation: string }, scientists: Array<{ id: number, firstname: string, lastname: string, organisation: string }> } | null } | null };
 
 export type ReopenProposalBookingMutationVariables = Exact<{
   id: Scalars['Int'];
 }>;
 
 
-export type ReopenProposalBookingMutation = { reopenProposalBooking: { error: string | null | undefined } };
+export type ReopenProposalBookingMutation = { reopenProposalBooking: { error: string | null } };
 
 export type ActivateScheduledEventMutationVariables = Exact<{
   input: ActivateScheduledEventInput;
 }>;
 
 
-export type ActivateScheduledEventMutation = { activateScheduledEvent: { error: string | null | undefined, scheduledEvent: { id: number, startsAt: string, endsAt: string } | null | undefined } };
+export type ActivateScheduledEventMutation = { activateScheduledEvent: { error: string | null, scheduledEvent: { id: number, startsAt: string, endsAt: string } | null } };
 
 export type CreateScheduledEventMutationVariables = Exact<{
   input: NewScheduledEventInput;
 }>;
 
 
-export type CreateScheduledEventMutation = { createScheduledEvent: { error: string | null | undefined, scheduledEvent: { id: number, startsAt: string, endsAt: string, bookingType: ScheduledEventBookingType, status: ProposalBookingStatusCore, description: string | null | undefined, scheduledBy: { id: number, firstname: string, lastname: string } | null | undefined } | null | undefined } };
+export type CreateScheduledEventMutation = { createScheduledEvent: { error: string | null, scheduledEvent: { id: number, startsAt: string, endsAt: string, bookingType: ScheduledEventBookingType, status: ProposalBookingStatusCore, description: string | null, scheduledBy: { id: number, firstname: string, lastname: string } | null } | null } };
 
 export type DeleteScheduledEventsMutationVariables = Exact<{
   input: DeleteScheduledEventsInput;
 }>;
 
 
-export type DeleteScheduledEventsMutation = { deleteScheduledEvents: { error: string | null | undefined, scheduledEvents: Array<{ id: number, bookingType: ScheduledEventBookingType, startsAt: string, endsAt: string, description: string | null | undefined, status: ProposalBookingStatusCore }> | null | undefined } };
+export type DeleteScheduledEventsMutation = { deleteScheduledEvents: { error: string | null, scheduledEvents: Array<{ id: number, bookingType: ScheduledEventBookingType, startsAt: string, endsAt: string, description: string | null, status: ProposalBookingStatusCore }> | null } };
 
 export type FinalizeScheduledEventMutationVariables = Exact<{
   input: FinalizeScheduledEventInput;
 }>;
 
 
-export type FinalizeScheduledEventMutation = { finalizeScheduledEvent: { error: string | null | undefined } };
+export type FinalizeScheduledEventMutation = { finalizeScheduledEvent: { error: string | null } };
 
 export type GetEquipmentScheduledEventsQueryVariables = Exact<{
   equipmentIds: Array<Scalars['Int']> | Scalars['Int'];
@@ -3715,14 +3715,14 @@ export type GetEquipmentScheduledEventsQueryVariables = Exact<{
 }>;
 
 
-export type GetEquipmentScheduledEventsQuery = { equipments: Array<{ id: number, name: string, color: string | null | undefined, events: Array<{ id: number, startsAt: string, endsAt: string, status: ProposalBookingStatusCore, equipmentAssignmentStatus: EquipmentAssignmentStatus | null | undefined, equipmentId: number | null | undefined, proposalBooking: { status: ProposalBookingStatusCore, proposal: { primaryKey: number, title: string, proposalId: string, proposer: { firstname: string, lastname: string } | null | undefined } | null | undefined } | null | undefined, instrument: { id: number, name: string } | null | undefined, scheduledBy: { id: number, firstname: string, lastname: string } | null | undefined, localContact: { id: number, firstname: string, lastname: string } | null | undefined }> }> };
+export type GetEquipmentScheduledEventsQuery = { equipments: Array<{ id: number, name: string, color: string | null, events: Array<{ id: number, startsAt: string, endsAt: string, status: ProposalBookingStatusCore, equipmentAssignmentStatus: EquipmentAssignmentStatus | null, equipmentId: number | null, proposalBooking: { status: ProposalBookingStatusCore, proposal: { primaryKey: number, title: string, proposalId: string, proposer: { firstname: string, lastname: string } | null } | null } | null, instrument: { id: number, name: string } | null, scheduledBy: { id: number, firstname: string, lastname: string } | null, localContact: { id: number, firstname: string, lastname: string } | null }> }> };
 
 export type GetProposalBookingScheduledEventsQueryVariables = Exact<{
   proposalBookingId: Scalars['Int'];
 }>;
 
 
-export type GetProposalBookingScheduledEventsQuery = { proposalBookingScheduledEvents: Array<{ id: number, startsAt: string, endsAt: string, bookingType: ScheduledEventBookingType, status: ProposalBookingStatusCore, description: string | null | undefined, scheduledBy: { id: number, firstname: string, lastname: string } | null | undefined, localContact: { id: number, firstname: string, lastname: string } | null | undefined }> };
+export type GetProposalBookingScheduledEventsQuery = { proposalBookingScheduledEvents: Array<{ id: number, startsAt: string, endsAt: string, bookingType: ScheduledEventBookingType, status: ProposalBookingStatusCore, description: string | null, scheduledBy: { id: number, firstname: string, lastname: string } | null, localContact: { id: number, firstname: string, lastname: string } | null }> };
 
 export type GetScheduledEventEquipmentsQueryVariables = Exact<{
   proposalBookingId: Scalars['Int'];
@@ -3730,7 +3730,7 @@ export type GetScheduledEventEquipmentsQueryVariables = Exact<{
 }>;
 
 
-export type GetScheduledEventEquipmentsQuery = { proposalBookingScheduledEvent: { equipments: Array<{ id: number, name: string, description: string | null | undefined, color: string | null | undefined, maintenanceStartsAt: string | null | undefined, maintenanceEndsAt: string | null | undefined, status: EquipmentAssignmentStatus }> } | null | undefined };
+export type GetScheduledEventEquipmentsQuery = { proposalBookingScheduledEvent: { equipments: Array<{ id: number, name: string, description: string | null, color: string | null, maintenanceStartsAt: string | null, maintenanceEndsAt: string | null, status: EquipmentAssignmentStatus }> } | null };
 
 export type GetScheduledEventWithEquipmentsQueryVariables = Exact<{
   proposalBookingId: Scalars['Int'];
@@ -3739,7 +3739,7 @@ export type GetScheduledEventWithEquipmentsQueryVariables = Exact<{
 }>;
 
 
-export type GetScheduledEventWithEquipmentsQuery = { proposalBookingScheduledEvent: { id: number, startsAt: string, endsAt: string, status: ProposalBookingStatusCore, proposalBooking: { id: number, status: ProposalBookingStatusCore, allocatedTime: number, scheduledEvents: Array<{ id: number, startsAt: string, endsAt: string }>, proposal: { primaryKey: number, title: string, proposalId: string, proposer: { firstname: string, lastname: string } | null | undefined } | null | undefined, call: { id: number, shortCode: string, startCycle: any, endCycle: any, cycleComment: string } | null | undefined } | null | undefined, scheduledBy: { firstname: string, lastname: string } | null | undefined, equipments: Array<{ id: number, name: string, maintenanceStartsAt: string | null | undefined, maintenanceEndsAt: string | null | undefined, status: EquipmentAssignmentStatus }> } | null | undefined };
+export type GetScheduledEventWithEquipmentsQuery = { proposalBookingScheduledEvent: { id: number, startsAt: string, endsAt: string, status: ProposalBookingStatusCore, proposalBooking: { id: number, status: ProposalBookingStatusCore, allocatedTime: number, scheduledEvents: Array<{ id: number, startsAt: string, endsAt: string }>, proposal: { primaryKey: number, title: string, proposalId: string, proposer: { firstname: string, lastname: string } | null } | null, call: { id: number, shortCode: string, startCycle: any, endCycle: any, cycleComment: string } | null } | null, scheduledBy: { firstname: string, lastname: string } | null, equipments: Array<{ id: number, name: string, maintenanceStartsAt: string | null, maintenanceEndsAt: string | null, status: EquipmentAssignmentStatus }> } | null };
 
 export type GetScheduledEventsQueryVariables = Exact<{
   filter: ScheduledEventFilter;
@@ -3747,30 +3747,30 @@ export type GetScheduledEventsQueryVariables = Exact<{
 }>;
 
 
-export type GetScheduledEventsQuery = { scheduledEvents: Array<{ id: number, bookingType: ScheduledEventBookingType, equipmentId: number | null | undefined, startsAt: string, endsAt: string, status: ProposalBookingStatusCore, description: string | null | undefined, color: string | null | undefined, instrument: { id: number, name: string } | null | undefined, scheduledBy: { firstname: string, lastname: string } | null | undefined, localContact: { id: number, firstname: string, lastname: string } | null | undefined, proposalBooking: { id: number, createdAt: any, updatedAt: any, status: ProposalBookingStatusCore, allocatedTime: number, proposal: { primaryKey: number, title: string, proposalId: string, proposer: { firstname: string, lastname: string } | null | undefined } | null | undefined, call: { id: number, shortCode: string, startCycle: any, endCycle: any, cycleComment: string } | null | undefined, scheduledEvents: Array<{ id: number, startsAt: string, endsAt: string }> } | null | undefined }> };
+export type GetScheduledEventsQuery = { scheduledEvents: Array<{ id: number, bookingType: ScheduledEventBookingType, equipmentId: number | null, startsAt: string, endsAt: string, status: ProposalBookingStatusCore, description: string | null, color: string | null, instrument: { id: number, name: string } | null, scheduledBy: { firstname: string, lastname: string } | null, localContact: { id: number, firstname: string, lastname: string } | null, proposalBooking: { id: number, createdAt: any, updatedAt: any, status: ProposalBookingStatusCore, allocatedTime: number, proposal: { primaryKey: number, title: string, proposalId: string, proposer: { firstname: string, lastname: string } | null } | null, call: { id: number, shortCode: string, startCycle: any, endCycle: any, cycleComment: string } | null, scheduledEvents: Array<{ id: number, startsAt: string, endsAt: string }> } | null }> };
 
 export type GetScheduledEventsWithEquipmentsQueryVariables = Exact<{
   proposalBookingId: Scalars['Int'];
 }>;
 
 
-export type GetScheduledEventsWithEquipmentsQuery = { proposalBookingScheduledEvents: Array<{ id: number, startsAt: string, endsAt: string, status: ProposalBookingStatusCore, equipments: Array<{ id: number, name: string, description: string | null | undefined, maintenanceStartsAt: string | null | undefined, maintenanceEndsAt: string | null | undefined, status: EquipmentAssignmentStatus }> }> };
+export type GetScheduledEventsWithEquipmentsQuery = { proposalBookingScheduledEvents: Array<{ id: number, startsAt: string, endsAt: string, status: ProposalBookingStatusCore, equipments: Array<{ id: number, name: string, description: string | null, maintenanceStartsAt: string | null, maintenanceEndsAt: string | null, status: EquipmentAssignmentStatus }> }> };
 
 export type ReopenScheduledEventMutationVariables = Exact<{
   id: Scalars['Int'];
 }>;
 
 
-export type ReopenScheduledEventMutation = { reopenScheduledEvent: { error: string | null | undefined } };
+export type ReopenScheduledEventMutation = { reopenScheduledEvent: { error: string | null } };
 
 export type UpdateScheduledEventMutationVariables = Exact<{
   input: UpdateScheduledEventInput;
 }>;
 
 
-export type UpdateScheduledEventMutation = { updateScheduledEvent: { error: string | null | undefined, scheduledEvent: { id: number, startsAt: string, endsAt: string, localContact: { id: number, firstname: string, lastname: string } | null | undefined } | null | undefined } };
+export type UpdateScheduledEventMutation = { updateScheduledEvent: { error: string | null, scheduledEvent: { id: number, startsAt: string, endsAt: string, localContact: { id: number, firstname: string, lastname: string } | null } | null } };
 
-export type BasicUserDetailsFragment = { id: number, firstname: string, lastname: string, organisation: string, position: string, created: any | null | undefined, placeholder: boolean | null | undefined };
+export type BasicUserDetailsFragment = { id: number, firstname: string, lastname: string, organisation: string, position: string, created: any | null, placeholder: boolean | null };
 
 export type GetUsersQueryVariables = Exact<{
   filter?: InputMaybe<Scalars['String']>;
@@ -3781,7 +3781,7 @@ export type GetUsersQueryVariables = Exact<{
 }>;
 
 
-export type GetUsersQuery = { users: { totalCount: number, users: Array<{ id: number, firstname: string, lastname: string, organisation: string, position: string, created: any | null | undefined, placeholder: boolean | null | undefined }> } | null | undefined };
+export type GetUsersQuery = { users: { totalCount: number, users: Array<{ id: number, firstname: string, lastname: string, organisation: string, position: string, created: any | null, placeholder: boolean | null }> } | null };
 
 export const BasicUserDetailsFragmentDoc = gql`
     fragment basicUserDetails on BasicUserDetails {

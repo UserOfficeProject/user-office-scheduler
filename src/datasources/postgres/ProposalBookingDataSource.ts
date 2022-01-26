@@ -53,6 +53,17 @@ export default class PostgresProposalBookingDataSource
       : null;
   }
 
+  async delete(proposalPk: number): Promise<ProposalBooking | null> {
+    const [proposalBooking] = await database(this.tableName)
+      .where('proposal_pk', proposalPk)
+      .delete()
+      .returning<ProposalBookingRecord[]>(['*']);
+
+    return proposalBooking
+      ? createProposalBookingObject(proposalBooking)
+      : null;
+  }
+
   async getByProposalPk(
     proposalPk: number,
     filter?: ProposalProposalBookingFilter

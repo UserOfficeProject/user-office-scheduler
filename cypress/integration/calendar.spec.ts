@@ -5,6 +5,8 @@ import {
   getFormattedEndOfSelectedWeek,
   getFormattedDateAfter,
   getHourDateTimeAfter,
+  selectInstrument,
+  existingInstruments,
 } from '../utils';
 
 function clickOnEventSlot(slot: string) {
@@ -37,11 +39,7 @@ context('Calendar tests', () => {
   describe('Calendar navigation', () => {
     it('should save calendar state when navigating inside the app but not when reload and visit /calendar', () => {
       cy.finishedLoading();
-      cy.get('[data-cy=input-instrument-select]').click();
-
-      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-        .first()
-        .click();
+      selectInstrument();
       cy.finishedLoading();
       cy.get('[data-cy="scheduler-active-view"]').click();
       cy.get('[data-value="Timeline"]').click();
@@ -348,17 +346,11 @@ context('Calendar tests', () => {
       cy.createEvent({ input: newScheduledEvent2 });
       cy.finishedLoading();
 
-      cy.get('[data-cy=input-instrument-select]').click();
-      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-        .first()
-        .click();
+      selectInstrument(existingInstruments[2].name);
 
       cy.finishedLoading();
 
-      cy.get('[data-cy=input-instrument-select] input').click();
-      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-        .last()
-        .click();
+      selectInstrument(existingInstruments[0].name);
 
       cy.finishedLoading();
 
@@ -383,11 +375,7 @@ context('Calendar tests', () => {
 
     it('should create a new event with right input', () => {
       cy.finishedLoading();
-      cy.get('[data-cy=input-instrument-select]').click();
-
-      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-        .first()
-        .click();
+      selectInstrument();
 
       cy.finishedLoading();
 
@@ -430,11 +418,7 @@ context('Calendar tests', () => {
       };
       cy.createEvent({ input: newScheduledEvent });
       cy.finishedLoading();
-      cy.get('[data-cy=input-instrument-select]').click();
-
-      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-        .first()
-        .click();
+      selectInstrument();
 
       cy.finishedLoading();
 

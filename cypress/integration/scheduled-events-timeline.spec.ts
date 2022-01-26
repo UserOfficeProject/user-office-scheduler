@@ -5,6 +5,9 @@ import {
   defaultEventBookingHourDateTime,
   getHourDateTimeAfter,
   getFormattedDateAfter,
+  selectInstrument,
+  openProposalBookingFromRightToolbar,
+  existingInstruments,
 } from '../utils';
 
 context('Scheduled events timeline tests', () => {
@@ -66,21 +69,9 @@ context('Scheduled events timeline tests', () => {
 
     it('should be able to see scheduled events in timeline view when instrument is selected', () => {
       cy.finishedLoading();
-      cy.get('[data-cy=input-instrument-select]').click();
-
-      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-        .first()
-        .click();
-
+      selectInstrument();
       cy.finishedLoading();
-
-      cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
-
-      cy.get(
-        '#instrument-calls-tree-view [role=treeitem] [role=group] [role=treeitem]'
-      )
-        .first()
-        .click();
+      openProposalBookingFromRightToolbar();
 
       cy.get('[data-cy="add-new-timeslot"]').click();
 
@@ -114,12 +105,7 @@ context('Scheduled events timeline tests', () => {
       cy.createEvent({ input: newScheduledEvent2 });
       cy.finishedLoading();
 
-      cy.get('[data-cy=input-instrument-select]').click();
-
-      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-        .first()
-        .click();
-
+      selectInstrument();
       cy.finishedLoading();
 
       cy.get('[data-cy="scheduler-active-view"]').click();
@@ -142,12 +128,7 @@ context('Scheduled events timeline tests', () => {
       cy.createEvent({ input: newScheduledUserOperationsEvent });
       cy.finishedLoading();
 
-      cy.get('[data-cy=input-instrument-select]').click();
-
-      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-        .first()
-        .click();
-
+      selectInstrument();
       cy.finishedLoading();
 
       cy.get('[data-cy="scheduler-active-view"]').click();
@@ -269,12 +250,7 @@ context('Scheduled events timeline tests', () => {
       cy.createEvent({ input: newScheduledUserOperationsEvent });
       cy.finishedLoading();
 
-      cy.get('[data-cy=input-instrument-select]').click();
-
-      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-        .first()
-        .click();
-
+      selectInstrument();
       cy.finishedLoading();
 
       cy.get('[data-cy="scheduler-active-view"]').click();
@@ -314,12 +290,7 @@ context('Scheduled events timeline tests', () => {
       cy.initializeSession('UserOfficer');
       cy.finishedLoading();
 
-      cy.get('[data-cy=input-instrument-select]').click();
-
-      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-        .first()
-        .click();
-
+      selectInstrument();
       cy.finishedLoading();
 
       cy.get('[data-cy="scheduler-active-view"]').click();
@@ -353,30 +324,18 @@ context('Scheduled events timeline tests', () => {
 
       cy.finishedLoading();
 
-      cy.get('[data-cy=input-instrument-select]').click();
-
-      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-        .first()
-        .click();
-
+      selectInstrument(existingInstruments[0].name);
       cy.finishedLoading();
 
       cy.get('[data-cy="scheduler-active-view"]').click();
       cy.get('[data-value="Timeline"]').click();
 
-      cy.get('[data-cy="input-instrument-select"] input').click();
-
-      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-        .last()
-        .click();
-
+      selectInstrument(existingInstruments[1].name);
       cy.finishedLoading();
 
-      cy.get('[data-cy="input-instrument-select"] input').click();
+      selectInstrument(existingInstruments[2].name);
 
-      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-        .eq(1)
-        .click();
+      cy.finishedLoading();
 
       cy.get(
         '[data-cy="calendar-timeline-view"] [data-cy="item-group"]'
@@ -411,11 +370,7 @@ context('Scheduled events timeline tests', () => {
 
       cy.finishedLoading();
 
-      cy.get('[data-cy=input-instrument-select]').click();
-
-      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-        .first()
-        .click();
+      selectInstrument();
 
       cy.finishedLoading();
 

@@ -289,6 +289,7 @@ export default function CreateEditEquipment() {
                                       textField={{
                                         variant: 'standard',
                                         margin: 'normal',
+                                        'data-cy': 'maintenanceStartsAt',
                                       }}
                                       inputFormat={
                                         TZ_LESS_DATE_TIME_LOW_PREC_FORMAT
@@ -296,13 +297,13 @@ export default function CreateEditEquipment() {
                                       mask={TZ_LESS_DATE_TIME_LOW_PREC_MASK}
                                       ampm={false}
                                       minutesStep={60}
-                                      data-cy="maintenanceStartsAt"
                                     />
                                     <Field
                                       component={DateTimePicker}
                                       textField={{
                                         variant: 'standard',
                                         margin: 'normal',
+                                        'data-cy': 'maintenanceEndsAt',
                                       }}
                                       name="maintenanceEndsAt"
                                       label="Ends at"
@@ -312,7 +313,6 @@ export default function CreateEditEquipment() {
                                       mask={TZ_LESS_DATE_TIME_LOW_PREC_MASK}
                                       ampm={false}
                                       minutesStep={60}
-                                      data-cy="maintenanceEndsAt"
                                     />
                                   </LocalizationProvider>
                                 </FormControl>

@@ -189,13 +189,13 @@ function TimeSlotLostTimeTable({
                 margin="none"
                 size="small"
                 fullWidth
+                data-cy="startsAt"
               />
             )}
             mask={TZ_LESS_DATE_TIME_LOW_PREC_MASK}
             inputFormat={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
             ampm={false}
             minutesStep={60}
-            data-cy="startsAt"
             value={props.value}
             onChange={(value) => {
               handleSetDirty(true);
@@ -239,13 +239,13 @@ function TimeSlotLostTimeTable({
                 fullWidth
                 helperText={props.helperText}
                 error={props.error}
+                data-cy="endsAt"
               />
             )}
             mask={TZ_LESS_DATE_TIME_LOW_PREC_MASK}
             inputFormat={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
             ampm={false}
             minutesStep={60}
-            data-cy="endsAt"
             value={props.value}
             onChange={(value) => {
               handleSetDirty(true);

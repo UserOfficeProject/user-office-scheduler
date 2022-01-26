@@ -96,6 +96,7 @@ export default function ScheduledEventForm() {
             variant: 'standard',
             margin: 'normal',
             fullWidth: true,
+            'data-cy': 'startsAt',
           }}
           label="Starts at"
           mask={TZ_LESS_DATE_TIME_MASK}
@@ -103,7 +104,6 @@ export default function ScheduledEventForm() {
           ampm={false}
           minutesStep={60}
           fullWidth
-          data-cy="startsAt"
         />
         <Field
           component={DateTimePicker}
@@ -113,6 +113,7 @@ export default function ScheduledEventForm() {
             variant: 'standard',
             margin: 'normal',
             fullWidth: true,
+            'data-cy': 'endsAt',
           }}
           label="Ends at"
           mask={TZ_LESS_DATE_TIME_MASK}
@@ -120,7 +121,6 @@ export default function ScheduledEventForm() {
           ampm={false}
           minutesStep={60}
           fullWidth
-          data-cy="endsAt"
         />
       </LocalizationProvider>
       <Field

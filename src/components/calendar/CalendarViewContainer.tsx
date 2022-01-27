@@ -194,6 +194,7 @@ export const getArrayOfIdsFromQuery = (query: string | null) => {
 export default function CalendarViewContainer() {
   const isTabletOrMobile = useMediaQuery('(max-width: 1224px)');
   const isTabletOrLarger = useMediaQuery('(min-width: 648px)');
+  const isTablet = useMediaQuery('(min-width: 648px) and (max-width: 1224px)');
   const [showTodoBox, setShowTodoBox] = useState<boolean>(false);
   const classes = useStyles();
   const theme = useTheme();
@@ -751,7 +752,7 @@ export default function CalendarViewContainer() {
                 xs
                 className={`${classes.collapsibleGrid} ${
                   isTabletOrMobile && classes.collapsibleGridMobile
-                } ${isTabletOrLarger && classes.collapsibleGridTablet}
+                }  ${isTablet && classes.collapsibleGridTablet}
                 ${!showTodoBox && classes.collapsibleGridNoWidth}`}
               >
                 <Collapse in={showTodoBox} data-cy="collapsible-event-toolbar">

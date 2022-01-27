@@ -2,6 +2,12 @@ import moment, { DurationInputArg2, Moment } from 'moment';
 
 export const TZ_LESS_DATE_TIME_FORMAT = 'yyyy-MM-DD HH:mm:ss';
 
+export const existingInstruments = [
+  { name: 'Instrument 1' },
+  { name: 'Instrument 2' },
+  { name: 'Instrument 3' },
+];
+
 export const toTzLessDateTime = (dateTime: Moment | Date | string): string => {
   if (dateTime instanceof Date || typeof dateTime === 'string') {
     dateTime = moment(dateTime);
@@ -78,4 +84,30 @@ export const getFormattedEndOfSelectedWeek = (selectedWeek = 0) => {
   const format = areBeginningAndEndSameMonth ? 'DD' : 'MMMM DD';
 
   return endOfSelectedWeek.format(format);
+};
+
+export const selectInstrument = (instrument?: string) => {
+  cy.get('[data-cy=input-instrument-select] input').should('not.be.disabled');
+
+  cy.get('[data-cy=input-instrument-select] [title="Open"]').click();
+
+  if (instrument) {
+    cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
+      .contains(instrument)
+      .click();
+  } else {
+    cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
+      .first()
+      .click();
+  }
+};
+
+export const openProposalBookingFromRightToolbar = () => {
+  cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
+
+  cy.get(
+    '#instrument-calls-tree-view [role=treeitem] [role=group] [role=treeitem]'
+  )
+    .first()
+    .click();
 };

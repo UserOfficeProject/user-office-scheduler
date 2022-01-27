@@ -26,7 +26,6 @@ const createdUserOperationsEvent = {
 
 context('Equipment tests', () => {
   beforeEach(() => {
-    cy.viewport(1920, 1080);
     cy.resetDB(true);
     cy.resetSchedulerDB(true);
     cy.initializeSession('UserOfficer');
@@ -187,13 +186,12 @@ context('Equipment tests', () => {
       cy.get('[data-cy=underMaintenance]').click();
       cy.get('[data-cy=maintenanceTime-defined]').click();
 
-      cy.get('[data-cy=maintenanceStartsAt] input')
-        .should('not.have.attr', 'readonly')
-        .clear();
-      cy.get('[data-cy=maintenanceStartsAt] input').type(
+      cy.chooseDatePicker(
+        '[data-cy=maintenanceStartsAt]',
         getHourDateTimeAfter(-24)
       );
-      cy.get('[data-cy=maintenanceEndsAt] input').type(
+      cy.chooseDatePicker(
+        '[data-cy=maintenanceEndsAt]',
         getHourDateTimeAfter(48)
       );
 

@@ -949,8 +949,8 @@ context('Proposal booking tests ', () => {
           .first()
           .click();
 
-        cy.get('[data-cy="startsAt"] input').type(getHourDateTimeAfter(24));
-        cy.get('[data-cy="endsAt"] input').type(getHourDateTimeAfter(25));
+        cy.chooseDatePicker('[data-cy="startsAt"]', getHourDateTimeAfter(24));
+        cy.chooseDatePicker('[data-cy="endsAt"]', getHourDateTimeAfter(25));
 
         cy.get(
           '[data-cy="time-slot-lost-times-table"] tbody tr [aria-label="Save"]'
@@ -967,12 +967,8 @@ context('Proposal booking tests ', () => {
           .first()
           .click();
 
-        cy.get('[data-cy="startsAt"] input')
-          .clear()
-          .type(getHourDateTimeAfter(48));
-        cy.get('[data-cy="endsAt"] input')
-          .clear()
-          .type(getHourDateTimeAfter(49));
+        cy.chooseDatePicker('[data-cy="startsAt"]', getHourDateTimeAfter(48));
+        cy.chooseDatePicker('[data-cy="endsAt"]', getHourDateTimeAfter(49));
 
         cy.get(
           '[data-cy="time-slot-lost-times-table"] tbody tr [aria-label="Cancel"]'
@@ -1019,11 +1015,8 @@ context('Proposal booking tests ', () => {
           .first()
           .click();
 
-        cy.get('[data-cy="startsAt"] input').clear();
-        cy.get('[data-cy="endsAt"] input').clear();
-
-        cy.get('[data-cy="startsAt"] input').type(getHourDateTimeAfter(48));
-        cy.get('[data-cy="endsAt"] input').type(getHourDateTimeAfter(24));
+        cy.chooseDatePicker('[data-cy="startsAt"]', getHourDateTimeAfter(48));
+        cy.chooseDatePicker('[data-cy="endsAt"]', getHourDateTimeAfter(24));
 
         cy.get(
           '[data-cy="time-slot-lost-times-table"] tbody tr span[aria-label="Save"] button'
@@ -1050,11 +1043,9 @@ context('Proposal booking tests ', () => {
           .last()
           .click();
 
-        cy.get('[data-cy="startsAt"] input').clear();
-        cy.get('[data-cy="endsAt"] input').clear();
-
-        cy.get('[data-cy="startsAt"] input').type(getCurrentHourDateTime());
-        cy.get('[data-cy="endsAt"] input').type(
+        cy.chooseDatePicker('[data-cy="startsAt"]', getCurrentHourDateTime());
+        cy.chooseDatePicker(
+          '[data-cy="endsAt"]',
           getHourDateTimeAfter(1, 'hour', getCurrentHourDateTime())
         );
 

@@ -26,6 +26,7 @@ const createdUserOperationsEvent = {
 
 context('Equipment tests', () => {
   beforeEach(() => {
+    cy.viewport(1920, 1080);
     cy.resetDB(true);
     cy.resetSchedulerDB(true);
     cy.initializeSession('UserOfficer');

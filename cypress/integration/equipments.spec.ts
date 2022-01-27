@@ -186,9 +186,15 @@ context('Equipment tests', () => {
       cy.get('[data-cy=underMaintenance]').click();
       cy.get('[data-cy=maintenanceTime-defined]').click();
 
-      cy.get('[data-cy=maintenanceStartsAt] input').clear();
-      cy.get('[data-cy=maintenanceStartsAt]').type(getHourDateTimeAfter(-24));
-      cy.get('[data-cy=maintenanceEndsAt]').type(getHourDateTimeAfter(48));
+      cy.get('[data-cy=maintenanceStartsAt] input')
+        .should('not.have.attr', 'readonly')
+        .clear();
+      cy.get('[data-cy=maintenanceStartsAt] input').type(
+        getHourDateTimeAfter(-24)
+      );
+      cy.get('[data-cy=maintenanceEndsAt] input').type(
+        getHourDateTimeAfter(48)
+      );
 
       cy.get('[data-cy=btn-save-equipment]').click();
 

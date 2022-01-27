@@ -3496,6 +3496,11 @@ export type VisitsFilter = {
   scheduledEventId?: InputMaybe<Scalars['Int']>;
 };
 
+export type GetSettingsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetSettingsQuery = { settings: Array<{ id: SettingsId, settingsValue: string | null, description: string | null }> };
+
 export type PrepareDbMutationVariables = Exact<{
   includeSeeds: Scalars['Boolean'];
 }>;
@@ -3787,6 +3792,15 @@ export const BasicUserDetailsFragmentDoc = gql`
   position
   created
   placeholder
+}
+    `;
+export const GetSettingsDocument = gql`
+    query getSettings {
+  settings {
+    id
+    settingsValue
+    description
+  }
 }
     `;
 export const PrepareDbDocument = gql`
@@ -4453,6 +4467,9 @@ const defaultWrapper: SdkFunctionWrapper = (action, _operationName) => action();
 
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
+    getSettings(variables?: GetSettingsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetSettingsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetSettingsQuery>(GetSettingsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getSettings');
+    },
     prepareDB(variables: PrepareDbMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<PrepareDbMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<PrepareDbMutation>(PrepareDbDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'prepareDB');
     },

@@ -4,25 +4,12 @@ import {
 } from '../../src/generated/sdk';
 import {
   defaultEventBookingHourDateTime,
+  existingInstruments,
   getCurrentHourDateTime,
   getHourDateTimeAfter,
+  openProposalBookingFromRightToolbar,
+  selectInstrument,
 } from '../utils';
-
-const selectInstrumentAndClickOnProposalForBooking = () => {
-  cy.get('[data-cy=input-instrument-select]').click();
-
-  cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-    .first()
-    .click();
-
-  cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
-
-  cy.get(
-    '#instrument-calls-tree-view [role=treeitem] [role=group] [role=treeitem]'
-  )
-    .first()
-    .click();
-};
 
 context('Proposal booking tests ', () => {
   beforeEach(() => {
@@ -57,11 +44,7 @@ context('Proposal booking tests ', () => {
 
       cy.finishedLoading();
 
-      cy.get('[data-cy=input-instrument-select]').click();
-
-      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-        .first()
-        .click();
+      selectInstrument();
 
       cy.get('[data-cy=btn-new-event]').should('exist');
       cy.contains(/instrument has no calls/i);
@@ -77,11 +60,7 @@ context('Proposal booking tests ', () => {
 
       cy.finishedLoading();
 
-      cy.get('[data-cy=input-instrument-select]').click();
-
-      cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-        .first()
-        .click();
+      selectInstrument();
 
       cy.get('[data-cy=btn-new-event]').should('exist');
       cy.should('not.contain', /instrument has no calls/i);
@@ -99,11 +78,7 @@ context('Proposal booking tests ', () => {
 
       cy.finishedLoading();
 
-      cy.get('[data-cy=input-instrument-select]').click();
-
-      cy.get('[aria-labelledby=input-instrument-select-label]')
-        .contains('Instrument 3')
-        .click();
+      selectInstrument(existingInstruments[2].name);
 
       cy.get('[data-cy=btn-new-event]').should('exist');
       cy.contains(/instrument has no calls/i);
@@ -124,7 +99,8 @@ context('Proposal booking tests ', () => {
       });
       it('should be able to add new time slot', () => {
         cy.finishedLoading();
-        selectInstrumentAndClickOnProposalForBooking();
+        selectInstrument();
+        openProposalBookingFromRightToolbar();
 
         cy.contains('Proposal ID');
         cy.get('[data-cy="add-new-timeslot"]').click();
@@ -151,7 +127,8 @@ context('Proposal booking tests ', () => {
       it('should be able to edit time slot', () => {
         cy.createEvent({ input: createdUserOperationsEvent });
         cy.finishedLoading();
-        selectInstrumentAndClickOnProposalForBooking();
+        selectInstrument();
+        openProposalBookingFromRightToolbar();
 
         cy.finishedLoading();
 
@@ -211,11 +188,7 @@ context('Proposal booking tests ', () => {
         cy.createEvent({ input: createdUserOperationsEvent });
         cy.finishedLoading();
 
-        cy.get('[data-cy=input-instrument-select]').click();
-
-        cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-          .first()
-          .click();
+        selectInstrument();
 
         cy.finishedLoading();
 
@@ -247,11 +220,7 @@ context('Proposal booking tests ', () => {
 
       it('should be able to add new time slot by drag and drop to calendar', () => {
         cy.finishedLoading();
-        cy.get('[data-cy=input-instrument-select]').click();
-
-        cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-          .first()
-          .click();
+        selectInstrument();
         cy.finishedLoading();
         cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
 
@@ -288,11 +257,7 @@ context('Proposal booking tests ', () => {
       it('Draft events should have opacity', () => {
         cy.createEvent({ input: createdUserOperationsEvent });
         cy.finishedLoading();
-        cy.get('[data-cy=input-instrument-select]').click();
-
-        cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-          .first()
-          .click();
+        selectInstrument();
         cy.finishedLoading();
 
         // NOTE: Using fixed proposal name and shortcode because they are inserted inside the database using a seeder and always will be the same for the test cases.
@@ -308,7 +273,8 @@ context('Proposal booking tests ', () => {
       it('should see warning message if time slot is outside call cycle interval', () => {
         cy.createEvent({ input: createdUserOperationsEvent });
         cy.finishedLoading();
-        selectInstrumentAndClickOnProposalForBooking();
+        selectInstrument();
+        openProposalBookingFromRightToolbar();
         cy.get('[data-cy="some-event-outside-cycle-interval-warning"]').should(
           'not.exist'
         );
@@ -363,7 +329,8 @@ context('Proposal booking tests ', () => {
       it('should be able to add and edit local contact on the timeslot', () => {
         cy.createEvent({ input: createdUserOperationsEvent });
         cy.finishedLoading();
-        selectInstrumentAndClickOnProposalForBooking();
+        selectInstrument();
+        openProposalBookingFromRightToolbar();
         cy.finishedLoading();
 
         cy.get('[data-cy="local-contact-details"]').should(
@@ -408,7 +375,10 @@ context('Proposal booking tests ', () => {
         });
         cy.finishedLoading();
 
-        cy.get('[data-cy="input-local-contact-select"]').click();
+        cy.get('[data-cy="input-local-contact-select"] input').should(
+          'not.be.disabled'
+        );
+        cy.get('[data-cy="input-local-contact-select"] [title="Open"]').click();
         cy.get(
           '[aria-labelledby=input-local-contact-select-label] [role=option]'
         )
@@ -449,11 +419,7 @@ context('Proposal booking tests ', () => {
       it('should be able to open time slot by clicking on the calendar event', () => {
         cy.createEvent({ input: createdUserOperationsEvent });
         cy.finishedLoading();
-        cy.get('[data-cy=input-instrument-select]').click();
-
-        cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-          .first()
-          .click();
+        selectInstrument();
         cy.finishedLoading();
 
         cy.get('.rbc-time-content .rbc-event')
@@ -484,7 +450,8 @@ context('Proposal booking tests ', () => {
 
         cy.finishedLoading();
 
-        selectInstrumentAndClickOnProposalForBooking();
+        selectInstrument();
+        openProposalBookingFromRightToolbar();
 
         cy.finishedLoading();
 
@@ -497,7 +464,8 @@ context('Proposal booking tests ', () => {
         cy.createEvent({ input: createdUserOperationsEvent });
         cy.finishedLoading();
 
-        selectInstrumentAndClickOnProposalForBooking();
+        selectInstrument();
+        openProposalBookingFromRightToolbar();
 
         cy.finishedLoading();
         cy.get('[data-cy="btn-delete"]').click();
@@ -515,7 +483,8 @@ context('Proposal booking tests ', () => {
 
       it('should show warning when `startsAt` is after `endsAt`', () => {
         cy.finishedLoading();
-        selectInstrumentAndClickOnProposalForBooking();
+        selectInstrument();
+        openProposalBookingFromRightToolbar();
         cy.finishedLoading();
         cy.get('[data-cy="add-new-timeslot"]').click();
         cy.finishedLoading();
@@ -556,7 +525,8 @@ context('Proposal booking tests ', () => {
       it('should show confirmation when there are overlapping events', () => {
         cy.createEvent({ input: createdUserOperationsEvent });
         cy.finishedLoading();
-        selectInstrumentAndClickOnProposalForBooking();
+        selectInstrument();
+        openProposalBookingFromRightToolbar();
         cy.finishedLoading();
         cy.get('[data-cy="add-new-timeslot"]').click();
         cy.finishedLoading();
@@ -592,7 +562,8 @@ context('Proposal booking tests ', () => {
       it('should be able to assign available equipments to time slot and show warning if some equipments are not accepted', () => {
         cy.createEvent({ input: createdUserOperationsEvent });
         cy.finishedLoading();
-        selectInstrumentAndClickOnProposalForBooking();
+        selectInstrument();
+        openProposalBookingFromRightToolbar();
         cy.finishedLoading();
         cy.get('[data-cy="time-slot-booked-equipments-table"]').contains(
           /no records to display/i
@@ -697,7 +668,8 @@ context('Proposal booking tests ', () => {
 
       it('should not show already assigned equipments', () => {
         cy.finishedLoading();
-        selectInstrumentAndClickOnProposalForBooking();
+        selectInstrument();
+        openProposalBookingFromRightToolbar();
         cy.finishedLoading();
         cy.get('[data-cy=btn-book-equipment]').click();
 
@@ -706,7 +678,8 @@ context('Proposal booking tests ', () => {
 
       it('should show the assignment status', () => {
         cy.finishedLoading();
-        selectInstrumentAndClickOnProposalForBooking();
+        selectInstrument();
+        openProposalBookingFromRightToolbar();
         cy.finishedLoading();
         cy.contains(/Available equipment 1 - no auto accept/i)
           .parent()
@@ -719,7 +692,9 @@ context('Proposal booking tests ', () => {
       it('should show available equipments that are booked by proposals that instrument scientist is part of even if he/she is not equipment owner or responsible', () => {
         cy.finishedLoading();
 
-        cy.get('[data-cy="input-equipment-select"]').click();
+        cy.get('[data-cy="input-equipment-select"] input')
+          .should('not.be.disabled')
+          .click();
 
         cy.get('[role="presentation"]').contains(
           /Available equipment 1 - no auto accept/i
@@ -739,7 +714,9 @@ context('Proposal booking tests ', () => {
 
       it('should be able to open time slot by clicking on the calendar equipment event', () => {
         cy.finishedLoading();
-        cy.get('[data-cy="input-equipment-select"]').click();
+        cy.get('[data-cy="input-equipment-select"] input')
+          .should('not.be.disabled')
+          .click();
         cy.get('[role="presentation"]')
           .contains('Available equipment 2 - auto accept')
           .click();
@@ -821,7 +798,8 @@ context('Proposal booking tests ', () => {
 
       it('should be able to remove assigned equipment', () => {
         cy.finishedLoading();
-        selectInstrumentAndClickOnProposalForBooking();
+        selectInstrument();
+        openProposalBookingFromRightToolbar();
         cy.finishedLoading();
 
         cy.contains(/Available equipment 1 - no auto accept/i)
@@ -873,7 +851,8 @@ context('Proposal booking tests ', () => {
         });
         cy.createEvent({ input: createdUserOperationsEvent });
         cy.finishedLoading();
-        selectInstrumentAndClickOnProposalForBooking();
+        selectInstrument();
+        openProposalBookingFromRightToolbar();
         cy.finishedLoading();
         cy.get('[data-cy="activate-time-slot-booking"]').click();
 
@@ -909,7 +888,8 @@ context('Proposal booking tests ', () => {
 
       it('should be able to log lost time', () => {
         cy.finishedLoading();
-        selectInstrumentAndClickOnProposalForBooking();
+        selectInstrument();
+        openProposalBookingFromRightToolbar();
         cy.finishedLoading();
         cy.get('[data-cy=btn-add-lost-time]').click();
 
@@ -923,7 +903,8 @@ context('Proposal booking tests ', () => {
 
       it('should be able to restart time slot booking process', () => {
         cy.finishedLoading();
-        selectInstrumentAndClickOnProposalForBooking();
+        selectInstrument();
+        openProposalBookingFromRightToolbar();
         cy.finishedLoading();
 
         cy.get('[aria-label=proposal-booking-finalization-strategy]').click();
@@ -945,7 +926,8 @@ context('Proposal booking tests ', () => {
 
       it('should be able to edit lost time', () => {
         cy.finishedLoading();
-        selectInstrumentAndClickOnProposalForBooking();
+        selectInstrument();
+        openProposalBookingFromRightToolbar();
         cy.finishedLoading();
 
         cy.get('[data-cy=btn-add-lost-time]').click();
@@ -992,7 +974,8 @@ context('Proposal booking tests ', () => {
 
       it('should be able to delete lost time', () => {
         cy.finishedLoading();
-        selectInstrumentAndClickOnProposalForBooking();
+        selectInstrument();
+        openProposalBookingFromRightToolbar();
         cy.finishedLoading();
         cy.get('[data-cy=btn-add-lost-time]').click();
         cy.get(
@@ -1010,7 +993,8 @@ context('Proposal booking tests ', () => {
 
       it('should show error when `startsAt` is after `endsAt`', () => {
         cy.finishedLoading();
-        selectInstrumentAndClickOnProposalForBooking();
+        selectInstrument();
+        openProposalBookingFromRightToolbar();
         cy.finishedLoading();
 
         cy.get('[data-cy="btn-add-lost-time"]').click();
@@ -1037,7 +1021,8 @@ context('Proposal booking tests ', () => {
 
       it('should show confirmation when there are overlapping lost time events', () => {
         cy.finishedLoading();
-        selectInstrumentAndClickOnProposalForBooking();
+        selectInstrument();
+        openProposalBookingFromRightToolbar();
         cy.finishedLoading();
         cy.get('[data-cy=btn-add-lost-time]').click();
         cy.finishedLoading();
@@ -1069,7 +1054,8 @@ context('Proposal booking tests ', () => {
 
       it('should be able to complete the time slot booking process', () => {
         cy.finishedLoading();
-        selectInstrumentAndClickOnProposalForBooking();
+        selectInstrument();
+        openProposalBookingFromRightToolbar();
         cy.finishedLoading();
 
         cy.contains(/complete the time slot booking/i).as(
@@ -1105,11 +1091,7 @@ context('Proposal booking tests ', () => {
         });
         cy.finishedLoading();
 
-        cy.get('[data-cy=input-instrument-select]').click();
-
-        cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-          .first()
-          .click();
+        selectInstrument();
         cy.finishedLoading();
         cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
 
@@ -1161,18 +1143,8 @@ context('Proposal booking tests ', () => {
         });
 
         cy.finishedLoading();
-        cy.get('[data-cy=input-instrument-select]').click();
-
-        cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-          .first()
-          .click();
-        cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
-
-        cy.get(
-          '#instrument-calls-tree-view [role=treeitem] [role=group] [role=treeitem]'
-        )
-          .first()
-          .click();
+        selectInstrument();
+        openProposalBookingFromRightToolbar();
 
         cy.get('#vertical-tab-0').click();
 
@@ -1196,18 +1168,8 @@ context('Proposal booking tests ', () => {
         });
 
         cy.finishedLoading();
-        cy.get('[data-cy=input-instrument-select]').click();
-
-        cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')
-          .last()
-          .click();
-        cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
-
-        cy.get(
-          '#instrument-calls-tree-view [role=treeitem] [role=group] [role=treeitem]'
-        )
-          .first()
-          .click();
+        selectInstrument(existingInstruments[0].name);
+        openProposalBookingFromRightToolbar();
 
         cy.get('#vertical-tab-0').click();
 

@@ -9,7 +9,7 @@ import {
   Edit,
 } from '@mui/icons-material';
 import AdapterMoment from '@mui/lab/AdapterMoment';
-import { DateRange } from '@mui/lab/DateRangePicker';
+import DateRangePicker, { DateRange } from '@mui/lab/DateRangePicker';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import {
   Alert,
@@ -26,9 +26,9 @@ import {
 } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import moment, { Moment } from 'moment';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-import DateTimeRangePicker from 'components/common/DateTimeRangePicker';
+import DateTimeRangePickerRenderInput from 'components/common/DateTimeRangePickerRenderInput';
 import PeopleModal from 'components/common/PeopleModal';
 import {
   BasicUserDetails,
@@ -108,10 +108,23 @@ export default function TimeSlotDetails({
   handleSetDirty,
 }: TimeSlotDetailsProps) {
   const [editingDate, setEditingDate] = useState(false);
+  const [shouldOpenRangePicker, setShouldOpenRangePicker] =
+    useState<boolean>(false);
   const [showPeopleModal, setShowPeopleModal] = useState(false);
   const [[startsAt, endsAt], setStartAndEndValues] = React.useState<
     DateRange<Moment>
   >([moment(scheduledEvent.startsAt), moment(scheduledEvent.endsAt)]);
+
+  useEffect(() => {
+    if (editingDate) {
+      // NOTE: This timeout is needed to open the range picker at the right position. Otherwise it is opened on the top left corner of the browser window.
+      setTimeout(() => {
+        setShouldOpenRangePicker(true);
+      });
+    } else {
+      setShouldOpenRangePicker(false);
+    }
+  }, [editingDate]);
 
   const isStepReadOnly =
     scheduledEvent.status === ProposalBookingStatusCore.COMPLETED;
@@ -174,6 +187,18 @@ export default function TimeSlotDetails({
         ...proposalBooking.instrument.scientists,
       ]
     : [];
+
+  const onChangeHandler = ([newStartValue, newEndValue]: DateRange<Moment>) => {
+    if (newStartValue && newStartValue.hour() === 0) {
+      newStartValue.set({ hour: 9 });
+    }
+
+    if (newEndValue && newEndValue.hour() === 0) {
+      newEndValue.set({ hour: 9 });
+    }
+
+    setStartAndEndValues([newStartValue, newEndValue]);
+  };
 
   return (
     <>
@@ -252,24 +277,26 @@ export default function TimeSlotDetails({
                 )}
                 {editingDate && (
                   <>
-                    <DateTimeRangePicker
+                    <DateRangePicker
                       label="Experiment time start and end"
-                      data-cy="experiment-time-range"
                       value={[startsAt, endsAt]}
-                      startText="Starts at"
-                      endText="Ends at"
-                      onChange={([newStartValue, newEndValue]) => {
-                        if (newStartValue && newStartValue.hour() === 0) {
-                          newStartValue.set({ hour: 9 });
-                        }
-
-                        if (newEndValue && newEndValue.hour() === 0) {
-                          newEndValue.set({ hour: 9 });
-                        }
-
-                        setStartAndEndValues([newStartValue, newEndValue]);
-                      }}
-                      betweenDatesText="-"
+                      open={shouldOpenRangePicker}
+                      onOpen={() => setShouldOpenRangePicker(true)}
+                      onClose={() => setShouldOpenRangePicker(false)}
+                      disableCloseOnSelect={true}
+                      renderInput={(startProps, endProps) =>
+                        DateTimeRangePickerRenderInput({
+                          startProps,
+                          endProps,
+                          value: [startsAt, endsAt],
+                          betweenDatesText: '-',
+                          startText: 'Starts at',
+                          endText: 'Ends at',
+                          onChange: onChangeHandler,
+                          'data-cy': 'experiment-time-range',
+                        })
+                      }
+                      onChange={onChangeHandler}
                     />
                     <IconButton
                       sx={{ ml: 2 }}

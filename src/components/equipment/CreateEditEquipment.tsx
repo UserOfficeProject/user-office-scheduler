@@ -21,13 +21,13 @@ import {
 import { equipmentValidationSchema } from '@user-office-software/duo-validation';
 import { Formik, Form, Field } from 'formik';
 import { TextField, CheckboxWithLabel } from 'formik-mui';
-import { DateTimePicker } from 'formik-mui-lab';
 import moment, { Moment } from 'moment';
 import { useSnackbar } from 'notistack';
 import React, { useState, useEffect } from 'react';
 import { useParams, useHistory, generatePath } from 'react-router';
 
 import FormikColorPicker from 'components/common/FormikColorPicker';
+import FormikDateTimeRangePicker from 'components/common/FormikDateTimeRangePicker';
 import Loader from 'components/common/Loader';
 import { PATH_VIEW_EQUIPMENT } from 'components/paths';
 import { Equipment, EquipmentInput } from 'generated/sdk';
@@ -87,20 +87,21 @@ export default function CreateEditEquipment() {
     ? {
         name: equipment.name,
         description: equipment.description || '',
-        maintenanceStartsAt: equipment.maintenanceStartsAt
-          ? parseTzLessDateTime(equipment.maintenanceStartsAt)
-          : null,
-        maintenanceEndsAt: equipment.maintenanceEndsAt
-          ? parseTzLessDateTime(equipment.maintenanceEndsAt)
-          : null,
+        maintenanceStartsEndsAt: [
+          equipment.maintenanceStartsAt
+            ? parseTzLessDateTime(equipment.maintenanceStartsAt)
+            : null,
+          equipment.maintenanceEndsAt
+            ? parseTzLessDateTime(equipment.maintenanceEndsAt)
+            : null,
+        ],
         autoAccept: equipment.autoAccept,
         color: equipment.color || '#7cb5ec',
       }
     : {
         name: '',
         description: '',
-        maintenanceStartsAt: null,
-        maintenanceEndsAt: null,
+        maintenanceStartsEndsAt: [moment(), moment()],
         autoAccept: false,
         color: '#7cb5ec',
       };
@@ -114,15 +115,21 @@ export default function CreateEditEquipment() {
               initialValues={initialValues}
               validationSchema={equipmentValidationSchema}
               onSubmit={async (values, helper): Promise<void> => {
+                const [maintenanceStartsAt, maintenanceEndsAt] =
+                  values.maintenanceStartsEndsAt;
+
                 if (underMaintenance && indefiniteMaintenance === '0') {
-                  if (
-                    !values.maintenanceStartsAt ||
-                    !values.maintenanceEndsAt
-                  ) {
-                    !values.maintenanceStartsAt &&
-                      helper.setFieldError('maintenanceStartsAt', 'Required');
-                    !values.maintenanceEndsAt &&
-                      helper.setFieldError('maintenanceEndsAt', 'Required');
+                  if (!maintenanceStartsAt || !maintenanceEndsAt) {
+                    !maintenanceStartsAt &&
+                      helper.setFieldError(
+                        'maintenanceStartsEndsAt',
+                        'Required'
+                      );
+                    !maintenanceEndsAt &&
+                      helper.setFieldError(
+                        'maintenanceStartsEndsAt',
+                        'Required'
+                      );
 
                     return;
                   }
@@ -149,10 +156,10 @@ export default function CreateEditEquipment() {
                   input.maintenanceEndsAt = null;
                 } else {
                   input.maintenanceStartsAt = toTzLessDateTime(
-                    values.maintenanceStartsAt as Moment
+                    maintenanceStartsAt as Moment
                   );
                   input.maintenanceEndsAt = toTzLessDateTime(
-                    values.maintenanceEndsAt as Moment
+                    maintenanceEndsAt as Moment
                   );
                 }
 
@@ -282,30 +289,18 @@ export default function CreateEditEquipment() {
                                     dateAdapter={AdapterMoment}
                                   >
                                     <Field
-                                      component={DateTimePicker}
-                                      name="maintenanceStartsAt"
+                                      component={FormikDateTimeRangePicker}
+                                      orientation="portrait"
+                                      name="maintenanceStartsEndsAt"
+                                      startText="Starts at"
+                                      helperText="test test"
+                                      endText="Ends at"
                                       label="Starts at"
                                       textField={{
                                         variant: 'standard',
                                         margin: 'normal',
-                                        'data-cy': 'maintenanceStartsAt',
+                                        'data-cy': 'maintenanceStartsEndsAt',
                                       }}
-                                      inputFormat={
-                                        TZ_LESS_DATE_TIME_LOW_PREC_FORMAT
-                                      }
-                                      mask={TZ_LESS_DATE_TIME_LOW_PREC_MASK}
-                                      ampm={false}
-                                      minutesStep={60}
-                                    />
-                                    <Field
-                                      component={DateTimePicker}
-                                      textField={{
-                                        variant: 'standard',
-                                        margin: 'normal',
-                                        'data-cy': 'maintenanceEndsAt',
-                                      }}
-                                      name="maintenanceEndsAt"
-                                      label="Ends at"
                                       inputFormat={
                                         TZ_LESS_DATE_TIME_LOW_PREC_FORMAT
                                       }

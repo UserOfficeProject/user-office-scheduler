@@ -78,6 +78,7 @@ export function fieldToDateTimePicker({
         showError,
         fieldError,
         textField,
+        'data-cy': props['data-cy'],
       }),
     disabled: disabled ?? isSubmitting,
     onChange: onChange ?? onChangeHandler,

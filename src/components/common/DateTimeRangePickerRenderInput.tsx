@@ -83,6 +83,7 @@ const DateTimeRangePickerRenderInput = ({
             placeholder={startText?.toString()}
             label={startText}
             onTouchEnd={(e) => {
+              // TODO: Find better solution for this event type conversion instead using any. Preventing the touch event so the mobile range picker works the same as desktop.
               if ((e.target as any).id === 'start') {
                 e.preventDefault();
                 endProps.inputProps?.onClick?.(e as any);
@@ -137,7 +138,7 @@ const DateTimeRangePickerRenderInput = ({
             onFocus={endProps.inputProps?.onFocus}
             variant="standard"
             fullWidth
-            // TODO: Find better solution for this event type conversion. Preventing the touch event so the range picker works the same as desktop.
+            // TODO: Find better solution for this event type conversion. Preventing the touch event so the mobile range picker works the same as desktop.
             onTouchEnd={(e) => {
               if ((e.target as any).id === 'end') {
                 e.preventDefault();

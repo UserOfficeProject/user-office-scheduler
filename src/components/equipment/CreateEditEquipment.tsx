@@ -296,10 +296,10 @@ export default function CreateEditEquipment() {
                                       helperText="test test"
                                       endText="Ends at"
                                       label="Starts at"
+                                      data-cy="equipment-maintanance-time-range"
                                       textField={{
                                         variant: 'standard',
                                         margin: 'normal',
-                                        'data-cy': 'maintenanceStartsEndsAt',
                                       }}
                                       inputFormat={
                                         TZ_LESS_DATE_TIME_LOW_PREC_FORMAT

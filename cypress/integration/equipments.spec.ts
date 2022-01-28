@@ -186,14 +186,12 @@ context('Equipment tests', () => {
       cy.get('[data-cy=underMaintenance]').click();
       cy.get('[data-cy=maintenanceTime-defined]').click();
 
-      cy.chooseDatePicker(
-        '[data-cy=maintenanceStartsAt]',
-        getHourDateTimeAfter(-24)
-      );
-      cy.chooseDatePicker(
-        '[data-cy=maintenanceEndsAt]',
-        getHourDateTimeAfter(48)
-      );
+      cy.get('[data-cy="start-equipment-maintanance-time-range"] input')
+        .clear()
+        .type(getHourDateTimeAfter(-24));
+      cy.get('[data-cy="end-equipment-maintanance-time-range"] input')
+        .clear()
+        .type(getHourDateTimeAfter(48));
 
       cy.get('[data-cy=btn-save-equipment]').click();
 

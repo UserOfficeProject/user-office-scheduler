@@ -6,7 +6,13 @@ import { Add as AddIcon } from '@mui/icons-material';
 import AdapterMoment from '@mui/lab/AdapterMoment';
 import DateTimePicker from '@mui/lab/DateTimePicker';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
-import { Button, CircularProgress, TextField, Typography } from '@mui/material';
+import {
+  Button,
+  CircularProgress,
+  TextField,
+  Typography,
+  useTheme,
+} from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import {
   getTranslation,
@@ -61,6 +67,7 @@ function TimeSlotLostTimeTable({
   const isStepReadOnly =
     scheduledEvent.status === ProposalBookingStatusCore.COMPLETED;
 
+  const theme = useTheme();
   const classes = useStyles();
   const api = useDataApi();
   const { enqueueSnackbar } = useSnackbar();
@@ -181,6 +188,7 @@ function TimeSlotLostTimeTable({
         <LocalizationProvider dateAdapter={AdapterMoment}>
           <DateTimePicker
             label="Starts at"
+            desktopModeMediaQuery={theme.breakpoints.up('sm')}
             renderInput={(props) => (
               <TextField
                 {...props}
@@ -229,6 +237,7 @@ function TimeSlotLostTimeTable({
         <LocalizationProvider dateAdapter={AdapterMoment}>
           <DateTimePicker
             label="Ends at"
+            desktopModeMediaQuery={theme.breakpoints.up('sm')}
             renderInput={(inputProps) => (
               <TextField
                 {...inputProps}

@@ -158,4 +158,5 @@ Cypress.Commands.add(
   assignEquipmentToScheduledEvent
 );
 
+// NOTE: Adding this command because of: https://github.com/cypress-io/cypress/issues/970#issuecomment-969971419
 Cypress.Commands.add('chooseDatePicker', chooseDatePicker);

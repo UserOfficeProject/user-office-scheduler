@@ -13,6 +13,7 @@ import {
   Button,
   CircularProgress,
   Box,
+  useTheme,
 } from '@mui/material';
 import {
   getTranslation,
@@ -43,6 +44,7 @@ import {
 
 export default function CreateEditEquipment() {
   const history = useHistory();
+  const theme = useTheme();
   const { enqueueSnackbar } = useSnackbar();
   const { id } = useParams<{ id?: string }>();
   const [underMaintenance, setUnderMaintenance] = useState(false);
@@ -290,6 +292,9 @@ export default function CreateEditEquipment() {
                                   >
                                     <Field
                                       component={FormikDateTimeRangePicker}
+                                      desktopModeMediaQuery={theme.breakpoints.up(
+                                        'sm'
+                                      )}
                                       orientation="portrait"
                                       name="maintenanceStartsEndsAt"
                                       startText="Starts at"

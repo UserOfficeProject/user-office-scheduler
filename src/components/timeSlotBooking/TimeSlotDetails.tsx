@@ -23,6 +23,7 @@ import {
   ListItemAvatar,
   ListItemText,
   Typography,
+  useTheme,
 } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import moment, { Moment } from 'moment';
@@ -107,6 +108,7 @@ export default function TimeSlotDetails({
   isDirty,
   handleSetDirty,
 }: TimeSlotDetailsProps) {
+  const theme = useTheme();
   const [editingDate, setEditingDate] = useState(false);
   const [shouldOpenRangePicker, setShouldOpenRangePicker] =
     useState<boolean>(false);
@@ -279,6 +281,8 @@ export default function TimeSlotDetails({
                   <>
                     <DateRangePicker
                       label="Experiment time start and end"
+                      // NOTE: Using this desktopModeMediaQuery because of cypress issue: https://github.com/cypress-io/cypress/issues/970#issuecomment-969971419
+                      desktopModeMediaQuery={theme.breakpoints.up('sm')}
                       value={[startsAt, endsAt]}
                       open={shouldOpenRangePicker}
                       onOpen={() => setShouldOpenRangePicker(true)}

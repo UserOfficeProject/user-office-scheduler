@@ -81,12 +81,17 @@ const DateTimeRangePickerRenderInput = ({
             }
             onFocus={startProps.inputProps?.onFocus}
             placeholder={startText?.toString()}
+            onClick={(e) => {
+              e.target;
+            }}
             label={startText}
             onTouchEnd={(e) => {
-              // TODO: Find better solution for this event type conversion instead using any. Preventing the touch event so the mobile range picker works the same as desktop.
-              if ((e.target as any).id === 'start') {
+              // NOTE: Preventing the touch event so, when clicking the time icon in mobile view, the clock is opened and not the range picker.
+              if ((e.target as HTMLInputElement).id === 'start') {
                 e.preventDefault();
-                endProps.inputProps?.onClick?.(e as any);
+                endProps.inputProps?.onClick?.(
+                  e as unknown as React.MouseEvent<HTMLInputElement, MouseEvent>
+                );
               }
             }}
             variant="standard"
@@ -138,11 +143,13 @@ const DateTimeRangePickerRenderInput = ({
             onFocus={endProps.inputProps?.onFocus}
             variant="standard"
             fullWidth
-            // TODO: Find better solution for this event type conversion. Preventing the touch event so the mobile range picker works the same as desktop.
+            // NOTE: Preventing the touch event so, when clicking the time icon in mobile view, the clock is opened and not the range picker.
             onTouchEnd={(e) => {
-              if ((e.target as any).id === 'end') {
+              if ((e.target as HTMLInputElement).id === 'end') {
                 e.preventDefault();
-                endProps.inputProps?.onClick?.(e as any);
+                endProps.inputProps?.onClick?.(
+                  e as unknown as React.MouseEvent<HTMLInputElement, MouseEvent>
+                );
               }
             }}
             label={endText}

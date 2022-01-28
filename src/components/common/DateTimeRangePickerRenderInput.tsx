@@ -81,9 +81,6 @@ const DateTimeRangePickerRenderInput = ({
             }
             onFocus={startProps.inputProps?.onFocus}
             placeholder={startText?.toString()}
-            onClick={(e) => {
-              e.target;
-            }}
             label={startText}
             onTouchEnd={(e) => {
               /* 

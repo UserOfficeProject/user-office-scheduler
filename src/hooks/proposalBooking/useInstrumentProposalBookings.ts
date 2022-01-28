@@ -81,5 +81,6 @@ export default function useInstrumentProposalBookings(instrumentIds: number[]) {
     loading,
     proposalBookings,
     refresh,
+    setProposalBookings,
   } as const;
 }

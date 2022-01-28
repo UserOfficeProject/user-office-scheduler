@@ -185,12 +185,19 @@ context('Proposal booking tests ', () => {
       });
 
       it('Should be able to edit time slot by resizing on the calendar', () => {
+        let rightToolbarText: string;
         cy.createEvent({ input: createdUserOperationsEvent });
         cy.finishedLoading();
 
         selectInstrument();
 
         cy.finishedLoading();
+
+        cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
+
+        cy.get('#instrument-calls-tree-view').then((element) => {
+          rightToolbarText = element.text();
+        });
 
         // Get the event from the calendar
         cy.get('.rbc-time-content .rbc-event').last().as('scheduledEvent');
@@ -216,6 +223,10 @@ context('Proposal booking tests ', () => {
         cy.finishedLoading();
 
         cy.get('#notistack-snackbar').contains(/scheduled event updated/i);
+
+        cy.get('#instrument-calls-tree-view').then((element) => {
+          expect(element.text()).not.to.be.eq(rightToolbarText);
+        });
       });
 
       it('should be able to add new time slot by drag and drop to calendar', () => {

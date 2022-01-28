@@ -86,7 +86,11 @@ const DateTimeRangePickerRenderInput = ({
             }}
             label={startText}
             onTouchEnd={(e) => {
-              // NOTE: Preventing the touch event so, when clicking the time icon in mobile view, the clock is opened and not the range picker.
+              /* 
+                NOTE: When using DesktopDateTimePicker on mobile views we need to prevent the regular touch event and call click event
+                so when touching the field it opens the date range picker instead of nothing.
+                If we use normal DateTimePicker it doesnt open range picker on mobile but normal date time picker
+              **/
               if ((e.target as HTMLInputElement).id === 'start') {
                 e.preventDefault();
                 endProps.inputProps?.onClick?.(
@@ -143,8 +147,12 @@ const DateTimeRangePickerRenderInput = ({
             onFocus={endProps.inputProps?.onFocus}
             variant="standard"
             fullWidth
-            // NOTE: Preventing the touch event so, when clicking the time icon in mobile view, the clock is opened and not the range picker.
             onTouchEnd={(e) => {
+              /* 
+                NOTE: When using DesktopDateTimePicker on mobile views we need to prevent the regular touch event and call click event
+                so when touching the field it opens the date range picker instead of nothing.
+                If we use normal DateTimePicker it doesnt open range picker on mobile but normal date time picker
+              **/
               if ((e.target as HTMLInputElement).id === 'end') {
                 e.preventDefault();
                 endProps.inputProps?.onClick?.(

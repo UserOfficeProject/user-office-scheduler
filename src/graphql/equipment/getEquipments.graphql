@@ -9,5 +9,9 @@ query getEquipments {
     maintenanceStartsAt
     maintenanceEndsAt
     autoAccept
+    equipmentInstruments {
+      id
+      name
+    }
   }
 }

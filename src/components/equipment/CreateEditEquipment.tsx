@@ -14,6 +14,7 @@ import {
   CircularProgress,
   Box,
   useTheme,
+  TextField as MuiTextField,
 } from '@mui/material';
 import {
   getTranslation,
@@ -21,7 +22,7 @@ import {
 } from '@user-office-software/duo-localisation';
 import { equipmentValidationSchema } from '@user-office-software/duo-validation';
 import { Formik, Form, Field } from 'formik';
-import { TextField, CheckboxWithLabel } from 'formik-mui';
+import { TextField, CheckboxWithLabel, Autocomplete } from 'formik-mui';
 import moment, { Moment } from 'moment';
 import { useSnackbar } from 'notistack';
 import React, { useState, useEffect } from 'react';
@@ -34,6 +35,9 @@ import { PATH_VIEW_EQUIPMENT } from 'components/paths';
 import { Equipment, EquipmentInput } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import useEquipment from 'hooks/equipment/useEquipment';
+import useUserInstruments, {
+  PartialInstrument,
+} from 'hooks/instrument/useUserInstruments';
 import { StyledContainer, StyledPaper } from 'styles/StyledComponents';
 import {
   toTzLessDateTime,
@@ -49,6 +53,7 @@ export default function CreateEditEquipment() {
   const { id } = useParams<{ id?: string }>();
   const [underMaintenance, setUnderMaintenance] = useState(false);
   const [indefiniteMaintenance, setIndefiniteMaintenance] = useState('1');
+  const { instruments, loading: loadingInstruments } = useUserInstruments();
 
   const api = useDataApi();
   const { loading, equipment } = useEquipment(parseInt(id ?? '0'));
@@ -89,6 +94,7 @@ export default function CreateEditEquipment() {
     ? {
         name: equipment.name,
         description: equipment.description || '',
+        instruments: equipment.equipmentInstruments,
         maintenanceStartsEndsAt: [
           equipment.maintenanceStartsAt
             ? parseTzLessDateTime(equipment.maintenanceStartsAt)
@@ -103,6 +109,7 @@ export default function CreateEditEquipment() {
     : {
         name: '',
         description: '',
+        instruments: [],
         maintenanceStartsEndsAt: [moment(), moment()],
         autoAccept: false,
         color: '#7cb5ec',
@@ -112,7 +119,7 @@ export default function CreateEditEquipment() {
     <StyledContainer maxWidth={false}>
       <Grid container>
         <Grid item xs={12}>
-          <StyledPaper sx={{ margin: [0, 1] }}>
+          <StyledPaper margin={[0, 1]}>
             <Formik
               initialValues={initialValues}
               validationSchema={equipmentValidationSchema}
@@ -141,6 +148,9 @@ export default function CreateEditEquipment() {
                   autoAccept: values.autoAccept,
                   name: values.name,
                   description: values.description || '',
+                  instrumentIds: values.instruments.map(
+                    (instrument) => instrument.id
+                  ),
                   maintenanceStartsAt: null,
                   maintenanceEndsAt: null,
                   color: values.color,
@@ -217,6 +227,34 @@ export default function CreateEditEquipment() {
                       minRows="3"
                       maxRows="16"
                       data-cy="description"
+                    />
+
+                    <Field
+                      component={Autocomplete}
+                      multiple
+                      options={instruments}
+                      noOptionsText="No instruments"
+                      name="instruments"
+                      isOptionEqualToValue={(
+                        option: PartialInstrument,
+                        value: PartialInstrument
+                      ) => option.id === value.id}
+                      label="Equipment instruments"
+                      loading={loadingInstruments}
+                      fullWidth
+                      data-cy="instruments"
+                      getOptionLabel={(option: PartialInstrument) =>
+                        option.name
+                      }
+                      renderInput={(params: any) => (
+                        <MuiTextField
+                          {...params}
+                          label="Equipment instruments"
+                          margin="normal"
+                          variant="standard"
+                          placeholder="Equipment instruments"
+                        />
+                      )}
                     />
 
                     <Grid container>

@@ -168,7 +168,7 @@ export default function ViewRequests() {
     <StyledContainer maxWidth={false}>
       <Grid container>
         <Grid item xs={12}>
-          <StyledPaper sx={{ margin: [0, 1] }}>
+          <StyledPaper margin={[0, 1]}>
             <div data-cy="equipments-requests-table">
               <MaterialTable
                 icons={tableIcons}

@@ -28,6 +28,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useParams, generatePath } from 'react-router';
 import { Link } from 'react-router-dom';
 
+import ScienceIcon from 'components/common/icons/ScienceIcon';
 import Loader from 'components/common/Loader';
 import PeopleModal from 'components/common/PeopleModal';
 import { tableIcons } from 'components/common/TableIcons';
@@ -43,6 +44,7 @@ import { useDataApi } from 'hooks/common/useDataApi';
 import useEquipment from 'hooks/equipment/useEquipment';
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
 import { StyledContainer, StyledPaper } from 'styles/StyledComponents';
+import { comaSeparatedArrayValues } from 'utils/common';
 import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
 import { getFullUserName } from 'utils/user';
 
@@ -307,7 +309,7 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
       />
       <Grid container>
         <Grid item xs={12}>
-          <StyledPaper sx={{ margin: [0, 1] }}>
+          <StyledPaper margin={[0, 1]}>
             {confirmationLoading && <Loader />}
 
             <Box display="flex" justifyContent="flex-end">
@@ -394,7 +396,7 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
                     </ListItemAvatar>
                     <ListItemText
                       primary="Equipment color"
-                      secondary={equipment.color || 'None'}
+                      secondary={equipment.color || '-'}
                     />
                   </ListItem>
                 </List>
@@ -412,6 +414,21 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
                       secondary={
                         equipment.description ? equipment.description : '-'
                       }
+                    />
+                  </ListItem>
+                  <ListItem disableGutters>
+                    <ListItemAvatar>
+                      <Avatar>
+                        <ScienceIcon />
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary="Equipment instruments"
+                      secondary={comaSeparatedArrayValues(
+                        equipment.equipmentInstruments,
+                        'name'
+                      )}
+                      className={classes.listItemText}
                     />
                   </ListItem>
                   <ListItem disableGutters>

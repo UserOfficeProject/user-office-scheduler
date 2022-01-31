@@ -1,6 +1,7 @@
 import {
   Equipment,
   EquipmentAssignmentStatus,
+  EquipmentInstrument,
   EquipmentResponsible,
 } from '../models/Equipment';
 import {
@@ -53,6 +54,7 @@ export interface EquipmentDataSource {
     updateEquipmentOwnerInput: UpdateEquipmentOwnerInput
   ): Promise<boolean>;
   getEquipmentResponsible(equipmentId: number): Promise<EquipmentResponsible[]>;
+  getEquipmentInstruments(equipmentId: number): Promise<EquipmentInstrument[]>;
   equipmentEventsByProposalBookingId(
     proposalBookingId: number
   ): Promise<Array<EquipmentsScheduledEvent>>;

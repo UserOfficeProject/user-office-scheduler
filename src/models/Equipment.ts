@@ -21,3 +21,7 @@ export class Equipment {
 export class EquipmentResponsible {
   constructor(public id: number) {}
 }
+
+export class EquipmentInstrument {
+  constructor(public id: number) {}
+}

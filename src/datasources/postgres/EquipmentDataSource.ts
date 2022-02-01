@@ -11,6 +11,7 @@ import {
   EquipmentsScheduledEvent,
   ScheduledEvent,
 } from '../../models/ScheduledEvent';
+import { Rejection, rejection, isRejection } from '../../rejection';
 import {
   EquipmentInput,
   AssignEquipmentsToScheduledEventInput,
@@ -83,7 +84,36 @@ export default class PostgresEquipmentDataSource
     return createEquipmentObject(equipmentRecord);
   }
 
-  async update(id: number, input: EquipmentInput): Promise<Equipment | null> {
+  async getEquipmentEventsOnInstrument(
+    equipmentId: number,
+    newInstrumentIds: number[] | undefined
+  ) {
+    const existingEquipmentInstrumentIds = (
+      await database<EquipmentInstrumentRecord>(
+        this.equipmentInstrumentsTable
+      ).where('equipment_id', '=', equipmentId)
+    ).map((item) => item.instrument_id);
+
+    const removedEquipmentInstrumentIds = existingEquipmentInstrumentIds.filter(
+      (n) => !newInstrumentIds?.includes(n)
+    );
+
+    return await database<EquipmentInstrumentRecord>(
+      this.scheduledEventsEquipmentsTable
+    )
+      .join(
+        this.scheduledEventsTable,
+        `${this.scheduledEventsEquipmentsTable}.scheduled_event_id`,
+        `${this.scheduledEventsTable}.scheduled_event_id`
+      )
+      .whereIn('instrument_id', removedEquipmentInstrumentIds)
+      .andWhere('equipment_id', '=', equipmentId);
+  }
+
+  async update(
+    id: number,
+    input: EquipmentInput
+  ): Promise<Equipment | Rejection | null> {
     const equipmentRecord = await database
       .transaction(async (trx) => {
         const {
@@ -95,6 +125,18 @@ export default class PostgresEquipmentDataSource
           autoAccept,
           instrumentIds,
         } = input;
+
+        const equipmentEventBookedOnRemovedInstrument =
+          await this.getEquipmentEventsOnInstrument(id, input.instrumentIds);
+
+        if (equipmentEventBookedOnRemovedInstrument?.length) {
+          logger.logWarn(
+            'Could not remove instrument assigned to equipment because there are scheduled events',
+            { id, input }
+          );
+
+          return rejection('NOT_ALLOWED');
+        }
 
         // Delete existing equipment instruments
         await trx<EquipmentInstrumentRecord>(this.equipmentInstrumentsTable)
@@ -134,10 +176,14 @@ export default class PostgresEquipmentDataSource
           error
         );
 
-        throw new Error(error);
+        return rejection('INTERNAL_ERROR');
       });
 
-    return equipmentRecord ? createEquipmentObject(equipmentRecord) : null;
+    return isRejection(equipmentRecord)
+      ? equipmentRecord
+      : equipmentRecord
+      ? createEquipmentObject(equipmentRecord)
+      : null;
   }
 
   async get(id: number): Promise<Equipment | null> {

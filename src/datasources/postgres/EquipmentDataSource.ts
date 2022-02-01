@@ -66,14 +66,16 @@ export default class PostgresEquipmentDataSource
         })
         .returning('*');
 
-      await trx<EquipmentInstrumentRecord>(this.equipmentInstrumentsTable)
-        .insert(
-          instrumentIds.map((instrumentId) => ({
-            equipment_id: equipmentRecord.equipment_id,
-            instrument_id: instrumentId,
-          }))
-        )
-        .returning<EquipmentInstrumentRecord[]>(['*']);
+      if (instrumentIds?.length) {
+        await trx<EquipmentInstrumentRecord>(this.equipmentInstrumentsTable)
+          .insert(
+            instrumentIds.map((instrumentId) => ({
+              equipment_id: equipmentRecord.equipment_id,
+              instrument_id: instrumentId,
+            }))
+          )
+          .returning<EquipmentInstrumentRecord[]>(['*']);
+      }
 
       return equipmentRecord;
     });
@@ -99,15 +101,17 @@ export default class PostgresEquipmentDataSource
           .where('equipment_id', '=', id)
           .delete();
 
-        // Re-create updated equipment instruments
-        await trx<EquipmentInstrumentRecord>(this.equipmentInstrumentsTable)
-          .insert(
-            instrumentIds.map((instrumentId) => ({
-              equipment_id: id,
-              instrument_id: instrumentId,
-            }))
-          )
-          .returning<EquipmentInstrumentRecord[]>(['*']);
+        if (instrumentIds?.length) {
+          // Re-create updated equipment instruments
+          await trx<EquipmentInstrumentRecord>(this.equipmentInstrumentsTable)
+            .insert(
+              instrumentIds.map((instrumentId) => ({
+                equipment_id: id,
+                instrument_id: instrumentId,
+              }))
+            )
+            .returning<EquipmentInstrumentRecord[]>(['*']);
+        }
 
         // Update equipment itself
         const [equipmentRecord] = await trx<EquipmentRecord>(this.tableName)

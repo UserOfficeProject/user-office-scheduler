@@ -92,7 +92,7 @@ context('Equipment tests', () => {
       cy.contains(newEquipment.name).parent().contains(newDescription);
     });
 
-    it('should be able to add equipment instruments', () => {
+    it('should be able to add equipment instruments and not allowed to remove if there are events', () => {
       cy.get('[data-cy=btn-edit-equipment]').click();
       cy.get('[data-cy="equipment-instruments"] input').click();
 
@@ -103,6 +103,42 @@ context('Equipment tests', () => {
       cy.get('[data-cy=btn-save-equipment]').click();
       cy.finishedLoading();
       cy.contains(existingInstrument.name);
+
+      cy.get('.MuiDrawer-root').contains('Equipment list').click();
+
+      cy.contains('5 rows').click();
+      cy.get('.MuiTablePagination-menuItem[data-value="10"]').click();
+
+      cy.finishedLoading();
+      cy.contains(newEquipment.name).parent().contains(existingInstrument.name);
+
+      cy.createEvent({ input: createdUserOperationsEvent }).then((result) => {
+        const newCreatedEvent = result.createScheduledEvent.scheduledEvent;
+        if (newCreatedEvent) {
+          cy.assignEquipmentToScheduledEvent({
+            assignEquipmentsToScheduledEventInput: {
+              equipmentIds: [createdEquipmentId],
+              scheduledEventId: newCreatedEvent.id,
+              proposalBookingId: existingProposalBookingId,
+            },
+          });
+        }
+      });
+
+      cy.visit(`/equipments/${createdEquipmentId}/edit`, { timeout: 15000 });
+
+      cy.finishedLoading();
+
+      cy.get(
+        '[data-cy="equipment-instruments"] [data-testid="CancelIcon"]'
+      ).click();
+      cy.get('[data-cy=btn-save-equipment]').click();
+      cy.contains('operation is not allowed', { matchCase: false });
+
+      cy.get('[data-cy="equipment-instruments"]').should(
+        'contain.text',
+        existingInstrument.name
+      );
 
       cy.get('.MuiDrawer-root').contains('Equipment list').click();
 

@@ -184,9 +184,12 @@ export default function CreateEditEquipment() {
                     updateEquipmentInput: input,
                   });
 
-                  error
-                    ? enqueueError(error as ResourceId)
-                    : history.push(generatePath(PATH_VIEW_EQUIPMENT, { id }));
+                  if (error) {
+                    enqueueError(error as ResourceId);
+                    helper.resetForm();
+                  } else {
+                    history.push(generatePath(PATH_VIEW_EQUIPMENT, { id }));
+                  }
                 } else {
                   const {
                     createEquipment: { error, equipment },

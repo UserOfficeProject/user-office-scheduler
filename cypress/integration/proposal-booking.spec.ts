@@ -17,8 +17,13 @@ context('Proposal booking tests ', () => {
     cy.resetSchedulerDB(true);
   });
 
+  const existingInstrument = {
+    id: 1,
+    name: 'Instrument 1',
+  };
+
   const createdUserOperationsEvent = {
-    instrumentId: 1,
+    instrumentId: existingInstrument.id,
     proposalBookingId: 1,
     bookingType: ScheduledEventBookingType.USER_OPERATIONS,
     startsAt: defaultEventBookingHourDateTime,
@@ -30,6 +35,33 @@ context('Proposal booking tests ', () => {
     title: 'Test proposal',
     proposer: 'Carl Carlsson',
   };
+
+  const existingEquipmentsData = [
+    {
+      id: 1,
+      name: 'Available equipment 1 - no auto accept',
+      description: '',
+      autoAccept: false,
+    },
+    {
+      id: 2,
+      name: 'Available equipment 2 - auto accept',
+      description: '',
+      autoAccept: true,
+    },
+    {
+      id: 5,
+      name: 'Under maintenance 1 - not started yet',
+      description: '',
+      autoAccept: false,
+    },
+    {
+      id: 7,
+      name: 'Under maintenance 3 - finished',
+      description: '',
+      autoAccept: false,
+    },
+  ];
 
   const existingInstrumentScientistId = 100;
 
@@ -565,6 +597,24 @@ context('Proposal booking tests ', () => {
 
     describe('Equipment booking', () => {
       beforeEach(() => {
+        cy.updateEquipment({
+          id: existingEquipmentsData[0].id,
+          updateEquipmentInput: {
+            name: existingEquipmentsData[0].name,
+            description: existingEquipmentsData[0].description,
+            autoAccept: existingEquipmentsData[0].autoAccept,
+            instrumentIds: [existingInstrument.id],
+          },
+        });
+        cy.updateEquipment({
+          id: existingEquipmentsData[1].id,
+          updateEquipmentInput: {
+            name: existingEquipmentsData[1].name,
+            description: existingEquipmentsData[1].description,
+            autoAccept: existingEquipmentsData[1].autoAccept,
+            instrumentIds: [existingInstrument.id],
+          },
+        });
         cy.visit({
           url: '/calendar',
           timeout: 15000,
@@ -581,20 +631,32 @@ context('Proposal booking tests ', () => {
         );
         cy.get('[data-cy=btn-book-equipment]').click();
         cy.finishedLoading();
-        cy.contains(/Available equipment 1 - no auto accept/i);
-        cy.contains(/Available equipment 2 - auto accept/i);
-        cy.contains(/Under maintenance 1 - not started yet/i);
-        cy.contains(/Under maintenance 3 - finished/i);
+        cy.get('[data-cy="select-equipment-table"]').should(
+          'contain.text',
+          existingEquipmentsData[0].name
+        );
+        cy.get('[data-cy="select-equipment-table"]').should(
+          'contain.text',
+          existingEquipmentsData[1].name
+        );
+        cy.get('[data-cy="select-equipment-table"]').should(
+          'not.contain.text',
+          existingEquipmentsData[2].name
+        );
+        cy.get('[data-cy="select-equipment-table"]').should(
+          'not.contain.text',
+          existingEquipmentsData[3].name
+        );
         cy.get('[data-cy=enhanced-table-checkbox-0]').click();
         cy.get('[data-cy=enhanced-table-checkbox-1]').click();
         cy.get('[data-cy=btn-assign-equipment]').click();
         cy.get('[data-cy="time-slot-booked-equipments-table"]').should(
           'include.text',
-          'Available equipment 1 - no auto accept'
+          existingEquipmentsData[0].name
         );
         cy.get('[data-cy="time-slot-booked-equipments-table"]').should(
           'include.text',
-          'Available equipment 2 - auto accept'
+          existingEquipmentsData[1].name
         );
         cy.get('[data-cy="accepted-equipment-warning"]').should(
           'contain.text',
@@ -612,7 +674,7 @@ context('Proposal booking tests ', () => {
           url: '/equipments',
           timeout: 15000,
         });
-        cy.contains(/Available equipment 1 - no auto accept/i)
+        cy.contains(existingEquipmentsData[0].name)
           .parent()
           .find('[data-testid="VisibilityIcon"]')
           .click();
@@ -636,7 +698,7 @@ context('Proposal booking tests ', () => {
           url: '/equipments',
           timeout: 15000,
         });
-        cy.contains(/Available equipment 1 - no auto accept/i)
+        cy.contains(existingEquipmentsData[0].name)
           .parent()
           .find('[data-testid="VisibilityIcon"]')
           .click();
@@ -648,7 +710,7 @@ context('Proposal booking tests ', () => {
           url: '/equipments',
           timeout: 15000,
         });
-        cy.contains(/Available equipment 2 - auto accept/i)
+        cy.contains(existingEquipmentsData[1].name)
           .parent()
           .find('[data-testid="VisibilityIcon"]')
           .click();
@@ -661,6 +723,24 @@ context('Proposal booking tests ', () => {
 
     describe('Equipment assigned to scheduled event tests', () => {
       beforeEach(() => {
+        cy.updateEquipment({
+          id: existingEquipmentsData[0].id,
+          updateEquipmentInput: {
+            name: existingEquipmentsData[0].name,
+            description: existingEquipmentsData[0].description,
+            autoAccept: existingEquipmentsData[0].autoAccept,
+            instrumentIds: [existingInstrument.id],
+          },
+        });
+        cy.updateEquipment({
+          id: existingEquipmentsData[1].id,
+          updateEquipmentInput: {
+            name: existingEquipmentsData[1].name,
+            description: existingEquipmentsData[1].description,
+            autoAccept: existingEquipmentsData[1].autoAccept,
+            instrumentIds: [existingInstrument.id],
+          },
+        });
         cy.createEvent({ input: createdUserOperationsEvent }).then((result) => {
           if (result.createScheduledEvent.scheduledEvent) {
             cy.assignEquipmentToScheduledEvent({
@@ -686,7 +766,7 @@ context('Proposal booking tests ', () => {
         cy.finishedLoading();
         cy.get('[data-cy=btn-book-equipment]').click();
 
-        cy.contains(/1-3 of 3/i);
+        cy.contains(/no records to show/i);
       });
 
       it('should show the assignment status', () => {
@@ -694,10 +774,10 @@ context('Proposal booking tests ', () => {
         selectInstrument();
         openProposalBookingFromRightToolbar();
         cy.finishedLoading();
-        cy.contains(/Available equipment 1 - no auto accept/i)
+        cy.contains(existingEquipmentsData[0].name)
           .parent()
           .contains(/pending/i);
-        cy.contains(/Available equipment 2 - auto accept/i)
+        cy.contains(existingEquipmentsData[1].name)
           .parent()
           .contains(/accepted/i);
       });
@@ -710,10 +790,10 @@ context('Proposal booking tests ', () => {
           .click();
 
         cy.get('[role="presentation"]').contains(
-          /Available equipment 1 - no auto accept/i
+          existingEquipmentsData[0].name
         );
         cy.get('[role="presentation"]').contains(
-          /Available equipment 2 - auto accept/i
+          existingEquipmentsData[1].name
         );
 
         cy.visit({
@@ -721,8 +801,8 @@ context('Proposal booking tests ', () => {
           timeout: 15000,
         });
 
-        cy.contains(/Available equipment 1 - no auto accept/i);
-        cy.contains(/Available equipment 2 - auto accept/i);
+        cy.contains(existingEquipmentsData[0].name);
+        cy.contains(existingEquipmentsData[1].name);
       });
 
       it('should be able to open time slot by clicking on the calendar equipment event', () => {
@@ -759,18 +839,18 @@ context('Proposal booking tests ', () => {
       it('should be able to view equipment assignment request from requests page', () => {
         cy.visit('/requests');
 
-        cy.contains(/Available equipment 1 - no auto accept/i)
+        cy.contains(existingEquipmentsData[0].name)
           .parent()
           .contains(defaultEventBookingHourDateTime);
-        cy.contains(/Available equipment 1 - no auto accept/i)
+        cy.contains(existingEquipmentsData[0].name)
           .parent()
           .contains(getHourDateTimeAfter(24));
 
-        cy.contains(/Available equipment 1 - no auto accept/i)
+        cy.contains(existingEquipmentsData[0].name)
           .parent()
           .find('[data-cy="accept-equipment-request"]')
           .should('exist');
-        cy.contains(/Available equipment 1 - no auto accept/i)
+        cy.contains(existingEquipmentsData[0].name)
           .parent()
           .find('[data-cy="reject-equipment-request"]')
           .should('exist');
@@ -784,12 +864,12 @@ context('Proposal booking tests ', () => {
       it('should be able to accept / reject assignment request', () => {
         cy.visit('/equipments');
 
-        cy.contains(/Available equipment 1 - no auto accept/i)
+        cy.contains(existingEquipmentsData[0].name)
           .parent()
           .find('[data-testid="VisibilityIcon"]')
           .click();
 
-        cy.contains(/Available equipment 1 - no auto accept/i);
+        cy.contains(existingEquipmentsData[0].name);
 
         cy.contains(defaultEventBookingHourDateTime);
         cy.contains(getHourDateTimeAfter(24));
@@ -815,7 +895,7 @@ context('Proposal booking tests ', () => {
         openProposalBookingFromRightToolbar();
         cy.finishedLoading();
 
-        cy.contains(/Available equipment 1 - no auto accept/i)
+        cy.contains(existingEquipmentsData[0].name)
           .parent()
           .find('button[aria-label="Delete"]')
           .click();
@@ -824,7 +904,7 @@ context('Proposal booking tests ', () => {
 
         cy.get('button[aria-label="Cancel"]').click();
 
-        cy.contains(/Available equipment 1 - no auto accept/i)
+        cy.contains(existingEquipmentsData[0].name)
           .parent()
           .find('button[aria-label="Delete"]')
           .click();
@@ -836,18 +916,18 @@ context('Proposal booking tests ', () => {
         cy.finishedLoading();
 
         cy.get('[role=alert]').contains(/removed/i);
-        cy.contains(/Available equipment 2 - auto accept/i);
-        cy.should('not.contain', /Available equipment 1 - no auto accept/i);
+        cy.contains(existingEquipmentsData[1].name);
+        cy.should('not.contain', existingEquipmentsData[0].name);
       });
 
       it('should show the assigned time slot on the equipment page', () => {
         cy.visit('/equipments');
-        cy.contains(/Available equipment 2 - auto accept/i)
+        cy.contains(existingEquipmentsData[1].name)
           .parent()
           .find('[data-testid="VisibilityIcon"]')
           .click();
 
-        cy.contains(/Available equipment 2 - auto accept/i);
+        cy.contains(existingEquipmentsData[1].name);
 
         cy.finishedLoading();
 

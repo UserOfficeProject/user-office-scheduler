@@ -15,6 +15,7 @@ import {
   Box,
   useTheme,
   TextField as MuiTextField,
+  TextFieldProps,
 } from '@mui/material';
 import {
   getTranslation,
@@ -242,11 +243,11 @@ export default function CreateEditEquipment() {
                       label="Equipment instruments"
                       loading={loadingInstruments}
                       fullWidth
-                      data-cy="instruments"
+                      data-cy="equipment-instruments"
                       getOptionLabel={(option: PartialInstrument) =>
                         option.name
                       }
-                      renderInput={(params: any) => (
+                      renderInput={(params: TextFieldProps) => (
                         <MuiTextField
                           {...params}
                           label="Equipment instruments"

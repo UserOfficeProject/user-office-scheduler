@@ -116,6 +116,7 @@ export default function SelectEquipmentDialog({
           showEmptyRows
           rows={equipments}
           extractKey={(el) => el.id}
+          data-cy="select-equipment-table"
           renderRow={(row) => {
             return (
               <>
@@ -131,7 +132,6 @@ export default function SelectEquipmentDialog({
                           marginRight: '8px',
                         }}
                       ></span>
-                      {row.color}
                     </>
                   ) : (
                     'None'

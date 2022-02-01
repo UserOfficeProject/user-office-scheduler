@@ -375,7 +375,7 @@ export type EquipmentInput = {
   autoAccept: Scalars['Boolean'];
   color?: InputMaybe<Scalars['String']>;
   description: Scalars['String'];
-  instrumentIds: Array<Scalars['Int']>;
+  instrumentIds?: InputMaybe<Array<Scalars['Int']>>;
   maintenanceEndsAt?: InputMaybe<Scalars['TzLessDateTime']>;
   maintenanceStartsAt?: InputMaybe<Scalars['TzLessDateTime']>;
   name: Scalars['String'];

@@ -37,9 +37,13 @@ const useStyles = makeStyles((theme) => ({
   root: {
     margin: theme.spacing(4, 0, 0),
 
-    '& .MuiToolbar-root button.MuiIconButton-root': {
-      backgroundColor: 'unset !important',
+    '& .MuiToolbar-root': {
       padding: 0,
+
+      '& button.MuiIconButton-root': {
+        backgroundColor: 'unset !important',
+        padding: 0,
+      },
     },
   },
   spacingLeft: {

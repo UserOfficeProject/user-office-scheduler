@@ -24,9 +24,13 @@ export type EquipmentTableRow = {
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    '& .MuiToolbar-root button.MuiIconButton-root': {
-      backgroundColor: 'unset !important',
+    '& .MuiToolbar-root': {
       padding: 0,
+
+      'button.MuiIconButton-root': {
+        backgroundColor: 'unset !important',
+        padding: 0,
+      },
     },
   },
   spacingTop: {

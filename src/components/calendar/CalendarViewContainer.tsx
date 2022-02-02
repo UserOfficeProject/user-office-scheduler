@@ -534,7 +534,7 @@ export default function CalendarViewContainer() {
           variant: 'error',
         });
       } else {
-        enqueueSnackbar('Scheduled event updated', {
+        enqueueSnackbar('Experiment time updated', {
           variant: 'success',
         });
 

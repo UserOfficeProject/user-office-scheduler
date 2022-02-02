@@ -95,7 +95,8 @@ const checkIfOutsideCallCycleInterval = (
 
 type TimeSlotDetailsProps = {
   scheduledEvent: ScheduledEvent;
-  onSave: (event: ScheduledEvent) => void;
+  onEventDateChange: (event: ScheduledEvent) => void;
+  onEventLocalContactChange: (event: ScheduledEvent) => void;
   proposalBooking: InstrumentProposalBooking;
   isDirty: boolean;
   handleSetDirty: (isDirty: boolean) => void;
@@ -103,12 +104,14 @@ type TimeSlotDetailsProps = {
 
 export default function TimeSlotDetails({
   scheduledEvent,
-  onSave,
+  onEventDateChange,
+  onEventLocalContactChange,
   proposalBooking,
   isDirty,
   handleSetDirty,
 }: TimeSlotDetailsProps) {
   const theme = useTheme();
+  const classes = useStyles();
   const [editingDate, setEditingDate] = useState(false);
   const [shouldOpenRangePicker, setShouldOpenRangePicker] =
     useState<boolean>(false);
@@ -116,6 +119,15 @@ export default function TimeSlotDetails({
   const [[startsAt, endsAt], setStartAndEndValues] = React.useState<
     DateRange<Moment>
   >([moment(scheduledEvent.startsAt), moment(scheduledEvent.endsAt)]);
+
+  const [isOutsideCallCycleInterval, setIsOutsideCallCycleInterval] = useState(
+    checkIfOutsideCallCycleInterval(
+      startsAt,
+      endsAt,
+      proposalBooking.call.startCycle,
+      proposalBooking.call.endCycle
+    )
+  );
 
   useEffect(() => {
     if (editingDate) {
@@ -128,20 +140,15 @@ export default function TimeSlotDetails({
     }
   }, [editingDate]);
 
+  useEffect(() => {
+    if (scheduledEvent) {
+      setEditingDate(false);
+    }
+  }, [scheduledEvent]);
+
   const isStepReadOnly =
     scheduledEvent.status === ProposalBookingStatusCore.COMPLETED;
   const isEditable = scheduledEvent.status === ProposalBookingStatusCore.DRAFT;
-
-  const classes = useStyles();
-
-  const [isOutsideCallCycleInterval, setIsOutsideCallCycleInterval] = useState(
-    checkIfOutsideCallCycleInterval(
-      startsAt,
-      endsAt,
-      proposalBooking.call.startCycle,
-      proposalBooking.call.endCycle
-    )
-  );
 
   const handleOnSave = () => {
     if (!startsAt || !endsAt || !startsAt.isValid() || !endsAt.isValid()) {
@@ -151,22 +158,11 @@ export default function TimeSlotDetails({
 
     !isDirty && handleSetDirty(true);
 
-    onSave({
+    onEventDateChange({
       ...scheduledEvent,
       startsAt: toTzLessDateTime(startsAt),
       endsAt: toTzLessDateTime(endsAt),
     });
-
-    setEditingDate(false);
-
-    setIsOutsideCallCycleInterval(
-      checkIfOutsideCallCycleInterval(
-        startsAt,
-        endsAt,
-        proposalBooking.call.startCycle,
-        proposalBooking.call.endCycle
-      )
-    );
   };
 
   const addLocalContact = (data: BasicUserDetails[]) => {
@@ -174,7 +170,7 @@ export default function TimeSlotDetails({
 
     if (selectedLocalContact) {
       handleSetDirty(true);
-      onSave({
+      onEventLocalContactChange({
         ...scheduledEvent,
         localContact: selectedLocalContact,
       });
@@ -200,12 +196,21 @@ export default function TimeSlotDetails({
     }
 
     setStartAndEndValues([newStartValue, newEndValue]);
+
+    setIsOutsideCallCycleInterval(
+      checkIfOutsideCallCycleInterval(
+        newStartValue,
+        newEndValue,
+        proposalBooking.call.startCycle,
+        proposalBooking.call.endCycle
+      )
+    );
   };
 
   return (
     <>
       <Typography variant="h6" component="h4" align="left">
-        Experiment information
+        Experiment time information
       </Typography>
       {isStepReadOnly && (
         <Alert severity="info">
@@ -227,7 +232,7 @@ export default function TimeSlotDetails({
         <Alert
           severity="warning"
           className={classes.spacingTop}
-          data-cy="event-outside-cycle-interval-warning"
+          data-cy="experiment-time-outside-cycle-interval-warning"
         >
           <AlertTitle>Warning</AlertTitle>
           Experiment time should be booked between call cycle start and end

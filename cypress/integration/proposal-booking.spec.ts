@@ -97,20 +97,20 @@ context('Proposal booking tests ', () => {
           timeout: 15000,
         });
       });
-      it('should be able to add new time slot', () => {
+      it('should be able to add new experiment time', () => {
         cy.finishedLoading();
         selectInstrument();
         openProposalBookingFromRightToolbar();
 
         cy.contains('Proposal ID');
-        cy.get('[data-cy="add-new-timeslot"]').click();
+        cy.get('[data-cy="add-new-experiment-time"]').click();
 
         cy.finishedLoading();
 
-        cy.get('[data-cy="time-slot-booking"]').contains(
+        cy.get('[data-cy="experiment-time-wrapper"]').contains(
           defaultEventBookingHourDateTime
         );
-        cy.get('[data-cy="time-slot-booking"]').contains(
+        cy.get('[data-cy="experiment-time-wrapper"]').contains(
           getHourDateTimeAfter(24)
         );
 
@@ -119,12 +119,12 @@ context('Proposal booking tests ', () => {
         );
         cy.get('[data-cy="endsAtInfo"]').contains(getHourDateTimeAfter(24));
 
-        cy.get('[data-cy="time-slot-booking"]')
-          .get('[data-cy="btn-save"]')
+        cy.get('[data-cy="experiment-time-wrapper"]')
+          .get('[data-cy="delete-experiment-time"]')
           .should('exist');
       });
 
-      it('should be able to edit time slot', () => {
+      it('should be able to edit experiment time', () => {
         cy.createEvent({ input: createdUserOperationsEvent });
         cy.finishedLoading();
         selectInstrument();
@@ -146,11 +146,11 @@ context('Proposal booking tests ', () => {
 
         cy.get('[data-cy=btn-save-experiment-range-change]').click();
 
+        cy.finishedLoading();
+
         cy.contains(getHourDateTimeAfter(2, 'days'));
         cy.contains(getHourDateTimeAfter(3, 'days'));
 
-        cy.get('[data-cy="btn-save"]').click();
-        cy.finishedLoading();
         cy.get('[data-cy="btn-close-dialog"]').click();
 
         cy.finishedLoading();
@@ -187,7 +187,7 @@ context('Proposal booking tests ', () => {
         cy.contains(getHourDateTimeAfter(3, 'days'));
       });
 
-      it('Should be able to edit time slot by resizing on the calendar', () => {
+      it('Should be able to edit experiment time by resizing on the calendar', () => {
         let rightToolbarText: string;
         cy.createEvent({ input: createdUserOperationsEvent });
         cy.finishedLoading();
@@ -225,14 +225,14 @@ context('Proposal booking tests ', () => {
 
         cy.finishedLoading();
 
-        cy.get('#notistack-snackbar').contains(/scheduled event updated/i);
+        cy.get('#notistack-snackbar').contains(/Experiment time updated/i);
 
         cy.get('#instrument-calls-tree-view').then((element) => {
           expect(element.text()).not.to.be.eq(rightToolbarText);
         });
       });
 
-      it('should be able to add new time slot by drag and drop to calendar', () => {
+      it('should be able to add new experiment time by drag and drop to calendar', () => {
         cy.finishedLoading();
         selectInstrument();
         cy.finishedLoading();
@@ -254,18 +254,16 @@ context('Proposal booking tests ', () => {
 
         cy.finishedLoading();
 
-        cy.get('[data-cy="time-slot-booking"]')
-          .get('[data-cy="btn-save"]')
+        cy.get('[data-cy="experiment-time-wrapper"]')
+          .get('[data-cy="delete-experiment-time"]')
           .should('exist');
 
-        cy.get('[data-cy="time-slot-booking"] [data-cy="startsAtInfo"]').should(
-          'include.text',
-          defaultEventBookingHourDateTime
-        );
-        cy.get('[data-cy="time-slot-booking"] [data-cy="endsAtInfo"]').should(
-          'include.text',
-          getHourDateTimeAfter(1, 'hours')
-        );
+        cy.get(
+          '[data-cy="experiment-time-wrapper"] [data-cy="startsAtInfo"]'
+        ).should('include.text', defaultEventBookingHourDateTime);
+        cy.get(
+          '[data-cy="experiment-time-wrapper"] [data-cy="endsAtInfo"]'
+        ).should('include.text', getHourDateTimeAfter(1, 'hours'));
       });
 
       it('Draft events should have opacity', () => {
@@ -284,14 +282,14 @@ context('Proposal booking tests ', () => {
           .and('include', 'filter: grayscale(0) opacity(0.6);');
       });
 
-      it('should see warning message if time slot is outside call cycle interval', () => {
+      it('should see warning message if experiment time is outside call cycle interval', () => {
         cy.createEvent({ input: createdUserOperationsEvent });
         cy.finishedLoading();
         selectInstrument();
         openProposalBookingFromRightToolbar();
-        cy.get('[data-cy="some-event-outside-cycle-interval-warning"]').should(
-          'not.exist'
-        );
+        cy.get(
+          '[data-cy="some-experiment-time-outside-cycle-interval-warning"]'
+        ).should('not.exist');
         cy.contains(
           'Some of the experiment times are booked outside of the call cycle start and end date'
         ).should('not.exist');
@@ -299,9 +297,9 @@ context('Proposal booking tests ', () => {
         cy.finishedLoading();
         cy.get('[id^=vertical-tab-]').last().click();
 
-        cy.get('[data-cy="event-outside-cycle-interval-warning"]').should(
-          'not.exist'
-        );
+        cy.get(
+          '[data-cy="experiment-time-outside-cycle-interval-warning"]'
+        ).should('not.exist');
         cy.contains(
           'Experiment time should be booked between call cycle start and end date'
         ).should('not.exist');
@@ -320,21 +318,24 @@ context('Proposal booking tests ', () => {
 
         cy.get('[data-cy=btn-save-experiment-range-change]').click();
 
-        cy.get('[data-cy="event-outside-cycle-interval-warning"]').should(
-          'exist'
-        );
-        cy.get('[data-cy="event-outside-cycle-interval-warning"]').should(
+        cy.finishedLoading();
+
+        cy.get(
+          '[data-cy="experiment-time-outside-cycle-interval-warning"]'
+        ).should('exist');
+        cy.get(
+          '[data-cy="experiment-time-outside-cycle-interval-warning"]'
+        ).should(
           'contain.text',
           'Experiment time should be booked between call cycle start and end date'
         );
 
-        cy.get('[data-cy="btn-save"]').click();
-        cy.finishedLoading();
-
-        cy.get('[data-cy="some-event-outside-cycle-interval-warning"]').should(
-          'exist'
-        );
-        cy.get('[data-cy="some-event-outside-cycle-interval-warning"]')
+        cy.get(
+          '[data-cy="some-experiment-time-outside-cycle-interval-warning"]'
+        ).should('exist');
+        cy.get(
+          '[data-cy="some-experiment-time-outside-cycle-interval-warning"]'
+        )
           .should('have.attr', 'aria-label')
           .then((ariaLabel) => {
             expect(ariaLabel).not.to.be.empty;
@@ -364,14 +365,14 @@ context('Proposal booking tests ', () => {
 
             cy.get('[data-cy="select-user"]').last().click();
 
+            cy.get('#notistack-snackbar').contains('Experiment time updated');
+
+            cy.finishedLoading();
+
             cy.get('[data-cy="local-contact-details"]')
               .should('not.contain.text', 'None')
               .invoke('text')
               .should('not.equal', selectedLocalContactText);
-
-            cy.get('[data-cy="btn-save"]').click();
-
-            cy.get('#notistack-snackbar').contains('Scheduled event updated');
           });
       });
 
@@ -456,8 +457,8 @@ context('Proposal booking tests ', () => {
 
         cy.contains('Proposal title');
         cy.contains('Proposal ID');
-        cy.get('[data-cy="time-slot-booking"]')
-          .get('[data-cy="btn-save"]')
+        cy.get('[data-cy="experiment-time-wrapper"]')
+          .get('[data-cy="delete-experiment-time"]')
           .should('exist');
       });
 
@@ -485,10 +486,12 @@ context('Proposal booking tests ', () => {
         openProposalBookingFromRightToolbar();
 
         cy.finishedLoading();
-        cy.get('[data-cy="btn-delete"]').click();
+        cy.get('[data-cy="delete-experiment-time"]').click();
 
         cy.contains(/confirmation/i);
-        cy.contains(/are you sure you want to delete scheduled event/i);
+        cy.contains(
+          /Are you sure you want to delete selected experiment time/i
+        );
 
         cy.get('[data-cy="btn-ok"]').click();
         cy.finishedLoading();
@@ -503,7 +506,7 @@ context('Proposal booking tests ', () => {
         selectInstrument();
         openProposalBookingFromRightToolbar();
         cy.finishedLoading();
-        cy.get('[data-cy="add-new-timeslot"]').click();
+        cy.get('[data-cy="add-new-experiment-time"]').click();
         cy.finishedLoading();
 
         cy.get('[data-cy="startsAtInfo"]').click();
@@ -513,13 +516,10 @@ context('Proposal booking tests ', () => {
 
         cy.get('[data-cy=btn-save-experiment-range-change]').click();
 
-        cy.get('[data-cy="btn-save"]').click();
-
         cy.contains(/warning/i);
         cy.contains(/the starting date needs to be before the ending date/i);
         cy.get('[data-cy="btn-back"]').click();
 
-        cy.get('[data-cy="startsAtInfo"]').click();
         cy.get('[data-cy="start-experiment-time-range"] input')
           .clear()
           .type(getHourDateTimeAfter(23));
@@ -529,8 +529,6 @@ context('Proposal booking tests ', () => {
           .type(getHourDateTimeAfter(20));
 
         cy.get('[data-cy=btn-save-experiment-range-change]').click();
-
-        cy.get('[data-cy="btn-save"]').click();
 
         cy.contains(/warning/i);
         cy.contains(/the starting date needs to be before the ending date/i);
@@ -542,7 +540,7 @@ context('Proposal booking tests ', () => {
         selectInstrument();
         openProposalBookingFromRightToolbar();
         cy.finishedLoading();
-        cy.get('[data-cy="add-new-timeslot"]').click();
+        cy.get('[data-cy="add-new-experiment-time"]').click();
         cy.finishedLoading();
 
         cy.get('[data-cy="startsAtInfo"]').click();
@@ -556,10 +554,8 @@ context('Proposal booking tests ', () => {
 
         cy.get('[data-cy=btn-save-experiment-range-change]').click();
 
-        cy.get('[data-cy="btn-save"]').click();
-
         cy.contains(/confirmation/i);
-        cy.contains(/you have overlapping bookings/i);
+        cy.contains(/you have overlapping experiment times/i);
       });
     });
 
@@ -867,7 +863,7 @@ context('Proposal booking tests ', () => {
         selectInstrument();
         openProposalBookingFromRightToolbar();
         cy.finishedLoading();
-        cy.get('[data-cy="activate-time-slot-booking"]').click();
+        cy.get('[data-cy="activate-experiment-time"]').click();
 
         cy.get('[data-cy="btn-ok"]').click();
 
@@ -914,21 +910,23 @@ context('Proposal booking tests ', () => {
         );
       });
 
-      it('should be able to restart time slot booking process', () => {
+      it('should be able to restart experiment time process', () => {
         cy.finishedLoading();
         selectInstrument();
         openProposalBookingFromRightToolbar();
         cy.finishedLoading();
 
-        cy.get('[aria-label=proposal-booking-finalization-strategy]').click();
+        cy.get('[aria-label=experiment-time-finalization-strategy]').click();
 
-        cy.contains(/restart the time slot booking/i).click();
+        cy.contains(/restart the experiment time/i).click();
 
-        cy.contains(/restart the time slot booking/i).as('restartBooking');
+        cy.contains(/restart the experiment time/i).as('restartBooking');
 
         cy.get('@restartBooking').should('not.be.disabled').click();
 
-        cy.contains('Are you sure you want to restart the selected booking');
+        cy.contains(
+          'Are you sure you want to restart the selected experiment time'
+        );
 
         cy.get('[data-cy="btn-ok"]').click();
 
@@ -1068,19 +1066,19 @@ context('Proposal booking tests ', () => {
 
         cy.finishedLoading();
 
-        cy.contains(/complete the time slot booking/i).click();
+        cy.contains(/complete the experiment time/i).click();
 
         cy.contains(/confirmation/i);
-        cy.contains(/you have overlapping events/i);
+        cy.contains(/you have overlapping experiment times/i);
       });
 
-      it('should be able to complete the time slot booking process', () => {
+      it('should be able to complete the experiment time process', () => {
         cy.finishedLoading();
         selectInstrument();
         openProposalBookingFromRightToolbar();
         cy.finishedLoading();
 
-        cy.contains(/complete the time slot booking/i).as(
+        cy.contains(/complete the experiment time/i).as(
           'completeTimeSlotBooking'
         );
 
@@ -1172,7 +1170,7 @@ context('Proposal booking tests ', () => {
 
         cy.finishedLoading();
 
-        cy.get('[data-cy="btn-reopen-time-slot-booking"]').should('not.exist');
+        cy.get('[data-cy="btn-reopen-experiment-time"]').should('not.exist');
       });
 
       it('User officer should be able to re-open completed events', () => {
@@ -1197,19 +1195,21 @@ context('Proposal booking tests ', () => {
 
         cy.finishedLoading();
 
-        cy.get('[data-cy="btn-reopen-time-slot-booking"]')
-          .should('include.text', 'Reopen time slot booking')
+        cy.get('[data-cy="btn-reopen-experiment-time"]')
+          .should('include.text', 'Reopen the experiment time')
           .click();
 
         cy.contains(/confirmation/i);
-        cy.contains(/Are you sure you want to re-open the selected time slot/i);
+        cy.contains(
+          /Are you sure you want to re-open the selected experiment time/i
+        );
 
         cy.get('[data-cy="btn-ok"]').click();
 
         cy.finishedLoading();
 
         cy.get('[aria-label="Add experiment lost time"]').should('exist');
-        cy.contains('Complete the time slot booking');
+        cy.contains('Complete the experiment time');
       });
     });
   });

@@ -55,7 +55,7 @@
     "jwt-decode": "^3.1.2",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
-    "notistack": "^1.0.10",
+    "notistack": "^2.0.3",
     "react": "^17.0.2",
     "react-big-calendar": "^0.38.1",
     "react-calendar-timeline": "^0.27.1-beta",

@@ -58,6 +58,7 @@ import useInstrumentProposalBookings from 'hooks/proposalBooking/useInstrumentPr
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
 import useScheduledEvents from 'hooks/scheduledEvent/useScheduledEvents';
 import { StyledContainer, StyledPaper } from 'styles/StyledComponents';
+import { getArrayOfIdsFromQuery } from 'utils/common';
 import {
   parseTzLessDateTime,
   toTzLessDateTime,
@@ -65,11 +66,11 @@ import {
 } from 'utils/date';
 import { hasOverlappingEvents } from 'utils/scheduledEvent';
 
-import CalendarTodoBox from './CalendarTodoBox';
-import CalendarView from './CalendarView';
-import { CalendarScheduledEvent } from './Event';
-import TableView from './TableView';
-import TimeLineView from './TimeLineView';
+import CalendarTodoBox from './common/CalendarTodoBox';
+import { CalendarScheduledEvent } from './common/Event';
+import CalendarView from './views/CalendarView';
+import TableView from './views/TableView';
+import TimeLineView from './views/TimeLineView';
 
 export enum SchedulerViews {
   CALENDAR = 'Calendar',
@@ -186,13 +187,6 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
   },
 }));
-
-export const getArrayOfIdsFromQuery = (query: string | null) => {
-  const queryArray = query?.split(',');
-  const queryIds = queryArray?.map((item) => parseInt(item));
-
-  return queryIds || [];
-};
 
 export default function CalendarViewContainer() {
   const isTabletOrMobile = useMediaQuery('(max-width: 1224px)');

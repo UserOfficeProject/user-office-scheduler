@@ -47,6 +47,37 @@ type TimeSlotEquipmentBookingTableProps = {
   setAllEquipmentsAccepted: Dispatch<SetStateAction<boolean>>;
 };
 
+// NOTE: Keep columns outside the component to avoid console warning(https://github.com/material-table-core/core/issues/286)
+const columns: Column<ScheduledEventEquipment>[] = [
+  {
+    title: 'Name',
+    field: 'name',
+  },
+  {
+    title: 'Description',
+    field: 'description',
+  },
+  {
+    title: 'Color',
+    render: (rowData: ScheduledEventEquipment) =>
+      rowData.color ? (
+        <>
+          <span
+            style={{
+              backgroundColor: rowData.color,
+              padding: '2px 20px',
+              marginRight: '8px',
+            }}
+          ></span>
+          {rowData.color}
+        </>
+      ) : (
+        'None'
+      ),
+  },
+  { title: 'Status', field: 'status' },
+];
+
 export default function TimeSlotEquipmentBookingTable({
   scheduledEventEquipments,
   scheduledEvent,
@@ -78,36 +109,6 @@ export default function TimeSlotEquipmentBookingTable({
 
     setAllEquipmentsAccepted(allAccepted);
   }, [equipments, setAllEquipmentsAccepted]);
-
-  const columns: Column<ScheduledEventEquipment>[] = [
-    {
-      title: 'Name',
-      field: 'name',
-    },
-    {
-      title: 'Description',
-      field: 'description',
-    },
-    {
-      title: 'Color',
-      render: (rowData) =>
-        rowData.color ? (
-          <>
-            <span
-              style={{
-                backgroundColor: rowData.color,
-                padding: '2px 20px',
-                marginRight: '8px',
-              }}
-            ></span>
-            {rowData.color}
-          </>
-        ) : (
-          'None'
-        ),
-    },
-    { title: 'Status', field: 'status' },
-  ];
 
   const handleEquipmentCloseDialog = (
     assignedEquipments?: ScheduledEventEquipment[]

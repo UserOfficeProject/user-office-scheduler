@@ -14,6 +14,7 @@ import { PATH_CREATE_EQUIPMENT } from 'components/paths';
 import useEquipments, { PartialEquipment } from 'hooks/equipment/useEquipments';
 import { StyledContainer, StyledPaper } from 'styles/StyledComponents';
 
+// NOTE: Keep columns outside the component to avoid console warning(https://github.com/material-table-core/core/issues/286)
 const columns: Column<PartialEquipment>[] = [
   { field: 'name', title: 'Name' },
   { field: 'description', title: 'Description' },

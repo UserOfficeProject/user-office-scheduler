@@ -20,7 +20,7 @@ import {
 } from '@user-office-software/duo-localisation';
 import moment from 'moment';
 import { useSnackbar } from 'notistack';
-import React, { Dispatch, SetStateAction, useState } from 'react';
+import React, { Dispatch, SetStateAction, useCallback, useState } from 'react';
 
 import { tableIcons } from 'components/common/TableIcons';
 import { ProposalBookingStatusCore } from 'generated/sdk';
@@ -184,89 +184,104 @@ function TimeSlotLostTimeTable({
     setIsLoading(false);
   };
 
+  // NOTE: Using useCallback to avoid console warning(https://github.com/material-table-core/core/issues/286)
+  const validateInput = useCallback((data) => {
+    if (moment(data.startsAt).isSameOrAfter(moment(data.endsAt))) {
+      return {
+        isValid: false,
+        helperText: 'End date should be after start date',
+      };
+    } else {
+      return {
+        isValid: true,
+        helperText: '',
+      };
+    }
+  }, []);
+
+  // NOTE: Using useCallback to avoid console warning(https://github.com/material-table-core/core/issues/286)
+  const startsAtEditComponent = useCallback(
+    (props: EditComponentProps<ProposalBookingLostTime>) => (
+      <LocalizationProvider dateAdapter={AdapterMoment}>
+        <DateTimePicker
+          label="Starts at"
+          desktopModeMediaQuery={theme.breakpoints.up('sm')}
+          renderInput={(props) => (
+            <TextField
+              {...props}
+              variant="standard"
+              required
+              margin="none"
+              size="small"
+              fullWidth
+              data-cy="startsAt"
+            />
+          )}
+          mask={TZ_LESS_DATE_TIME_LOW_PREC_MASK}
+          inputFormat={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
+          ampm={false}
+          minutesStep={60}
+          value={props.value}
+          onChange={(value) => {
+            handleSetDirty(true);
+            props.onChange(value);
+          }}
+        />
+      </LocalizationProvider>
+    ),
+    [handleSetDirty, theme.breakpoints]
+  );
+
+  // NOTE: Using useCallback to avoid console warning(https://github.com/material-table-core/core/issues/286)
+  const endsAtEditComponent = useCallback(
+    (
+      props: EditComponentProps<ProposalBookingLostTime> & {
+        helperText?: string;
+      }
+    ) => (
+      <LocalizationProvider dateAdapter={AdapterMoment}>
+        <DateTimePicker
+          label="Ends at"
+          desktopModeMediaQuery={theme.breakpoints.up('sm')}
+          renderInput={(inputProps) => (
+            <TextField
+              {...inputProps}
+              variant="standard"
+              required
+              margin="none"
+              size="small"
+              fullWidth
+              helperText={props.helperText}
+              error={props.error}
+              data-cy="endsAt"
+            />
+          )}
+          mask={TZ_LESS_DATE_TIME_LOW_PREC_MASK}
+          inputFormat={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
+          ampm={false}
+          minutesStep={60}
+          value={props.value}
+          onChange={(value) => {
+            handleSetDirty(true);
+            props.onChange(value);
+          }}
+        />
+      </LocalizationProvider>
+    ),
+    [handleSetDirty, theme.breakpoints]
+  );
+
   const columns: Column<ProposalBookingLostTime>[] = [
     {
       title: 'Starts at',
       field: 'startsAt',
-      editComponent: (props) => (
-        <LocalizationProvider dateAdapter={AdapterMoment}>
-          <DateTimePicker
-            label="Starts at"
-            desktopModeMediaQuery={theme.breakpoints.up('sm')}
-            renderInput={(props) => (
-              <TextField
-                {...props}
-                variant="standard"
-                required
-                margin="none"
-                size="small"
-                fullWidth
-                data-cy="startsAt"
-              />
-            )}
-            mask={TZ_LESS_DATE_TIME_LOW_PREC_MASK}
-            inputFormat={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
-            ampm={false}
-            minutesStep={60}
-            value={props.value}
-            onChange={(value) => {
-              handleSetDirty(true);
-              props.onChange(value);
-            }}
-          />
-        </LocalizationProvider>
-      ),
+      editComponent: startsAtEditComponent,
     },
     {
       title: 'Ends at',
       field: 'endsAt',
-      validate: (data) => {
-        if (moment(data.startsAt).isSameOrAfter(moment(data.endsAt))) {
-          return {
-            isValid: false,
-            helperText: 'End date should be after start date',
-          };
-        } else {
-          return {
-            isValid: true,
-            helperText: '',
-          };
-        }
-      },
-      editComponent: (
-        props: EditComponentProps<ProposalBookingLostTime> & {
-          helperText?: string;
-        }
-      ) => (
-        <LocalizationProvider dateAdapter={AdapterMoment}>
-          <DateTimePicker
-            label="Ends at"
-            desktopModeMediaQuery={theme.breakpoints.up('sm')}
-            renderInput={(inputProps) => (
-              <TextField
-                {...inputProps}
-                variant="standard"
-                required
-                margin="none"
-                size="small"
-                fullWidth
-                helperText={props.helperText}
-                error={props.error}
-                data-cy="endsAt"
-              />
-            )}
-            mask={TZ_LESS_DATE_TIME_LOW_PREC_MASK}
-            inputFormat={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
-            ampm={false}
-            minutesStep={60}
-            value={props.value}
-            onChange={(value) => {
-              handleSetDirty(true);
-              props.onChange(value);
-            }}
-          />
-        </LocalizationProvider>
-      ),
+      validate: validateInput,
+      editComponent: endsAtEditComponent,
     },
   ];
 
@@ -319,7 +334,9 @@ function TimeSlotLostTimeTable({
             hidden: isStepReadOnly,
             onClick: handleAdd,
             isFreeAction: true,
-            tooltip: 'Add experiment lost time',
+            tooltip: isAddingNewLostTime
+              ? undefined
+              : 'Add experiment lost time',
           },
         ]}
       />

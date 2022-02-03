@@ -8,11 +8,9 @@ import React, { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 
 import { useQuery } from 'hooks/common/useQuery';
+import { getArrayOfIdsFromQuery } from 'utils/common';
 
-import {
-  getArrayOfIdsFromQuery,
-  SchedulerViewPeriod,
-} from './calendar/CalendarViewContainer';
+import { SchedulerViewPeriod } from './calendar/CalendarViewContainer';
 import { PATH_CALENDAR, PATH_EQUIPMENTS, PATH_REQUESTS } from './paths';
 
 const generateCalendarPath = (calendarState: CalendarLocalStorageState) => {

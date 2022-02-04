@@ -70,9 +70,9 @@ export class UpdateScheduledEventInput {
 }
 
 @InputType()
-export class ActivateScheduledEventInput {
-  @Field(() => Int)
-  id: number;
+export class ActivateScheduledEventsInput {
+  @Field(() => [Int])
+  ids: number[];
 }
 
 @InputType()
@@ -122,16 +122,19 @@ export class ScheduledEventMutation {
     );
   }
 
-  @Mutation(() => ScheduledEventResponseWrap)
-  activateScheduledEvent(
+  @Mutation(() => ScheduledEventsResponseWrap)
+  async activateScheduledEvents(
     @Ctx() ctx: ResolverContext,
-    @Arg('activateScheduledEvent', () => ActivateScheduledEventInput)
-    activateScheduledEvent: ActivateScheduledEventInput
+    @Arg('activateScheduledEvents', () => ActivateScheduledEventsInput)
+    activateScheduledEvents: ActivateScheduledEventsInput
   ) {
-    return wrapResponse(
-      ctx.mutations.scheduledEvent.activate(ctx, activateScheduledEvent),
-      ScheduledEventResponseWrap
+    const results = await Promise.all(
+      activateScheduledEvents.ids.map((id) => {
+        return ctx.mutations.scheduledEvent.activate(ctx, { id });
+      })
     );
+
+    return wrapResponse(Promise.resolve(results), ScheduledEventsResponseWrap);
   }
 
   @Mutation(() => ScheduledEventResponseWrap)

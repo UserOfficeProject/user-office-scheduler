@@ -4,8 +4,8 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  makeStyles,
-} from '@material-ui/core';
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import React from 'react';
 
 import ViewEquipment from './ViewEquipment';

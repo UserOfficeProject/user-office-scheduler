@@ -1,4 +1,5 @@
-import { Box, makeStyles } from '@material-ui/core';
+import Box from '@mui/material/Box';
+import makeStyles from '@mui/styles/makeStyles';
 import * as H from 'history';
 import { debounce } from 'lodash';
 import moment from 'moment';

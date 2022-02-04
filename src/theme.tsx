@@ -2,20 +2,26 @@ import {
   createTheme,
   responsiveFontSizes,
   useTheme,
-} from '@material-ui/core/styles';
-import createPalette from '@material-ui/core/styles/createPalette';
-import ThemeProvider from '@material-ui/styles/ThemeProvider';
+  ThemeProvider,
+} from '@mui/material/styles';
+import { Theme } from '@mui/material/styles';
 import React, { useCallback, useContext } from 'react';
 import { useEffect } from 'react';
 
 import { SettingsContext } from 'context/SettingsContextProvider';
 import { SettingsId } from 'generated/sdk';
 
-const Theme: React.FC = (props) => {
+// NOTE: This comes from: https://mui.com/guides/migration-v4/#types-property-quot-palette-quot-quot-spacing-quot-does-not-exist-on-type-defaulttheme
+declare module '@mui/styles/defaultTheme' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
+
+const ThemeWrapper: React.FC = (props) => {
   const { settings } = useContext(SettingsContext);
   const defaultTheme = useTheme();
 
-  const palette = createPalette({
+  const palette = {
     primary: {
       dark:
         settings?.get(SettingsId.PALETTE_PRIMARY_DARK)?.settingsValue ||
@@ -58,7 +64,7 @@ const Theme: React.FC = (props) => {
         settings.get(SettingsId.PALETTE_INFO_MAIN)?.settingsValue ||
         defaultTheme.palette.info.main,
     },
-  });
+  };
 
   const theme = responsiveFontSizes(
     createTheme({
@@ -87,4 +93,4 @@ const Theme: React.FC = (props) => {
   return <ThemeProvider theme={theme}>{props.children}</ThemeProvider>;
 };
 
-export default Theme;
+export default ThemeWrapper;

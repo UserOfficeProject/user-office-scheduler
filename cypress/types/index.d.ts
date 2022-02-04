@@ -36,6 +36,15 @@ declare global {
        *    cy.finishedLoading()
        */
       finishedLoading: () => void;
+      /**
+       * Checks if the datepicker is mobile or desktop and use the proper way of clearing and typing the value.
+       *
+       * @returns {typeof chooseDatePicker}
+       * @memberof Chainable
+       * @example
+       *    cy.chooseDatePicker(selector, value)
+       */
+      chooseDatePicker: (selector: string, value: string) => void;
       resetSchedulerDB: (includeSeeds?: boolean) => void;
       initializeSession(token: string): void;
       configureSession(token: string): void;

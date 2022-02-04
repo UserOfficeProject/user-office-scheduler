@@ -42,7 +42,7 @@ context('Permission tests', () => {
         'not.be.disabled'
       );
 
-      cy.get('[data-cy=input-instrument-select] [title="Open"]').click();
+      cy.get('[data-cy=input-instrument-select] [aria-label="Open"]').click();
 
       cy.get('[aria-labelledby=input-instrument-select-label]').as(
         'instruments'
@@ -74,7 +74,7 @@ context('Permission tests', () => {
         'not.be.disabled'
       );
 
-      cy.get('[data-cy=input-instrument-select] [title="Open"]').click();
+      cy.get('[data-cy=input-instrument-select] [aria-label="Open"]').click();
 
       cy.get('[aria-labelledby=input-instrument-select-label]').as(
         'instruments'
@@ -97,7 +97,7 @@ context('Permission tests', () => {
         'not.be.disabled'
       );
 
-      cy.get('[data-cy=input-instrument-select] [title="Open"]').click();
+      cy.get('[data-cy=input-instrument-select] [aria-label="Open"]').click();
 
       cy.get('[aria-labelledby=input-instrument-select-label]').as(
         'instruments'

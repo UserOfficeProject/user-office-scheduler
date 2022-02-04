@@ -1,4 +1,4 @@
-import { StylesProvider } from '@material-ui/core/styles';
+import { StyledEngineProvider } from '@mui/material/styles';
 import { SnackbarProvider } from 'notistack';
 import React, { useContext } from 'react';
 import { CookiesProvider } from 'react-cookie';
@@ -60,15 +60,15 @@ class App extends React.Component {
 
   render() {
     return (
-      <StylesProvider injectFirst>
+      <StyledEngineProvider injectFirst>
         <SnackbarProvider
           anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
           maxSnack={1}
         >
           <CookiesProvider>
-            <UserContextProvider>
-              <SettingsContextProvider>
-                <Theme>
+            <SettingsContextProvider>
+              <Theme>
+                <UserContextProvider>
                   <AppContextProvider>
                     <Router basename={process.env.PUBLIC_URL}>
                       <div className="App">
@@ -85,12 +85,12 @@ class App extends React.Component {
                       </div>
                     </Router>
                   </AppContextProvider>
-                </Theme>
-              </SettingsContextProvider>
-            </UserContextProvider>
+                </UserContextProvider>
+              </Theme>
+            </SettingsContextProvider>
           </CookiesProvider>
         </SnackbarProvider>
-      </StylesProvider>
+      </StyledEngineProvider>
     );
   }
 }

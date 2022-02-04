@@ -1,12 +1,12 @@
-import { makeStyles } from '@material-ui/core';
 import {
   ChevronRight as ChevronRightIcon,
   ExpandMore as ExpandMoreIcon,
   PriorityHigh as PriorityHighIcon,
-} from '@material-ui/icons';
-import { TreeView, TreeItem } from '@material-ui/lab';
+} from '@mui/icons-material';
+import { TreeView, TreeItem } from '@mui/lab';
+import makeStyles from '@mui/styles/makeStyles';
 import clsx from 'clsx';
-import * as _ from 'lodash';
+import { chain } from 'lodash';
 import React, {
   Dispatch,
   ReactNode,
@@ -77,7 +77,7 @@ export default function ProposalBookingTree({
 
   const groupedByCall: RenderTree[] = useMemo(
     () =>
-      _.chain(proposalBookings)
+      chain(proposalBookings)
         .groupBy(({ call: { id } }) => id)
         .map((proposalBookings, id) => ({
           id: `call-${id}`, // avoid numerical ID collision

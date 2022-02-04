@@ -64,7 +64,7 @@ context('Equipment tests', () => {
 
       cy.contains(newEquipment.name)
         .parent()
-        .find('[title="View equipment"]')
+        .find('[data-testid="VisibilityIcon"]')
         .click();
 
       cy.contains(newEquipment.name);
@@ -186,9 +186,12 @@ context('Equipment tests', () => {
       cy.get('[data-cy=underMaintenance]').click();
       cy.get('[data-cy=maintenanceTime-defined]').click();
 
-      cy.get('[data-cy=maintenanceStartsAt] input').clear();
-      cy.get('[data-cy=maintenanceStartsAt]').type(getHourDateTimeAfter(-24));
-      cy.get('[data-cy=maintenanceEndsAt]').type(getHourDateTimeAfter(48));
+      cy.get('[data-cy="start-equipment-maintanance-time-range"] input')
+        .clear()
+        .type(getHourDateTimeAfter(-24));
+      cy.get('[data-cy="end-equipment-maintanance-time-range"] input')
+        .clear()
+        .type(getHourDateTimeAfter(48));
 
       cy.get('[data-cy=btn-save-equipment]').click();
 

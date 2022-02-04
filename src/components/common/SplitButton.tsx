@@ -1,3 +1,4 @@
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import {
   Button,
   ButtonGroup,
@@ -7,8 +8,7 @@ import {
   Popper,
   MenuItem,
   MenuList,
-} from '@material-ui/core';
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+} from '@mui/material';
 import React, { useRef, useState } from 'react';
 
 type SplitButtonOption<T> = {
@@ -51,7 +51,7 @@ export default function SplitButton<T extends string>({
     setOpen((prevOpen) => !prevOpen);
   };
 
-  const handleClose = (event: React.MouseEvent<Document, MouseEvent>) => {
+  const handleClose = (event: MouseEvent | TouchEvent) => {
     if (
       anchorRef.current &&
       anchorRef.current.contains(event.target as HTMLElement)

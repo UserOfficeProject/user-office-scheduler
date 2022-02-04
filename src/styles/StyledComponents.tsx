@@ -1,43 +1,61 @@
-import { Container, Paper, styled, Theme } from '@material-ui/core';
-import { CSSProperties } from '@material-ui/core/styles/withStyles';
-import React from 'react';
+import {
+  PaperProps,
+  Paper,
+  styled,
+  Theme,
+  ContainerProps,
+  Container,
+} from '@mui/material';
 
-const getValueFromArrayProperty = (prop: number[], theme: Theme) =>
-  prop.map((item) => `${theme.spacing(item)}px`).join(' ');
+const getValueFromArrayProperty = (
+  prop: [number, number?, number?, number?],
+  theme: Theme
+) =>
+  prop.map((item) => `${item !== undefined && theme.spacing(item)}`).join(' ');
 
-export const StyledPaper = styled(({ ...other }) => <Paper {...other} />)(
-  ({ theme, ...props }: { theme: Theme } & CSSProperties) => {
-    const margin: string | number | undefined = Array.isArray(props.margin)
-      ? getValueFromArrayProperty(props.margin, theme)
-      : props.margin;
-    const padding: string | number | undefined = Array.isArray(props.padding)
-      ? getValueFromArrayProperty(props.padding, theme)
-      : props.padding;
+interface StyledPaperProps extends PaperProps {
+  margin?: [number, number?, number?, number?];
+  padding?: [number, number?, number?, number?];
+}
 
-    return {
-      margin: margin || theme.spacing(3, 0),
-      padding: padding || theme.spacing(2),
-      [theme.breakpoints.up(600 + theme.spacing(3) * 2)]: {
-        margin: margin || theme.spacing(6, 0),
-        padding: padding || theme.spacing(3),
-      },
-    };
-  }
-);
-
-export const ContentContainer = styled(({ maxWidth = false, ...other }) => (
-  <Container maxWidth={maxWidth} {...other} />
-))(({ theme, ...props }: { theme: Theme } & CSSProperties) => {
-  const padding: string | number | undefined = Array.isArray(props.padding)
-    ? getValueFromArrayProperty(props.padding, theme)
-    : props.padding;
+export const StyledPaper = styled(Paper, {
+  shouldForwardProp: (prop) => prop !== 'margin' && prop !== 'padding',
+})<StyledPaperProps>(({ margin, padding, theme }) => {
+  const marginValue: string | number | undefined = Array.isArray(margin)
+    ? getValueFromArrayProperty(margin, theme)
+    : margin;
+  const paddingValue: string | number | undefined = Array.isArray(padding)
+    ? getValueFromArrayProperty(padding, theme)
+    : padding;
 
   return {
-    padding: padding || theme.spacing(2, 2),
+    position: 'relative',
+    margin: marginValue || theme.spacing(3, 0),
+    padding: paddingValue || theme.spacing(2),
+    [theme.breakpoints.up(600)]: {
+      margin: marginValue || theme.spacing(6, 0),
+      padding: paddingValue || theme.spacing(3),
+    },
   };
 });
 
-export const ButtonContainer = styled(({ ...other }) => <div {...other} />)({
+interface StyledContainerProps extends ContainerProps {
+  padding?: [number, number?, number?, number?];
+}
+
+export const StyledContainer = styled(Container, {
+  shouldForwardProp: (prop) => prop !== 'margin' && prop !== 'padding',
+})<StyledContainerProps>(({ padding, theme }) => {
+  const paddingValue: string | number | undefined = Array.isArray(padding)
+    ? getValueFromArrayProperty(padding, theme)
+    : padding;
+
+  return {
+    padding: paddingValue || theme.spacing(4, 0),
+  };
+});
+
+export const ButtonContainer = styled('div')({
   display: 'flex',
   justifyContent: 'flex-end',
 });

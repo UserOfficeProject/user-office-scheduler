@@ -1,6 +1,10 @@
 import {
+  KeyboardArrowUp as KeyboardArrowUpIcon,
+  KeyboardArrowDown as KeyboardArrowDownIcon,
+  Delete as DeleteIcon,
+} from '@mui/icons-material';
+import {
   Typography,
-  makeStyles,
   TableRow,
   TableCell,
   IconButton,
@@ -11,12 +15,8 @@ import {
   TableContainer,
   Paper,
   Table as MuiTable,
-} from '@material-ui/core';
-import {
-  KeyboardArrowUp as KeyboardArrowUpIcon,
-  KeyboardArrowDown as KeyboardArrowDownIcon,
-  Delete as DeleteIcon,
-} from '@material-ui/icons';
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import React, { useState } from 'react';
 
 import {

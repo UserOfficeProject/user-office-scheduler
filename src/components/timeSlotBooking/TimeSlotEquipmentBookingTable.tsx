@@ -1,8 +1,7 @@
 import MaterialTable, { Column } from '@material-table/core';
-import { Button, makeStyles, Typography } from '@material-ui/core';
-import { Add as AddIcon } from '@material-ui/icons';
-import Alert from '@material-ui/lab/Alert';
-import AlertTitle from '@material-ui/lab/AlertTitle';
+import { Add as AddIcon } from '@mui/icons-material';
+import { Button, Typography, Alert, AlertTitle } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import { useSnackbar } from 'notistack';
 import React, { useState, Dispatch, SetStateAction, useEffect } from 'react';
 

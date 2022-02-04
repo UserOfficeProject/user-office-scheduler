@@ -1,8 +1,7 @@
-import { CircularProgress, makeStyles, Grid } from '@material-ui/core';
+import { CircularProgress, Grid, Container, Paper } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import clsx from 'clsx';
 import React from 'react';
-
-import { ContentContainer, StyledPaper } from 'styles/StyledComponents';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -10,7 +9,7 @@ const useStyles = makeStyles((theme) => ({
     top: 0,
     left: 0,
     zIndex: theme.zIndex.tooltip,
-    backgroundColor: 'rgba(255,255,255,0.7)',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
     width: '100%',
     height: '100%',
     display: 'flex',
@@ -49,18 +48,18 @@ function LoaderContainer({
   }
 
   return (
-    <ContentContainer maxWidth={false} className={classes.fullHeight}>
+    <Container maxWidth={false} className={classes.fullHeight}>
       <Grid container className={classes.fullHeight}>
         <Grid item xs={12} className={classes.fullHeight}>
-          <StyledPaper
-            margin={[0, 1]}
+          <Paper
+            sx={{ margin: [0, 1] }}
             className={clsx(classes.fullHeight, classes.relative)}
           >
             {children}
-          </StyledPaper>
+          </Paper>
         </Grid>
       </Grid>
-    </ContentContainer>
+    </Container>
   );
 }
 

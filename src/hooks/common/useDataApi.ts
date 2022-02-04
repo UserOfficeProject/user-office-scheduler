@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { getTranslation } from '@esss-swap/duo-localisation';
+import { getTranslation } from '@user-office-software/duo-localisation';
 import { GraphQLClient } from 'graphql-request';
 import { Variables } from 'graphql-request/dist/types';
 import jwtDecode from 'jwt-decode';

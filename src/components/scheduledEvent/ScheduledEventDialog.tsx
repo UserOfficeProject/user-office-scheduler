@@ -1,5 +1,3 @@
-import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
-import { createScheduledEventValidationSchema } from '@esss-swap/duo-validation';
 import {
   Dialog,
   DialogTitle,
@@ -7,7 +5,12 @@ import {
   DialogActions,
   Button,
   CircularProgress,
-} from '@material-ui/core';
+} from '@mui/material';
+import {
+  getTranslation,
+  ResourceId,
+} from '@user-office-software/duo-localisation';
+import { createScheduledEventValidationSchema } from '@user-office-software/duo-validation';
 import { Formik, Form } from 'formik';
 import moment from 'moment';
 import { useSnackbar } from 'notistack';

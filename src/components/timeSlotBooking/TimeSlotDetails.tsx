@@ -1,5 +1,19 @@
-import MomentUtils from '@date-io/moment';
 import {
+  CalendarToday as CalendarTodayIcon,
+  Person as PersonIcon,
+  Check as CheckIcon,
+  Clear as ClearIcon,
+  Info as InfoIcon,
+  AssignmentInd as PersonAssignedIcon,
+  PersonAdd as PersonAddIcon,
+  Edit,
+} from '@mui/icons-material';
+import AdapterMoment from '@mui/lab/AdapterMoment';
+import DateRangePicker, { DateRange } from '@mui/lab/DateRangePicker';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import {
+  Alert,
+  AlertTitle,
   Avatar,
   Divider,
   Grid,
@@ -8,28 +22,14 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
-  makeStyles,
   Typography,
-} from '@material-ui/core';
-import {
-  CalendarToday as CalendarTodayIcon,
-  HourglassEmpty as HourglassEmptyIcon,
-  Person as PersonIcon,
-  Check as CheckIcon,
-  Clear as ClearIcon,
-  Info as InfoIcon,
-  AssignmentInd as PersonAssignedIcon,
-  PersonAdd as PersonAddIcon,
-  Edit,
-} from '@material-ui/icons';
-import { Alert, AlertTitle } from '@material-ui/lab';
-import {
-  KeyboardDateTimePicker,
-  MuiPickersUtilsProvider,
-} from '@material-ui/pickers';
+  useTheme,
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import moment, { Moment } from 'moment';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
+import DateTimeRangePickerRenderInput from 'components/common/DateTimeRangePickerRenderInput';
 import PeopleModal from 'components/common/PeopleModal';
 import {
   BasicUserDetails,
@@ -38,10 +38,7 @@ import {
   UserRole,
 } from 'generated/sdk';
 import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
-import {
-  toTzLessDateTime,
-  TZ_LESS_DATE_TIME_LOW_PREC_FORMAT,
-} from 'utils/date';
+import { toTzLessDateTime } from 'utils/date';
 import { getFullUserName } from 'utils/user';
 
 const useStyles = makeStyles((theme) => ({
@@ -111,9 +108,25 @@ export default function TimeSlotDetails({
   isDirty,
   handleSetDirty,
 }: TimeSlotDetailsProps) {
-  const [editingStartDate, setEditingStartDate] = useState(false);
-  const [editingEndDate, setEditingEndDate] = useState(false);
+  const theme = useTheme();
+  const [editingDate, setEditingDate] = useState(false);
+  const [shouldOpenRangePicker, setShouldOpenRangePicker] =
+    useState<boolean>(false);
   const [showPeopleModal, setShowPeopleModal] = useState(false);
+  const [[startsAt, endsAt], setStartAndEndValues] = React.useState<
+    DateRange<Moment>
+  >([moment(scheduledEvent.startsAt), moment(scheduledEvent.endsAt)]);
+
+  useEffect(() => {
+    if (editingDate) {
+      // NOTE: This timeout is needed to open the range picker at the right position. Otherwise it is opened on the top left corner of the browser window.
+      setTimeout(() => {
+        setShouldOpenRangePicker(true);
+      });
+    } else {
+      setShouldOpenRangePicker(false);
+    }
+  }, [editingDate]);
 
   const isStepReadOnly =
     scheduledEvent.status === ProposalBookingStatusCore.COMPLETED;
@@ -121,12 +134,6 @@ export default function TimeSlotDetails({
 
   const classes = useStyles();
 
-  const [startsAt, setStartsAt] = useState<Moment | null>(
-    moment(scheduledEvent.startsAt)
-  );
-  const [endsAt, setEndsAt] = useState<Moment | null>(
-    moment(scheduledEvent.endsAt)
-  );
   const [isOutsideCallCycleInterval, setIsOutsideCallCycleInterval] = useState(
     checkIfOutsideCallCycleInterval(
       startsAt,
@@ -150,8 +157,7 @@ export default function TimeSlotDetails({
       endsAt: toTzLessDateTime(endsAt),
     });
 
-    setEditingStartDate(false);
-    setEditingEndDate(false);
+    setEditingDate(false);
 
     setIsOutsideCallCycleInterval(
       checkIfOutsideCallCycleInterval(
@@ -183,6 +189,18 @@ export default function TimeSlotDetails({
         ...proposalBooking.instrument.scientists,
       ]
     : [];
+
+  const onChangeHandler = ([newStartValue, newEndValue]: DateRange<Moment>) => {
+    if (newStartValue && newStartValue.hour() === 0) {
+      newStartValue.set({ hour: 9 });
+    }
+
+    if (newEndValue && newEndValue.hour() === 0) {
+      newEndValue.set({ hour: 9 });
+    }
+
+    setStartAndEndValues([newStartValue, newEndValue]);
+  };
 
   return (
     <>
@@ -217,8 +235,8 @@ export default function TimeSlotDetails({
         </Alert>
       )}
       <Grid container spacing={2}>
-        <MuiPickersUtilsProvider utils={MomentUtils}>
-          <Grid item sm={6} xs={12}>
+        <LocalizationProvider dateAdapter={AdapterMoment}>
+          <Grid item lg={9} sm={12}>
             <List className={classes.list} dense>
               <ListItem disableGutters>
                 <ListItemAvatar>
@@ -226,75 +244,93 @@ export default function TimeSlotDetails({
                     <CalendarTodayIcon />
                   </Avatar>
                 </ListItemAvatar>
-                {!editingStartDate && (
+                {!editingDate && (
                   <>
                     <ListItemText
                       onClick={() => {
-                        setEditingStartDate(isEditable);
+                        setEditingDate(isEditable);
                       }}
                       primary="Starts at"
                       data-cy="startsAtInfo"
-                      secondary={
-                        <>
-                          {toTzLessDateTime(startsAt as Moment)}
-                          {isEditable && (
-                            <Edit
-                              fontSize="small"
-                              className={classes.editIcon}
-                            />
-                          )}
-                        </>
-                      }
+                      secondary={toTzLessDateTime(startsAt as Moment)}
                     />
+
+                    <ListItemText primary="-" />
+
+                    <ListItemText
+                      primary="Ends at"
+                      data-cy="endsAtInfo"
+                      onClick={() => {
+                        setEditingDate(isEditable);
+                      }}
+                      secondary={toTzLessDateTime(endsAt as Moment)}
+                    />
+
+                    {isEditable && (
+                      <IconButton
+                        onClick={() => {
+                          setEditingDate(isEditable);
+                        }}
+                      >
+                        <Edit />
+                      </IconButton>
+                    )}
                   </>
                 )}
-                {editingStartDate && (
+                {editingDate && (
                   <>
-                    <KeyboardDateTimePicker
-                      required
-                      label="Starts at"
-                      name={`startsAt`}
-                      margin="none"
-                      size="small"
-                      format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
-                      ampm={false}
-                      minutesStep={60}
-                      fullWidth
-                      data-cy="startsAt"
-                      InputProps={{
-                        className: classes.smaller,
-                      }}
-                      value={startsAt}
-                      onChange={(newValue) => {
-                        if (newValue !== startsAt) {
-                          handleSetDirty(true);
-                        }
-                        setStartsAt(newValue);
-                      }}
+                    <DateRangePicker
+                      label="Experiment time start and end"
+                      // NOTE: Using this desktopModeMediaQuery because of cypress issue: https://github.com/cypress-io/cypress/issues/970#issuecomment-969971419
+                      desktopModeMediaQuery={theme.breakpoints.up('sm')}
+                      value={[startsAt, endsAt]}
+                      open={shouldOpenRangePicker}
+                      onOpen={() => setShouldOpenRangePicker(true)}
+                      onClose={() => setShouldOpenRangePicker(false)}
+                      disableCloseOnSelect={true}
+                      renderInput={(startProps, endProps) =>
+                        DateTimeRangePickerRenderInput({
+                          startProps,
+                          endProps,
+                          value: [startsAt, endsAt],
+                          betweenDatesText: '-',
+                          startText: 'Starts at',
+                          endText: 'Ends at',
+                          onChange: onChangeHandler,
+                          'data-cy': 'experiment-time-range',
+                        })
+                      }
+                      onChange={onChangeHandler}
                     />
                     <IconButton
+                      sx={{ ml: 2 }}
                       onClick={handleOnSave}
-                      data-cy="btn-time-table-save-row"
+                      data-cy="btn-save-experiment-range-change"
                     >
                       <CheckIcon />
                     </IconButton>
                     <IconButton
                       onClick={() => {
-                        setStartsAt(moment(scheduledEvent.startsAt));
-                        setEditingStartDate(false);
+                        setStartAndEndValues([
+                          moment(scheduledEvent.startsAt),
+                          moment(scheduledEvent.endsAt),
+                        ]);
+                        setEditingDate(false);
                       }}
-                      data-cy="btn-time-table-reset-row"
+                      data-cy="btn-reset-experiment-range-change"
                     >
                       <ClearIcon />
                     </IconButton>
                   </>
                 )}
               </ListItem>
-              <Divider
-                variant="inset"
-                component="li"
-                className={classes.divider}
-              />
+              {!editingDate && (
+                <Divider
+                  variant="inset"
+                  component="li"
+                  className={classes.divider}
+                />
+              )}
               <ListItem disableGutters>
                 <ListItemAvatar>
                   <Avatar>
@@ -326,13 +362,7 @@ export default function TimeSlotDetails({
                     </>
                   }
                 />
-              </ListItem>
-              <Divider
-                variant="inset"
-                component="li"
-                className={classes.divider}
-              />
-              <ListItem disableGutters>
+
                 <ListItemAvatar>
                   <Avatar>
                     <PersonIcon />
@@ -342,82 +372,7 @@ export default function TimeSlotDetails({
                   primary="Scheduled by"
                   secondary={getFullUserName(scheduledEvent.scheduledBy)}
                 />
-              </ListItem>
-            </List>
-          </Grid>
-          <Grid item sm={6} xs={12}>
-            <List className={classes.list} dense>
-              <ListItem disableGutters>
-                <ListItemAvatar>
-                  <Avatar>
-                    <HourglassEmptyIcon />
-                  </Avatar>
-                </ListItemAvatar>
-                {!editingEndDate && (
-                  <ListItemText
-                    primary="Ends at"
-                    data-cy="endsAtInfo"
-                    onClick={() => {
-                      setEditingEndDate(isEditable);
-                    }}
-                    secondary={
-                      <>
-                        {toTzLessDateTime(endsAt as Moment)}
-                        {isEditable && (
-                          <Edit fontSize="small" className={classes.editIcon} />
-                        )}
-                      </>
-                    }
-                  />
-                )}
-                {editingEndDate && (
-                  <>
-                    <KeyboardDateTimePicker
-                      required
-                      label="Ends at"
-                      name="endsAt"
-                      margin="none"
-                      size="small"
-                      format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
-                      ampm={false}
-                      minutesStep={60}
-                      fullWidth
-                      data-cy="endsAt"
-                      InputProps={{
-                        className: classes.smaller,
-                      }}
-                      value={endsAt}
-                      onChange={(newValue) => {
-                        if (newValue !== startsAt) {
-                          handleSetDirty(true);
-                        }
-                        setEndsAt(newValue);
-                      }}
-                    />
-                    <IconButton
-                      onClick={handleOnSave}
-                      data-cy="btn-time-table-save-row"
-                    >
-                      <CheckIcon />
-                    </IconButton>
-                    <IconButton
-                      onClick={() => {
-                        setEndsAt(moment(scheduledEvent.endsAt));
-                        setEditingEndDate(false);
-                      }}
-                      data-cy="btn-time-table-reset-row"
-                    >
-                      <ClearIcon />
-                    </IconButton>
-                  </>
-                )}
-              </ListItem>
-              <Divider
-                variant="inset"
-                component="li"
-                className={classes.divider}
-              />
-              <ListItem disableGutters>
+
                 <ListItemAvatar>
                   <Avatar>
                     <InfoIcon />
@@ -428,14 +383,9 @@ export default function TimeSlotDetails({
                   secondary={scheduledEvent.status}
                 />
               </ListItem>
-              <Divider
-                variant="inset"
-                component="li"
-                className={classes.divider}
-              />
             </List>
           </Grid>
-        </MuiPickersUtilsProvider>
+        </LocalizationProvider>
       </Grid>
     </>
   );

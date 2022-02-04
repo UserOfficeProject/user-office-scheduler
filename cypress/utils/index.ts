@@ -89,7 +89,7 @@ export const getFormattedEndOfSelectedWeek = (selectedWeek = 0) => {
 export const selectInstrument = (instrument?: string) => {
   cy.get('[data-cy=input-instrument-select] input').should('not.be.disabled');
 
-  cy.get('[data-cy=input-instrument-select] [title="Open"]').click();
+  cy.get('[data-cy=input-instrument-select] [aria-label="Open"]').click();
 
   if (instrument) {
     cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')

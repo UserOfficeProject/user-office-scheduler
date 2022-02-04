@@ -1,9 +1,9 @@
-import { ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
 import {
   CalendarToday as CalendarTodayIcon,
   Build as BuildIcon,
   LibraryAddCheck as LibraryAddCheckIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
+import { ListItem, ListItemIcon, ListItemText } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 

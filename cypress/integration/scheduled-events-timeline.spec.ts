@@ -261,11 +261,9 @@ context('Scheduled events timeline tests', () => {
 
       cy.contains(newScheduledEvent1.endsAt).parent().click();
 
-      cy.get('[role="none presentation"] [data-cy="startsAt"]').should('exist');
-      cy.get('[role="none presentation"] [data-cy="endsAt"]').should('exist');
-      cy.get('[role="none presentation"] [data-cy="bookingType"]').should(
-        'exist'
-      );
+      cy.get('[role="presentation"] [data-cy="startsAt"]').should('exist');
+      cy.get('[role="presentation"] [data-cy="endsAt"]').should('exist');
+      cy.get('[role="presentation"] [data-cy="bookingType"]').should('exist');
 
       cy.get('[data-cy="btn-close-dialog"]').click();
 
@@ -276,9 +274,9 @@ context('Scheduled events timeline tests', () => {
         .parent()
         .click();
 
-      cy.get('[role="none presentation"] [data-cy="btn-save"]').should('exist');
+      cy.get('[role="presentation"] [data-cy="btn-save"]').should('exist');
       cy.get(
-        '[role="none presentation"] [data-cy="activate-time-slot-booking"]'
+        '[role="presentation"] [data-cy="activate-time-slot-booking"]'
       ).should('exist');
 
       cy.contains(

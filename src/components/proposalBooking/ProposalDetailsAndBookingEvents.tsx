@@ -1,16 +1,3 @@
-import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
-import {
-  Avatar,
-  Divider,
-  Grid,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  makeStyles,
-  useTheme,
-  Tooltip,
-  Typography,
-} from '@material-ui/core';
 import {
   Comment as CommentIcon,
   EventAvailable as EventAvailableIcon,
@@ -21,7 +8,23 @@ import {
   Person,
   WarningOutlined,
   Info,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
+import {
+  Avatar,
+  Divider,
+  Grid,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  useTheme,
+  Tooltip,
+  Typography,
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import {
+  getTranslation,
+  ResourceId,
+} from '@user-office-software/duo-localisation';
 import clsx from 'clsx';
 import humanizeDuration from 'humanize-duration';
 import moment from 'moment';

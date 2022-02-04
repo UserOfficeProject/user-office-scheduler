@@ -1,13 +1,13 @@
+import { ChevronLeft } from '@mui/icons-material';
 import {
   CssBaseline,
   Divider,
   Drawer,
   IconButton,
   List,
-  makeStyles,
   useMediaQuery,
-} from '@material-ui/core';
-import { ChevronLeft } from '@material-ui/icons';
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import clsx from 'clsx';
 import React, { useEffect } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
@@ -52,6 +52,7 @@ const useStyles = makeStyles((theme) => ({
   },
   drawerOpen: {
     width: drawerWidth,
+    zIndex: theme.zIndex.drawer + 1,
     overflowX: 'hidden',
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,

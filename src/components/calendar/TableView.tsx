@@ -1,5 +1,5 @@
 import MaterialTable, { Column } from '@material-table/core';
-import ViewIcon from '@material-ui/icons/Visibility';
+import ViewIcon from '@mui/icons-material/Visibility';
 import React from 'react';
 
 import { tableIcons } from 'components/common/TableIcons';

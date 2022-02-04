@@ -1,9 +1,8 @@
-import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
+import { ChevronLeft, Close as CloseIcon } from '@mui/icons-material';
 import {
   IconButton,
   Collapse,
   Grid,
-  makeStyles,
   useTheme,
   Tooltip,
   useMediaQuery,
@@ -11,9 +10,13 @@ import {
   InputLabel,
   Select,
   MenuItem,
-} from '@material-ui/core';
-import ChevronLeft from '@material-ui/icons/ChevronLeft';
-import CloseIcon from '@material-ui/icons/Close';
+  SelectChangeEvent,
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import {
+  getTranslation,
+  ResourceId,
+} from '@user-office-software/duo-localisation';
 import generateScheduledEventFilter from 'filters/scheduledEvent/scheduledEventsFilter';
 import moment from 'moment';
 import 'moment/locale/en-gb';
@@ -54,7 +57,7 @@ import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 import useInstrumentProposalBookings from 'hooks/proposalBooking/useInstrumentProposalBookings';
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
 import useScheduledEvents from 'hooks/scheduledEvent/useScheduledEvents';
-import { ContentContainer, StyledPaper } from 'styles/StyledComponents';
+import { StyledContainer, StyledPaper } from 'styles/StyledComponents';
 import {
   parseTzLessDateTime,
   toTzLessDateTime,
@@ -623,10 +626,7 @@ export default function CalendarViewContainer() {
   };
 
   const onSchedulerActiveViewChange = (
-    event: React.ChangeEvent<{
-      name?: string | undefined;
-      value: unknown;
-    }>
+    event: SelectChangeEvent<SchedulerViews>
   ) => {
     const schedulerNewView = event.target.value as SchedulerViews;
     setSchedulerActiveView(schedulerNewView);
@@ -677,7 +677,7 @@ export default function CalendarViewContainer() {
   // 100% height needed for month view
   // also the other components make whole page scrollable without it
   return (
-    <ContentContainer
+    <StyledContainer
       maxWidth={false}
       className={
         schedulerActiveView !== SchedulerViews.TABLE && isTabletOrLarger
@@ -793,6 +793,7 @@ export default function CalendarViewContainer() {
                     <Select
                       value={schedulerActiveView}
                       label="Scheduler view"
+                      variant="standard"
                       labelId="scheduler-view-label"
                       margin="dense"
                       onChange={onSchedulerActiveViewChange}
@@ -822,6 +823,6 @@ export default function CalendarViewContainer() {
           </StyledPaper>
         </Grid>
       </Grid>
-    </ContentContainer>
+    </StyledContainer>
   );
 }

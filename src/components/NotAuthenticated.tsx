@@ -1,10 +1,5 @@
-import {
-  makeStyles,
-  Button,
-  Typography,
-  CircularProgress,
-} from '@material-ui/core';
-import { Alert } from '@material-ui/lab';
+import { Button, Typography, CircularProgress, Alert } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import React, { useContext } from 'react';
 import { Redirect } from 'react-router';
 

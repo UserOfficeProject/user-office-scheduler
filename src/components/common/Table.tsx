@@ -3,7 +3,6 @@ import {
   Checkbox,
   IconButton,
   lighten,
-  makeStyles,
   Table as MUiTable,
   TableBody,
   TableCell,
@@ -12,13 +11,12 @@ import {
   TablePagination,
   TableRow,
   TableSortLabel,
-  Theme,
   Toolbar,
   Tooltip,
   Typography,
   LabelDisplayedRowsArgs,
-  Padding,
-} from '@material-ui/core';
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import clsx from 'clsx';
 import React, { useState, useEffect } from 'react';
 
@@ -87,7 +85,7 @@ function stableSort<T>(array: T[], comparator: (a: T, b: T) => number) {
 export interface HeadCell<T> {
   id: keyof T;
   label: string;
-  padding?: Padding;
+  padding?: 'normal' | 'checkbox' | 'none';
   numeric?: boolean;
 }
 
@@ -173,13 +171,13 @@ function EnhancedTableHead<T>(props: EnhancedTableProps<T>) {
   );
 }
 
-const useToolbarStyles = makeStyles((theme: Theme) => ({
+const useToolbarStyles = makeStyles((theme) => ({
   root: {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(1),
   },
   highlight:
-    theme.palette.type === 'light'
+    theme.palette.mode === 'light'
       ? {
           color: theme.palette.secondary.main,
           backgroundColor: lighten(theme.palette.secondary.light, 0.9),

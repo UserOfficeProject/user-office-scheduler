@@ -1,6 +1,6 @@
-import MomentUtils from '@date-io/moment';
-import { getTranslation, ResourceId } from '@esss-swap/duo-localisation';
-import { equipmentValidationSchema } from '@esss-swap/duo-validation';
+import { Save as SaveIcon } from '@mui/icons-material';
+import AdapterMoment from '@mui/lab/AdapterMoment';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import {
   Grid,
   FormControlLabel,
@@ -13,32 +13,38 @@ import {
   Button,
   CircularProgress,
   Box,
-} from '@material-ui/core';
-import { Save as SaveIcon } from '@material-ui/icons';
-import { MuiPickersUtilsProvider } from '@material-ui/pickers';
+  useTheme,
+} from '@mui/material';
+import {
+  getTranslation,
+  ResourceId,
+} from '@user-office-software/duo-localisation';
+import { equipmentValidationSchema } from '@user-office-software/duo-validation';
 import { Formik, Form, Field } from 'formik';
-import { TextField, CheckboxWithLabel } from 'formik-material-ui';
-import { KeyboardDateTimePicker } from 'formik-material-ui-pickers';
+import { TextField, CheckboxWithLabel } from 'formik-mui';
 import moment, { Moment } from 'moment';
 import { useSnackbar } from 'notistack';
 import React, { useState, useEffect } from 'react';
 import { useParams, useHistory, generatePath } from 'react-router';
 
 import FormikColorPicker from 'components/common/FormikColorPicker';
+import FormikDateTimeRangePicker from 'components/common/FormikDateTimeRangePicker';
 import Loader from 'components/common/Loader';
 import { PATH_VIEW_EQUIPMENT } from 'components/paths';
 import { Equipment, EquipmentInput } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import useEquipment from 'hooks/equipment/useEquipment';
-import { ContentContainer, StyledPaper } from 'styles/StyledComponents';
+import { StyledContainer, StyledPaper } from 'styles/StyledComponents';
 import {
   toTzLessDateTime,
   parseTzLessDateTime,
   TZ_LESS_DATE_TIME_LOW_PREC_FORMAT,
+  TZ_LESS_DATE_TIME_LOW_PREC_MASK,
 } from 'utils/date';
 
 export default function CreateEditEquipment() {
   const history = useHistory();
+  const theme = useTheme();
   const { enqueueSnackbar } = useSnackbar();
   const { id } = useParams<{ id?: string }>();
   const [underMaintenance, setUnderMaintenance] = useState(false);
@@ -83,42 +89,49 @@ export default function CreateEditEquipment() {
     ? {
         name: equipment.name,
         description: equipment.description || '',
-        maintenanceStartsAt: equipment.maintenanceStartsAt
-          ? parseTzLessDateTime(equipment.maintenanceStartsAt)
-          : null,
-        maintenanceEndsAt: equipment.maintenanceEndsAt
-          ? parseTzLessDateTime(equipment.maintenanceEndsAt)
-          : null,
+        maintenanceStartsEndsAt: [
+          equipment.maintenanceStartsAt
+            ? parseTzLessDateTime(equipment.maintenanceStartsAt)
+            : null,
+          equipment.maintenanceEndsAt
+            ? parseTzLessDateTime(equipment.maintenanceEndsAt)
+            : null,
+        ],
         autoAccept: equipment.autoAccept,
         color: equipment.color || '#7cb5ec',
       }
     : {
         name: '',
         description: '',
-        maintenanceStartsAt: null,
-        maintenanceEndsAt: null,
+        maintenanceStartsEndsAt: [moment(), moment()],
         autoAccept: false,
         color: '#7cb5ec',
       };
 
   return (
-    <ContentContainer maxWidth={false}>
+    <StyledContainer maxWidth={false}>
       <Grid container>
         <Grid item xs={12}>
-          <StyledPaper margin={[0, 1]}>
+          <StyledPaper sx={{ margin: [0, 1] }}>
             <Formik
               initialValues={initialValues}
               validationSchema={equipmentValidationSchema}
               onSubmit={async (values, helper): Promise<void> => {
+                const [maintenanceStartsAt, maintenanceEndsAt] =
+                  values.maintenanceStartsEndsAt;
+
                 if (underMaintenance && indefiniteMaintenance === '0') {
-                  if (
-                    !values.maintenanceStartsAt ||
-                    !values.maintenanceEndsAt
-                  ) {
-                    !values.maintenanceStartsAt &&
-                      helper.setFieldError('maintenanceStartsAt', 'Required');
-                    !values.maintenanceEndsAt &&
-                      helper.setFieldError('maintenanceEndsAt', 'Required');
+                  if (!maintenanceStartsAt || !maintenanceEndsAt) {
+                    !maintenanceStartsAt &&
+                      helper.setFieldError(
+                        'maintenanceStartsEndsAt',
+                        'Required'
+                      );
+                    !maintenanceEndsAt &&
+                      helper.setFieldError(
+                        'maintenanceStartsEndsAt',
+                        'Required'
+                      );
 
                     return;
                   }
@@ -145,10 +158,10 @@ export default function CreateEditEquipment() {
                   input.maintenanceEndsAt = null;
                 } else {
                   input.maintenanceStartsAt = toTzLessDateTime(
-                    values.maintenanceStartsAt as Moment
+                    maintenanceStartsAt as Moment
                   );
                   input.maintenanceEndsAt = toTzLessDateTime(
-                    values.maintenanceEndsAt as Moment
+                    maintenanceEndsAt as Moment
                   );
                 }
 
@@ -188,6 +201,7 @@ export default function CreateEditEquipment() {
                       name="name"
                       label="Equipment name"
                       margin="normal"
+                      variant="standard"
                       fullWidth
                       data-cy="name"
                     />
@@ -197,6 +211,7 @@ export default function CreateEditEquipment() {
                       name="description"
                       label="Equipment description"
                       margin="normal"
+                      variant="standard"
                       fullWidth
                       multiline
                       minRows="3"
@@ -272,30 +287,33 @@ export default function CreateEditEquipment() {
                             {indefiniteMaintenance === '0' && (
                               <FormGroup row>
                                 <FormControl margin="normal">
-                                  <MuiPickersUtilsProvider utils={MomentUtils}>
+                                  <LocalizationProvider
+                                    dateAdapter={AdapterMoment}
+                                  >
                                     <Field
-                                      component={KeyboardDateTimePicker}
-                                      name="maintenanceStartsAt"
-                                      margin="normal"
+                                      component={FormikDateTimeRangePicker}
+                                      desktopModeMediaQuery={theme.breakpoints.up(
+                                        'sm'
+                                      )}
+                                      orientation="portrait"
+                                      name="maintenanceStartsEndsAt"
+                                      startText="Starts at"
+                                      helperText="test test"
+                                      endText="Ends at"
                                       label="Starts at"
-                                      format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
+                                      data-cy="equipment-maintanance-time-range"
+                                      textField={{
+                                        variant: 'standard',
+                                        margin: 'normal',
+                                      }}
+                                      inputFormat={
+                                        TZ_LESS_DATE_TIME_LOW_PREC_FORMAT
+                                      }
+                                      mask={TZ_LESS_DATE_TIME_LOW_PREC_MASK}
                                       ampm={false}
                                       minutesStep={60}
-                                      fullWidth
-                                      data-cy="maintenanceStartsAt"
                                     />
-                                    <Field
-                                      component={KeyboardDateTimePicker}
-                                      name="maintenanceEndsAt"
-                                      margin="normal"
-                                      label="Ends at"
-                                      format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
-                                      ampm={false}
-                                      minutesStep={60}
-                                      fullWidth
-                                      data-cy="maintenanceEndsAt"
-                                    />
-                                  </MuiPickersUtilsProvider>
+                                  </LocalizationProvider>
                                 </FormControl>
                               </FormGroup>
                             )}
@@ -332,6 +350,6 @@ export default function CreateEditEquipment() {
           </StyledPaper>
         </Grid>
       </Grid>
-    </ContentContainer>
+    </StyledContainer>
   );
 }

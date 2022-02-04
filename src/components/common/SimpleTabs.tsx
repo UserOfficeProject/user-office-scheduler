@@ -1,14 +1,9 @@
-import {
-  Button,
-  CircularProgress,
-  Paper,
-  useMediaQuery,
-} from '@material-ui/core';
-import Box from '@material-ui/core/Box';
-import { makeStyles, Theme } from '@material-ui/core/styles';
-import Tab from '@material-ui/core/Tab';
-import Tabs from '@material-ui/core/Tabs';
-import { Add as AddIcon } from '@material-ui/icons';
+import { Add as AddIcon } from '@mui/icons-material';
+import { Button, CircularProgress, Paper, useMediaQuery } from '@mui/material';
+import Box from '@mui/material/Box';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
+import makeStyles from '@mui/styles/makeStyles';
 import React, { useEffect, useState } from 'react';
 
 interface TabPanelProps {
@@ -52,7 +47,7 @@ type SimpleTabsProps = {
   noItemsText?: string;
 };
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
     backgroundColor: theme.palette.background.paper,
@@ -111,7 +106,7 @@ const SimpleTabs: React.FC<SimpleTabsProps> = ({
   }, [tab]);
 
   const handleChange = (
-    event: React.ChangeEvent<Record<string, unknown>>,
+    event: React.SyntheticEvent<Element, Event>,
     newValue: number
   ) => {
     setValue(newValue);
@@ -138,7 +133,7 @@ const SimpleTabs: React.FC<SimpleTabsProps> = ({
         value={value}
         textColor="primary"
         variant="scrollable"
-        scrollButtons={isMobile ? 'on' : 'auto'}
+        scrollButtons={isMobile ? true : 'auto'}
         onChange={handleChange}
         aria-label={`${orientation} tabs example`}
         indicatorColor="primary"

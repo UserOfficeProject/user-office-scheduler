@@ -1,6 +1,6 @@
 import MaterialTable, { Column } from '@material-table/core';
-import { Grid } from '@material-ui/core';
-import { Check as CheckIcon, Clear as ClearIcon } from '@material-ui/icons';
+import { Check as CheckIcon, Clear as ClearIcon } from '@mui/icons-material';
+import { Grid } from '@mui/material';
 import moment, { Moment } from 'moment';
 import { useSnackbar } from 'notistack';
 import React, { useState, useEffect, useContext } from 'react';
@@ -11,7 +11,7 @@ import { AppContext } from 'context/AppContext';
 import { EquipmentAssignmentStatus } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
-import { ContentContainer, StyledPaper } from 'styles/StyledComponents';
+import { StyledContainer, StyledPaper } from 'styles/StyledComponents';
 import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
 import { getFullUserName } from 'utils/user';
 
@@ -165,10 +165,10 @@ export default function ViewRequests() {
   ): JSX.Element => <ClearIcon {...props} />;
 
   return (
-    <ContentContainer maxWidth={false}>
+    <StyledContainer maxWidth={false}>
       <Grid container>
         <Grid item xs={12}>
-          <StyledPaper margin={[0, 1]}>
+          <StyledPaper sx={{ margin: [0, 1] }}>
             <div data-cy="equipments-requests-table">
               <MaterialTable
                 icons={tableIcons}
@@ -208,6 +208,6 @@ export default function ViewRequests() {
           </StyledPaper>
         </Grid>
       </Grid>
-    </ContentContainer>
+    </StyledContainer>
   );
 }

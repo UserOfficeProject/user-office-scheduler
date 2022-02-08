@@ -8,7 +8,10 @@ import {
 } from '../utils';
 
 const existingProposalBookingId = 1;
-const existingInstrumentId = 1;
+const existingInstrument = {
+  id: 1,
+  name: 'Instrument 1',
+};
 
 const newEquipment = {
   name: faker.random.words(2),
@@ -17,7 +20,7 @@ const newEquipment = {
 };
 
 const createdUserOperationsEvent = {
-  instrumentId: existingInstrumentId,
+  instrumentId: existingInstrument.id,
   proposalBookingId: existingProposalBookingId,
   bookingType: ScheduledEventBookingType.USER_OPERATIONS,
   startsAt: defaultEventBookingHourDateTime,
@@ -89,9 +92,26 @@ context('Equipment tests', () => {
       cy.contains(newEquipment.name).parent().contains(newDescription);
     });
 
-    it('should be able to change equipment color', () => {
-      const newColorHex = '#ff0000'; // Red color HEX
-      const newColorRgb = 'rgb(255, 0, 0)'; // Red color RGB
+    it('should be able to add equipment instruments and not allowed to remove if there are events', () => {
+      cy.get('[data-cy=btn-edit-equipment]').click();
+      cy.get('[data-cy="equipment-instruments"] input').click();
+
+      cy.get('[role="presentation"] ul li')
+        .contains(existingInstrument.name)
+        .click();
+
+      cy.get('[data-cy=btn-save-equipment]').click();
+      cy.finishedLoading();
+      cy.contains(existingInstrument.name);
+
+      cy.get('.MuiDrawer-root').contains('Equipment list').click();
+
+      cy.contains('5 rows').click();
+      cy.get('.MuiTablePagination-menuItem[data-value="10"]').click();
+
+      cy.finishedLoading();
+      cy.contains(newEquipment.name).parent().contains(existingInstrument.name);
+
       cy.createEvent({ input: createdUserOperationsEvent }).then((result) => {
         const newCreatedEvent = result.createScheduledEvent.scheduledEvent;
         if (newCreatedEvent) {
@@ -103,6 +123,54 @@ context('Equipment tests', () => {
             },
           });
         }
+      });
+
+      cy.visit(`/equipments/${createdEquipmentId}/edit`, { timeout: 15000 });
+
+      cy.finishedLoading();
+
+      cy.get(
+        '[data-cy="equipment-instruments"] [data-testid="CancelIcon"]'
+      ).click();
+      cy.get('[data-cy=btn-save-equipment]').click();
+      cy.contains('operation is not allowed', { matchCase: false });
+
+      cy.get('[data-cy="equipment-instruments"]').should(
+        'contain.text',
+        existingInstrument.name
+      );
+
+      cy.get('.MuiDrawer-root').contains('Equipment list').click();
+
+      cy.contains('5 rows').click();
+      cy.get('.MuiTablePagination-menuItem[data-value="10"]').click();
+
+      cy.finishedLoading();
+      cy.contains(newEquipment.name).parent().contains(existingInstrument.name);
+    });
+
+    it('should be able to change equipment color', () => {
+      const newColorHex = '#ff0000'; // Red color HEX
+      const newColorRgb = 'rgb(255, 0, 0)'; // Red color RGB
+      cy.updateEquipment({
+        id: createdEquipmentId,
+        updateEquipmentInput: {
+          ...newEquipment,
+          instrumentIds: [existingInstrument.id],
+        },
+      }).then(() => {
+        cy.createEvent({ input: createdUserOperationsEvent }).then((result) => {
+          const newCreatedEvent = result.createScheduledEvent.scheduledEvent;
+          if (newCreatedEvent) {
+            cy.assignEquipmentToScheduledEvent({
+              assignEquipmentsToScheduledEventInput: {
+                equipmentIds: [createdEquipmentId],
+                scheduledEventId: newCreatedEvent.id,
+                proposalBookingId: existingProposalBookingId,
+              },
+            });
+          }
+        });
       });
 
       cy.get('[data-cy=btn-edit-equipment]').click();
@@ -126,7 +194,9 @@ context('Equipment tests', () => {
       cy.get('.MuiTablePagination-menuItem[data-value="10"]').click();
 
       cy.finishedLoading();
-      cy.contains(newEquipment.name).parent().contains(newColorHex);
+      cy.contains(newEquipment.name)
+        .parent()
+        .should('include.html', newColorRgb);
 
       cy.contains('Calendar').click();
 

@@ -96,7 +96,6 @@ export default function TimeSlotEquipmentBookingTable({
                 marginRight: '8px',
               }}
             ></span>
-            {rowData.color}
           </>
         ) : (
           'None'

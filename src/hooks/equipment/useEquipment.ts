@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 
 import { Equipment, User, Maybe } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
+import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 
 export type DetailedEquipment = Pick<
   Equipment,
@@ -15,6 +16,7 @@ export type DetailedEquipment = Pick<
   | 'maintenanceEndsAt'
   | 'autoAccept'
 > & {
+  equipmentInstruments: PartialInstrument[];
   owner: Maybe<Pick<User, 'id' | 'firstname' | 'lastname'>>;
   equipmentResponsible: Array<Pick<User, 'id' | 'firstname' | 'lastname'>>;
 };

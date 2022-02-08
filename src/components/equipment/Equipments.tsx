@@ -13,6 +13,7 @@ import { tableIcons } from 'components/common/TableIcons';
 import { PATH_CREATE_EQUIPMENT } from 'components/paths';
 import useEquipments, { PartialEquipment } from 'hooks/equipment/useEquipments';
 import { StyledContainer, StyledPaper } from 'styles/StyledComponents';
+import { comaSeparatedArrayValues } from 'utils/common';
 
 // NOTE: Keep columns outside the component to avoid console warning(https://github.com/material-table-core/core/issues/286)
 const columns: Column<PartialEquipment>[] = [
@@ -30,11 +31,17 @@ const columns: Column<PartialEquipment>[] = [
               marginRight: '8px',
             }}
           ></span>
-          {rowData.color}
         </>
       ) : (
-        'None'
+        '-'
       ),
+  },
+  {
+    title: 'Instruments',
+    render: (rowData) =>
+      rowData.equipmentInstruments.length
+        ? comaSeparatedArrayValues(rowData.equipmentInstruments, 'name')
+        : '-',
   },
 ];
 
@@ -50,7 +57,7 @@ export default function Equipments() {
     <StyledContainer maxWidth={false}>
       <Grid container>
         <Grid item xs={12}>
-          <StyledPaper sx={{ margin: [0, 1] }} data-cy="role-selection-table">
+          <StyledPaper margin={[0, 1]} data-cy="role-selection-table">
             <MaterialTable
               icons={tableIcons}
               title="Equipments"

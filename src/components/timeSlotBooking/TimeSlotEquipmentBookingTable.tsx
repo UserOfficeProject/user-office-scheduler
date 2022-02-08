@@ -69,7 +69,6 @@ const columns: Column<ScheduledEventEquipment>[] = [
               marginRight: '8px',
             }}
           ></span>
-          {rowData.color}
         </>
       ) : (
         'None'

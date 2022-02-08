@@ -19,5 +19,9 @@ query getEquipment($id: Int!) {
       firstname
       lastname
     }
+    equipmentInstruments {
+      id
+      name
+    }
   }
 }

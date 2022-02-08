@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 
 import { Equipment } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
+import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 
 export type PartialEquipment = Pick<
   Equipment,
@@ -12,7 +13,7 @@ export type PartialEquipment = Pick<
   | 'maintenanceStartsAt'
   | 'maintenanceEndsAt'
   | 'autoAccept'
->;
+> & { equipmentInstruments: PartialInstrument[] };
 
 export default function useEquipments() {
   const [loading, setLoading] = useState(true);

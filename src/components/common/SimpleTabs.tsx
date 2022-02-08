@@ -52,10 +52,6 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     backgroundColor: theme.palette.background.paper,
     display: 'flex',
-    minHeight: '500px',
-  },
-  rootHeightLimit: {
-    height: '500px', // NOTE: When orientation is vertical we limit the height to have better user experience
   },
   tabs: {
     width: 'auto',
@@ -91,7 +87,6 @@ const SimpleTabs: React.FC<SimpleTabsProps> = ({
   const classes = useStyles();
   const [value, setValue] = useState(tab || 0);
   const [isAddingNewItem, setIsAddingNewItem] = useState(false);
-  const isExtraLargeScreen = useMediaQuery('(min-height: 1200px)');
   const noItems = children.length === 0;
 
   // NOTE: If screen is mobile use horizontal orientation for space optimization
@@ -119,16 +114,12 @@ const SimpleTabs: React.FC<SimpleTabsProps> = ({
     setIsAddingNewItem(false);
   };
 
-  // NOTE: If screen is extra large do not limit the tabs height for space optimization
-  const rootClasses = isExtraLargeScreen
-    ? classes.root
-    : `${classes.root} ${classes.rootHeightLimit}`;
   const tabsClasses = `${classes.tabs} ${
     isVerticalOrientation && classes.tabsRightBorder
   } ${noItems && classes.tabsNoItems}`;
 
   return (
-    <Paper elevation={3} className={isVerticalOrientation ? rootClasses : ''}>
+    <Paper elevation={3} className={isVerticalOrientation ? classes.root : ''}>
       <Tabs
         value={value}
         textColor="primary"

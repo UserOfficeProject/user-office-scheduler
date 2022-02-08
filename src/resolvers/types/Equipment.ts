@@ -16,6 +16,7 @@ import {
   EquipmentAssignmentStatus,
 } from '../../models/Equipment';
 import { TzLessDateTime } from '../CustomScalars';
+import { Instrument } from './Instrument';
 import { ScheduledEvent } from './ScheduledEvent';
 import { User } from './User';
 
@@ -83,5 +84,13 @@ export class EquipmentResolvers {
     @Ctx() ctx: ResolverContext
   ): Promise<User[]> {
     return ctx.queries.equipment.getEquipmentResponsible(ctx, equipment.id);
+  }
+
+  @FieldResolver(() => [Instrument])
+  equipmentInstruments(
+    @Root() equipment: Equipment,
+    @Ctx() ctx: ResolverContext
+  ): Promise<Instrument[]> {
+    return ctx.queries.equipment.getEquipmentInstruments(ctx, equipment.id);
   }
 }

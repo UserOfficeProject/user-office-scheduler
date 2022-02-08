@@ -7,6 +7,7 @@ import { isUserOfficer } from '../helpers/permissionHelpers';
 import {
   Equipment,
   EquipmentAssignmentStatus,
+  EquipmentInstrument,
   EquipmentResponsible,
 } from '../models/Equipment';
 import { Roles } from '../types/shared';
@@ -96,5 +97,13 @@ export default class EquipmentQueries {
     equipmentId: number
   ): Promise<EquipmentResponsible[]> {
     return this.equipmentDataSource.getEquipmentResponsible(equipmentId);
+  }
+
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
+  getEquipmentInstruments(
+    ctx: ResolverContext,
+    equipmentId: number
+  ): Promise<EquipmentInstrument[]> {
+    return this.equipmentDataSource.getEquipmentInstruments(equipmentId);
   }
 }

@@ -1,12 +1,17 @@
+import { logger } from '@user-office-software/duo-logger';
+import { ApolloError } from 'apollo-server';
+
 import {
   Equipment,
   EquipmentAssignmentStatus,
+  EquipmentInstrument,
   EquipmentResponsible,
 } from '../../models/Equipment';
 import {
   EquipmentsScheduledEvent,
   ScheduledEvent,
 } from '../../models/ScheduledEvent';
+import { Rejection, rejection, isRejection } from '../../rejection';
 import {
   EquipmentInput,
   AssignEquipmentsToScheduledEventInput,
@@ -24,6 +29,9 @@ import {
   EquipmentsScheduledEventsRecord,
   EquipmentResponsibleRecord,
   createEquipmentResponsibleObject,
+  createEquipmentInstrumentObject,
+  EquipmentInstrumentRecord,
+  ScheduledEventRecord,
 } from './records';
 
 export default class PostgresEquipmentDataSource
@@ -33,37 +41,149 @@ export default class PostgresEquipmentDataSource
   readonly scheduledEventsTable = 'scheduled_events';
   readonly scheduledEventsEquipmentsTable = 'scheduled_events_equipments';
   readonly equipmentResponsibleTable = 'equipment_responsible';
+  readonly equipmentInstrumentsTable = 'equipment_instruments';
 
   async create(userId: number, input: EquipmentInput): Promise<Equipment> {
-    const [equipmentRecord] = await database<EquipmentRecord>(this.tableName)
-      .insert({
-        owner_id: userId,
-        name: input.name,
-        description: input.description,
-        color: input.color,
-        maintenance_starts_at: input.maintenanceStartsAt,
-        maintenance_ends_at: input.maintenanceEndsAt,
-        auto_accept: input.autoAccept,
-      })
-      .returning('*');
+    const equipmentRecord = await database.transaction(async (trx) => {
+      const {
+        name,
+        description,
+        color,
+        maintenanceStartsAt,
+        maintenanceEndsAt,
+        autoAccept,
+        instrumentIds,
+      } = input;
+
+      const [equipmentRecord] = await trx<EquipmentRecord>(this.tableName)
+        .insert({
+          owner_id: userId,
+          name: name,
+          description: description,
+          color: color,
+          maintenance_starts_at: maintenanceStartsAt,
+          maintenance_ends_at: maintenanceEndsAt,
+          auto_accept: autoAccept,
+        })
+        .returning('*');
+
+      if (instrumentIds?.length) {
+        await trx<EquipmentInstrumentRecord>(this.equipmentInstrumentsTable)
+          .insert(
+            instrumentIds.map((instrumentId) => ({
+              equipment_id: equipmentRecord.equipment_id,
+              instrument_id: instrumentId,
+            }))
+          )
+          .returning<EquipmentInstrumentRecord[]>(['*']);
+      }
+
+      return equipmentRecord;
+    });
 
     return createEquipmentObject(equipmentRecord);
   }
 
-  async update(id: number, input: EquipmentInput): Promise<Equipment | null> {
-    const [equipmentRecord] = await database<EquipmentRecord>(this.tableName)
-      .update({
-        name: input.name,
-        description: input.description,
-        color: input.color,
-        maintenance_starts_at: input.maintenanceStartsAt,
-        maintenance_ends_at: input.maintenanceEndsAt,
-        auto_accept: input.autoAccept,
-      })
-      .where('equipment_id', id)
-      .returning('*');
+  async getEquipmentEventsOnInstrument(
+    equipmentId: number,
+    newInstrumentIds: number[] | undefined
+  ) {
+    const existingEquipmentInstrumentIds = (
+      await database<EquipmentInstrumentRecord>(
+        this.equipmentInstrumentsTable
+      ).where('equipment_id', '=', equipmentId)
+    ).map((item) => item.instrument_id);
 
-    return equipmentRecord ? createEquipmentObject(equipmentRecord) : null;
+    const removedEquipmentInstrumentIds = existingEquipmentInstrumentIds.filter(
+      (n) => !newInstrumentIds?.includes(n)
+    );
+
+    return await database<EquipmentInstrumentRecord>(
+      this.scheduledEventsEquipmentsTable
+    )
+      .join(
+        this.scheduledEventsTable,
+        `${this.scheduledEventsEquipmentsTable}.scheduled_event_id`,
+        `${this.scheduledEventsTable}.scheduled_event_id`
+      )
+      .whereIn('instrument_id', removedEquipmentInstrumentIds)
+      .andWhere('equipment_id', '=', equipmentId);
+  }
+
+  async update(
+    id: number,
+    input: EquipmentInput
+  ): Promise<Equipment | Rejection | null> {
+    const equipmentRecord = await database
+      .transaction(async (trx) => {
+        const {
+          name,
+          description,
+          color,
+          maintenanceStartsAt,
+          maintenanceEndsAt,
+          autoAccept,
+          instrumentIds,
+        } = input;
+
+        const equipmentEventBookedOnRemovedInstrument =
+          await this.getEquipmentEventsOnInstrument(id, input.instrumentIds);
+
+        if (equipmentEventBookedOnRemovedInstrument?.length) {
+          logger.logWarn(
+            'Could not remove instrument assigned to equipment because there are scheduled events',
+            { id, input }
+          );
+
+          return rejection('NOT_ALLOWED');
+        }
+
+        // Delete existing equipment instruments
+        await trx<EquipmentInstrumentRecord>(this.equipmentInstrumentsTable)
+          .where('equipment_id', '=', id)
+          .delete();
+
+        if (instrumentIds?.length) {
+          // Re-create updated equipment instruments
+          await trx<EquipmentInstrumentRecord>(this.equipmentInstrumentsTable)
+            .insert(
+              instrumentIds.map((instrumentId) => ({
+                equipment_id: id,
+                instrument_id: instrumentId,
+              }))
+            )
+            .returning<EquipmentInstrumentRecord[]>(['*']);
+        }
+
+        // Update equipment itself
+        const [equipmentRecord] = await trx<EquipmentRecord>(this.tableName)
+          .update({
+            name: name,
+            description: description,
+            color: color,
+            maintenance_starts_at: maintenanceStartsAt,
+            maintenance_ends_at: maintenanceEndsAt,
+            auto_accept: autoAccept,
+          })
+          .where('equipment_id', id)
+          .returning('*');
+
+        return equipmentRecord;
+      })
+      .catch((error) => {
+        logger.logException(
+          `Could not update equipment with id '${id}'`,
+          error
+        );
+
+        return rejection('INTERNAL_ERROR');
+      });
+
+    return isRejection(equipmentRecord)
+      ? equipmentRecord
+      : equipmentRecord
+      ? createEquipmentObject(equipmentRecord)
+      : null;
   }
 
   async get(id: number): Promise<Equipment | null> {
@@ -137,23 +257,44 @@ export default class PostgresEquipmentDataSource
     return equipmentResponsibleRecords.map(createEquipmentResponsibleObject);
   }
 
+  async getEquipmentInstruments(
+    equipmentId: number
+  ): Promise<EquipmentInstrument[]> {
+    const equipmentInstrumentsRecords =
+      await database<EquipmentInstrumentRecord>(this.equipmentInstrumentsTable)
+        .select('*')
+        .where('equipment_id', equipmentId);
+
+    return equipmentInstrumentsRecords.map(createEquipmentInstrumentObject);
+  }
+
   async availableEquipments(
     scheduledEvent: ScheduledEvent
   ): Promise<Equipment[]> {
     /**
      * This queries tries to find every available equipments by checking:
+     *  - the scheduled event instrument is part of equipment instruments
      *  - the equipment is not under scheduled maintenance:
      *    * maintenance_starts_at is NULL
      *    * maintenance_starts_at is not NULL but maintenance_ends_at is NULL, under maintenance indefinitely
      *    * maintenance_starts_at and maintenance_ends_at overlaps with the scheduled event
-     *  - we have no relationship between the scheduled vent and the equipment
+     *  - we have no relationship between the scheduled event and the equipment
      *  - the scheduled event doesn't overlap with other assigned scheduled events
      */
     const equipmentRecords = await database<EquipmentRecord>(this.tableName)
       .select<EquipmentRecord[]>(`${this.tableName}.*`)
+      .join(
+        this.equipmentInstrumentsTable,
+        `${this.tableName}.equipment_id`,
+        `${this.equipmentInstrumentsTable}.equipment_id`
+      )
+      .where(
+        `${this.equipmentInstrumentsTable}.instrument_id`,
+        scheduledEvent.instrument.id
+      )
       .whereRaw(
         // TODO: see if we can use knex QB instead of raw
-        `equipment_id NOT IN (
+        `${this.tableName}.equipment_id NOT IN (
           SELECT eq.equipment_id 
           FROM ${this.tableName} eq 
           INNER JOIN ${this.scheduledEventsEquipmentsTable} see ON see.equipment_id = eq.equipment_id 
@@ -242,9 +383,35 @@ export default class PostgresEquipmentDataSource
 
   async assign(input: AssignEquipmentsToScheduledEventInput): Promise<boolean> {
     try {
-      const equipments = await database<EquipmentRecord>(this.tableName)
-        .select('equipment_id', 'auto_accept')
-        .whereIn('equipment_id', input.equipmentIds);
+      const [scheduledEvent] = await database<ScheduledEventRecord>(
+        this.scheduledEventsTable
+      )
+        .select('instrument_id')
+        .where('scheduled_event_id', input.scheduledEventId);
+
+      const equipments = await database<
+        EquipmentRecord & EquipmentInstrumentRecord
+      >(this.tableName)
+        .select(
+          `${this.tableName}.equipment_id`,
+          'auto_accept',
+          'instrument_id'
+        )
+        .join(
+          this.equipmentInstrumentsTable,
+          `${this.tableName}.equipment_id`,
+          `${this.equipmentInstrumentsTable}.equipment_id`
+        )
+        .whereIn(`${this.tableName}.equipment_id`, input.equipmentIds)
+        .andWhere('instrument_id', scheduledEvent.instrument_id);
+
+      // NOTE: We check to see if all equipments can be used on the scheduled event instrument
+      if (equipments.length !== input.equipmentIds.length) {
+        throw new ApolloError(
+          'Some of the equipments can not be used on scheduled event instrument',
+          'NOT_ALLOWED'
+        );
+      }
 
       const records = await database<EquipmentsScheduledEventsRecord>(
         this.scheduledEventsEquipmentsTable

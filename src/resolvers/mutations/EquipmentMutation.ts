@@ -25,6 +25,9 @@ export class EquipmentInput implements Partial<EquipmentBase> {
   @Field(() => String)
   description: string;
 
+  @Field(() => [Int], { nullable: true })
+  instrumentIds?: number[];
+
   @Field(() => String, { nullable: true })
   color: string | null;
 

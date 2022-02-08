@@ -1,5 +1,9 @@
 import { ProposalBookingStatusCore } from '../../generated/sdk';
-import { Equipment, EquipmentResponsible } from '../../models/Equipment';
+import {
+  Equipment,
+  EquipmentInstrument,
+  EquipmentResponsible,
+} from '../../models/Equipment';
 import { LostTime } from '../../models/LostTime';
 import { ProposalBooking } from '../../models/ProposalBooking';
 import {
@@ -113,6 +117,11 @@ export interface EquipmentResponsibleRecord {
   readonly user_id: number;
 }
 
+export interface EquipmentInstrumentRecord {
+  readonly equipment_id: number;
+  readonly instrument_id: number;
+}
+
 export const createEquipmentObject = (equipment: EquipmentRecord) =>
   new Equipment(
     equipment.equipment_id,
@@ -130,6 +139,10 @@ export const createEquipmentObject = (equipment: EquipmentRecord) =>
 export const createEquipmentResponsibleObject = (
   equipmentResponsible: EquipmentResponsibleRecord
 ) => new EquipmentResponsible(equipmentResponsible.user_id);
+
+export const createEquipmentInstrumentObject = (
+  equipmentInstrument: EquipmentInstrumentRecord
+) => new EquipmentInstrument(equipmentInstrument.instrument_id);
 
 export interface EquipmentsScheduledEventsRecord {
   readonly equipment_id: number;

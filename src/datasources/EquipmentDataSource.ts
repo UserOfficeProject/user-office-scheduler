@@ -1,12 +1,14 @@
 import {
   Equipment,
   EquipmentAssignmentStatus,
+  EquipmentInstrument,
   EquipmentResponsible,
 } from '../models/Equipment';
 import {
   EquipmentsScheduledEvent,
   ScheduledEvent,
 } from '../models/ScheduledEvent';
+import { Rejection } from '../rejection';
 import {
   EquipmentInput,
   AssignEquipmentsToScheduledEventInput,
@@ -21,7 +23,7 @@ export interface EquipmentDataSource {
   update(
     id: number,
     updateEquipmentInput: EquipmentInput
-  ): Promise<Equipment | null>;
+  ): Promise<Equipment | Rejection | null>;
   get(id: number): Promise<Equipment | null>;
   getAll(equipmentIds?: number[]): Promise<Equipment[]>;
   getAllUserEquipments(
@@ -53,6 +55,7 @@ export interface EquipmentDataSource {
     updateEquipmentOwnerInput: UpdateEquipmentOwnerInput
   ): Promise<boolean>;
   getEquipmentResponsible(equipmentId: number): Promise<EquipmentResponsible[]>;
+  getEquipmentInstruments(equipmentId: number): Promise<EquipmentInstrument[]>;
   equipmentEventsByProposalBookingId(
     proposalBookingId: number
   ): Promise<Array<EquipmentsScheduledEvent>>;

@@ -186,7 +186,10 @@ context('Equipment tests', () => {
 
       cy.get('[data-cy=btn-save-equipment]').click();
       cy.finishedLoading();
-      cy.contains(newColorHex);
+
+      cy.get('[data-cy="equipment-color"]')
+        .parent()
+        .should('include.html', `background-color: ${newColorRgb}`);
 
       cy.get('.MuiDrawer-root').contains('Equipment list').click();
 

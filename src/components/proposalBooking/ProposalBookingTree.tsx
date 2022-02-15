@@ -124,6 +124,9 @@ export default function ProposalBookingTree({
             });
           }
         }}
+        onDragEnd={() => {
+          setDraggedEvent(null);
+        }}
       >
         {Array.isArray(nodes.children)
           ? nodes.children.map((node) => renderTree(node))

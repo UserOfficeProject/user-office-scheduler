@@ -286,6 +286,10 @@ context('Scheduled events timeline tests', () => {
 
     it('should not reset dates if page reloads', () => {
       cy.initializeSession('UserOfficer');
+      cy.visit({
+        url: '/calendar',
+        timeout: 15000,
+      });
       cy.finishedLoading();
 
       selectInstrument();

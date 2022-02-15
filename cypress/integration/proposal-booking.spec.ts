@@ -270,6 +270,17 @@ context('Proposal booking tests ', () => {
         cy.finishedLoading();
         cy.get('#instrument-calls-tree-view [role=treeitem]').first().click();
 
+        // NOTE: This check for Mui-focused class is to prevent a bug in our drag and drop from TreeView with new MUI v5
+        // https://github.com/mui-org/material-ui/issues/29518
+        // We are manualy preventing focusin event to be able to drag the TreeView item.
+        cy.get(
+          '#instrument-calls-tree-view [role=treeitem] [role=group] [role=treeitem]'
+        )
+          .first()
+          .realMouseDown()
+          .find('.MuiTreeItem-content')
+          .should('not.have.class', 'Mui-focused');
+
         cy.get(
           '#instrument-calls-tree-view [role=treeitem] [role=group] [role=treeitem]'
         )

@@ -32,10 +32,7 @@ context('Equipment tests', () => {
     cy.resetDB(true);
     cy.resetSchedulerDB(true);
     cy.initializeSession('UserOfficer');
-    cy.visit({
-      url: '/equipments',
-      timeout: 15000,
-    });
+    cy.visit('/equipments');
   });
 
   describe('Add equipment', () => {
@@ -125,7 +122,7 @@ context('Equipment tests', () => {
         }
       });
 
-      cy.visit(`/equipments/${createdEquipmentId}/edit`, { timeout: 15000 });
+      cy.visit(`/equipments/${createdEquipmentId}/edit`);
 
       cy.finishedLoading();
 

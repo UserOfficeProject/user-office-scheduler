@@ -11,10 +11,7 @@ context('Scheduled events table tests', () => {
     cy.resetDB(true);
     cy.resetSchedulerDB(true);
     cy.initializeSession('InstrumentScientist_1');
-    cy.visit({
-      url: '/calendar',
-      timeout: 15000,
-    });
+    cy.visit('/calendar');
   });
 
   describe('Scheduled events table', () => {

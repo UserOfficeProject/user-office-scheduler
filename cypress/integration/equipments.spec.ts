@@ -32,10 +32,7 @@ context('Equipment tests', () => {
     cy.resetDB(true);
     cy.resetSchedulerDB(true);
     cy.initializeSession('UserOfficer');
-    cy.visit({
-      url: '/equipments',
-      timeout: 15000,
-    });
+    cy.visit('/equipments');
   });
 
   describe('Add equipment', () => {
@@ -125,7 +122,7 @@ context('Equipment tests', () => {
         }
       });
 
-      cy.visit(`/equipments/${createdEquipmentId}/edit`, { timeout: 15000 });
+      cy.visit(`/equipments/${createdEquipmentId}/edit`);
 
       cy.finishedLoading();
 
@@ -186,7 +183,6 @@ context('Equipment tests', () => {
 
       cy.get('[data-cy=btn-save-equipment]').click();
       cy.finishedLoading();
-      cy.contains(newColorHex);
 
       cy.get('.MuiDrawer-root').contains('Equipment list').click();
 
@@ -197,6 +193,17 @@ context('Equipment tests', () => {
       cy.contains(newEquipment.name)
         .parent()
         .should('include.html', newColorRgb);
+
+      cy.contains(newEquipment.name)
+        .parent()
+        .find('[data-testid="VisibilityIcon"]')
+        .click();
+
+      cy.finishedLoading();
+
+      cy.get('[data-cy="equipment-color"]')
+        .parent()
+        .should('include.html', `background-color: ${newColorRgb}`);
 
       cy.contains('Calendar').click();
 

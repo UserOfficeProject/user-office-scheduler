@@ -3,10 +3,7 @@ context('Not-authenticated tests', () => {
     cy.resetDB(true);
     cy.resetSchedulerDB(true);
     cy.clearCookies();
-    cy.visit({
-      url: '/calendar',
-      timeout: 15000,
-    });
+    cy.visit('/calendar');
   });
 
   describe('Not authenticated access', () => {

@@ -1,7 +1,7 @@
 import makeStyles from '@mui/styles/makeStyles';
 import React from 'react';
 
-import { BasicProposalBooking } from 'components/calendar/Event';
+import { BasicProposalBooking } from 'components/calendar/common/Event';
 import { ScheduledEventStatusMap } from 'components/scheduledEvent/ScheduledEventForm';
 import { ProposalBookingStatusCore } from 'generated/sdk';
 import { getFullUserName } from 'utils/user';

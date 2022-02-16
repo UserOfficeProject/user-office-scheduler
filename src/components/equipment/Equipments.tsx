@@ -15,6 +15,7 @@ import useEquipments, { PartialEquipment } from 'hooks/equipment/useEquipments';
 import { StyledContainer, StyledPaper } from 'styles/StyledComponents';
 import { comaSeparatedArrayValues } from 'utils/common';
 
+// NOTE: Keep columns outside the component to avoid console warning(https://github.com/material-table-core/core/issues/286)
 const columns: Column<PartialEquipment>[] = [
   { field: 'name', title: 'Name' },
   { field: 'description', title: 'Description' },

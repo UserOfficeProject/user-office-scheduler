@@ -18,17 +18,17 @@ import { useHistory } from 'react-router';
 import { InstrumentAndEquipmentContext } from 'context/InstrumentAndEquipmentContext';
 import { ScheduledEventBookingType, ScheduledEventFilter } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
+import { getArrayOfIdsFromQuery } from 'utils/common';
 import { toTzLessDateTime, TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
 import { getFullUserName } from 'utils/user';
 
 import {
   CalendarScheduledEventWithUniqeId,
-  getArrayOfIdsFromQuery,
   SchedulerViewPeriod,
-} from './CalendarViewContainer';
-import { getBookingTypeStyle } from './Event';
+} from '../CalendarViewContainer';
+import { getBookingTypeStyle } from '../common/Event';
 import 'moment/locale/en-gb';
-import Toolbar, { getLabelText } from './Toolbar';
+import Toolbar, { getLabelText } from '../common/Toolbar';
 
 type TimeLineViewProps = {
   events: CalendarScheduledEventWithUniqeId[];

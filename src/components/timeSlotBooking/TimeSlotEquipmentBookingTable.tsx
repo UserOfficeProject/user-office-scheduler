@@ -24,9 +24,13 @@ export type EquipmentTableRow = {
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    '& .MuiToolbar-root button.MuiIconButton-root': {
-      backgroundColor: 'unset !important',
+    '& .MuiToolbar-root': {
       padding: 0,
+
+      'button.MuiIconButton-root': {
+        backgroundColor: 'unset !important',
+        padding: 0,
+      },
     },
   },
   spacingTop: {
@@ -42,6 +46,36 @@ type TimeSlotEquipmentBookingTableProps = {
   allEquipmentsAccepted: boolean;
   setAllEquipmentsAccepted: Dispatch<SetStateAction<boolean>>;
 };
+
+// NOTE: Keep columns outside the component to avoid console warning(https://github.com/material-table-core/core/issues/286)
+const columns: Column<ScheduledEventEquipment>[] = [
+  {
+    title: 'Name',
+    field: 'name',
+  },
+  {
+    title: 'Description',
+    field: 'description',
+  },
+  {
+    title: 'Color',
+    render: (rowData: ScheduledEventEquipment) =>
+      rowData.color ? (
+        <>
+          <span
+            style={{
+              backgroundColor: rowData.color,
+              padding: '2px 20px',
+              marginRight: '8px',
+            }}
+          ></span>
+        </>
+      ) : (
+        'None'
+      ),
+  },
+  { title: 'Status', field: 'status' },
+];
 
 export default function TimeSlotEquipmentBookingTable({
   scheduledEventEquipments,
@@ -74,35 +108,6 @@ export default function TimeSlotEquipmentBookingTable({
 
     setAllEquipmentsAccepted(allAccepted);
   }, [equipments, setAllEquipmentsAccepted]);
-
-  const columns: Column<ScheduledEventEquipment>[] = [
-    {
-      title: 'Name',
-      field: 'name',
-    },
-    {
-      title: 'Description',
-      field: 'description',
-    },
-    {
-      title: 'Color',
-      render: (rowData) =>
-        rowData.color ? (
-          <>
-            <span
-              style={{
-                backgroundColor: rowData.color,
-                padding: '2px 20px',
-                marginRight: '8px',
-              }}
-            ></span>
-          </>
-        ) : (
-          'None'
-        ),
-    },
-    { title: 'Status', field: 'status' },
-  ];
 
   const handleEquipmentCloseDialog = (
     assignedEquipments?: ScheduledEventEquipment[]

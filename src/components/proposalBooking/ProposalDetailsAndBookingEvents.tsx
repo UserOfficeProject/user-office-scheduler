@@ -454,12 +454,12 @@ export default function ProposalDetailsAndBookingEvents({
         align="left"
         className={classes.timeSlotsTitle}
       >
-        Experiment time{' '}
+        Experiment times{' '}
         {hasEventOutsideCallCycleInterval && (
           <Tooltip
             title="Some of the experiment times are booked outside of the call cycle start and end
           date."
-            data-cy="some-event-outside-cycle-interval-warning"
+            data-cy="some-experiment-time-outside-cycle-interval-warning"
           >
             <WarningOutlined style={{ color: theme.palette.warning.main }} />
           </Tooltip>

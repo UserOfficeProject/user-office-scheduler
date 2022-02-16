@@ -5,9 +5,9 @@ import React from 'react';
 import { tableIcons } from 'components/common/TableIcons';
 import { ScheduledEventFilter } from 'generated/sdk';
 
-import { CalendarScheduledEventWithUniqeId } from './CalendarViewContainer';
-import { getBookingTypeStyle } from './Event';
-import Toolbar from './Toolbar';
+import { CalendarScheduledEventWithUniqeId } from '../CalendarViewContainer';
+import { getBookingTypeStyle } from '../common/Event';
+import Toolbar from '../common/Toolbar';
 
 type TableViewProps = {
   filter: ScheduledEventFilter;

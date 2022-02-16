@@ -11,10 +11,7 @@ context('Scheduled events table tests', () => {
     cy.resetDB(true);
     cy.resetSchedulerDB(true);
     cy.initializeSession('InstrumentScientist_1');
-    cy.visit({
-      url: '/calendar',
-      timeout: 15000,
-    });
+    cy.visit('/calendar');
   });
 
   describe('Scheduled events table', () => {
@@ -70,7 +67,7 @@ context('Scheduled events table tests', () => {
       cy.finishedLoading();
       openProposalBookingFromRightToolbar();
 
-      cy.get('[data-cy="add-new-timeslot"]').click();
+      cy.get('[data-cy="add-new-experiment-time"]').click();
       cy.finishedLoading();
 
       cy.contains(defaultEventBookingHourDateTime);
@@ -219,9 +216,11 @@ context('Scheduled events table tests', () => {
         .find('[data-testid="VisibilityIcon"]')
         .click();
 
-      cy.get('[role="presentation"] [data-cy="btn-save"]').should('exist');
+      cy.get('[role="presentation"] [data-cy="delete-experiment-time"]').should(
+        'exist'
+      );
       cy.get(
-        '[role="presentation"] [data-cy="activate-time-slot-booking"]'
+        '[role="presentation"] [data-cy="activate-experiment-time"]'
       ).should('exist');
       cy.contains(
         `${newScheduledUserOperationsEvent.startsAt} - ${newScheduledUserOperationsEvent.endsAt}`

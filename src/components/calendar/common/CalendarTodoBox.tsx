@@ -4,10 +4,9 @@ import makeStyles from '@mui/styles/makeStyles';
 import clsx from 'clsx';
 import React, { Dispatch, SetStateAction } from 'react';
 
+import ProposalBookingTree from 'components/proposalBooking/ProposalBookingTree';
 import { useQuery } from 'hooks/common/useQuery';
 import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
-
-import ProposalBookingTree from '../proposalBooking/ProposalBookingTree';
 
 type CalendarTodoBoxProps = {
   onNewSimpleEvent: () => void;

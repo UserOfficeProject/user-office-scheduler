@@ -111,6 +111,16 @@ type ViewEquipmentProps = {
   equipmentId: number;
 };
 
+// NOTE: Keep columns outside the component to avoid console warning(https://github.com/material-table-core/core/issues/286)
+const columns: Column<TableRow>[] = [
+  {
+    title: 'Starts at',
+    render: (rowData) => toTzLessDateTime(rowData.startsAt),
+  },
+  { title: 'Ends at', render: (rowData) => toTzLessDateTime(rowData.endsAt) },
+  { title: 'Status', field: 'equipmentAssignmentStatus' },
+];
+
 export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
   const { enqueueSnackbar } = useSnackbar();
   const { showConfirmation } = useContext(AppContext);
@@ -223,15 +233,6 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
       },
     });
   };
-
-  const columns: Column<TableRow>[] = [
-    {
-      title: 'Starts at',
-      render: (rowData) => toTzLessDateTime(rowData.startsAt),
-    },
-    { title: 'Ends at', render: (rowData) => toTzLessDateTime(rowData.endsAt) },
-    { title: 'Status', field: 'equipmentAssignmentStatus' },
-  ];
 
   const pathEquipmentId = id || equipmentId;
 

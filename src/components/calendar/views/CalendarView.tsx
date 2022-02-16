@@ -31,9 +31,9 @@ import {
   CalendarScheduledEventWithUniqeId,
   isSchedulerViewPeriod,
   SchedulerViewPeriod,
-} from './CalendarViewContainer';
-import Event, { eventPropGetter } from './Event';
-import Toolbar from './Toolbar';
+} from '../CalendarViewContainer';
+import Event, { eventPropGetter } from '../common/Event';
+import Toolbar from '../common/Toolbar';
 
 moment.locale('en-gb');
 const localizer = momentLocalizer(moment);

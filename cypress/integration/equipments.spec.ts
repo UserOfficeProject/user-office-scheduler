@@ -186,7 +186,6 @@ context('Equipment tests', () => {
 
       cy.get('[data-cy=btn-save-equipment]').click();
       cy.finishedLoading();
-      cy.contains(newColorHex);
 
       cy.get('.MuiDrawer-root').contains('Equipment list').click();
 
@@ -197,6 +196,17 @@ context('Equipment tests', () => {
       cy.contains(newEquipment.name)
         .parent()
         .should('include.html', newColorRgb);
+
+      cy.contains(newEquipment.name)
+        .parent()
+        .find('[data-testid="VisibilityIcon"]')
+        .click();
+
+      cy.finishedLoading();
+
+      cy.get('[data-cy="equipment-color"]')
+        .parent()
+        .should('include.html', `background-color: ${newColorRgb}`);
 
       cy.contains('Calendar').click();
 

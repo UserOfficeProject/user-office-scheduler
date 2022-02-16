@@ -12,7 +12,7 @@ import { TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
 import {
   isSchedulerViewPeriod,
   SchedulerViewPeriod,
-} from './CalendarViewContainer';
+} from '../CalendarViewContainer';
 import InstrumentAndEquipmentFilter from './InstrumentAndEquipmentFilter';
 
 const calendarNavigationToolbarButtonsText = {

@@ -152,7 +152,7 @@ const SimpleTabs: React.FC<SimpleTabsProps> = ({
                     <AddIcon />
                   )
                 }
-                data-cy="add-new-timeslot"
+                data-cy="add-new-experiment-time"
               >
                 Add time
               </Button>

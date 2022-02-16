@@ -1,7 +1,10 @@
 import makeStyles from '@mui/styles/makeStyles';
 import React from 'react';
 
-import { isCompletedEvent, isDraftEvent } from 'components/calendar/Event';
+import {
+  isCompletedEvent,
+  isDraftEvent,
+} from 'components/calendar/common/Event';
 import { ProposalBooking } from 'generated/sdk';
 
 const useStyles = makeStyles(() => ({

@@ -73,7 +73,7 @@ context('Scheduled events timeline tests', () => {
       cy.finishedLoading();
       openProposalBookingFromRightToolbar();
 
-      cy.get('[data-cy="add-new-timeslot"]').click();
+      cy.get('[data-cy="add-new-experiment-time"]').click();
 
       cy.finishedLoading();
 
@@ -274,9 +274,11 @@ context('Scheduled events timeline tests', () => {
         .parent()
         .click();
 
-      cy.get('[role="presentation"] [data-cy="btn-save"]').should('exist');
+      cy.get('[role="presentation"] [data-cy="delete-experiment-time"]').should(
+        'exist'
+      );
       cy.get(
-        '[role="presentation"] [data-cy="activate-time-slot-booking"]'
+        '[role="presentation"] [data-cy="activate-experiment-time"]'
       ).should('exist');
 
       cy.contains(

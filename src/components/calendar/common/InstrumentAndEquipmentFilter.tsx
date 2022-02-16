@@ -15,9 +15,8 @@ import { InstrumentAndEquipmentContext } from 'context/InstrumentAndEquipmentCon
 import { BasicUserDetailsFragment, Equipment } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
 import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
+import { getArrayOfIdsFromQuery } from 'utils/common';
 import { getFullUserName } from 'utils/user';
-
-import { getArrayOfIdsFromQuery } from './CalendarViewContainer';
 
 const useStyles = makeStyles((theme) => ({
   root: {

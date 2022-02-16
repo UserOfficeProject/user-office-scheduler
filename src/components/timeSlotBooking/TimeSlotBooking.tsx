@@ -1,4 +1,4 @@
-import { Save as SaveIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { Delete as DeleteIcon } from '@mui/icons-material';
 import { Alert, AlertTitle, Button } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import {
@@ -16,6 +16,7 @@ import SplitButton from 'components/common/SplitButton';
 import { AppContext } from 'context/AppContext';
 import { useCheckAccess } from 'context/UserContext';
 import {
+  BasicUserDetails,
   EquipmentAssignmentStatus,
   ProposalBookingFinalizeAction,
   ProposalBookingStatusCore,
@@ -147,11 +148,11 @@ export default function TimeSlotBooking({
               ? 'complete'
               : 'restart'}
           </strong>{' '}
-          the selected booking?
+          the selected experiment time?
           {selectedKey === ProposalBookingFinalizeAction.COMPLETE && (
             <Alert severity="warning" className={classes.spacingTop}>
               <AlertTitle>Warning</AlertTitle>
-              Completing proposal booking disallows any further edit
+              Completing experiment time disallows any further edit
             </Alert>
           )}
         </>
@@ -176,11 +177,11 @@ export default function TimeSlotBooking({
             let newStatus = ProposalBookingStatusCore.DRAFT;
             if (selectedKey === ProposalBookingFinalizeAction.COMPLETE) {
               newStatus = ProposalBookingStatusCore.COMPLETED;
-              enqueueSnackbar('Scheduled event completed', {
+              enqueueSnackbar('Experiment time completed', {
                 variant: 'success',
               });
             } else {
-              enqueueSnackbar('Scheduled event restarted', {
+              enqueueSnackbar('Experiment time restarted', {
                 variant: 'success',
               });
             }
@@ -227,8 +228,8 @@ export default function TimeSlotBooking({
       ? showConfirmation({
           message: (
             <>
-              You have <strong>overlapping events</strong>, are you sure you
-              want to continue?
+              You have <strong>overlapping experiment times</strong>, are you
+              sure you want to continue?
             </>
           ),
           cb: () => handleFinalizeSubmit(selectedKey),
@@ -236,13 +237,13 @@ export default function TimeSlotBooking({
       : handleFinalizeSubmit(selectedKey);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (updatedEvent: ScheduledEvent) => {
     try {
-      if (!activeScheduledEvent.startsAt || !activeScheduledEvent.endsAt) {
+      if (!updatedEvent.startsAt || !updatedEvent.endsAt) {
         return;
       }
 
-      if (activeScheduledEvent.startsAt >= activeScheduledEvent.endsAt) {
+      if (updatedEvent.startsAt >= updatedEvent.endsAt) {
         // when the starting date is after ending date
         // it may be less obvious for the user, show alert
         showAlert({
@@ -258,10 +259,10 @@ export default function TimeSlotBooking({
         updateScheduledEvent: { error, scheduledEvent: updatedScheduledEvent },
       } = await api().updateScheduledEvent({
         input: {
-          scheduledEventId: activeScheduledEvent.id,
-          startsAt: toTzLessDateTime(activeScheduledEvent.startsAt),
-          endsAt: toTzLessDateTime(activeScheduledEvent.endsAt),
-          localContact: activeScheduledEvent.localContact?.id,
+          scheduledEventId: updatedEvent.id,
+          startsAt: toTzLessDateTime(updatedEvent.startsAt),
+          endsAt: toTzLessDateTime(updatedEvent.endsAt),
+          localContact: updatedEvent.localContact?.id,
         },
       });
 
@@ -270,7 +271,7 @@ export default function TimeSlotBooking({
           variant: 'error',
         });
       } else {
-        enqueueSnackbar('Scheduled event updated', {
+        enqueueSnackbar('Experiment time updated', {
           variant: 'success',
         });
 
@@ -285,6 +286,10 @@ export default function TimeSlotBooking({
               event.id === updatedScheduledEvent?.id
                 ? updatedScheduledEvent.endsAt
                 : event.endsAt,
+            localContact:
+              event.id === updatedScheduledEvent?.id
+                ? (updatedScheduledEvent.localContact as BasicUserDetails)
+                : event.localContact,
           })
         );
 
@@ -301,30 +306,31 @@ export default function TimeSlotBooking({
     setIsLoading(false);
   };
 
-  const handleSaveDraft = () => {
+  const onEventDateChange = (updatedEvent: ScheduledEvent) => {
     hasOverlappingEvents(
       getProposalBookingEventsForOverlapCheck(
         proposalBooking.scheduledEvents,
-        activeScheduledEvent
+        updatedEvent
       )
     )
       ? showConfirmation({
           message: (
             <>
-              You have <strong>overlapping bookings</strong>, are you sure you
-              want to continue?
+              You have <strong>overlapping experiment times</strong>, are you
+              sure you want to continue?
             </>
           ),
-          cb: handleSubmit,
+          cb: () => handleSubmit(updatedEvent),
         })
-      : handleSubmit();
+      : handleSubmit(updatedEvent);
   };
 
   const handleActivateSubmit = async () => {
     showConfirmation({
       message: (
         <>
-          Are you sure you want to <strong>activate</strong> booking?
+          Are you sure you want to <strong>activate</strong> the selected
+          experiment time?
         </>
       ),
       cb: async () => {
@@ -341,7 +347,7 @@ export default function TimeSlotBooking({
               variant: 'error',
             });
           } else {
-            enqueueSnackbar('Scheduled event activated!', {
+            enqueueSnackbar('Experiment time activated!', {
               variant: 'success',
             });
 
@@ -375,7 +381,8 @@ export default function TimeSlotBooking({
     showConfirmation({
       message: (
         <>
-          Are you sure you want to <strong>delete</strong> scheduled event?
+          Are you sure you want to <strong>delete</strong> selected experiment
+          time?
         </>
       ),
       cb: async () => {
@@ -393,8 +400,8 @@ export default function TimeSlotBooking({
     showConfirmation({
       message: (
         <>
-          Are you sure you want to <strong>re-open</strong> the selected time
-          slot?
+          Are you sure you want to <strong>re-open</strong> the selected
+          experiment time?
         </>
       ),
       cb: async () => {
@@ -411,7 +418,7 @@ export default function TimeSlotBooking({
               variant: 'error',
             });
           } else {
-            enqueueSnackbar('Scheduled event re-opened', {
+            enqueueSnackbar('Experiment time re-opened', {
               variant: 'success',
             });
 
@@ -440,26 +447,16 @@ export default function TimeSlotBooking({
     });
   };
 
-  const onEventDateChangeSave = (updatedEvent: ScheduledEvent) => {
-    const newScheduledEvents = proposalBooking.scheduledEvents.map((event) =>
-      event.id === updatedEvent.id ? updatedEvent : event
-    );
-
-    setProposalBooking({
-      ...proposalBooking,
-      scheduledEvents: newScheduledEvents,
-    });
-  };
-
   return (
-    <div data-cy="time-slot-booking">
+    <div data-cy="experiment-time-wrapper">
       {isLoading && <Loader />}
       <TimeSlotDetails
         isDirty={isDirty}
         handleSetDirty={setIsDirty}
         scheduledEvent={activeScheduledEvent}
         proposalBooking={proposalBooking}
-        onSave={onEventDateChangeSave}
+        onEventDateChange={onEventDateChange}
+        onEventLocalContactChange={handleSubmit}
       />
       <TimeSlotEquipmentBookingTable
         allEquipmentsAccepted={allEquipmentsAccepted}
@@ -486,7 +483,7 @@ export default function TimeSlotBooking({
           color="primary"
           startIcon={<DeleteIcon />}
           onClick={handleDelete}
-          data-cy="btn-delete"
+          data-cy="delete-experiment-time"
         >
           Delete
         </Button>
@@ -494,37 +491,25 @@ export default function TimeSlotBooking({
           <Button
             variant="contained"
             color="primary"
-            startIcon={<SaveIcon />}
-            onClick={handleSaveDraft}
-            data-cy="btn-save"
-            disabled={isReadOnly || !isDirty}
-          >
-            Save
-          </Button>
-        )}
-        {canUpdateDetailsAndEquipments && (
-          <Button
-            variant="contained"
-            color="primary"
-            data-cy="activate-time-slot-booking"
+            data-cy="activate-experiment-time"
             disabled={isReadOnly || !allEquipmentsAccepted || isDirty}
             onClick={handleActivateSubmit}
           >
-            Activate booking
+            Activate the experiment time
           </Button>
         )}
 
         {canUpdateAddLostTimes && (
           <SplitButton
-            label="proposal-booking-finalization-strategy"
+            label="experiment-time-finalization-strategy"
             options={[
               {
                 key: ProposalBookingFinalizeAction.COMPLETE,
-                label: 'Complete the time slot booking',
+                label: 'Complete the experiment time',
               },
               {
                 key: ProposalBookingFinalizeAction.RESTART,
-                label: 'Restart the time slot booking',
+                label: 'Restart the experiment time',
               },
             ]}
             onClick={handleFinalize}
@@ -537,9 +522,9 @@ export default function TimeSlotBooking({
             variant="contained"
             color="primary"
             onClick={reopenTimeSlotBooking}
-            data-cy="btn-reopen-time-slot-booking"
+            data-cy="btn-reopen-experiment-time"
           >
-            Reopen time slot booking
+            Reopen the experiment time
           </Button>
         )}
       </ActionButtonContainer>

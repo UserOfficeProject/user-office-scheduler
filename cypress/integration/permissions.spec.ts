@@ -16,10 +16,7 @@ context('Permission tests', () => {
     it('should show the `Not authenticated` page', () => {
       cy.configureSession('NotUserInstrumentScientist');
 
-      cy.visit({
-        url: '/calendar',
-        timeout: 15000,
-      });
+      cy.visit('/calendar');
 
       cy.url().should('include', '/not-authenticated');
       cy.contains(/you are not authenticated/i);
@@ -31,10 +28,7 @@ context('Permission tests', () => {
     it('should show all instruments for user with `User officer` role', () => {
       cy.configureSession('UserOfficer');
 
-      cy.visit({
-        url: '/calendar',
-        timeout: 15000,
-      });
+      cy.visit('/calendar');
 
       cy.finishedLoading();
 
@@ -63,10 +57,7 @@ context('Permission tests', () => {
     it('should show only assigned instruments for user with `Instrument scientist` role', () => {
       cy.configureSession('InstrumentScientist_1');
 
-      cy.visit({
-        url: '/calendar',
-        timeout: 15000,
-      });
+      cy.visit('/calendar');
 
       cy.finishedLoading();
 
@@ -86,10 +77,7 @@ context('Permission tests', () => {
         .contains(/instrument 1/i);
 
       cy.configureSession('InstrumentScientist_2');
-      cy.visit({
-        url: '/calendar',
-        timeout: 15000,
-      });
+      cy.visit('/calendar');
 
       cy.finishedLoading();
 
@@ -130,10 +118,7 @@ context('Permission tests', () => {
 
       cy.configureSession('InstrumentScientist_1');
 
-      cy.visit({
-        url: '/calendar?instrument=1',
-        timeout: 15000,
-      });
+      cy.visit('/calendar?instrument=1');
 
       let scheduledEventSlot = new Date(
         defaultEventBookingHourDateTime
@@ -149,10 +134,7 @@ context('Permission tests', () => {
       );
 
       cy.configureSession('InstrumentScientist_2');
-      cy.visit({
-        url: '/calendar?instrument=2',
-        timeout: 15000,
-      });
+      cy.visit('/calendar?instrument=2');
 
       scheduledEventSlot = new Date(
         defaultEventBookingHourDateTime

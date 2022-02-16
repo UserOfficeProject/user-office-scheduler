@@ -15,10 +15,7 @@ context('Scheduled events timeline tests', () => {
     cy.resetDB(true);
     cy.resetSchedulerDB(true);
     cy.initializeSession('InstrumentScientist_1');
-    cy.visit({
-      url: '/calendar',
-      timeout: 15000,
-    });
+    cy.visit('/calendar');
   });
 
   describe('Scheduled events timeline', () => {
@@ -288,10 +285,7 @@ context('Scheduled events timeline tests', () => {
 
     it('should not reset dates if page reloads', () => {
       cy.initializeSession('UserOfficer');
-      cy.visit({
-        url: '/calendar',
-        timeout: 15000,
-      });
+      cy.visit('/calendar');
       cy.finishedLoading();
 
       selectInstrument();
@@ -321,10 +315,7 @@ context('Scheduled events timeline tests', () => {
 
     it('should be able to select multiple instruments in timeline view', () => {
       cy.initializeSession('UserOfficer');
-      cy.visit({
-        url: '/calendar',
-        timeout: 15000,
-      });
+      cy.visit('/calendar');
 
       cy.finishedLoading();
 
@@ -367,10 +358,7 @@ context('Scheduled events timeline tests', () => {
     it('should be able to scroll inside timeline view', () => {
       const RIGHT_ARROW_KEY_CODE = 39;
       cy.initializeSession('UserOfficer');
-      cy.visit({
-        url: '/calendar',
-        timeout: 15000,
-      });
+      cy.visit('/calendar');
 
       cy.finishedLoading();
 

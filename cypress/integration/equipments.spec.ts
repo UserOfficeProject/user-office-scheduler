@@ -274,5 +274,57 @@ context('Equipment tests', () => {
 
       cy.contains(`${getHourDateTimeAfter(-24)} - ${getHourDateTimeAfter(48)}`);
     });
+
+    it('Should be able to accept equipment request one by one booked on same event', () => {
+      cy.updateEquipment({
+        id: 1,
+        updateEquipmentInput: {
+          name: 'Available equipment 1 - no auto accept',
+          description: '',
+          autoAccept: false,
+          instrumentIds: [existingInstrument.id],
+        },
+      });
+      cy.updateEquipment({
+        id: 2,
+        updateEquipmentInput: {
+          name: 'Available equipment 2 - auto accept',
+          description: '',
+          autoAccept: false,
+          instrumentIds: [existingInstrument.id],
+        },
+      });
+      cy.createEvent({ input: createdUserOperationsEvent }).then((result) => {
+        if (result.createScheduledEvent.scheduledEvent) {
+          cy.assignEquipmentToScheduledEvent({
+            assignEquipmentsToScheduledEventInput: {
+              scheduledEventId: result.createScheduledEvent.scheduledEvent.id,
+              equipmentIds: [1, 2],
+              proposalBookingId: createdUserOperationsEvent.proposalBookingId,
+            },
+          });
+        }
+      });
+
+      cy.visit('/requests');
+
+      cy.get(
+        '[data-cy="equipments-requests-table"] [aria-label="Accept request"]'
+      ).should('have.length', 2);
+
+      cy.get(
+        '[data-cy="equipments-requests-table"] [aria-label="Accept request"]'
+      )
+        .first()
+        .click();
+
+      cy.get('[data-cy="btn-ok"]').click();
+
+      cy.get('[role=alert]').contains(/success/i);
+
+      cy.get(
+        '[data-cy="equipments-requests-table"] [aria-label="Accept request"]'
+      ).should('have.length', 1);
+    });
   });
 });

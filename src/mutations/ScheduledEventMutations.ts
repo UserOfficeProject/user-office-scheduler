@@ -24,7 +24,6 @@ import {
 } from '../models/ScheduledEvent';
 import { rejection, Rejection } from '../rejection';
 import {
-  ActivateScheduledEventInput,
   DeleteScheduledEventsInput,
   FinalizeScheduledEventInput,
   NewScheduledEventInput,
@@ -177,11 +176,15 @@ export default class ScheduledEventMutations {
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
   async activate(
     ctx: ResolverContext,
-    { id }: ActivateScheduledEventInput
+    { id }: { id: number }
   ): Promise<ScheduledEvent | Rejection> {
     const scheduledEvent = await this.scheduledEventDataSource.get(id);
     if (!scheduledEvent) {
       return rejection('NOT_FOUND');
+    }
+
+    if (scheduledEvent.status !== ProposalBookingStatusCore.DRAFT) {
+      return rejection('NOT_ALLOWED');
     }
 
     const allProposalBookingEquipmentEvents =
@@ -268,7 +271,7 @@ export default class ScheduledEventMutations {
   @Authorized([Roles.USER_OFFICER])
   async reopen(
     ctx: ResolverContext,
-    { id }: ActivateScheduledEventInput
+    { id }: { id: number }
   ): Promise<ScheduledEvent | Rejection> {
     const scheduledEvent = await this.scheduledEventDataSource.get(id);
     if (!scheduledEvent) {

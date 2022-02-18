@@ -32,7 +32,6 @@
   "author": "SWAP",
   "license": "ISC",
   "dependencies": {
-    "@apollo/federation": "^0.33.9",
     "@apollo/subgraph": "^0.1.5",
     "@user-office-software/duo-localisation": "^1.2.0",
     "@user-office-software/duo-logger": "^1.2.0",
@@ -44,7 +43,6 @@
     "apollo-server-express": "^3.6.2",
     "bcrypt": "^5.0.1",
     "class-transformer": "^0.5.1",
-    "class-validator": "^0.13.1",
     "cookie-parser": "^1.4.6",
     "dotenv": "^8.6.0",
     "express": "^4.17.1",

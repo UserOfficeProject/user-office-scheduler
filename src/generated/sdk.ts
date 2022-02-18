@@ -403,6 +403,7 @@ export type Feature = {
 
 export enum FeatureId {
   EMAIL_INVITE = 'EMAIL_INVITE',
+  EMAIL_SEARCH = 'EMAIL_SEARCH',
   EXTERNAL_AUTH = 'EXTERNAL_AUTH',
   RISK_ASSESSMENT = 'RISK_ASSESSMENT',
   SCHEDULER = 'SCHEDULER',
@@ -1936,6 +1937,7 @@ export type Query = {
   sampleEsi: Maybe<SampleExperimentSafetyInput>;
   samples: Maybe<Array<Sample>>;
   samplesByCallId: Maybe<Array<Sample>>;
+  scheduledEventCore: Maybe<ScheduledEventCore>;
   scheduledEventsCore: Maybe<Array<ScheduledEventCore>>;
   sep: Maybe<Sep>;
   sepMembers: Maybe<Array<SepReviewer>>;
@@ -2194,6 +2196,11 @@ export type QuerySamplesArgs = {
 
 export type QuerySamplesByCallIdArgs = {
   callId: Scalars['Int'];
+};
+
+
+export type QueryScheduledEventCoreArgs = {
+  scheduledEventId: Scalars['Int'];
 };
 
 
@@ -2600,7 +2607,6 @@ export type SaveSepMeetingDecisionInput = {
 };
 
 export enum ScheduledEventBookingType {
-  COMMISSIONING = 'COMMISSIONING',
   EQUIPMENT = 'EQUIPMENT',
   MAINTENANCE = 'MAINTENANCE',
   SHUTDOWN = 'SHUTDOWN',
@@ -2616,6 +2622,7 @@ export type ScheduledEventCore = {
   id: Scalars['Int'];
   localContact: Maybe<BasicUserDetails>;
   localContactId: Maybe<Scalars['Int']>;
+  proposalPk: Maybe<Scalars['Int']>;
   shipments: Array<Shipment>;
   startsAt: Scalars['TzLessDateTime'];
   status: ProposalBookingStatusCore;
@@ -3065,7 +3072,7 @@ export type VisitsFilter = {
   scheduledEventId?: InputMaybe<Scalars['Int']>;
 };
 
-export type _Entity = BasicUserDetails | Call | Instrument | Proposal | User;
+export type _Entity = BasicUserDetails | Call | Instrument | Proposal | Rejection | User;
 
 export type _Service = {
   /** The sdl representing the federated service capabilities. Includes federation directives, removes federation types, and includes rest of full schema after schema directives have been applied */

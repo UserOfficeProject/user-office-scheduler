@@ -262,7 +262,10 @@ export default function ProposalDetailsAndBookingEvents({
 
     // Delete selected events
     const {
-      deleteScheduledEvents: { error },
+      deleteScheduledEvents: {
+        error,
+        scheduledEvents: [deletedScheduledEvent],
+      },
     } = await api().deleteScheduledEvents({
       input: {
         ids: [event.id],
@@ -275,8 +278,13 @@ export default function ProposalDetailsAndBookingEvents({
       enqueueSnackbar(getTranslation(error as ResourceId), {
         variant: 'error',
       });
-
-      throw error;
+    } else if ('reason' in deletedScheduledEvent) {
+      enqueueSnackbar(
+        getTranslation(deletedScheduledEvent.reason as ResourceId),
+        {
+          variant: 'error',
+        }
+      );
     } else {
       enqueueSnackbar('Time slot deleted successfully', {
         variant: 'success',

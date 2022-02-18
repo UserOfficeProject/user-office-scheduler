@@ -2,12 +2,7 @@ mutation deleteScheduledEvents($input: DeleteScheduledEventsInput!) {
   deleteScheduledEvents(deleteScheduledEventsInput: $input) {
     error
     scheduledEvents {
-      id
-      bookingType
-      startsAt
-      endsAt
-      description
-      status
+      ...scheduledEventWithRejection
     }
   }
 }

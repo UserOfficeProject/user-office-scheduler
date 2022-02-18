@@ -1,6 +1,6 @@
 import {
-  ActivateScheduledEventMutation,
-  ActivateScheduledEventMutationVariables,
+  ActivateScheduledEventsMutation,
+  ActivateScheduledEventsMutationVariables,
   AssignEquipmentToScheduledEventMutation,
   AssignEquipmentToScheduledEventMutationVariables,
   CreateEquipmentMutation,
@@ -49,10 +49,10 @@ const updateEvent = (
 };
 
 const activateEvent = (
-  activateScheduledEventInput: ActivateScheduledEventMutationVariables
-): Cypress.Chainable<ActivateScheduledEventMutation> => {
+  activateScheduledEventsInput: ActivateScheduledEventsMutationVariables
+): Cypress.Chainable<ActivateScheduledEventsMutation> => {
   const api = getE2EApi();
-  const request = api.activateScheduledEvent(activateScheduledEventInput);
+  const request = api.activateScheduledEvents(activateScheduledEventsInput);
 
   return cy.wrap(request);
 };

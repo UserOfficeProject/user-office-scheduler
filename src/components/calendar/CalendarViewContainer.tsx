@@ -641,6 +641,7 @@ export default function CalendarViewContainer() {
           <TableView
             filter={filter}
             events={events}
+            refresh={refresh}
             onSelectEvent={onSelectEvent}
           />
         );

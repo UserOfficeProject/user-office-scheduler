@@ -1,0 +1,10 @@
+fragment scheduledEventWithRejection on ScheduledEventWithRejection {
+  ... on Rejection {
+    reason
+  }
+  ... on ScheduledEvent {
+    id
+    startsAt
+    endsAt
+  }
+}

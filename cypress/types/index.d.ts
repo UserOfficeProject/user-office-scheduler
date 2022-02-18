@@ -1,6 +1,6 @@
 import {
-  ActivateScheduledEventMutation,
-  ActivateScheduledEventMutationVariables,
+  ActivateScheduledEventsMutation,
+  ActivateScheduledEventsMutationVariables,
   AssignEquipmentToScheduledEventMutation,
   AssignEquipmentToScheduledEventMutationVariables,
   CreateEquipmentMutation,
@@ -57,8 +57,8 @@ declare global {
         updateScheduledEventInput: UpdateScheduledEventMutationVariables
       ): Cypress.Chainable<UpdateScheduledEventMutation>;
       activateEvent(
-        activateScheduledEventInput: ActivateScheduledEventMutationVariables
-      ): Cypress.Chainable<ActivateScheduledEventMutation>;
+        activateScheduledEventsInput: ActivateScheduledEventsMutationVariables
+      ): Cypress.Chainable<ActivateScheduledEventsMutation>;
       completeEvent(
         completeScheduledEventInput: FinalizeScheduledEventMutationVariables
       ): Cypress.Chainable<FinalizeScheduledEventMutation>;

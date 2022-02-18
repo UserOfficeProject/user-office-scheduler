@@ -2,7 +2,7 @@ import { GraphQLClient } from 'graphql-request';
 import * as Dom from 'graphql-request/dist/types.dom';
 import gql from 'graphql-tag';
 export type Maybe<T> = T | null;
-export type InputMaybe<T> = T | null;
+export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
@@ -20,8 +20,8 @@ export type Scalars = {
   TzLessDateTime: string;
 };
 
-export type ActivateScheduledEventInput = {
-  id: Scalars['Int'];
+export type ActivateScheduledEventsInput = {
+  ids: Array<Scalars['Int']>;
 };
 
 export type AddLostTimeInput = {
@@ -737,7 +737,7 @@ export type MoveProposalWorkflowStatusInput = {
 
 export type Mutation = {
   activateProposalBooking: ProposalBookingResponseWrap;
-  activateScheduledEvent: ScheduledEventResponseWrap;
+  activateScheduledEvents: ScheduledEventsResponseWrap;
   addClientLog: SuccessResponseWrap;
   addEquipmentResponsible: Scalars['Boolean'];
   addLostTime: LostTimeResponseWrap;
@@ -896,8 +896,8 @@ export type MutationActivateProposalBookingArgs = {
 };
 
 
-export type MutationActivateScheduledEventArgs = {
-  activateScheduledEvent: ActivateScheduledEventInput;
+export type MutationActivateScheduledEventsArgs = {
+  activateScheduledEvents: ActivateScheduledEventsInput;
 };
 
 
@@ -3030,9 +3030,11 @@ export type ScheduledEventResponseWrap = {
   scheduledEvent: Maybe<ScheduledEvent>;
 };
 
+export type ScheduledEventWithRejection = Rejection | ScheduledEvent;
+
 export type ScheduledEventsResponseWrap = {
   error: Maybe<Scalars['String']>;
-  scheduledEvents: Maybe<Array<ScheduledEvent>>;
+  scheduledEvents: Array<ScheduledEventWithRejection>;
 };
 
 export type SchedulerConfig = {
@@ -3691,12 +3693,12 @@ export type ReopenProposalBookingMutationVariables = Exact<{
 
 export type ReopenProposalBookingMutation = { reopenProposalBooking: { error: string | null } };
 
-export type ActivateScheduledEventMutationVariables = Exact<{
-  input: ActivateScheduledEventInput;
+export type ActivateScheduledEventsMutationVariables = Exact<{
+  input: ActivateScheduledEventsInput;
 }>;
 
 
-export type ActivateScheduledEventMutation = { activateScheduledEvent: { error: string | null, scheduledEvent: { id: number, startsAt: string, endsAt: string } | null } };
+export type ActivateScheduledEventsMutation = { activateScheduledEvents: { error: string | null, scheduledEvents: Array<{ reason: string } | { id: number, startsAt: string, endsAt: string }> } };
 
 export type CreateScheduledEventMutationVariables = Exact<{
   input: NewScheduledEventInput;
@@ -3710,7 +3712,7 @@ export type DeleteScheduledEventsMutationVariables = Exact<{
 }>;
 
 
-export type DeleteScheduledEventsMutation = { deleteScheduledEvents: { error: string | null, scheduledEvents: Array<{ id: number, bookingType: ScheduledEventBookingType, startsAt: string, endsAt: string, description: string | null, status: ProposalBookingStatusCore }> | null } };
+export type DeleteScheduledEventsMutation = { deleteScheduledEvents: { error: string | null, scheduledEvents: Array<{ reason: string } | { id: number, startsAt: string, endsAt: string }> } };
 
 export type FinalizeScheduledEventMutationVariables = Exact<{
   input: FinalizeScheduledEventInput;
@@ -3718,6 +3720,12 @@ export type FinalizeScheduledEventMutationVariables = Exact<{
 
 
 export type FinalizeScheduledEventMutation = { finalizeScheduledEvent: { error: string | null } };
+
+type ScheduledEventWithRejection_Rejection_Fragment = { reason: string };
+
+type ScheduledEventWithRejection_ScheduledEvent_Fragment = { id: number, startsAt: string, endsAt: string };
+
+export type ScheduledEventWithRejectionFragment = ScheduledEventWithRejection_Rejection_Fragment | ScheduledEventWithRejection_ScheduledEvent_Fragment;
 
 export type GetEquipmentScheduledEventsQueryVariables = Exact<{
   equipmentIds: Array<Scalars['Int']> | Scalars['Int'];
@@ -3794,6 +3802,18 @@ export type GetUsersQueryVariables = Exact<{
 
 export type GetUsersQuery = { users: { totalCount: number, users: Array<{ id: number, firstname: string, lastname: string, organisation: string, position: string, created: any | null, placeholder: boolean | null }> } | null };
 
+export const ScheduledEventWithRejectionFragmentDoc = gql`
+    fragment scheduledEventWithRejection on ScheduledEventWithRejection {
+  ... on Rejection {
+    reason
+  }
+  ... on ScheduledEvent {
+    id
+    startsAt
+    endsAt
+  }
+}
+    `;
 export const BasicUserDetailsFragmentDoc = gql`
     fragment basicUserDetails on BasicUserDetails {
   id
@@ -4178,18 +4198,16 @@ export const ReopenProposalBookingDocument = gql`
   }
 }
     `;
-export const ActivateScheduledEventDocument = gql`
-    mutation activateScheduledEvent($input: ActivateScheduledEventInput!) {
-  activateScheduledEvent(activateScheduledEvent: $input) {
+export const ActivateScheduledEventsDocument = gql`
+    mutation activateScheduledEvents($input: ActivateScheduledEventsInput!) {
+  activateScheduledEvents(activateScheduledEvents: $input) {
     error
-    scheduledEvent {
-      id
-      startsAt
-      endsAt
+    scheduledEvents {
+      ...scheduledEventWithRejection
     }
   }
 }
-    `;
+    ${ScheduledEventWithRejectionFragmentDoc}`;
 export const CreateScheduledEventDocument = gql`
     mutation createScheduledEvent($input: NewScheduledEventInput!) {
   createScheduledEvent(newScheduledEvent: $input) {
@@ -4215,16 +4233,11 @@ export const DeleteScheduledEventsDocument = gql`
   deleteScheduledEvents(deleteScheduledEventsInput: $input) {
     error
     scheduledEvents {
-      id
-      bookingType
-      startsAt
-      endsAt
-      description
-      status
+      ...scheduledEventWithRejection
     }
   }
 }
-    `;
+    ${ScheduledEventWithRejectionFragmentDoc}`;
 export const FinalizeScheduledEventDocument = gql`
     mutation finalizeScheduledEvent($input: FinalizeScheduledEventInput!) {
   finalizeScheduledEvent(finalizeScheduledEvent: $input) {
@@ -4567,8 +4580,8 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     reopenProposalBooking(variables: ReopenProposalBookingMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<ReopenProposalBookingMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<ReopenProposalBookingMutation>(ReopenProposalBookingDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'reopenProposalBooking');
     },
-    activateScheduledEvent(variables: ActivateScheduledEventMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<ActivateScheduledEventMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ActivateScheduledEventMutation>(ActivateScheduledEventDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'activateScheduledEvent');
+    activateScheduledEvents(variables: ActivateScheduledEventsMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<ActivateScheduledEventsMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ActivateScheduledEventsMutation>(ActivateScheduledEventsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'activateScheduledEvents');
     },
     createScheduledEvent(variables: CreateScheduledEventMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<CreateScheduledEventMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<CreateScheduledEventMutation>(CreateScheduledEventDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'createScheduledEvent');

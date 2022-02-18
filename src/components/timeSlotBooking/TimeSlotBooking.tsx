@@ -337,15 +337,25 @@ export default function TimeSlotBooking({
         setIsLoading(true);
         try {
           const {
-            activateScheduledEvent: { error },
-          } = await api().activateScheduledEvent({
-            input: { id: activeScheduledEvent.id },
+            activateScheduledEvents: {
+              error,
+              scheduledEvents: [activatedScheduledEvent],
+            },
+          } = await api().activateScheduledEvents({
+            input: { ids: [activeScheduledEvent.id] },
           });
 
           if (error) {
             enqueueSnackbar(getTranslation(error as ResourceId), {
               variant: 'error',
             });
+          } else if ('reason' in activatedScheduledEvent) {
+            enqueueSnackbar(
+              getTranslation(activatedScheduledEvent.reason as ResourceId),
+              {
+                variant: 'error',
+              }
+            );
           } else {
             enqueueSnackbar('Experiment time activated!', {
               variant: 'success',

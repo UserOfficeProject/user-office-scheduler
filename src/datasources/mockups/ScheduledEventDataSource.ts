@@ -19,7 +19,7 @@ export const dummyScheduledEvents: ScheduledEvent[] = [
     123,
     new Date(),
     new Date(),
-    ScheduledEventBookingType.COMMISSIONING,
+    ScheduledEventBookingType.MAINTENANCE,
     new Date(),
     new Date(),
     { id: 0 },

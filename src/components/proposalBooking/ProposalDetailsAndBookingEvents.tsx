@@ -5,6 +5,7 @@ import {
   HourglassFull as HourglassFullIcon,
   HourglassEmpty as HourglassEmptyIcon,
   Description as DescriptionIcon,
+  Circle as CircleIcon,
   Person,
   WarningOutlined,
   Info,
@@ -19,6 +20,7 @@ import {
   useTheme,
   Tooltip,
   Typography,
+  alpha,
 } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import {
@@ -97,6 +99,16 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: 'unset !important',
       padding: 0,
     },
+
+    '& .MuiTab-root.Mui-selected': {
+      backgroundColor: alpha(theme.palette.primary.main, 0.2),
+    },
+  },
+  experimentTimeStatusIndicator: {
+    position: 'absolute',
+    width: theme.spacing(1.5),
+    left: theme.spacing(1),
+    top: 0,
   },
 }));
 
@@ -300,6 +312,45 @@ export default function ProposalDetailsAndBookingEvents({
     }
   };
 
+  const getIconColorBasedOnStatus = (
+    event: ScheduledEvent
+  ): 'primary' | 'disabled' | 'action' | 'warning' => {
+    if (
+      checkIfSomeScheduledEventIsOutsideCallCycleInterval(
+        [event],
+        startCycle,
+        endCycle
+      )
+    ) {
+      return 'warning';
+    }
+
+    switch (event.status) {
+      case ProposalBookingStatusCore.ACTIVE:
+        return 'primary';
+
+      case ProposalBookingStatusCore.COMPLETED:
+        return 'disabled';
+
+      default:
+        return 'action';
+    }
+  };
+
+  const getItemTooltipTitle = (event: ScheduledEvent) => {
+    if (
+      checkIfSomeScheduledEventIsOutsideCallCycleInterval(
+        [event],
+        startCycle,
+        endCycle
+      )
+    ) {
+      return 'Experiment time booked outside call cycle start and end date';
+    } else {
+      return event.status;
+    }
+  };
+
   return (
     <div className={classes.root}>
       <Grid container spacing={2}>
@@ -476,9 +527,18 @@ export default function ProposalDetailsAndBookingEvents({
 
       <SimpleTabs
         tab={selectedTab}
-        tabNames={scheduledEvents.map(
-          (item) => `${item.startsAt} - ${item.endsAt}`
-        )}
+        tabNames={scheduledEvents.map((item) => (
+          <>
+            <Tooltip title={getItemTooltipTitle(item)}>
+              <CircleIcon
+                className={classes.experimentTimeStatusIndicator}
+                color={getIconColorBasedOnStatus(item)}
+                data-cy="status-indicator"
+              />
+            </Tooltip>
+            {`${item.startsAt} - ${item.endsAt}`}
+          </>
+        ))}
         orientation="vertical"
         handleAdd={!isProposalBookingCompleted ? handleAdd : undefined}
         noItemsText="No records to display. Start by adding new experiment time"

@@ -74,7 +74,7 @@ export default function ProposalBookingDialog({
       }}
     >
       <DialogTitle>Proposal booking</DialogTitle>
-      <DialogContent>
+      <DialogContent className="tinyScroll">
         <ProposalDetailsAndBookingEvents
           proposalBooking={proposalBooking}
           setProposalBooking={setProposalBooking}

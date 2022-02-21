@@ -104,17 +104,23 @@ export default function Dashboard() {
       <AppToolbar open={open} handleDrawerOpen={handleDrawerOpen} />
       <Drawer
         variant={isTabletOrMobile ? 'temporary' : 'permanent'}
+        ModalProps={{
+          keepMounted: true, // Better open performance on mobile.
+        }}
         className={clsx(classes.drawer, {
           [classes.drawerOpen]: open,
           [classes.drawerClose]: !open,
         })}
         classes={{
-          paper: clsx({
-            [classes.drawerOpen]: open,
-            [classes.drawerClose]: !open,
-          }),
+          paper: !isTabletOrMobile
+            ? clsx({
+                [classes.drawerOpen]: open,
+                [classes.drawerClose]: !open,
+              })
+            : '',
         }}
         open={open}
+        onClose={handleDrawerClose}
       >
         <div className={classes.toolbarIcon}>
           <IconButton onClick={handleDrawerClose}>

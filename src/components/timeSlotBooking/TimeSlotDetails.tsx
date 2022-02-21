@@ -320,6 +320,7 @@ export default function TimeSlotDetails({
                           moment(scheduledEvent.startsAt),
                           moment(scheduledEvent.endsAt),
                         ]);
+                        handleSetDirty(false);
                         setEditingDate(false);
                       }}
                       data-cy="btn-reset-experiment-range-change"

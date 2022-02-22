@@ -515,6 +515,7 @@ export type Feature = {
 
 export enum FeatureId {
   EMAIL_INVITE = 'EMAIL_INVITE',
+  EMAIL_SEARCH = 'EMAIL_SEARCH',
   EXTERNAL_AUTH = 'EXTERNAL_AUTH',
   RISK_ASSESSMENT = 'RISK_ASSESSMENT',
   SCHEDULER = 'SCHEDULER',
@@ -2995,7 +2996,6 @@ export type ScheduledEvent = {
 };
 
 export enum ScheduledEventBookingType {
-  COMMISSIONING = 'COMMISSIONING',
   EQUIPMENT = 'EQUIPMENT',
   MAINTENANCE = 'MAINTENANCE',
   SHUTDOWN = 'SHUTDOWN',

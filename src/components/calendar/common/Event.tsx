@@ -65,12 +65,6 @@ export const getBookingTypeStyle = (
   const filter = `grayscale(${grayscale}) opacity(${opacity})`;
 
   switch (event.bookingType) {
-    case ScheduledEventBookingType.COMMISSIONING:
-      return {
-        background: 'rgb(147, 225, 216)',
-        color: '#000',
-        filter: filter,
-      };
     case ScheduledEventBookingType.MAINTENANCE:
       return {
         background: 'rgb(255, 166, 158)',

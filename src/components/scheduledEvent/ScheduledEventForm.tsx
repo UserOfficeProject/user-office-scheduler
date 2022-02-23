@@ -16,7 +16,6 @@ import { TZ_LESS_DATE_TIME_FORMAT, TZ_LESS_DATE_TIME_MASK } from 'utils/date';
 export type BookingTypes = typeof ScheduledEventBookingType;
 
 export const BookingTypesMap: Record<keyof BookingTypes, string> = {
-  COMMISSIONING: 'Commissioning',
   MAINTENANCE: 'Maintenance',
   SHUTDOWN: 'Shutdown',
   USER_OPERATIONS: 'User operations',

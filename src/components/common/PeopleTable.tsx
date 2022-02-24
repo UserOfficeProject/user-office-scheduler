@@ -9,6 +9,12 @@ import { tableIcons } from 'components/common/TableIcons';
 import { BasicUserDetails, UserRole } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 
+type BasicUserDetailsWithTableData = BasicUserDetails & {
+  tableData?: {
+    checked: boolean;
+  };
+};
+
 function sendUserRequest(
   searchQuery: Query<any>,
   api: any,
@@ -48,7 +54,9 @@ function sendUserRequest(
     });
 }
 
-type PeopleTableProps<T extends BasicUserDetails = BasicUserDetails> = {
+type PeopleTableProps<
+  T extends BasicUserDetailsWithTableData = BasicUserDetailsWithTableData
+> = {
   selection: boolean;
   isLoading?: boolean;
   title?: string;
@@ -63,7 +71,7 @@ type PeopleTableProps<T extends BasicUserDetails = BasicUserDetails> = {
   onRemove?: (item: any) => void;
   onUpdate?: (item: any[]) => void;
   selectedUsers?: number[] | null;
-  mtOptions?: Options<BasicUserDetails>;
+  mtOptions?: Options<T>;
   columns?: Column<any>[];
   userRole?: UserRole;
 };
@@ -140,18 +148,8 @@ const PeopleTable: React.FC<PeopleTableProps> = ({
     });
 
   const tableData = data
-    ? (data as (BasicUserDetails & {
-        tableData: { checked: boolean };
-      })[])
-    : (
-        query: Query<
-          BasicUserDetails & {
-            tableData: {
-              checked: boolean;
-            };
-          }
-        >
-      ) => {
+    ? (data as BasicUserDetailsWithTableData[])
+    : (query: Query<BasicUserDetailsWithTableData>) => {
         if (searchText !== query.search) {
           setSearchText(query.search);
         }
@@ -207,7 +205,7 @@ const PeopleTable: React.FC<PeopleTableProps> = ({
           }
 
           setSelectedParticipants((selectedParticipants) =>
-            selectedItem.tableData.checked
+            selectedItem.tableData?.checked
               ? ([
                   ...selectedParticipants,
                   {

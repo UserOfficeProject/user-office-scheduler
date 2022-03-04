@@ -39,6 +39,12 @@ export class EquipmentInput implements Partial<EquipmentBase> {
 
   @Field(() => Boolean)
   autoAccept: boolean;
+
+  @Field(() => [Int], { nullable: true })
+  equipmentResponsible: number[] | null;
+
+  @Field(() => Int)
+  ownerUserId: number;
 }
 
 @InputType()
@@ -75,24 +81,6 @@ export class ConfirmEquipmentAssignmentInput {
 
   @Field(() => EquipmentAssignmentStatus)
   newStatus: EquipmentAssignmentStatus;
-}
-
-@InputType()
-export class EquipmentResponsibleInput {
-  @Field(() => Int)
-  equipmentId: number;
-
-  @Field(() => [Int])
-  userIds: number[];
-}
-
-@InputType()
-export class UpdateEquipmentOwnerInput {
-  @Field(() => Int)
-  equipmentId: number;
-
-  @Field(() => Int)
-  userId: number;
 }
 
 @Resolver()
@@ -161,30 +149,6 @@ export class EquipmentMutation {
     return ctx.mutations.equipment.confirmAssignment(
       ctx,
       confirmEquipmentAssignmentInput
-    );
-  }
-
-  @Mutation(() => Boolean)
-  updateEquipmentOwner(
-    @Ctx() ctx: ResolverContext,
-    @Arg('updateEquipmentOwnerInput', () => UpdateEquipmentOwnerInput)
-    updateEquipmentOwnerInput: UpdateEquipmentOwnerInput
-  ): Promise<boolean> {
-    return ctx.mutations.equipment.updateEquipmentOwner(
-      ctx,
-      updateEquipmentOwnerInput
-    );
-  }
-
-  @Mutation(() => Boolean)
-  addEquipmentResponsible(
-    @Ctx() ctx: ResolverContext,
-    @Arg('equipmentResponsibleInput', () => EquipmentResponsibleInput)
-    equipmentResponsibleInput: EquipmentResponsibleInput
-  ): Promise<boolean> {
-    return ctx.mutations.equipment.addEquipmentResponsible(
-      ctx,
-      equipmentResponsibleInput
     );
   }
 }

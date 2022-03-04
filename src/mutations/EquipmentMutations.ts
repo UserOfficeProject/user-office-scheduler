@@ -15,10 +15,8 @@ import {
   AssignEquipmentsToScheduledEventInput,
   DeleteEquipmentAssignmentInput,
   ConfirmEquipmentAssignmentInput,
-  EquipmentResponsibleInput,
-  UpdateEquipmentOwnerInput,
 } from '../resolvers/mutations/EquipmentMutation';
-import { Roles, User } from '../types/shared';
+import { Roles } from '../types/shared';
 
 export default class EquipmentMutations {
   constructor(
@@ -33,10 +31,7 @@ export default class EquipmentMutations {
     ctx: ResolverContext,
     newEquipmentInput: EquipmentInput
   ): Promise<Equipment | Rejection> {
-    return this.equipmentDataSource.create(
-      +(ctx.user as User).id,
-      newEquipmentInput
-    );
+    return this.equipmentDataSource.create(newEquipmentInput);
   }
 
   @ValidateArgs(equipmentValidationSchema)
@@ -129,26 +124,6 @@ export default class EquipmentMutations {
 
     return this.equipmentDataSource.confirmAssignment(
       confirmEquipmentAssignmentInput
-    );
-  }
-
-  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
-  async updateEquipmentOwner(
-    ctx: ResolverContext,
-    updateEquipmentOwnerInput: UpdateEquipmentOwnerInput
-  ) {
-    return this.equipmentDataSource.updateEquipmentOwner(
-      updateEquipmentOwnerInput
-    );
-  }
-
-  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
-  async addEquipmentResponsible(
-    ctx: ResolverContext,
-    equipmentResponsibleInput: EquipmentResponsibleInput
-  ) {
-    return this.equipmentDataSource.addEquipmentResponsible(
-      equipmentResponsibleInput
     );
   }
 }

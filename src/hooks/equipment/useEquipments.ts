@@ -1,19 +1,9 @@
 import { useState, useEffect } from 'react';
 
-import { Equipment } from 'generated/sdk';
+import { GetEquipmentsQuery } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
-import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 
-export type PartialEquipment = Pick<
-  Equipment,
-  | 'id'
-  | 'name'
-  | 'description'
-  | 'color'
-  | 'maintenanceStartsAt'
-  | 'maintenanceEndsAt'
-  | 'autoAccept'
-> & { equipmentInstruments: PartialInstrument[] };
+export type PartialEquipment = GetEquipmentsQuery['equipments'][0];
 
 export default function useEquipments() {
   const [loading, setLoading] = useState(true);

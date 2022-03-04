@@ -2,12 +2,6 @@ import moment, { DurationInputArg2, Moment } from 'moment';
 
 export const TZ_LESS_DATE_TIME_FORMAT = 'yyyy-MM-DD HH:mm:ss';
 
-export const existingInstruments = [
-  { name: 'Instrument 1' },
-  { name: 'Instrument 2' },
-  { name: 'Instrument 3' },
-];
-
 export const toTzLessDateTime = (dateTime: Moment | Date | string): string => {
   if (dateTime instanceof Date || typeof dateTime === 'string') {
     dateTime = moment(dateTime);

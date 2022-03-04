@@ -1,4 +1,5 @@
 import { ScheduledEventBookingType } from '../../src/generated/sdk';
+import initialDBData from '../support/initialDBData';
 import {
   defaultEventBookingHourDateTime,
   getHourDateTimeAfter,
@@ -16,21 +17,21 @@ context('Scheduled events table tests', () => {
 
   describe('Scheduled events table', () => {
     const newScheduledEvent1 = {
-      instrumentId: 1,
+      instrumentId: initialDBData.instruments[0].id,
       bookingType: ScheduledEventBookingType.MAINTENANCE,
       startsAt: defaultEventBookingHourDateTime,
       endsAt: getHourDateTimeAfter(1),
       description: 'Test maintenance event',
     };
     const newScheduledEvent2 = {
-      instrumentId: 1,
+      instrumentId: initialDBData.instruments[0].id,
       bookingType: ScheduledEventBookingType.SHUTDOWN,
       startsAt: getHourDateTimeAfter(-2),
       endsAt: getHourDateTimeAfter(-1),
       description: 'Test shutdown event',
     };
     const newScheduledEvent3 = {
-      instrumentId: 1,
+      instrumentId: initialDBData.instruments[0].id,
       bookingType: ScheduledEventBookingType.MAINTENANCE,
       startsAt: getHourDateTimeAfter(8, 'days'),
       endsAt: getHourDateTimeAfter(9, 'days'),
@@ -38,16 +39,16 @@ context('Scheduled events table tests', () => {
     };
 
     const newScheduledUserOperationsEvent1 = {
-      instrumentId: 1,
-      proposalBookingId: 1,
+      instrumentId: initialDBData.instruments[0].id,
+      proposalBookingId: initialDBData.proposalBooking.id,
       bookingType: ScheduledEventBookingType.USER_OPERATIONS,
       startsAt: defaultEventBookingHourDateTime,
       endsAt: getHourDateTimeAfter(24),
     };
 
     const newScheduledUserOperationsEvent2 = {
-      instrumentId: 1,
-      proposalBookingId: 1,
+      instrumentId: initialDBData.instruments[0].id,
+      proposalBookingId: initialDBData.proposalBooking.id,
       bookingType: ScheduledEventBookingType.USER_OPERATIONS,
       startsAt: getHourDateTimeAfter(25),
       endsAt: getHourDateTimeAfter(48),

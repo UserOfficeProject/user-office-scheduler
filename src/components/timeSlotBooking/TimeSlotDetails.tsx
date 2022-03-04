@@ -32,12 +32,14 @@ import React, { useEffect, useState } from 'react';
 import DateTimeRangePickerRenderInput from 'components/common/DateTimeRangePickerRenderInput';
 import PeopleModal from 'components/common/PeopleModal';
 import {
-  BasicUserDetails,
+  BasicUserDetailsFragment,
   ProposalBookingStatusCore,
-  ScheduledEvent,
   UserRole,
 } from 'generated/sdk';
-import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
+import {
+  DetailedProposalBooking,
+  DetailedProposalBookingScheduledEvent,
+} from 'hooks/proposalBooking/useProposalBooking';
 import { toTzLessDateTime } from 'utils/date';
 import { getFullUserName } from 'utils/user';
 
@@ -94,10 +96,12 @@ const checkIfOutsideCallCycleInterval = (
 };
 
 type TimeSlotDetailsProps = {
-  scheduledEvent: ScheduledEvent;
-  onEventDateChange: (event: ScheduledEvent) => void;
-  onEventLocalContactChange: (event: ScheduledEvent) => void;
-  proposalBooking: InstrumentProposalBooking;
+  scheduledEvent: DetailedProposalBookingScheduledEvent;
+  onEventDateChange: (event: DetailedProposalBookingScheduledEvent) => void;
+  onEventLocalContactChange: (
+    event: DetailedProposalBookingScheduledEvent
+  ) => void;
+  proposalBooking: DetailedProposalBooking;
   isDirty: boolean;
   handleSetDirty: (isDirty: boolean) => void;
 };
@@ -165,7 +169,7 @@ export default function TimeSlotDetails({
     });
   };
 
-  const addLocalContact = (data: BasicUserDetails[]) => {
+  const addLocalContact = (data: BasicUserDetailsFragment[]) => {
     const [selectedLocalContact] = data;
 
     if (selectedLocalContact) {
@@ -222,7 +226,7 @@ export default function TimeSlotDetails({
         close={() => setShowPeopleModal(false)}
         addParticipants={addLocalContact}
         selectedUsers={
-          scheduledEvent.localContact && [scheduledEvent.localContact.id]
+          scheduledEvent.localContact ? [scheduledEvent.localContact] : []
         }
         title={'Select local contact'}
         userRole={UserRole.INSTRUMENT_SCIENTIST}

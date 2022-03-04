@@ -49,9 +49,11 @@ import {
   ScheduledEventBookingType,
 } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
-import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
+import {
+  DetailedProposalBooking,
+  DetailedProposalBookingScheduledEvent,
+} from 'hooks/proposalBooking/useProposalBooking';
 import { ProposalBookingScheduledEvent } from 'hooks/scheduledEvent/useProposalBookingScheduledEvents';
-import { ScheduledEventWithEquipments } from 'hooks/scheduledEvent/useScheduledEventWithEquipment';
 import { toTzLessDateTime, TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
 import { getFullUserName } from 'utils/user';
 
@@ -137,10 +139,8 @@ const checkIfSomeScheduledEventIsOutsideCallCycleInterval = (
 };
 
 export type ProposalDetailsAndBookingEventsProps = {
-  proposalBooking: InstrumentProposalBooking;
-  setProposalBooking: Dispatch<
-    SetStateAction<InstrumentProposalBooking | null>
-  >;
+  proposalBooking: DetailedProposalBooking;
+  setProposalBooking: Dispatch<SetStateAction<DetailedProposalBooking>>;
   openedEventId?: number;
 };
 
@@ -267,7 +267,7 @@ export default function ProposalDetailsAndBookingEvents({
     }
   };
 
-  const handleDelete = async (event: ScheduledEventWithEquipments) => {
+  const handleDelete = async (event: DetailedProposalBookingScheduledEvent) => {
     if (!instrument) {
       return;
     }
@@ -313,7 +313,7 @@ export default function ProposalDetailsAndBookingEvents({
   };
 
   const getIconColorBasedOnStatus = (
-    event: ScheduledEvent
+    event: DetailedProposalBookingScheduledEvent
   ): 'primary' | 'disabled' | 'action' | 'warning' => {
     if (
       checkIfSomeScheduledEventIsOutsideCallCycleInterval(
@@ -337,7 +337,9 @@ export default function ProposalDetailsAndBookingEvents({
     }
   };
 
-  const getItemTooltipTitle = (event: ScheduledEvent) => {
+  const getItemTooltipTitle = (
+    event: DetailedProposalBookingScheduledEvent
+  ) => {
     if (
       checkIfSomeScheduledEventIsOutsideCallCycleInterval(
         [event],

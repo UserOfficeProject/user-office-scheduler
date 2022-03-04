@@ -16,9 +16,7 @@ query getProposalBooking(
       title
       proposalId
       proposer {
-        id
-        firstname
-        lastname
+        ...basicUserDetails
       }
     }
     scheduledEvents(filter: $filter) {
@@ -27,14 +25,10 @@ query getProposalBooking(
       endsAt
       bookingType
       scheduledBy {
-        id
-        firstname
-        lastname
+        ...basicUserDetails
       }
       localContact {
-        id
-        firstname
-        lastname
+        ...basicUserDetails
       }
       status
       description
@@ -43,16 +37,10 @@ query getProposalBooking(
       id
       name
       beamlineManager {
-        id
-        firstname
-        lastname
-        organisation
+        ...basicUserDetails
       }
       scientists {
-        id
-        firstname
-        lastname
-        organisation
+       ...basicUserDetails
       }
     }
     createdAt

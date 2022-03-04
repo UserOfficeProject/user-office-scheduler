@@ -16,13 +16,10 @@ query getScheduledEvents(
       name
     }
     scheduledBy {
-      firstname
-      lastname
+      ...basicUserDetails
     }
     localContact {
-      id
-      firstname
-      lastname
+      ...basicUserDetails
     }
     proposalBooking {
       id
@@ -35,8 +32,7 @@ query getScheduledEvents(
         title
         proposalId
         proposer {
-          firstname
-          lastname
+          ...basicUserDetails
         }
       }
       call {

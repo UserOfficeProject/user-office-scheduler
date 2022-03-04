@@ -1,13 +1,13 @@
 import moment from 'moment';
 
 import { ScheduledEventBookingType } from '../../src/generated/sdk';
+import initialDBData from '../support/initialDBData';
 import {
   defaultEventBookingHourDateTime,
   getHourDateTimeAfter,
   getFormattedDateAfter,
   selectInstrument,
   openProposalBookingFromRightToolbar,
-  existingInstruments,
 } from '../utils';
 
 context('Scheduled events timeline tests', () => {
@@ -20,29 +20,29 @@ context('Scheduled events timeline tests', () => {
 
   describe('Scheduled events timeline', () => {
     const newScheduledEvent1 = {
-      instrumentId: 1,
+      instrumentId: initialDBData.instruments[0].id,
       bookingType: ScheduledEventBookingType.MAINTENANCE,
       startsAt: defaultEventBookingHourDateTime,
       endsAt: getHourDateTimeAfter(1),
       description: 'Test maintenance event',
     };
     const newScheduledEvent2 = {
-      instrumentId: 1,
+      instrumentId: initialDBData.instruments[0].id,
       bookingType: ScheduledEventBookingType.SHUTDOWN,
       startsAt: getHourDateTimeAfter(-2),
       endsAt: getHourDateTimeAfter(-1),
       description: 'Test shutdown event',
     };
     const newScheduledEvent3 = {
-      instrumentId: 1,
+      instrumentId: initialDBData.instruments[0].id,
       bookingType: ScheduledEventBookingType.MAINTENANCE,
       startsAt: getHourDateTimeAfter(8, 'days'),
       endsAt: getHourDateTimeAfter(9, 'days'),
       description: 'Test maintenance event',
     };
     const newScheduledUserOperationsEvent = {
-      instrumentId: 1,
-      proposalBookingId: 1,
+      instrumentId: initialDBData.instruments[0].id,
+      proposalBookingId: initialDBData.proposalBooking.id,
       bookingType: ScheduledEventBookingType.USER_OPERATIONS,
       startsAt: defaultEventBookingHourDateTime,
       endsAt: getHourDateTimeAfter(24),
@@ -319,16 +319,16 @@ context('Scheduled events timeline tests', () => {
 
       cy.finishedLoading();
 
-      selectInstrument(existingInstruments[0].name);
+      selectInstrument(initialDBData.instruments[0].name);
       cy.finishedLoading();
 
       cy.get('[data-cy="scheduler-active-view"]').click();
       cy.get('[data-value="Timeline"]').click();
 
-      selectInstrument(existingInstruments[1].name);
+      selectInstrument(initialDBData.instruments[1].name);
       cy.finishedLoading();
 
-      selectInstrument(existingInstruments[2].name);
+      selectInstrument(initialDBData.instruments[2].name);
 
       cy.finishedLoading();
 

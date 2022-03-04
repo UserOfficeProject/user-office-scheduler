@@ -1,31 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 
-import { ScheduledEvent, EquipmentWithAssignmentStatus } from 'generated/sdk';
+import { GetScheduledEventsWithEquipmentsQuery } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
-
-export type ScheduledEventEquipment = Pick<
-  EquipmentWithAssignmentStatus,
-  | 'id'
-  | 'name'
-  | 'description'
-  | 'maintenanceStartsAt'
-  | 'maintenanceEndsAt'
-  | 'status'
->;
-
-export type ScheduledEventWithEquipments = Pick<
-  ScheduledEvent,
-  'id' | 'startsAt' | 'endsAt'
-> & {
-  equipments: ScheduledEventEquipment[];
-};
 
 export default function useScheduledEventsWithEquipments(
   proposalBookingId: number
 ) {
   const [loading, setLoading] = useState(true);
   const [scheduledEvents, setScheduledEvents] = useState<
-    ScheduledEventWithEquipments[]
+    GetScheduledEventsWithEquipmentsQuery['proposalBookingScheduledEvents']
   >([]);
   // may look stupid, but basically lets us provide a refresh option
   // and we won't get a warning when the component gets unmounted while

@@ -26,7 +26,7 @@ import { tableIcons } from 'components/common/TableIcons';
 import { ProposalBookingStatusCore } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import { ProposalBookingLostTime } from 'hooks/lostTime/useProposalBookingLostTimes';
-import { ScheduledEventWithEquipments } from 'hooks/scheduledEvent/useScheduledEventWithEquipment';
+import { DetailedProposalBookingScheduledEvent } from 'hooks/proposalBooking/useProposalBooking';
 import {
   toTzLessDateTime,
   TZ_LESS_DATE_TIME_LOW_PREC_FORMAT,
@@ -52,7 +52,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 type TimeSlotLostTimeTableProps = {
-  scheduledEvent: ScheduledEventWithEquipments;
+  scheduledEvent: DetailedProposalBookingScheduledEvent;
   proposalBookingId: number;
   handleSetDirty: (isDirty: boolean) => void;
   lostTimes: ProposalBookingLostTime[];

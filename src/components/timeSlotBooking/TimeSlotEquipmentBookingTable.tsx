@@ -11,9 +11,9 @@ import SelectEquipmentDialog from 'components/timeSlotBooking/equipmentBooking/S
 import {
   EquipmentAssignmentStatus,
   ProposalBookingStatusCore,
-  ScheduledEvent,
 } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
+import { DetailedProposalBookingScheduledEvent } from 'hooks/proposalBooking/useProposalBooking';
 import { ScheduledEventEquipment } from 'hooks/scheduledEvent/useScheduledEventWithEquipment';
 
 export type EquipmentTableRow = {
@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 type TimeSlotEquipmentBookingTableProps = {
-  scheduledEvent: ScheduledEvent;
+  scheduledEvent: DetailedProposalBookingScheduledEvent;
   proposalBookingId: number;
   loadingEquipments: boolean;
   scheduledEventEquipments: ScheduledEventEquipment[];
@@ -48,7 +48,7 @@ type TimeSlotEquipmentBookingTableProps = {
 };
 
 // NOTE: Keep columns outside the component to avoid console warning(https://github.com/material-table-core/core/issues/286)
-const columns: Column<ScheduledEventEquipment>[] = [
+const columns: Column<NonNullable<ScheduledEventEquipment>>[] = [
   {
     title: 'Name',
     field: 'name',
@@ -59,7 +59,7 @@ const columns: Column<ScheduledEventEquipment>[] = [
   },
   {
     title: 'Color',
-    render: (rowData: ScheduledEventEquipment) =>
+    render: (rowData: NonNullable<ScheduledEventEquipment>) =>
       rowData.color ? (
         <>
           <span

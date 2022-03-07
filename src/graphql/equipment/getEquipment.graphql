@@ -10,14 +10,10 @@ query getEquipment($id: Int!) {
     maintenanceEndsAt
     autoAccept
     owner {
-      id
-      firstname
-      lastname
+      ...basicUserDetails
     }
     equipmentResponsible {
-      id
-      firstname
-      lastname
+      ...basicUserDetails
     }
     equipmentInstruments {
       id

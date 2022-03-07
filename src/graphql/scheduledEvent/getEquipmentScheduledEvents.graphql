@@ -21,8 +21,7 @@ query getEquipmentScheduledEvents(
           title
           proposalId
           proposer {
-            firstname
-            lastname
+            ...basicUserDetails
           }
         }
       }
@@ -31,14 +30,10 @@ query getEquipmentScheduledEvents(
         name
       }
       scheduledBy {
-        id
-        firstname
-        lastname
+        ...basicUserDetails
       }
       localContact {
-        id
-        firstname
-        lastname
+        ...basicUserDetails
       }
     }
   }

@@ -7,9 +7,7 @@ mutation createScheduledEvent($input: NewScheduledEventInput!) {
       endsAt
       bookingType
       scheduledBy {
-        id
-        firstname
-        lastname
+        ...basicUserDetails
       }
       status
       description

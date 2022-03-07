@@ -1,13 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 
-import { ScheduledEvent, User } from 'generated/sdk';
+import { BasicUserDetailsFragment, ScheduledEvent } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 
 export type ProposalBookingScheduledEvent = Pick<
   ScheduledEvent,
   'id' | 'startsAt' | 'endsAt' | 'bookingType' | 'status' | 'description'
 > & {
-  scheduledBy?: Pick<User, 'id' | 'firstname' | 'lastname'> | null;
+  scheduledBy?: BasicUserDetailsFragment | null;
   newlyCreated?: boolean;
 };
 

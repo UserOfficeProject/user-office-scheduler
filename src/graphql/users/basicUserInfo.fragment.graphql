@@ -4,6 +4,5 @@ fragment basicUserDetails on BasicUserDetails {
   lastname
   organisation
   position
-  created
   placeholder
 }

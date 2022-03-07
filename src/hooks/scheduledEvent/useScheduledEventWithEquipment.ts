@@ -1,25 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 
-import { ScheduledEvent, EquipmentWithAssignmentStatus } from 'generated/sdk';
+import { GetScheduledEventWithEquipmentsQuery } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 
-export type ScheduledEventEquipment = Pick<
-  EquipmentWithAssignmentStatus,
-  | 'id'
-  | 'name'
-  | 'description'
-  | 'color'
-  | 'maintenanceStartsAt'
-  | 'maintenanceEndsAt'
-  | 'status'
->;
-
-export type ScheduledEventWithEquipments = Pick<
-  ScheduledEvent,
-  'id' | 'startsAt' | 'endsAt' | 'status' | 'scheduledBy' | 'proposalBooking'
-> & {
-  equipments: ScheduledEventEquipment[];
-};
+export type ScheduledEventEquipment = NonNullable<
+  GetScheduledEventWithEquipmentsQuery['proposalBookingScheduledEvent']
+>['equipments'][0];
 
 export default function useScheduledEventWithEquipments({
   proposalBookingId,
@@ -31,7 +17,9 @@ export default function useScheduledEventWithEquipments({
   const [loading, setLoading] = useState(true);
   const [counter, setCounter] = useState(0);
   const [scheduledEvent, setScheduledEvent] =
-    useState<ScheduledEventWithEquipments | null>(null);
+    useState<
+      GetScheduledEventWithEquipmentsQuery['proposalBookingScheduledEvent']
+    >(null);
 
   const api = useDataApi();
 
@@ -58,9 +46,7 @@ export default function useScheduledEventWithEquipments({
         }
 
         if (data.proposalBookingScheduledEvent) {
-          setScheduledEvent(
-            data.proposalBookingScheduledEvent as ScheduledEventWithEquipments
-          );
+          setScheduledEvent(data.proposalBookingScheduledEvent);
         }
 
         setLoading(false);

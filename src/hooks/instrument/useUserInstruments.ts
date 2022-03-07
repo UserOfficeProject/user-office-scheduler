@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 
-import { Instrument } from 'generated/sdk';
+import { GetUserInstrumentsQuery } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 
-export type PartialInstrument = Pick<Instrument, 'id' | 'name'>;
+export type PartialInstrument = NonNullable<
+  GetUserInstrumentsQuery['userInstruments']
+>['instruments'][0];
 
 export default function useUserInstruments() {
   const [loading, setLoading] = useState(true);

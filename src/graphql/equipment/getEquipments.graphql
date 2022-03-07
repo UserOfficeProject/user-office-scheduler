@@ -1,14 +1,6 @@
 query getEquipments {
   equipments {
-    id
-    createdAt
-    updatedAt
-    name
-    description
-    color
-    maintenanceStartsAt
-    maintenanceEndsAt
-    autoAccept
+    ...equipment
     equipmentInstruments {
       id
       name

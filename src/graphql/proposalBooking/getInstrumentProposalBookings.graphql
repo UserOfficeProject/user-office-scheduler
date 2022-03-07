@@ -16,9 +16,7 @@ query getInstrumentProposalBookings(
       title
       proposalId
       proposer {
-        id
-        firstname
-        lastname
+        ...basicUserDetails
       }
     }
     createdAt

@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
 
-import { LostTime } from 'generated/sdk';
+import { GetProposalBookingLostTimesQuery } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 
-export type ProposalBookingLostTime = Pick<
-  LostTime,
-  'id' | 'startsAt' | 'endsAt' | 'scheduledEventId'
->;
+export type ProposalBookingLostTime =
+  GetProposalBookingLostTimesQuery['proposalBookingLostTimes'][0];
 
 export default function useProposalBookingLostTimes(
   proposalBookingId?: number,

@@ -7,13 +7,7 @@ query getScheduledEventEquipments(
     scheduledEventId: $scheduledEventId
   ) {
     equipments {
-      id
-      name
-      description
-      color
-      maintenanceStartsAt
-      maintenanceEndsAt
-      status
+      ...equipmentWithStatus
     }
   }
 }

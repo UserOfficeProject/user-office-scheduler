@@ -1,4 +1,5 @@
 import { ScheduledEventBookingType } from '../../src/generated/sdk';
+import initialDBData from '../support/initialDBData';
 import {
   defaultEventBookingHourDateTime,
   getFormattedBeginningOfSelectedWeek,
@@ -6,7 +7,6 @@ import {
   getFormattedDateAfter,
   getHourDateTimeAfter,
   selectInstrument,
-  existingInstruments,
 } from '../utils';
 
 function clickOnEventSlot(slot: string) {
@@ -340,11 +340,11 @@ context('Calendar tests', () => {
       cy.createEvent({ input: newScheduledEvent2 });
       cy.finishedLoading();
 
-      selectInstrument(existingInstruments[2].name);
+      selectInstrument(initialDBData.instruments[2].name);
 
       cy.finishedLoading();
 
-      selectInstrument(existingInstruments[0].name);
+      selectInstrument(initialDBData.instruments[0].name);
 
       cy.finishedLoading();
 

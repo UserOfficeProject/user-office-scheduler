@@ -14,12 +14,10 @@ import {
   AssignEquipmentsToScheduledEventInput,
   DeleteEquipmentAssignmentInput,
   ConfirmEquipmentAssignmentInput,
-  EquipmentResponsibleInput,
-  UpdateEquipmentOwnerInput,
 } from '../resolvers/mutations/EquipmentMutation';
 
 export interface EquipmentDataSource {
-  create(userId: number, newEquipmentInput: EquipmentInput): Promise<Equipment>;
+  create(newEquipmentInput: EquipmentInput): Promise<Equipment>;
   update(
     id: number,
     updateEquipmentInput: EquipmentInput
@@ -47,12 +45,6 @@ export interface EquipmentDataSource {
   ): Promise<boolean>;
   confirmAssignment(
     confirmEquipmentAssignmentInput: ConfirmEquipmentAssignmentInput
-  ): Promise<boolean>;
-  addEquipmentResponsible(
-    addEquipmentResponsibleInput: EquipmentResponsibleInput
-  ): Promise<boolean>;
-  updateEquipmentOwner(
-    updateEquipmentOwnerInput: UpdateEquipmentOwnerInput
   ): Promise<boolean>;
   getEquipmentResponsible(equipmentId: number): Promise<EquipmentResponsible[]>;
   getEquipmentInstruments(equipmentId: number): Promise<EquipmentInstrument[]>;

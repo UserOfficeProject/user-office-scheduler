@@ -17,8 +17,6 @@ import {
   AssignEquipmentsToScheduledEventInput,
   DeleteEquipmentAssignmentInput,
   ConfirmEquipmentAssignmentInput,
-  EquipmentResponsibleInput,
-  UpdateEquipmentOwnerInput,
 } from '../../resolvers/mutations/EquipmentMutation';
 import { isSetAndPopulated } from '../../utils/helperFunctions';
 import { EquipmentDataSource } from '../EquipmentDataSource';
@@ -43,7 +41,7 @@ export default class PostgresEquipmentDataSource
   readonly equipmentResponsibleTable = 'equipment_responsible';
   readonly equipmentInstrumentsTable = 'equipment_instruments';
 
-  async create(userId: number, input: EquipmentInput): Promise<Equipment> {
+  async create(input: EquipmentInput): Promise<Equipment> {
     const equipmentRecord = await database.transaction(async (trx) => {
       const {
         name,
@@ -53,11 +51,12 @@ export default class PostgresEquipmentDataSource
         maintenanceEndsAt,
         autoAccept,
         instrumentIds,
+        ownerUserId,
       } = input;
 
       const [equipmentRecord] = await trx<EquipmentRecord>(this.tableName)
         .insert({
-          owner_id: userId,
+          owner_id: ownerUserId,
           name: name,
           description: description,
           color: color,
@@ -76,6 +75,17 @@ export default class PostgresEquipmentDataSource
             }))
           )
           .returning<EquipmentInstrumentRecord[]>(['*']);
+      }
+
+      if (input.equipmentResponsible?.length) {
+        const dataToInsert = input.equipmentResponsible.map((userId) => ({
+          user_id: userId,
+          equipment_id: equipmentRecord.equipment_id,
+        }));
+
+        await trx<EquipmentResponsibleRecord>(this.equipmentResponsibleTable)
+          .insert(dataToInsert)
+          .returning(['*']);
       }
 
       return equipmentRecord;
@@ -124,6 +134,7 @@ export default class PostgresEquipmentDataSource
           maintenanceEndsAt,
           autoAccept,
           instrumentIds,
+          ownerUserId,
         } = input;
 
         const equipmentEventBookedOnRemovedInstrument =
@@ -155,6 +166,23 @@ export default class PostgresEquipmentDataSource
             .returning<EquipmentInstrumentRecord[]>(['*']);
         }
 
+        // Delete existing equipment responsible people
+        await trx<EquipmentResponsibleRecord>(this.equipmentResponsibleTable)
+          .where('equipment_id', '=', id)
+          .delete();
+
+        if (input.equipmentResponsible?.length) {
+          const dataToInsert = input.equipmentResponsible.map((userId) => ({
+            user_id: userId,
+            equipment_id: id,
+          }));
+
+          // Re-create updated equipment responsible people
+          await trx<EquipmentResponsibleRecord>(this.equipmentResponsibleTable)
+            .insert(dataToInsert)
+            .returning(['*']);
+        }
+
         // Update equipment itself
         const [equipmentRecord] = await trx<EquipmentRecord>(this.tableName)
           .update({
@@ -164,6 +192,7 @@ export default class PostgresEquipmentDataSource
             maintenance_starts_at: maintenanceStartsAt,
             maintenance_ends_at: maintenanceEndsAt,
             auto_accept: autoAccept,
+            owner_id: ownerUserId,
           })
           .where('equipment_id', id)
           .returning('*');
@@ -467,33 +496,6 @@ export default class PostgresEquipmentDataSource
       .returning('*');
 
     return deletedRecords.length === 1;
-  }
-
-  async updateEquipmentOwner(
-    input: UpdateEquipmentOwnerInput
-  ): Promise<boolean> {
-    const [equipmentRecord] = await database<EquipmentRecord>(this.tableName)
-      .update({ owner_id: input.userId })
-      .where({ equipment_id: input.equipmentId })
-      .returning('*');
-
-    return equipmentRecord.owner_id === input.userId;
-  }
-
-  async addEquipmentResponsible(
-    input: EquipmentResponsibleInput
-  ): Promise<boolean> {
-    const dataToInsert = input.userIds.map((userId) => ({
-      user_id: userId,
-      equipment_id: input.equipmentId,
-    }));
-
-    const equipmentResponsibleRecords =
-      await database<EquipmentResponsibleRecord>(this.equipmentResponsibleTable)
-        .insert(dataToInsert)
-        .returning('*');
-
-    return equipmentResponsibleRecords.length === dataToInsert.length;
   }
 
   async equipmentEventsByProposalBookingId(

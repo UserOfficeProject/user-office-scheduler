@@ -21,7 +21,7 @@ import { TzLessDateTime } from '../CustomScalars';
 import { Equipment, EquipmentWithAssignmentStatus } from './Equipment';
 import { Instrument } from './Instrument';
 import { ProposalBooking } from './ProposalBooking';
-import { BasicUserDetails, User } from './User';
+import { BasicUserDetails } from './User';
 
 @ObjectType()
 @Directive('@key(fields: "id")')
@@ -48,9 +48,9 @@ export class ScheduledEvent implements Partial<ScheduledEventBase> {
   proposalBookingId: number | null;
 
   // external type
-  @Type(() => User)
+  @Type(() => BasicUserDetails)
   @Field({ nullable: true })
-  scheduledBy?: User;
+  scheduledBy?: BasicUserDetails;
 
   // external type
   @Type(() => BasicUserDetails)

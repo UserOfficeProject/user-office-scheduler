@@ -18,7 +18,7 @@ import {
 import { TzLessDateTime } from '../CustomScalars';
 import { Instrument } from './Instrument';
 import { ScheduledEvent } from './ScheduledEvent';
-import { User } from './User';
+import { BasicUserDetails } from './User';
 
 @ObjectType()
 export class Equipment implements Partial<EquipmentBase> {
@@ -26,9 +26,9 @@ export class Equipment implements Partial<EquipmentBase> {
   id: number;
 
   // external type
-  @Type(() => User)
+  @Type(() => BasicUserDetails)
   @Field({ nullable: true })
-  owner?: User;
+  owner?: BasicUserDetails;
 
   @Field(() => Date)
   createdAt: Date;
@@ -78,11 +78,11 @@ export class EquipmentResolvers {
     );
   }
 
-  @FieldResolver(() => [User])
+  @FieldResolver(() => [BasicUserDetails])
   equipmentResponsible(
     @Root() equipment: Equipment,
     @Ctx() ctx: ResolverContext
-  ): Promise<User[]> {
+  ): Promise<BasicUserDetails[]> {
     return ctx.queries.equipment.getEquipmentResponsible(ctx, equipment.id);
   }
 

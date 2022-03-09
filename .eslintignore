@@ -1,0 +1,14 @@
+node_modules
+# build artefacts
+build/*
+coverage/*
+# data definition files
+**/*.d.ts
+# 3rd party libs
+/src/public/
+# custom definition files
+/src/types/
+
+/dev-commands/*
+
+src/generated/sdk.ts

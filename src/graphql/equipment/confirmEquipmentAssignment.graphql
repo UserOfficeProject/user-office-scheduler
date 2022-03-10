@@ -1,0 +1,7 @@
+mutation confirmEquipmentAssignment(
+  $confirmEquipmentAssignmentInput: ConfirmEquipmentAssignmentInput!
+) {
+  confirmEquipmentAssignment(
+    confirmEquipmentAssignmentInput: $confirmEquipmentAssignmentInput
+  )
+}

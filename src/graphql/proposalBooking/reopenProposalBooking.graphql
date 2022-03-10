@@ -1,0 +1,5 @@
+mutation reopenProposalBooking($id: Int!) {
+  reopenProposalBooking(id: $id) {
+    error
+  }
+}

@@ -1,0 +1,7 @@
+mutation deleteEquipmentAssignment(
+  $deleteEquipmentAssignmentInput: DeleteEquipmentAssignmentInput!
+) {
+  deleteEquipmentAssignment(
+    deleteEquipmentAssignmentInput: $deleteEquipmentAssignmentInput
+  )
+}

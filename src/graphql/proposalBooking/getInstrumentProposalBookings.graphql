@@ -1,0 +1,36 @@
+query getInstrumentProposalBookings(
+  $instrumentIds: [Int!]!
+  $filter: ProposalBookingScheduledEventFilter!
+) {
+  instrumentProposalBookings(instrumentIds: $instrumentIds) {
+    id
+    call {
+      id
+      shortCode
+      startCycle
+      endCycle
+      cycleComment
+    }
+    proposal {
+      primaryKey
+      title
+      proposalId
+      proposer {
+        ...basicUserDetails
+      }
+    }
+    createdAt
+    updatedAt
+    status
+    allocatedTime
+    instrument {
+      id
+      name
+    }
+    scheduledEvents(filter: $filter) {
+      id
+      startsAt
+      endsAt
+    }
+  }
+}

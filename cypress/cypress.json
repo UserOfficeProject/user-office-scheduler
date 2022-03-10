@@ -1,0 +1,9 @@
+{
+  "video": false,
+  "baseUrl": "http://scheduler-proxy:80",
+  "screenshotsFolder": "/tmp/screenshots",
+  "viewportWidth": 1920,
+  "viewportHeight": 1080,
+  "retries": 1,
+  "defaultCommandTimeout": 15000
+}

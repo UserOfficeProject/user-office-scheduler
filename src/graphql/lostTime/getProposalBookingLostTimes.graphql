@@ -1,0 +1,14 @@
+query getProposalBookingLostTimes(
+  $proposalBookingId: Int!
+  $scheduledEventId: Int
+) {
+  proposalBookingLostTimes(
+    proposalBookingId: $proposalBookingId
+    scheduledEventId: $scheduledEventId
+  ) {
+    id
+    startsAt
+    scheduledEventId
+    endsAt
+  }
+}

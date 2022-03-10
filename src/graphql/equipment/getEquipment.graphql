@@ -1,0 +1,23 @@
+query getEquipment($id: Int!) {
+  equipment(id: $id) {
+    id
+    createdAt
+    updatedAt
+    name
+    description
+    color
+    maintenanceStartsAt
+    maintenanceEndsAt
+    autoAccept
+    owner {
+      ...basicUserDetails
+    }
+    equipmentResponsible {
+      ...basicUserDetails
+    }
+    equipmentInstruments {
+      id
+      name
+    }
+  }
+}

@@ -1,0 +1,9 @@
+query getUserInstruments {
+  userInstruments {
+    totalCount
+    instruments {
+      id
+      name
+    }
+  }
+}

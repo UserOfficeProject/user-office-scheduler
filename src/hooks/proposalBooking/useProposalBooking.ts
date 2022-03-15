@@ -1,30 +1,34 @@
 import { useState, useEffect } from 'react';
 
-import { Call, Proposal, ProposalBooking } from 'generated/sdk';
+import { GetProposalBookingQuery } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 
 export type DetailedProposalBooking = Pick<
-  ProposalBooking,
+  NonNullable<GetProposalBookingQuery['proposalBooking']>,
   | 'id'
   | 'createdAt'
-  | 'updatedAt'
-  | 'status'
   | 'allocatedTime'
-  | 'scheduledEvents'
   | 'instrument'
+  | 'scheduledEvents'
+  | 'status'
+  | 'updatedAt'
 > & {
-  call: Pick<
-    Call,
-    'id' | 'shortCode' | 'startCycle' | 'endCycle' | 'cycleComment'
+  call: NonNullable<
+    NonNullable<GetProposalBookingQuery['proposalBooking']>['call']
   >;
 } & {
-  proposal: Pick<Proposal, 'primaryKey' | 'title' | 'proposalId' | 'proposer'>;
+  proposal: NonNullable<
+    NonNullable<GetProposalBookingQuery['proposalBooking']>['proposal']
+  >;
 };
+
+export type DetailedProposalBookingScheduledEvent =
+  DetailedProposalBooking['scheduledEvents'][0];
 
 export default function useProposalBooking(id: number) {
   const [loading, setLoading] = useState(true);
   const [proposalBooking, setProposalBooking] =
-    useState<DetailedProposalBooking | null>(null);
+    useState<GetProposalBookingQuery['proposalBooking']>(null);
 
   const api = useDataApi();
 
@@ -44,7 +48,7 @@ export default function useProposalBooking(id: number) {
           data.proposalBooking.proposal &&
           data.proposalBooking.call
         ) {
-          setProposalBooking(data.proposalBooking as DetailedProposalBooking);
+          setProposalBooking(data.proposalBooking);
         }
 
         setLoading(false);

@@ -1,5 +1,0 @@
-mutation updateEquipmentOwner(
-  $updateEquipmentOwnerInput: UpdateEquipmentOwnerInput!
-) {
-  updateEquipmentOwner(updateEquipmentOwnerInput: $updateEquipmentOwnerInput)
-}

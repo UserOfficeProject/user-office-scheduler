@@ -1,22 +1,13 @@
 import { useState, useEffect } from 'react';
 
-import { Equipment } from 'generated/sdk';
+import { GetAvailableEquipmentsQuery } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
-
-export type EquipmentPartial = Pick<
-  Equipment,
-  | 'id'
-  | 'name'
-  | 'description'
-  | 'color'
-  | 'maintenanceStartsAt'
-  | 'maintenanceEndsAt'
-  | 'autoAccept'
->;
 
 export default function useAvailableEquipments(scheduledEventId: number) {
   const [loading, setLoading] = useState(true);
-  const [equipments, setEquipments] = useState<EquipmentPartial[]>([]);
+  const [equipments, setEquipments] = useState<
+    GetAvailableEquipmentsQuery['availableEquipments']
+  >([]);
 
   const api = useDataApi();
 

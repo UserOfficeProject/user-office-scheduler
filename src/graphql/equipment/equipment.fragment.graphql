@@ -1,0 +1,21 @@
+fragment equipment on Equipment {
+  id
+  name
+  description
+  createdAt
+  updatedAt
+  color
+  maintenanceStartsAt
+  maintenanceEndsAt
+  autoAccept
+}
+
+fragment equipmentWithStatus on EquipmentWithAssignmentStatus {
+  id
+  name
+  description
+  color
+  maintenanceStartsAt
+  maintenanceEndsAt
+  status
+}

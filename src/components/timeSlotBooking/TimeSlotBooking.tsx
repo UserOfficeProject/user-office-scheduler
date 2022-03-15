@@ -16,20 +16,20 @@ import SplitButton from 'components/common/SplitButton';
 import { AppContext } from 'context/AppContext';
 import { useCheckAccess } from 'context/UserContext';
 import {
-  BasicUserDetails,
   EquipmentAssignmentStatus,
   ProposalBookingFinalizeAction,
   ProposalBookingStatusCore,
-  ScheduledEvent,
   UserRole,
 } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import useProposalBookingLostTimes, {
   ProposalBookingLostTime,
 } from 'hooks/lostTime/useProposalBookingLostTimes';
-import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
+import {
+  DetailedProposalBooking,
+  DetailedProposalBookingScheduledEvent,
+} from 'hooks/proposalBooking/useProposalBooking';
 import useScheduledEventEquipments from 'hooks/scheduledEvent/useScheduledEventEquipments';
-import { ScheduledEventWithEquipments } from 'hooks/scheduledEvent/useScheduledEventWithEquipment';
 import { toTzLessDateTime } from 'utils/date';
 import { hasOverlappingEvents } from 'utils/scheduledEvent';
 
@@ -47,12 +47,12 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 type TimeSlotBookingProps = {
-  proposalBooking: InstrumentProposalBooking;
-  setProposalBooking: Dispatch<
-    SetStateAction<InstrumentProposalBooking | null>
-  >;
-  activeScheduledEvent: ScheduledEvent;
-  onDelete: (scheduledEvent: ScheduledEventWithEquipments) => Promise<void>;
+  proposalBooking: DetailedProposalBooking;
+  setProposalBooking: Dispatch<SetStateAction<DetailedProposalBooking>>;
+  activeScheduledEvent: DetailedProposalBookingScheduledEvent;
+  onDelete: (
+    scheduledEvent: DetailedProposalBookingScheduledEvent
+  ) => Promise<void>;
 };
 
 export const getProposalBookingEventsForOverlapCheck = (
@@ -237,7 +237,9 @@ export default function TimeSlotBooking({
       : handleFinalizeSubmit(selectedKey);
   };
 
-  const handleSubmit = async (updatedEvent: ScheduledEvent) => {
+  const handleSubmit = async (
+    updatedEvent: DetailedProposalBookingScheduledEvent
+  ) => {
     try {
       if (!updatedEvent.startsAt || !updatedEvent.endsAt) {
         return;
@@ -288,7 +290,7 @@ export default function TimeSlotBooking({
                 : event.endsAt,
             localContact:
               event.id === updatedScheduledEvent?.id
-                ? (updatedScheduledEvent.localContact as BasicUserDetails)
+                ? updatedScheduledEvent.localContact
                 : event.localContact,
           })
         );
@@ -306,7 +308,9 @@ export default function TimeSlotBooking({
     setIsLoading(false);
   };
 
-  const onEventDateChange = (updatedEvent: ScheduledEvent) => {
+  const onEventDateChange = (
+    updatedEvent: DetailedProposalBookingScheduledEvent
+  ) => {
     hasOverlappingEvents(
       getProposalBookingEventsForOverlapCheck(
         proposalBooking.scheduledEvents,

@@ -1,27 +1,23 @@
 import faker from 'faker';
 
 import { ScheduledEventBookingType } from '../../src/generated/sdk';
+import initialDBData from '../support/initialDBData';
 import {
   defaultEventBookingHourDateTime,
   getCurrentHourDateTime,
   getHourDateTimeAfter,
 } from '../utils';
 
-const existingProposalBookingId = 1;
-const existingInstrument = {
-  id: 1,
-  name: 'Instrument 1',
-};
-
 const newEquipment = {
   name: faker.random.words(2),
   description: '',
   autoAccept: false,
+  ownerUserId: 1,
 };
 
 const createdUserOperationsEvent = {
-  instrumentId: existingInstrument.id,
-  proposalBookingId: existingProposalBookingId,
+  instrumentId: initialDBData.instruments[0].id,
+  proposalBookingId: initialDBData.proposalBooking.id,
   bookingType: ScheduledEventBookingType.USER_OPERATIONS,
   startsAt: defaultEventBookingHourDateTime,
   endsAt: getHourDateTimeAfter(24),
@@ -94,12 +90,12 @@ context('Equipment tests', () => {
       cy.get('[data-cy="equipment-instruments"] input').click();
 
       cy.get('[role="presentation"] ul li')
-        .contains(existingInstrument.name)
+        .contains(initialDBData.instruments[0].name)
         .click();
 
       cy.get('[data-cy=btn-save-equipment]').click();
       cy.finishedLoading();
-      cy.contains(existingInstrument.name);
+      cy.contains(initialDBData.instruments[0].name);
 
       cy.get('.MuiDrawer-root').contains('Equipment list').click();
 
@@ -107,7 +103,9 @@ context('Equipment tests', () => {
       cy.get('.MuiTablePagination-menuItem[data-value="10"]').click();
 
       cy.finishedLoading();
-      cy.contains(newEquipment.name).parent().contains(existingInstrument.name);
+      cy.contains(newEquipment.name)
+        .parent()
+        .contains(initialDBData.instruments[0].name);
 
       cy.createEvent({ input: createdUserOperationsEvent }).then((result) => {
         const newCreatedEvent = result.createScheduledEvent.scheduledEvent;
@@ -116,7 +114,7 @@ context('Equipment tests', () => {
             assignEquipmentsToScheduledEventInput: {
               equipmentIds: [createdEquipmentId],
               scheduledEventId: newCreatedEvent.id,
-              proposalBookingId: existingProposalBookingId,
+              proposalBookingId: initialDBData.proposalBooking.id,
             },
           });
         }
@@ -134,7 +132,7 @@ context('Equipment tests', () => {
 
       cy.get('[data-cy="equipment-instruments"]').should(
         'contain.text',
-        existingInstrument.name
+        initialDBData.instruments[0].name
       );
 
       cy.get('.MuiDrawer-root').contains('Equipment list').click();
@@ -143,7 +141,9 @@ context('Equipment tests', () => {
       cy.get('.MuiTablePagination-menuItem[data-value="10"]').click();
 
       cy.finishedLoading();
-      cy.contains(newEquipment.name).parent().contains(existingInstrument.name);
+      cy.contains(newEquipment.name)
+        .parent()
+        .contains(initialDBData.instruments[0].name);
     });
 
     it('should be able to change equipment color', () => {
@@ -153,7 +153,7 @@ context('Equipment tests', () => {
         id: createdEquipmentId,
         updateEquipmentInput: {
           ...newEquipment,
-          instrumentIds: [existingInstrument.id],
+          instrumentIds: [initialDBData.instruments[0].id],
         },
       }).then(() => {
         cy.createEvent({ input: createdUserOperationsEvent }).then((result) => {
@@ -163,7 +163,7 @@ context('Equipment tests', () => {
               assignEquipmentsToScheduledEventInput: {
                 equipmentIds: [createdEquipmentId],
                 scheduledEventId: newCreatedEvent.id,
-                proposalBookingId: existingProposalBookingId,
+                proposalBookingId: initialDBData.proposalBooking.id,
               },
             });
           }
@@ -277,21 +277,23 @@ context('Equipment tests', () => {
 
     it('Should be able to accept equipment request one by one booked on same event', () => {
       cy.updateEquipment({
-        id: 1,
+        id: initialDBData.equipments[0].id,
         updateEquipmentInput: {
-          name: 'Available equipment 1 - no auto accept',
-          description: '',
-          autoAccept: false,
-          instrumentIds: [existingInstrument.id],
+          name: initialDBData.equipments[0].name,
+          description: initialDBData.equipments[0].description,
+          autoAccept: initialDBData.equipments[0].autoAccept,
+          ownerUserId: initialDBData.equipments[0].ownerUserId,
+          instrumentIds: [initialDBData.instruments[0].id],
         },
       });
       cy.updateEquipment({
-        id: 2,
+        id: initialDBData.equipments[1].id,
         updateEquipmentInput: {
-          name: 'Available equipment 2 - auto accept',
-          description: '',
+          name: initialDBData.equipments[1].name,
+          description: initialDBData.equipments[1].description,
           autoAccept: false,
-          instrumentIds: [existingInstrument.id],
+          ownerUserId: initialDBData.equipments[1].ownerUserId,
+          instrumentIds: [initialDBData.instruments[0].id],
         },
       });
       cy.createEvent({ input: createdUserOperationsEvent }).then((result) => {
@@ -299,7 +301,10 @@ context('Equipment tests', () => {
           cy.assignEquipmentToScheduledEvent({
             assignEquipmentsToScheduledEventInput: {
               scheduledEventId: result.createScheduledEvent.scheduledEvent.id,
-              equipmentIds: [1, 2],
+              equipmentIds: [
+                initialDBData.equipments[0].id,
+                initialDBData.equipments[1].id,
+              ],
               proposalBookingId: createdUserOperationsEvent.proposalBookingId,
             },
           });

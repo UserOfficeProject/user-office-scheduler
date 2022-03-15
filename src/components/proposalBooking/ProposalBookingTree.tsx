@@ -79,12 +79,12 @@ export default function ProposalBookingTree({
   const groupedByCall: RenderTree[] = useMemo(
     () =>
       chain(proposalBookings)
-        .groupBy(({ call: { id } }) => id)
+        .groupBy(({ call }) => call?.id)
         .map((proposalBookings, id) => ({
           id: `call-${id}`, // avoid numerical ID collision
-          title: `Call: ${proposalBookings[0].call.shortCode}`,
+          title: `Call: ${proposalBookings[0].call?.shortCode}`,
           children: proposalBookings.map((proposalBooking) => ({
-            id: `proposal-${proposalBooking.proposal.primaryKey}`, // avoid numerical ID collision
+            id: `proposal-${proposalBooking.proposal?.primaryKey}`, // avoid numerical ID collision
             proposalBookingId: proposalBooking.id,
             completed:
               proposalBooking.status === ProposalBookingStatusCore.COMPLETED,

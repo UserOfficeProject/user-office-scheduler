@@ -5,14 +5,10 @@ query getProposalBookingScheduledEvents($proposalBookingId: Int!) {
     endsAt
     bookingType
     scheduledBy {
-      id
-      firstname
-      lastname
+      ...basicUserDetails
     }
     localContact {
-      id
-      firstname
-      lastname
+      ...basicUserDetails
     }
     status
     description

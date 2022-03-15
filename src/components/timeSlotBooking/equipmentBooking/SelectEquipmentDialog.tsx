@@ -13,10 +13,8 @@ import Table, { HeadCell } from 'components/common/Table';
 import { EquipmentAssignmentStatus } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import useAvailableEquipments from 'hooks/equipment/useAvailableEquipments';
-import {
-  ScheduledEventEquipment,
-  ScheduledEventWithEquipments,
-} from 'hooks/scheduledEvent/useScheduledEventWithEquipment';
+import { DetailedProposalBookingScheduledEvent } from 'hooks/proposalBooking/useProposalBooking';
+import { ScheduledEventEquipment } from 'hooks/scheduledEvent/useScheduledEventWithEquipment';
 
 export type EquipmentTableRow = {
   id: number;
@@ -49,7 +47,7 @@ export default function SelectEquipmentDialog({
   closeDialog,
 }: {
   isDialogOpen: boolean;
-  scheduledEvent: ScheduledEventWithEquipments;
+  scheduledEvent: DetailedProposalBookingScheduledEvent;
   proposalBookingId: number;
   closeDialog: (assignedEquipments?: ScheduledEventEquipment[]) => void;
 }) {

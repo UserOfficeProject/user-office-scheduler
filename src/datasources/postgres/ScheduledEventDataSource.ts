@@ -29,7 +29,9 @@ export default class PostgreScheduledEventDataSource
   implements ScheduledEventDataSource
 {
   readonly tableName = 'scheduled_events';
+  readonly equipmentsTableName = 'equipments';
   readonly equipSchdEvTableName = 'scheduled_events_equipments';
+  readonly equipmentResponsibleTableName = 'equipment_responsible';
   // eslint-disable-next-line quotes
   readonly nextId = database.raw("nextval('equipments_equipment_id_seq')");
 
@@ -242,7 +244,8 @@ export default class PostgreScheduledEventDataSource
   async equipmentScheduledEvents(
     equipmentIds: number[],
     startsAt: Date,
-    endsAt: Date
+    endsAt: Date,
+    userId?: number | null
   ): Promise<ScheduledEvent[]> {
     const scheduledEventRecords = await database<
       ScheduledEventRecord & { scheduledEventStatus: ProposalBookingStatusCore }
@@ -250,16 +253,41 @@ export default class PostgreScheduledEventDataSource
       .select<
         (ScheduledEventRecord & {
           scheduledEventStatus: ProposalBookingStatusCore;
+          equipmentId: number;
         })[]
-      >(['*', 'scheduled_events.status as scheduledEventStatus'])
+      >([
+        `${this.tableName}.*`,
+        `${this.tableName}.status as scheduledEventStatus`,
+        `${this.equipSchdEvTableName}.equipment_id`,
+        `${this.equipmentResponsibleTableName}.user_id`,
+        `${this.equipmentsTableName}.owner_id`,
+      ])
       .join(
         this.equipSchdEvTableName,
         `${this.tableName}.scheduled_event_id`,
         `${this.equipSchdEvTableName}.scheduled_event_id`
       )
+      .join(
+        this.equipmentsTableName,
+        `${this.equipSchdEvTableName}.equipment_id`,
+        `${this.equipmentsTableName}.equipment_id`
+      )
+      .leftJoin(
+        this.equipmentResponsibleTableName,
+        `${this.equipSchdEvTableName}.equipment_id`,
+        `${this.equipmentResponsibleTableName}.equipment_id`
+      )
       .whereIn(`${this.equipSchdEvTableName}.equipment_id`, equipmentIds)
       .where('starts_at', '<=', endsAt)
-      .andWhere('ends_at', '>=', startsAt);
+      .andWhere('ends_at', '>=', startsAt)
+      .andWhere((query) => {
+        if (userId) {
+          query
+            .where(`${this.equipmentResponsibleTableName}.user_id`, userId)
+            .orWhere(`${this.equipmentsTableName}.owner_id`, userId);
+        }
+      })
+      .distinctOn('scheduled_event_id');
 
     return scheduledEventRecords.map((scheduledEventRecord) =>
       createScheduledEventObject({

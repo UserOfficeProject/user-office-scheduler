@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { equipmentValidationSchema } from '@user-office-software/duo-validation';
 
 import { ResolverContext } from '../context';
@@ -8,6 +7,10 @@ import { ScheduledEventDataSource } from '../datasources/ScheduledEventDataSourc
 import Authorized from '../decorators/Authorized';
 import ValidateArgs from '../decorators/ValidateArgs';
 import { ProposalBookingStatusCore } from '../generated/sdk';
+import {
+  isEquipmentResponsibleOrOwner,
+  isUserOfficer,
+} from '../helpers/permissionHelpers';
 import { Equipment } from '../models/Equipment';
 import { Rejection, rejection } from '../rejection';
 import {
@@ -26,7 +29,7 @@ export default class EquipmentMutations {
   ) {}
 
   @ValidateArgs(equipmentValidationSchema)
-  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
   async create(
     ctx: ResolverContext,
     newEquipmentInput: EquipmentInput
@@ -35,13 +38,36 @@ export default class EquipmentMutations {
   }
 
   @ValidateArgs(equipmentValidationSchema)
-  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
   async update(
     ctx: ResolverContext,
     updateEquipmentInput: EquipmentInput & {
       id: number;
     }
   ): Promise<Equipment | Rejection> {
+    const equipment = await this.equipmentDataSource.get(
+      updateEquipmentInput.id
+    );
+
+    if (!equipment) {
+      return rejection('NOT_FOUND');
+    }
+    const equipmentResponsible =
+      await this.equipmentDataSource.getEquipmentResponsible(
+        updateEquipmentInput.id
+      );
+
+    const allEquipmentUserIds = [equipment.owner, ...equipmentResponsible].map(
+      (user) => user.id
+    );
+
+    if (
+      !isUserOfficer(ctx) &&
+      !isEquipmentResponsibleOrOwner(ctx, allEquipmentUserIds)
+    ) {
+      return rejection('NOT_ALLOWED');
+    }
+
     const updated = await this.equipmentDataSource.update(
       updateEquipmentInput.id,
       updateEquipmentInput
@@ -119,8 +145,28 @@ export default class EquipmentMutations {
     ctx: ResolverContext,
     confirmEquipmentAssignmentInput: ConfirmEquipmentAssignmentInput
   ) {
-    // TODO: check if has permission
-    //  assignEquipmentsToScheduledEventInput.proposalBookingId
+    const equipment = await this.equipmentDataSource.get(
+      confirmEquipmentAssignmentInput.equipmentId
+    );
+
+    if (!equipment) {
+      return rejection('NOT_FOUND');
+    }
+    const equipmentResponsible =
+      await this.equipmentDataSource.getEquipmentResponsible(
+        confirmEquipmentAssignmentInput.equipmentId
+      );
+
+    const allEquipmentUserIds = [equipment.owner, ...equipmentResponsible].map(
+      (user) => user.id
+    );
+
+    if (
+      !isUserOfficer(ctx) &&
+      !isEquipmentResponsibleOrOwner(ctx, allEquipmentUserIds)
+    ) {
+      return rejection('NOT_ALLOWED');
+    }
 
     return this.equipmentDataSource.confirmAssignment(
       confirmEquipmentAssignmentInput

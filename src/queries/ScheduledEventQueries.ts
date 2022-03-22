@@ -4,6 +4,7 @@ import Authorized from '../decorators/Authorized';
 import { instrumentScientistHasInstrument } from '../helpers/instrumentHelpers';
 import {
   instrumentScientistHasAccess,
+  isUserOfficer,
   userHacAccess,
 } from '../helpers/permissionHelpers';
 import { ScheduledEvent } from '../models/ScheduledEvent';
@@ -87,17 +88,21 @@ export default class ScheduledEventQueries {
     );
   }
 
-  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST]) // TODO: make sure we use the right permissions
+  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
   async equipmentScheduledEvents(
     ctx: ResolverContext,
     equipmentIds: number[],
     startsAt: Date,
     endsAt: Date
   ) {
+    // NOTE: For USER_OFFICER send null to recieve all equipment events
+    const userId = isUserOfficer(ctx) ? null : ctx.user?.id;
+
     return this.scheduledEventDataSource.equipmentScheduledEvents(
       equipmentIds,
       startsAt,
-      endsAt
+      endsAt,
+      userId
     );
   }
 }

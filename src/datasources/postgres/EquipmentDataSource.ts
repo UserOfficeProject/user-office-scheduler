@@ -238,7 +238,7 @@ export default class PostgresEquipmentDataSource
   }
 
   async getAllUserEquipments(
-    userId: string,
+    userId: number,
     userInstrumentIds: number[],
     equipmentIds?: number[]
   ): Promise<Equipment[]> {

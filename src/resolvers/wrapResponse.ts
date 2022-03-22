@@ -4,8 +4,8 @@ import { ResponseWrapBase } from './types/wrappers';
 
 export async function wrapResponse<T>(
   executor: Promise<T | Rejection>,
-  ResponseWrapper: new () => ResponseWrapBase<T>
-): Promise<ResponseWrapBase<T>> {
+  ResponseWrapper: new () => ResponseWrapBase
+): Promise<ResponseWrapBase> {
   const result = await executor;
   const wrapper = new ResponseWrapper();
 

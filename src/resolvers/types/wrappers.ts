@@ -9,48 +9,55 @@ import { ScheduledEvent } from './ScheduledEvent';
 import { ScheduledEventWithRejection } from './ScheduledEventWithRejection';
 
 @ObjectType()
-export class ResponseWrapBase<T> {
+export class ResponseWrapBase {
   @Field(() => String, { nullable: true })
   error: string;
 }
 
 @ObjectType()
-export class ScheduledEventResponseWrap extends ResponseWrapBase<ScheduledEvent> {
+export class SchedulerSuccessResponseWrap extends ResponseWrapBase {
+  @Response()
+  @Field(() => Boolean, { nullable: true })
+  public isSuccess: boolean;
+}
+
+@ObjectType()
+export class ScheduledEventResponseWrap extends ResponseWrapBase {
   @Response()
   @Field(() => ScheduledEvent, { nullable: true })
   scheduledEvent: ScheduledEvent;
 }
 
 @ObjectType()
-export class ScheduledEventsResponseWrap extends ResponseWrapBase<ScheduledEvent> {
+export class ScheduledEventsResponseWrap extends ResponseWrapBase {
   @Response()
   @Field(() => [ScheduledEventWithRejection])
   scheduledEvents: (ScheduledEvent | Rejection)[];
 }
 
 @ObjectType()
-export class LostTimesResponseWrap extends ResponseWrapBase<LostTime> {
+export class LostTimesResponseWrap extends ResponseWrapBase {
   @Response()
   @Field(() => [LostTime], { nullable: true })
   lostTime: LostTime[];
 }
 
 @ObjectType()
-export class LostTimeResponseWrap extends ResponseWrapBase<LostTime> {
+export class LostTimeResponseWrap extends ResponseWrapBase {
   @Response()
   @Field(() => LostTime, { nullable: true })
   lostTime: LostTime;
 }
 
 @ObjectType()
-export class ProposalBookingResponseWrap extends ResponseWrapBase<ProposalBooking> {
+export class ProposalBookingResponseWrap extends ResponseWrapBase {
   @Response()
   @Field(() => ProposalBooking, { nullable: true })
   proposalBooking: ProposalBooking;
 }
 
 @ObjectType()
-export class EquipmentResponseWrap extends ResponseWrapBase<Equipment> {
+export class EquipmentResponseWrap extends ResponseWrapBase {
   @Response()
   @Field(() => Equipment, { nullable: true })
   equipment: Equipment;

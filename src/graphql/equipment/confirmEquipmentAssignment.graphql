@@ -3,5 +3,8 @@ mutation confirmEquipmentAssignment(
 ) {
   confirmEquipmentAssignment(
     confirmEquipmentAssignmentInput: $confirmEquipmentAssignmentInput
-  )
+  ) {
+    error
+    isSuccess
+  }
 }

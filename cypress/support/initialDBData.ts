@@ -46,5 +46,5 @@ export default {
     { id: 2, name: 'Instrument 2' },
     { id: 3, name: 'Instrument 3' },
   ],
-  instrumentScientists: [{ id: 100 }],
+  instrumentScientists: [{ id: 100 }, { id: 101 }],
 };

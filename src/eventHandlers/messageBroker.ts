@@ -5,9 +5,10 @@ import {
 } from '@user-office-software/duo-message-broker';
 import { DateTime } from 'luxon';
 
+import { EquipmentDataSource } from '../datasources/EquipmentDataSource';
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
 import { ApplicationEvent } from '../events/applicationEvents';
-import { Event } from '../generated/sdk';
+import { Event, Instrument } from '../generated/sdk';
 import { ScheduledEvent } from '../models/ScheduledEvent';
 import { TZ_LESS_DATE_TIME } from '../resolvers/CustomScalars';
 
@@ -25,8 +26,10 @@ if (process.env.NODE_ENV !== 'test') {
 
 export function createListenToRabbitMQHandler({
   proposalBookingDataSource,
+  equipmentDataSource,
 }: {
   proposalBookingDataSource: ProposalBookingDataSource;
+  equipmentDataSource: EquipmentDataSource;
 }) {
   if (process.env.UO_FEATURE_DISABLE_MESSAGE_BROKER === '1') {
     return async () => {
@@ -59,6 +62,20 @@ export function createListenToRabbitMQHandler({
         );
 
         await proposalBookingDataSource.delete((message as any).proposalPk);
+
+        return;
+      case Event.INSTRUMENT_DELETED:
+        logger.logDebug(
+          `Listener on ${Queue.SCHEDULING_PROPOSAL}: Received event`,
+          {
+            type,
+            message,
+          }
+        );
+
+        await equipmentDataSource.deleteEquipmentInstruments([
+          (message as Instrument).id,
+        ]);
 
         return;
       default:

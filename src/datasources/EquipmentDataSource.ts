@@ -48,6 +48,7 @@ export interface EquipmentDataSource {
   ): Promise<boolean>;
   getEquipmentResponsible(equipmentId: number): Promise<EquipmentResponsible[]>;
   getEquipmentInstruments(equipmentId: number): Promise<EquipmentInstrument[]>;
+  deleteEquipmentInstruments(instrumentIds: number[]): Promise<boolean>;
   equipmentEventsByProposalBookingId(
     proposalBookingId: number
   ): Promise<Array<EquipmentsScheduledEvent>>;

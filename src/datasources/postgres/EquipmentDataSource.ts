@@ -297,6 +297,15 @@ export default class PostgresEquipmentDataSource
     return equipmentInstrumentsRecords.map(createEquipmentInstrumentObject);
   }
 
+  async deleteEquipmentInstruments(instrumentIds: number[]): Promise<boolean> {
+    const equipmentInstruments = await database(this.equipmentInstrumentsTable)
+      .whereIn('instrument_id', instrumentIds)
+      .delete()
+      .returning<EquipmentInstrumentRecord[]>(['*']);
+
+    return equipmentInstruments?.length ? true : false;
+  }
+
   async availableEquipments(
     scheduledEvent: ScheduledEvent
   ): Promise<Equipment[]> {

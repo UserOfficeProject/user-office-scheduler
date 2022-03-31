@@ -303,7 +303,7 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
                     </ListItemAvatar>
                     <ListItemText
                       primary="Responsible people"
-                      secondary={equipment.equipmentResponsible.map(
+                      secondary={equipment.equipmentResponsible?.map(
                         (user, index) =>
                           `${index ? ', ' : ''} ${getFullUserName(user)}`
                       )}

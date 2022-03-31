@@ -7,7 +7,7 @@ export const isEquipmentResponsiblePerson = (
   loggedInUserCurrentRole?: UserRole | null
 ) =>
   loggedInUserCurrentRole === UserRole.INSTRUMENT_SCIENTIST &&
-  !!equipment?.equipmentResponsible.find(
+  !!equipment?.equipmentResponsible?.find(
     (user) => user.id === loggedInUser?.id
   );
 

@@ -6,10 +6,10 @@ export const getArrayOfIdsFromQuery = (query: string | null) => {
 };
 
 export function comaSeparatedArrayValues<T>(
-  array: T[],
+  array: T[] | null,
   propertyToShow: keyof T
 ) {
-  return array.length
+  return array?.length
     ? array.map((item, index) => `${index ? ', ' : ''} ${item[propertyToShow]}`)
     : '-';
 }

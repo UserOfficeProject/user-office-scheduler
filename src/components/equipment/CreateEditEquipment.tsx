@@ -128,7 +128,7 @@ export default function CreateEditEquipment() {
     ? {
         name: equipment.name,
         description: equipment.description || '',
-        instruments: equipment.equipmentInstruments,
+        instruments: equipment.equipmentInstruments || [],
         maintenanceStartsEndsAt: [
           equipment.maintenanceStartsAt
             ? parseTzLessDateTime(equipment.maintenanceStartsAt)
@@ -186,7 +186,7 @@ export default function CreateEditEquipment() {
                   autoAccept: values.autoAccept,
                   name: values.name,
                   description: values.description || '',
-                  instrumentIds: values.instruments.map(
+                  instrumentIds: values.instruments?.map(
                     (instrument) => instrument.id
                   ),
                   maintenanceStartsAt: null,

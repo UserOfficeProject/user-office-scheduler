@@ -122,18 +122,19 @@ export default function ViewRequests() {
           return;
         }
 
-        const { confirmEquipmentAssignment: success } =
-          await api().confirmEquipmentAssignment({
-            confirmEquipmentAssignmentInput: {
-              equipmentId: row.equipmentId,
-              scheduledEventId: row.id,
-              newStatus,
-            },
-          });
+        const {
+          confirmEquipmentAssignment: { isSuccess },
+        } = await api().confirmEquipmentAssignment({
+          confirmEquipmentAssignmentInput: {
+            equipmentId: row.equipmentId,
+            scheduledEventId: row.id,
+            newStatus,
+          },
+        });
 
         setConfirmationLoading(false);
 
-        if (success) {
+        if (isSuccess) {
           const newRows = rows.map((item) => ({
             ...item,
             equipmentAssignmentStatus:

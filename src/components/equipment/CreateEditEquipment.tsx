@@ -54,6 +54,10 @@ import {
   TZ_LESS_DATE_TIME_LOW_PREC_FORMAT,
   TZ_LESS_DATE_TIME_LOW_PREC_MASK,
 } from 'utils/date';
+import {
+  isEquipmentOwner,
+  isEquipmentResponsiblePerson,
+} from 'utils/permissions';
 import { getFullUserName } from 'utils/user';
 
 export default function CreateEditEquipment() {
@@ -65,6 +69,7 @@ export default function CreateEditEquipment() {
   const [underMaintenance, setUnderMaintenance] = useState(false);
   const [indefiniteMaintenance, setIndefiniteMaintenance] = useState('1');
   const { instruments, loading: loadingInstruments } = useUserInstruments();
+  const { user: loggedInUser, currentRole } = useContext(UserContext);
   // NOTE: We can't limit loaded users to INSTRUMENT_SCIENTIST only because equipment owner can be USER_OFFICER also
   const { usersData: allUsers } = useUsersData({});
   // NOTE: Here we load only instrument scientists for responsible people
@@ -108,11 +113,22 @@ export default function CreateEditEquipment() {
     return <Loader container />;
   }
 
+  const hasEditAccess =
+    currentRole === UserRole.USER_OFFICER ||
+    isEquipmentResponsiblePerson(equipment, loggedInUser, currentRole) ||
+    isEquipmentOwner(equipment, loggedInUser);
+
+  if (id && !hasEditAccess) {
+    history.goBack();
+
+    return null;
+  }
+
   const initialValues = equipment
     ? {
         name: equipment.name,
         description: equipment.description || '',
-        instruments: equipment.equipmentInstruments,
+        instruments: equipment.equipmentInstruments || [],
         maintenanceStartsEndsAt: [
           equipment.maintenanceStartsAt
             ? parseTzLessDateTime(equipment.maintenanceStartsAt)
@@ -170,7 +186,7 @@ export default function CreateEditEquipment() {
                   autoAccept: values.autoAccept,
                   name: values.name,
                   description: values.description || '',
-                  instrumentIds: values.instruments.map(
+                  instrumentIds: values.instruments?.map(
                     (instrument) => instrument.id
                   ),
                   maintenanceStartsAt: null,
@@ -461,7 +477,7 @@ export default function CreateEditEquipment() {
                           name="color"
                           label="Equipment color"
                           data-cy="color"
-                          reqired
+                          required
                         />
                       </Grid>
                     </Grid>

@@ -39,7 +39,7 @@ const columns: Column<PartialEquipment>[] = [
   {
     title: 'Instruments',
     render: (rowData) =>
-      rowData.equipmentInstruments.length
+      rowData.equipmentInstruments?.length
         ? comaSeparatedArrayValues(rowData.equipmentInstruments, 'name')
         : '-',
   },

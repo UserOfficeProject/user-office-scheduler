@@ -709,6 +709,8 @@ context('Proposal booking tests ', () => {
     });
 
     describe('Equipment assigned to scheduled event tests', () => {
+      let shouldAssignEquipmentResponsible = false;
+
       beforeEach(() => {
         cy.updateEquipment({
           id: initialDBData.equipments[0].id,
@@ -717,6 +719,11 @@ context('Proposal booking tests ', () => {
             description: initialDBData.equipments[0].description,
             autoAccept: initialDBData.equipments[0].autoAccept,
             instrumentIds: [initialDBData.instruments[0].id],
+            equipmentResponsible: [
+              shouldAssignEquipmentResponsible
+                ? initialDBData.instrumentScientists[0].id
+                : 0,
+            ],
             ownerUserId: 1,
           },
         });
@@ -727,6 +734,11 @@ context('Proposal booking tests ', () => {
             description: initialDBData.equipments[1].description,
             autoAccept: initialDBData.equipments[1].autoAccept,
             instrumentIds: [initialDBData.instruments[0].id],
+            equipmentResponsible: [
+              shouldAssignEquipmentResponsible
+                ? initialDBData.instrumentScientists[0].id
+                : 0,
+            ],
             ownerUserId: 1,
           },
         });
@@ -771,7 +783,7 @@ context('Proposal booking tests ', () => {
           .contains(/accepted/i);
       });
 
-      it('should show available equipments that are booked by proposals that instrument scientist is part of even if he/she is not equipment owner or responsible', () => {
+      it('should not show equipment requests even if the equipment is booked by proposals that instrument scientist is part of if user is not equipment owner or responsible', () => {
         cy.finishedLoading();
 
         cy.get('[data-cy="input-equipment-select"] input')
@@ -787,11 +799,53 @@ context('Proposal booking tests ', () => {
 
         cy.visit('/requests');
 
+        cy.get('[data-cy="equipments-requests-table"]').should(
+          'not.contain',
+          initialDBData.equipments[0].name
+        );
+        cy.get('[data-cy="equipments-requests-table"]').should(
+          'not.contain',
+          initialDBData.equipments[1].name
+        );
+      });
+
+      it('should show available equipments that are booked by proposals that instrument scientist is part of even if he/she is not equipment owner or responsible', () => {
+        cy.finishedLoading();
+
+        cy.get('[data-cy="input-equipment-select"] input')
+          .should('not.be.disabled')
+          .click();
+
+        cy.get('[role="presentation"]').contains(
+          initialDBData.equipments[0].name
+        );
+        cy.get('[role="presentation"]').contains(
+          initialDBData.equipments[1].name
+        );
+
+        cy.visit('/equipments');
+
         cy.contains(initialDBData.equipments[0].name);
         cy.contains(initialDBData.equipments[1].name);
       });
 
-      it('should be able to open time slot by clicking on the calendar equipment event', () => {
+      it('should not be able to open time slot by clicking on the calendar equipment event if not responsible person or owner', () => {
+        cy.finishedLoading();
+        cy.get('[data-cy="input-equipment-select"] input')
+          .should('not.be.disabled')
+          .click();
+        cy.get('[role="presentation"]')
+          .contains(initialDBData.equipments[1].name)
+          .click();
+
+        cy.get('.rbc-time-content .rbc-event').should('not.exist');
+        // NOTE: In the next tests should start assigning responsible people
+        shouldAssignEquipmentResponsible = true;
+      });
+
+      it('should be able to open time slot by clicking on the calendar equipment event if it is responsible person or owner', () => {
+        cy.visit('/calendar');
+
         cy.finishedLoading();
         cy.get('[data-cy="input-equipment-select"] input')
           .should('not.be.disabled')
@@ -822,7 +876,9 @@ context('Proposal booking tests ', () => {
         ).click();
       });
 
-      it('should be able to view equipment assignment request from requests page', () => {
+      it('should be able to view equipment assignment request from requests page for equipments that user is owner or responsible', () => {
+        cy.initializeSession('UserOfficer');
+
         cy.visit('/requests');
 
         cy.contains(initialDBData.equipments[0].name)

@@ -38,6 +38,7 @@ export interface ScheduledEventDataSource {
   equipmentScheduledEvents(
     equipmentIds: number[],
     startsAt: Date,
-    endsAt: Date
+    endsAt: Date,
+    userId?: number | null
   ): Promise<ScheduledEvent[]>;
 }

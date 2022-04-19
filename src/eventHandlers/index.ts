@@ -1,3 +1,4 @@
+import { EquipmentDataSource } from '../datasources/EquipmentDataSource';
 import { ProposalBookingDataSource } from '../datasources/ProposalBookingDataSource';
 import {
   createListenToRabbitMQHandler,
@@ -6,11 +7,16 @@ import {
 
 export default function createEventHandlers({
   proposalBookingDataSource,
+  equipmentDataSource,
 }: {
   proposalBookingDataSource: ProposalBookingDataSource;
+  equipmentDataSource: EquipmentDataSource;
 }) {
   return [
-    createListenToRabbitMQHandler({ proposalBookingDataSource }),
+    createListenToRabbitMQHandler({
+      proposalBookingDataSource,
+      equipmentDataSource,
+    }),
     createPostToRabbitMQHandler({ proposalBookingDataSource }),
   ];
 }

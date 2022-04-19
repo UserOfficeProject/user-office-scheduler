@@ -117,7 +117,8 @@ export default class MockupScheduledEventDataSource
   equipmentScheduledEvents(
     equipmentIds: number[],
     startsAt: Date,
-    endsAt: Date
+    endsAt: Date,
+    userId?: number | null
   ): Promise<ScheduledEvent[]> {
     throw new Error('Method not implemented.');
   }

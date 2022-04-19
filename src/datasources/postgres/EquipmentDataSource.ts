@@ -238,7 +238,7 @@ export default class PostgresEquipmentDataSource
   }
 
   async getAllUserEquipments(
-    userId: string,
+    userId: number,
     userInstrumentIds: number[],
     equipmentIds?: number[]
   ): Promise<Equipment[]> {
@@ -295,6 +295,15 @@ export default class PostgresEquipmentDataSource
         .where('equipment_id', equipmentId);
 
     return equipmentInstrumentsRecords.map(createEquipmentInstrumentObject);
+  }
+
+  async deleteEquipmentInstruments(instrumentIds: number[]): Promise<boolean> {
+    const equipmentInstruments = await database(this.equipmentInstrumentsTable)
+      .whereIn('instrument_id', instrumentIds)
+      .delete()
+      .returning<EquipmentInstrumentRecord[]>(['*']);
+
+    return equipmentInstruments?.length ? true : false;
   }
 
   async availableEquipments(

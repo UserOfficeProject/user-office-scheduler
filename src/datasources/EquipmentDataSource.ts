@@ -25,7 +25,7 @@ export interface EquipmentDataSource {
   get(id: number): Promise<Equipment | null>;
   getAll(equipmentIds?: number[]): Promise<Equipment[]>;
   getAllUserEquipments(
-    userId: string,
+    userId: number,
     userInstrumentIds: number[],
     equipmentIds?: number[]
   ): Promise<Equipment[]>;
@@ -48,6 +48,7 @@ export interface EquipmentDataSource {
   ): Promise<boolean>;
   getEquipmentResponsible(equipmentId: number): Promise<EquipmentResponsible[]>;
   getEquipmentInstruments(equipmentId: number): Promise<EquipmentInstrument[]>;
+  deleteEquipmentInstruments(instrumentIds: number[]): Promise<boolean>;
   equipmentEventsByProposalBookingId(
     proposalBookingId: number
   ): Promise<Array<EquipmentsScheduledEvent>>;

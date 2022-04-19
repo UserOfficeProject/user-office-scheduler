@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { ResolverContext } from '../context';
 import { ProposalBooking } from '../models/ProposalBooking';
 import { Roles } from '../types/shared';
@@ -90,4 +91,15 @@ export function isUserOfficer(agent: ResolverContext | null) {
   }
 
   return agent?.currentRole?.shortCode === Roles.USER_OFFICER;
+}
+
+export function isEquipmentResponsibleOrOwner(
+  agent: ResolverContext | null,
+  userIds: number[]
+) {
+  if (!agent?.user) {
+    return false;
+  }
+
+  return userIds.includes(agent.user.id);
 }

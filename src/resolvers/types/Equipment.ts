@@ -78,7 +78,7 @@ export class EquipmentResolvers {
     );
   }
 
-  @FieldResolver(() => [BasicUserDetails])
+  @FieldResolver(() => [BasicUserDetails], { nullable: true })
   equipmentResponsible(
     @Root() equipment: Equipment,
     @Ctx() ctx: ResolverContext
@@ -86,7 +86,7 @@ export class EquipmentResolvers {
     return ctx.queries.equipment.getEquipmentResponsible(ctx, equipment.id);
   }
 
-  @FieldResolver(() => [Instrument])
+  @FieldResolver(() => [Instrument], { nullable: true })
   equipmentInstruments(
     @Root() equipment: Equipment,
     @Ctx() ctx: ResolverContext

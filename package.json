@@ -34,7 +34,7 @@
     "@mui/styles": "^5.4.1",
     "@types/dateformat": "^5.0.0",
     "@types/humanize-duration": "^3.27.0",
-    "@types/lodash": "^4.14.181",
+    "@types/lodash": "^4.14.182",
     "@types/react": "^17.0.44",
     "@types/react-big-calendar": "^0.36.2",
     "@types/react-calendar-timeline": "^0.26.5",

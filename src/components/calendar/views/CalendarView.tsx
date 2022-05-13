@@ -165,7 +165,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   const onSelecting = (range: {
     start: stringOrDate;
     end: stringOrDate;
-  }): boolean | undefined | null => {
+  }): boolean | undefined => {
     return !isOverlapping(range, events);
   };
 

@@ -184,11 +184,12 @@ export default function TimeSlotDetails({
   };
 
   const localContactOptions = proposalBooking.instrument
-    ? [
-        proposalBooking.instrument.beamlineManager,
-        ...proposalBooking.instrument.scientists,
-      ]
+    ? [...proposalBooking.instrument.scientists]
     : [];
+
+  if (proposalBooking.instrument?.beamlineManager) {
+    localContactOptions.push(proposalBooking.instrument.beamlineManager);
+  }
 
   const onChangeHandler = ([newStartValue, newEndValue]: DateRange<Moment>) => {
     if (newStartValue && newStartValue.hour() === 0) {

@@ -46,6 +46,7 @@ export type AddStatusChangingEventsToConnectionInput = {
 
 export type AddTechnicalReviewInput = {
   comment?: InputMaybe<Scalars['String']>;
+  files?: InputMaybe<Scalars['String']>;
   proposalPk: Scalars['Int'];
   publicComment?: InputMaybe<Scalars['String']>;
   reviewerId?: InputMaybe<Scalars['Int']>;
@@ -122,10 +123,12 @@ export type AuthJwtPayload = {
 
 export type BasicUserDetails = {
   created: Maybe<Scalars['DateTime']>;
+  email: Maybe<Scalars['String']>;
   firstname: Scalars['String'];
   id: Scalars['Int'];
   lastname: Scalars['String'];
   organisation: Scalars['String'];
+  organizationId: Scalars['Int'];
   placeholder: Maybe<Scalars['Boolean']>;
   position: Scalars['String'];
   preferredname: Maybe<Scalars['String']>;
@@ -160,6 +163,7 @@ export type Call = {
   proposalWorkflow: Maybe<ProposalWorkflow>;
   proposalWorkflowId: Maybe<Scalars['Int']>;
   referenceNumberFormat: Maybe<Scalars['String']>;
+  seps: Maybe<Array<Sep>>;
   shortCode: Scalars['String'];
   startCall: Scalars['DateTime'];
   startCycle: Scalars['DateTime'];
@@ -231,6 +235,7 @@ export type CreateCallInput = {
   proposalSequence?: InputMaybe<Scalars['Int']>;
   proposalWorkflowId: Scalars['Int'];
   referenceNumberFormat?: InputMaybe<Scalars['String']>;
+  seps?: InputMaybe<Array<Scalars['Int']>>;
   shortCode: Scalars['String'];
   startCall: Scalars['DateTime'];
   startCycle: Scalars['DateTime'];
@@ -422,6 +427,7 @@ export enum EvaluatorOperator {
 }
 
 export enum Event {
+  CALL_CREATED = 'CALL_CREATED',
   CALL_ENDED = 'CALL_ENDED',
   CALL_REVIEW_ENDED = 'CALL_REVIEW_ENDED',
   CALL_SEP_REVIEW_ENDED = 'CALL_SEP_REVIEW_ENDED',
@@ -470,6 +476,7 @@ export enum Event {
   SEP_MEMBER_REMOVED = 'SEP_MEMBER_REMOVED',
   SEP_MEMBER_REMOVED_FROM_PROPOSAL = 'SEP_MEMBER_REMOVED_FROM_PROPOSAL',
   SEP_PROPOSAL_REMOVED = 'SEP_PROPOSAL_REMOVED',
+  SEP_REVIEWER_NOTIFIED = 'SEP_REVIEWER_NOTIFIED',
   SEP_UPDATED = 'SEP_UPDATED',
   TOPIC_ANSWERED = 'TOPIC_ANSWERED',
   USER_CREATED = 'USER_CREATED',
@@ -515,10 +522,26 @@ export enum FeatureId {
   EMAIL_INVITE = 'EMAIL_INVITE',
   EMAIL_SEARCH = 'EMAIL_SEARCH',
   EXTERNAL_AUTH = 'EXTERNAL_AUTH',
+  INSTRUMENT_MANAGEMENT = 'INSTRUMENT_MANAGEMENT',
   RISK_ASSESSMENT = 'RISK_ASSESSMENT',
+  SAMPLE_SAFETY = 'SAMPLE_SAFETY',
   SCHEDULER = 'SCHEDULER',
-  SHIPPING = 'SHIPPING'
+  SEP_REVIEW = 'SEP_REVIEW',
+  SHIPPING = 'SHIPPING',
+  TECHNICAL_REVIEW = 'TECHNICAL_REVIEW',
+  USER_MANAGEMENT = 'USER_MANAGEMENT',
+  VISIT_MANAGEMENT = 'VISIT_MANAGEMENT'
 }
+
+export enum FeatureUpdateAction {
+  DISABLE = 'DISABLE',
+  ENABLE = 'ENABLE'
+}
+
+export type FeaturesResponseWrap = {
+  features: Maybe<Array<Feature>>;
+  rejection: Maybe<Rejection>;
+};
 
 export type Feedback = {
   createdAt: Scalars['DateTime'];
@@ -603,6 +626,7 @@ export type FileMetadata = {
 export type FileUploadConfig = {
   file_type: Array<Scalars['String']>;
   max_files: Scalars['Int'];
+  pdf_page_limit: Scalars['Int'];
   required: Scalars['Boolean'];
   small_label: Scalars['String'];
   tooltip: Scalars['String'];
@@ -655,6 +679,7 @@ export type IndexWithGroupId = {
 };
 
 export type Institution = {
+  country: Maybe<Entry>;
   id: Scalars['Int'];
   name: Scalars['String'];
   verified: Scalars['Boolean'];
@@ -670,7 +695,7 @@ export type InstitutionsFilter = {
 };
 
 export type Instrument = {
-  beamlineManager: BasicUserDetails;
+  beamlineManager: Maybe<BasicUserDetails>;
   description: Scalars['String'];
   id: Scalars['Int'];
   managerUserId: Scalars['Int'];
@@ -686,7 +711,7 @@ export type InstrumentResponseWrap = {
 
 export type InstrumentWithAvailabilityTime = {
   availabilityTime: Maybe<Scalars['Int']>;
-  beamlineManager: BasicUserDetails;
+  beamlineManager: Maybe<BasicUserDetails>;
   description: Scalars['String'];
   id: Scalars['Int'];
   managerUserId: Scalars['Int'];
@@ -852,13 +877,14 @@ export type Mutation = {
   submitProposal: ProposalResponseWrap;
   submitProposalsReview: SuccessResponseWrap;
   submitShipment: ShipmentResponseWrap;
-  submitTechnicalReview: TechnicalReviewResponseWrap;
+  submitTechnicalReviews: SuccessResponseWrap;
   token: TokenResponseWrap;
   updateAnswer: UpdateAnswerResponseWrap;
   updateApiAccessToken: ApiAccessTokenResponseWrap;
   updateCall: CallResponseWrap;
   updateEquipment: EquipmentResponseWrap;
   updateEsi: EsiResponseWrap;
+  updateFeatures: FeaturesResponseWrap;
   updateFeedback: FeedbackResponseWrap;
   updateGenericTemplate: GenericTemplateResponseWrap;
   updateInstitution: InstitutionResponseWrap;
@@ -877,15 +903,16 @@ export type Mutation = {
   updateSample: SampleResponseWrap;
   updateSampleEsi: SampleEsiResponseWrap;
   updateScheduledEvent: ScheduledEventResponseWrap;
+  updateSettings: SettingsResponseWrap;
   updateShipment: ShipmentResponseWrap;
-  updateTechnicalReviewAssignee: ProposalsResponseWrap;
+  updateTechnicalReviewAssignee: TechnicalReviewsResponseWrap;
   updateTemplate: TemplateResponseWrap;
   updateTopic: TemplateResponseWrap;
   updateUser: UserResponseWrap;
   updateUserRoles: UserResponseWrap;
   updateVisit: VisitResponseWrap;
   updateVisitRegistration: VisitRegistrationResponseWrap;
-  validateTemplateImport: TemplateImportWithValidationWrap;
+  validateTemplateImport: TemplateValidationWrap;
   validateUnitsImport: UnitsImportWithValidationWrap;
 };
 
@@ -1083,6 +1110,7 @@ export type MutationCreateGenericTemplateArgs = {
 
 
 export type MutationCreateInstitutionArgs = {
+  country: Scalars['Int'];
   name: Scalars['String'];
   verified: Scalars['Boolean'];
 };
@@ -1200,6 +1228,7 @@ export type MutationCreateUserArgs = {
   orcid: Scalars['String'];
   orcidHash: Scalars['String'];
   organisation: Scalars['Int'];
+  organizationCountry?: InputMaybe<Scalars['Int']>;
   otherOrganisation?: InputMaybe<Scalars['String']>;
   password: Scalars['String'];
   position: Scalars['String'];
@@ -1392,6 +1421,7 @@ export type MutationImportProposalArgs = {
 
 export type MutationImportTemplateArgs = {
   conflictResolutions: Array<ConflictResolution>;
+  subTemplatesConflictResolutions: Array<Array<ConflictResolution>>;
   templateAsJson: Scalars['String'];
 };
 
@@ -1575,8 +1605,8 @@ export type MutationSubmitShipmentArgs = {
 };
 
 
-export type MutationSubmitTechnicalReviewArgs = {
-  submitTechnicalReviewInput: SubmitTechnicalReviewInput;
+export type MutationSubmitTechnicalReviewsArgs = {
+  submitTechnicalReviewsInput: SubmitTechnicalReviewsInput;
 };
 
 
@@ -1613,6 +1643,11 @@ export type MutationUpdateEsiArgs = {
 };
 
 
+export type MutationUpdateFeaturesArgs = {
+  updatedFeaturesInput: UpdateFeaturesInput;
+};
+
+
 export type MutationUpdateFeedbackArgs = {
   feedbackId: Scalars['Int'];
   status?: InputMaybe<FeedbackStatus>;
@@ -1627,6 +1662,7 @@ export type MutationUpdateGenericTemplateArgs = {
 
 
 export type MutationUpdateInstitutionArgs = {
+  country: Scalars['Int'];
   id: Scalars['Int'];
   name?: InputMaybe<Scalars['String']>;
   verified?: InputMaybe<Scalars['Boolean']>;
@@ -1743,6 +1779,11 @@ export type MutationUpdateScheduledEventArgs = {
 };
 
 
+export type MutationUpdateSettingsArgs = {
+  updatedSettingsInput: UpdateSettingsInput;
+};
+
+
 export type MutationUpdateShipmentArgs = {
   externalRef?: InputMaybe<Scalars['String']>;
   proposalPk?: InputMaybe<Scalars['Int']>;
@@ -1787,6 +1828,8 @@ export type MutationUpdateUserArgs = {
   nationality?: InputMaybe<Scalars['Int']>;
   orcid?: InputMaybe<Scalars['String']>;
   organisation?: InputMaybe<Scalars['Int']>;
+  organizationCountry?: InputMaybe<Scalars['Int']>;
+  otherOrganisation?: InputMaybe<Scalars['String']>;
   placeholder?: InputMaybe<Scalars['String']>;
   position?: InputMaybe<Scalars['String']>;
   preferredname?: InputMaybe<Scalars['String']>;
@@ -1884,6 +1927,7 @@ export type Page = {
 export enum PageName {
   COOKIEPAGE = 'COOKIEPAGE',
   FOOTERCONTENT = 'FOOTERCONTENT',
+  GRADEGUIDEPAGE = 'GRADEGUIDEPAGE',
   HELPPAGE = 'HELPPAGE',
   HOMEPAGE = 'HOMEPAGE',
   LOGINHELPPAGE = 'LOGINHELPPAGE',
@@ -1926,6 +1970,7 @@ export type Proposal = {
   proposalBookingCore: Maybe<ProposalBookingCore>;
   proposalId: Scalars['String'];
   proposer: Maybe<BasicUserDetails>;
+  proposerId: Scalars['Int'];
   publicStatus: ProposalPublicStatus;
   questionary: Questionary;
   questionaryId: Scalars['Int'];
@@ -1937,7 +1982,6 @@ export type Proposal = {
   statusId: Scalars['Int'];
   submitted: Scalars['Boolean'];
   technicalReview: Maybe<TechnicalReview>;
-  technicalReviewAssignee: Maybe<Scalars['Int']>;
   title: Scalars['String'];
   updated: Scalars['DateTime'];
   users: Array<BasicUserDetails>;
@@ -2124,7 +2168,9 @@ export type ProposalView = {
   statusId: Scalars['Int'];
   statusName: Scalars['String'];
   submitted: Scalars['Boolean'];
-  technicalReviewAssignee: Maybe<Scalars['Int']>;
+  technicalReviewAssigneeFirstName: Maybe<Scalars['String']>;
+  technicalReviewAssigneeId: Maybe<Scalars['Int']>;
+  technicalReviewAssigneeLastName: Maybe<Scalars['String']>;
   technicalReviewSubmitted: Maybe<Scalars['Int']>;
   technicalStatus: Maybe<TechnicalReviewStatus>;
   technicalTimeAllocation: Maybe<Scalars['Int']>;
@@ -2173,6 +2219,7 @@ export type ProposalsFilter = {
   questionFilter?: InputMaybe<QuestionFilterInput>;
   questionaryIds?: InputMaybe<Array<Scalars['Int']>>;
   referenceNumbers?: InputMaybe<Array<Scalars['String']>>;
+  reviewer?: InputMaybe<ReviewerFilter>;
   shortCodes?: InputMaybe<Array<Scalars['String']>>;
   text?: InputMaybe<Scalars['String']>;
 };
@@ -2275,7 +2322,7 @@ export type Query = {
   scheduledEvent: Maybe<ScheduledEvent>;
   scheduledEventCore: Maybe<ScheduledEventCore>;
   scheduledEvents: Array<ScheduledEvent>;
-  scheduledEventsCore: Maybe<Array<ScheduledEventCore>>;
+  scheduledEventsCore: Array<ScheduledEventCore>;
   schedulerConfig: SchedulerConfig;
   schedulerVersion: Scalars['String'];
   sep: Maybe<Sep>;
@@ -2474,6 +2521,8 @@ export type QueryPreviousCollaboratorsArgs = {
   filter?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Scalars['String']>;
+  orderDirection?: InputMaybe<Scalars['String']>;
   subtractUsers?: InputMaybe<Array<InputMaybe<Scalars['Int']>>>;
   userId: Scalars['Int'];
   userRole?: InputMaybe<UserRole>;
@@ -2556,7 +2605,6 @@ export type QueryQuestionsArgs = {
 
 export type QueryReviewArgs = {
   reviewId: Scalars['Int'];
-  sepId?: InputMaybe<Scalars['Int']>;
 };
 
 
@@ -2597,8 +2645,9 @@ export type QueryScheduledEventsArgs = {
 
 
 export type QueryScheduledEventsCoreArgs = {
-  endsAfter?: InputMaybe<Scalars['DateTime']>;
-  endsBefore?: InputMaybe<Scalars['DateTime']>;
+  filter?: InputMaybe<ScheduledEventsCoreFilter>;
+  first?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
 };
 
 
@@ -2619,7 +2668,7 @@ export type QuerySepProposalArgs = {
 
 
 export type QuerySepProposalsArgs = {
-  callId: Scalars['Int'];
+  callId?: InputMaybe<Scalars['Int']>;
   sepId: Scalars['Int'];
 };
 
@@ -2678,6 +2727,8 @@ export type QueryUsersArgs = {
   filter?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Scalars['String']>;
+  orderDirection?: InputMaybe<Scalars['String']>;
   subtractUsers?: InputMaybe<Array<InputMaybe<Scalars['Int']>>>;
   userRole?: InputMaybe<UserRole>;
 };
@@ -2846,7 +2897,7 @@ export type ReviewWithNextStatusResponseWrap = {
 
 export enum ReviewerFilter {
   ALL = 'ALL',
-  YOU = 'YOU'
+  ME = 'ME'
 }
 
 export type RichTextInputConfig = {
@@ -2868,8 +2919,11 @@ export type Sep = {
   description: Scalars['String'];
   id: Scalars['Int'];
   numberRatingsRequired: Scalars['Float'];
+  proposalCount: Scalars['Int'];
   sepChair: Maybe<BasicUserDetails>;
+  sepChairProposalCount: Maybe<Scalars['Int']>;
   sepSecretary: Maybe<BasicUserDetails>;
+  sepSecretaryProposalCount: Maybe<Scalars['Int']>;
 };
 
 export type SepAssignment = {
@@ -2907,6 +2961,7 @@ export type SepResponseWrap = {
 };
 
 export type SepReviewer = {
+  proposalsCount: Scalars['Int'];
   role: Maybe<Role>;
   sepId: Scalars['Int'];
   user: BasicUserDetails;
@@ -3034,6 +3089,7 @@ export type ScheduledEventCore = {
   id: Scalars['Int'];
   localContact: Maybe<BasicUserDetails>;
   localContactId: Maybe<Scalars['Int']>;
+  proposal: Proposal;
   proposalPk: Maybe<Scalars['Int']>;
   shipments: Array<Shipment>;
   startsAt: Scalars['DateTime'];
@@ -3054,6 +3110,16 @@ export type ScheduledEventResponseWrap = {
 };
 
 export type ScheduledEventWithRejection = Rejection | ScheduledEvent;
+
+export type ScheduledEventsCoreFilter = {
+  callId?: InputMaybe<Scalars['Int']>;
+  endsAfter?: InputMaybe<Scalars['DateTime']>;
+  endsBefore?: InputMaybe<Scalars['DateTime']>;
+  instrumentId?: InputMaybe<Scalars['Int']>;
+  overlaps?: InputMaybe<TimeSpan>;
+  startsAfter?: InputMaybe<Scalars['DateTime']>;
+  startsBefore?: InputMaybe<Scalars['DateTime']>;
+};
 
 export type ScheduledEventsResponseWrap = {
   error: Maybe<Scalars['String']>;
@@ -3123,6 +3189,11 @@ export enum SettingsId {
   PROFILE_PAGE_LINK = 'PROFILE_PAGE_LINK',
   TIMEZONE = 'TIMEZONE'
 }
+
+export type SettingsResponseWrap = {
+  rejection: Maybe<Rejection>;
+  settings: Maybe<Settings>;
+};
 
 export type Shipment = {
   created: Scalars['DateTime'];
@@ -3195,12 +3266,17 @@ export type SubmitProposalsReviewInput = {
 
 export type SubmitTechnicalReviewInput = {
   comment?: InputMaybe<Scalars['String']>;
+  files?: InputMaybe<Scalars['String']>;
   proposalPk: Scalars['Int'];
   publicComment?: InputMaybe<Scalars['String']>;
   reviewerId: Scalars['Int'];
   status?: InputMaybe<TechnicalReviewStatus>;
   submitted: Scalars['Boolean'];
   timeAllocation?: InputMaybe<Scalars['Int']>;
+};
+
+export type SubmitTechnicalReviewsInput = {
+  technicalReviews: Array<SubmitTechnicalReviewInput>;
 };
 
 export type SuccessResponseWrap = {
@@ -3210,6 +3286,7 @@ export type SuccessResponseWrap = {
 
 export type TechnicalReview = {
   comment: Maybe<Scalars['String']>;
+  files: Maybe<Scalars['String']>;
   id: Scalars['Int'];
   proposal: Maybe<Proposal>;
   proposalPk: Scalars['Int'];
@@ -3218,6 +3295,8 @@ export type TechnicalReview = {
   reviewerId: Scalars['Int'];
   status: Maybe<TechnicalReviewStatus>;
   submitted: Scalars['Boolean'];
+  technicalReviewAssignee: Maybe<BasicUserDetails>;
+  technicalReviewAssigneeId: Maybe<Scalars['Int']>;
   timeAllocation: Maybe<Scalars['Int']>;
 };
 
@@ -3231,6 +3310,11 @@ export enum TechnicalReviewStatus {
   PARTIALLY_FEASIBLE = 'PARTIALLY_FEASIBLE',
   UNFEASIBLE = 'UNFEASIBLE'
 }
+
+export type TechnicalReviewsResponseWrap = {
+  rejection: Maybe<Rejection>;
+  technicalReviews: Maybe<Array<TechnicalReview>>;
+};
 
 export type Template = {
   complementaryQuestions: Array<Question>;
@@ -3275,20 +3359,6 @@ export enum TemplateGroupId {
   VISIT_REGISTRATION = 'VISIT_REGISTRATION'
 }
 
-export type TemplateImportWithValidation = {
-  errors: Array<Scalars['String']>;
-  exportDate: Scalars['DateTime'];
-  isValid: Scalars['Boolean'];
-  json: Scalars['String'];
-  questionComparisons: Array<QuestionComparison>;
-  version: Scalars['String'];
-};
-
-export type TemplateImportWithValidationWrap = {
-  rejection: Maybe<Rejection>;
-  validationResult: Maybe<TemplateImportWithValidation>;
-};
-
 export type TemplateResponseWrap = {
   rejection: Maybe<Rejection>;
   template: Maybe<Template>;
@@ -3297,6 +3367,25 @@ export type TemplateResponseWrap = {
 export type TemplateStep = {
   fields: Array<QuestionTemplateRelation>;
   topic: Topic;
+};
+
+export type TemplateValidation = {
+  exportDate: Scalars['DateTime'];
+  json: Scalars['String'];
+  validationData: TemplateValidationData;
+  version: Scalars['String'];
+};
+
+export type TemplateValidationData = {
+  errors: Array<Scalars['String']>;
+  isValid: Scalars['Boolean'];
+  questionComparisons: Array<QuestionComparison>;
+  subTemplateValidationData: Array<TemplateValidationData>;
+};
+
+export type TemplateValidationWrap = {
+  rejection: Maybe<Rejection>;
+  validationResult: Maybe<TemplateValidation>;
 };
 
 export type TemplatesFilter = {
@@ -3318,6 +3407,11 @@ export type TextInputConfig = {
   tooltip: Scalars['String'];
 };
 
+export type TimeSpan = {
+  from?: InputMaybe<Scalars['DateTime']>;
+  to?: InputMaybe<Scalars['DateTime']>;
+};
+
 export type TokenPayloadUnion = AuthJwtApiTokenPayload | AuthJwtPayload;
 
 export type TokenResponseWrap = {
@@ -3337,6 +3431,12 @@ export type Topic = {
   templateId: Scalars['Int'];
   title: Scalars['String'];
 };
+
+export enum TrainingStatus {
+  ACTIVE = 'ACTIVE',
+  EXPIRED = 'EXPIRED',
+  NONE = 'NONE'
+}
 
 export type Unit = {
   id: Scalars['String'];
@@ -3405,6 +3505,7 @@ export type UpdateCallInput = {
   proposalSequence?: InputMaybe<Scalars['Int']>;
   proposalWorkflowId: Scalars['Int'];
   referenceNumberFormat?: InputMaybe<Scalars['String']>;
+  seps?: InputMaybe<Array<Scalars['Int']>>;
   shortCode: Scalars['String'];
   startCall: Scalars['DateTime'];
   startCycle: Scalars['DateTime'];
@@ -3415,6 +3516,11 @@ export type UpdateCallInput = {
   surveyComment: Scalars['String'];
   templateId: Scalars['Int'];
   title?: InputMaybe<Scalars['String']>;
+};
+
+export type UpdateFeaturesInput = {
+  action: FeatureUpdateAction;
+  featureIds: Array<FeatureId>;
 };
 
 export type UpdateLostTimeInput = {
@@ -3442,6 +3548,12 @@ export type UpdateScheduledEventInput = {
   localContact?: InputMaybe<Scalars['Int']>;
   scheduledEventId: Scalars['Int'];
   startsAt: Scalars['TzLessDateTime'];
+};
+
+export type UpdateSettingsInput = {
+  description?: InputMaybe<Scalars['String']>;
+  settingsId: SettingsId;
+  settingsValue?: InputMaybe<Scalars['String']>;
 };
 
 export type User = {
@@ -3539,7 +3651,8 @@ export type VisitRegistration = {
   registrationQuestionaryId: Maybe<Scalars['Int']>;
   startsAt: Maybe<Scalars['DateTime']>;
   trainingExpiryDate: Maybe<Scalars['DateTime']>;
-  user: BasicUserDetails;
+  trainingStatus: TrainingStatus;
+  user: Maybe<BasicUserDetails>;
   userId: Scalars['Int'];
   visitId: Scalars['Int'];
 };
@@ -3731,7 +3844,7 @@ export type GetProposalBookingQueryVariables = Exact<{
 }>;
 
 
-export type GetProposalBookingQuery = { proposalBooking: { id: number, createdAt: any, updatedAt: any, status: ProposalBookingStatusCore, allocatedTime: number, call: { id: number, shortCode: string, startCycle: any, endCycle: any, cycleComment: string } | null, proposal: { primaryKey: number, title: string, proposalId: string, proposer: { id: number, firstname: string, lastname: string, organisation: string, position: string, placeholder: boolean | null } | null } | null, scheduledEvents: Array<{ id: number, startsAt: string, endsAt: string, bookingType: ScheduledEventBookingType, status: ProposalBookingStatusCore, description: string | null, scheduledBy: { id: number, firstname: string, lastname: string, organisation: string, position: string, placeholder: boolean | null } | null, localContact: { id: number, firstname: string, lastname: string, organisation: string, position: string, placeholder: boolean | null } | null }>, instrument: { id: number, name: string, beamlineManager: { id: number, firstname: string, lastname: string, organisation: string, position: string, placeholder: boolean | null }, scientists: Array<{ id: number, firstname: string, lastname: string, organisation: string, position: string, placeholder: boolean | null }> } | null } | null };
+export type GetProposalBookingQuery = { proposalBooking: { id: number, createdAt: any, updatedAt: any, status: ProposalBookingStatusCore, allocatedTime: number, call: { id: number, shortCode: string, startCycle: any, endCycle: any, cycleComment: string } | null, proposal: { primaryKey: number, title: string, proposalId: string, proposer: { id: number, firstname: string, lastname: string, organisation: string, position: string, placeholder: boolean | null } | null } | null, scheduledEvents: Array<{ id: number, startsAt: string, endsAt: string, bookingType: ScheduledEventBookingType, status: ProposalBookingStatusCore, description: string | null, scheduledBy: { id: number, firstname: string, lastname: string, organisation: string, position: string, placeholder: boolean | null } | null, localContact: { id: number, firstname: string, lastname: string, organisation: string, position: string, placeholder: boolean | null } | null }>, instrument: { id: number, name: string, beamlineManager: { id: number, firstname: string, lastname: string, organisation: string, position: string, placeholder: boolean | null } | null, scientists: Array<{ id: number, firstname: string, lastname: string, organisation: string, position: string, placeholder: boolean | null }> } | null } | null };
 
 export type ReopenProposalBookingMutationVariables = Exact<{
   id: Scalars['Int'];
@@ -4496,126 +4609,126 @@ export const GetUsersDocument = gql`
 }
     ${BasicUserDetailsFragmentDoc}`;
 
-export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string) => Promise<T>;
+export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string, operationType?: string) => Promise<T>;
 
 
-const defaultWrapper: SdkFunctionWrapper = (action, _operationName) => action();
+const defaultWrapper: SdkFunctionWrapper = (action, _operationName, _operationType) => action();
 
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
     getSettings(variables?: GetSettingsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetSettingsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetSettingsQuery>(GetSettingsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getSettings');
+      return withWrapper((wrappedRequestHeaders) => client.request<GetSettingsQuery>(GetSettingsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getSettings', 'query');
     },
     prepareDB(variables: PrepareDbMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<PrepareDbMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<PrepareDbMutation>(PrepareDbDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'prepareDB');
+      return withWrapper((wrappedRequestHeaders) => client.request<PrepareDbMutation>(PrepareDbDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'prepareDB', 'mutation');
     },
     prepareSchedulerDB(variables: PrepareSchedulerDbMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<PrepareSchedulerDbMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<PrepareSchedulerDbMutation>(PrepareSchedulerDbDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'prepareSchedulerDB');
+      return withWrapper((wrappedRequestHeaders) => client.request<PrepareSchedulerDbMutation>(PrepareSchedulerDbDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'prepareSchedulerDB', 'mutation');
     },
     assignEquipmentToScheduledEvent(variables: AssignEquipmentToScheduledEventMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<AssignEquipmentToScheduledEventMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<AssignEquipmentToScheduledEventMutation>(AssignEquipmentToScheduledEventDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'assignEquipmentToScheduledEvent');
+      return withWrapper((wrappedRequestHeaders) => client.request<AssignEquipmentToScheduledEventMutation>(AssignEquipmentToScheduledEventDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'assignEquipmentToScheduledEvent', 'mutation');
     },
     confirmEquipmentAssignment(variables: ConfirmEquipmentAssignmentMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<ConfirmEquipmentAssignmentMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ConfirmEquipmentAssignmentMutation>(ConfirmEquipmentAssignmentDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'confirmEquipmentAssignment');
+      return withWrapper((wrappedRequestHeaders) => client.request<ConfirmEquipmentAssignmentMutation>(ConfirmEquipmentAssignmentDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'confirmEquipmentAssignment', 'mutation');
     },
     createEquipment(variables: CreateEquipmentMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<CreateEquipmentMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<CreateEquipmentMutation>(CreateEquipmentDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'createEquipment');
+      return withWrapper((wrappedRequestHeaders) => client.request<CreateEquipmentMutation>(CreateEquipmentDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'createEquipment', 'mutation');
     },
     deleteEquipmentAssignment(variables: DeleteEquipmentAssignmentMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<DeleteEquipmentAssignmentMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<DeleteEquipmentAssignmentMutation>(DeleteEquipmentAssignmentDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'deleteEquipmentAssignment');
+      return withWrapper((wrappedRequestHeaders) => client.request<DeleteEquipmentAssignmentMutation>(DeleteEquipmentAssignmentDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'deleteEquipmentAssignment', 'mutation');
     },
     getAvailableEquipments(variables: GetAvailableEquipmentsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetAvailableEquipmentsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetAvailableEquipmentsQuery>(GetAvailableEquipmentsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getAvailableEquipments');
+      return withWrapper((wrappedRequestHeaders) => client.request<GetAvailableEquipmentsQuery>(GetAvailableEquipmentsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getAvailableEquipments', 'query');
     },
     getEquipment(variables: GetEquipmentQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetEquipmentQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetEquipmentQuery>(GetEquipmentDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getEquipment');
+      return withWrapper((wrappedRequestHeaders) => client.request<GetEquipmentQuery>(GetEquipmentDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getEquipment', 'query');
     },
     getEquipments(variables?: GetEquipmentsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetEquipmentsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetEquipmentsQuery>(GetEquipmentsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getEquipments');
+      return withWrapper((wrappedRequestHeaders) => client.request<GetEquipmentsQuery>(GetEquipmentsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getEquipments', 'query');
     },
     updateEquipment(variables: UpdateEquipmentMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<UpdateEquipmentMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<UpdateEquipmentMutation>(UpdateEquipmentDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'updateEquipment');
+      return withWrapper((wrappedRequestHeaders) => client.request<UpdateEquipmentMutation>(UpdateEquipmentDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'updateEquipment', 'mutation');
     },
     getUserInstruments(variables?: GetUserInstrumentsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetUserInstrumentsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetUserInstrumentsQuery>(GetUserInstrumentsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getUserInstruments');
+      return withWrapper((wrappedRequestHeaders) => client.request<GetUserInstrumentsQuery>(GetUserInstrumentsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getUserInstruments', 'query');
     },
     addLostTime(variables: AddLostTimeMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<AddLostTimeMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<AddLostTimeMutation>(AddLostTimeDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'addLostTime');
+      return withWrapper((wrappedRequestHeaders) => client.request<AddLostTimeMutation>(AddLostTimeDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'addLostTime', 'mutation');
     },
     deleteLostTime(variables: DeleteLostTimeMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<DeleteLostTimeMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<DeleteLostTimeMutation>(DeleteLostTimeDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'deleteLostTime');
+      return withWrapper((wrappedRequestHeaders) => client.request<DeleteLostTimeMutation>(DeleteLostTimeDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'deleteLostTime', 'mutation');
     },
     getProposalBookingLostTimes(variables: GetProposalBookingLostTimesQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetProposalBookingLostTimesQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetProposalBookingLostTimesQuery>(GetProposalBookingLostTimesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getProposalBookingLostTimes');
+      return withWrapper((wrappedRequestHeaders) => client.request<GetProposalBookingLostTimesQuery>(GetProposalBookingLostTimesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getProposalBookingLostTimes', 'query');
     },
     updateLostTime(variables: UpdateLostTimeMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<UpdateLostTimeMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<UpdateLostTimeMutation>(UpdateLostTimeDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'updateLostTime');
+      return withWrapper((wrappedRequestHeaders) => client.request<UpdateLostTimeMutation>(UpdateLostTimeDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'updateLostTime', 'mutation');
     },
     addClientLog(variables: AddClientLogMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<AddClientLogMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<AddClientLogMutation>(AddClientLogDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'addClientLog');
+      return withWrapper((wrappedRequestHeaders) => client.request<AddClientLogMutation>(AddClientLogDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'addClientLog', 'mutation');
     },
     getRefreshedToken(variables: GetRefreshedTokenMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetRefreshedTokenMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetRefreshedTokenMutation>(GetRefreshedTokenDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getRefreshedToken');
+      return withWrapper((wrappedRequestHeaders) => client.request<GetRefreshedTokenMutation>(GetRefreshedTokenDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getRefreshedToken', 'mutation');
     },
     getSchedulerConfig(variables?: GetSchedulerConfigQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetSchedulerConfigQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetSchedulerConfigQuery>(GetSchedulerConfigDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getSchedulerConfig');
+      return withWrapper((wrappedRequestHeaders) => client.request<GetSchedulerConfigQuery>(GetSchedulerConfigDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getSchedulerConfig', 'query');
     },
     serverHealthCheck(variables?: ServerHealthCheckQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<ServerHealthCheckQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ServerHealthCheckQuery>(ServerHealthCheckDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'serverHealthCheck');
+      return withWrapper((wrappedRequestHeaders) => client.request<ServerHealthCheckQuery>(ServerHealthCheckDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'serverHealthCheck', 'query');
     },
     activateProposalBooking(variables: ActivateProposalBookingMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<ActivateProposalBookingMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ActivateProposalBookingMutation>(ActivateProposalBookingDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'activateProposalBooking');
+      return withWrapper((wrappedRequestHeaders) => client.request<ActivateProposalBookingMutation>(ActivateProposalBookingDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'activateProposalBooking', 'mutation');
     },
     finalizeProposalBooking(variables: FinalizeProposalBookingMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<FinalizeProposalBookingMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<FinalizeProposalBookingMutation>(FinalizeProposalBookingDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'finalizeProposalBooking');
+      return withWrapper((wrappedRequestHeaders) => client.request<FinalizeProposalBookingMutation>(FinalizeProposalBookingDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'finalizeProposalBooking', 'mutation');
     },
     getInstrumentProposalBookings(variables: GetInstrumentProposalBookingsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetInstrumentProposalBookingsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetInstrumentProposalBookingsQuery>(GetInstrumentProposalBookingsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getInstrumentProposalBookings');
+      return withWrapper((wrappedRequestHeaders) => client.request<GetInstrumentProposalBookingsQuery>(GetInstrumentProposalBookingsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getInstrumentProposalBookings', 'query');
     },
     getProposalBooking(variables: GetProposalBookingQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetProposalBookingQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetProposalBookingQuery>(GetProposalBookingDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getProposalBooking');
+      return withWrapper((wrappedRequestHeaders) => client.request<GetProposalBookingQuery>(GetProposalBookingDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getProposalBooking', 'query');
     },
     reopenProposalBooking(variables: ReopenProposalBookingMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<ReopenProposalBookingMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ReopenProposalBookingMutation>(ReopenProposalBookingDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'reopenProposalBooking');
+      return withWrapper((wrappedRequestHeaders) => client.request<ReopenProposalBookingMutation>(ReopenProposalBookingDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'reopenProposalBooking', 'mutation');
     },
     activateScheduledEvents(variables: ActivateScheduledEventsMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<ActivateScheduledEventsMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ActivateScheduledEventsMutation>(ActivateScheduledEventsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'activateScheduledEvents');
+      return withWrapper((wrappedRequestHeaders) => client.request<ActivateScheduledEventsMutation>(ActivateScheduledEventsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'activateScheduledEvents', 'mutation');
     },
     createScheduledEvent(variables: CreateScheduledEventMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<CreateScheduledEventMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<CreateScheduledEventMutation>(CreateScheduledEventDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'createScheduledEvent');
+      return withWrapper((wrappedRequestHeaders) => client.request<CreateScheduledEventMutation>(CreateScheduledEventDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'createScheduledEvent', 'mutation');
     },
     deleteScheduledEvents(variables: DeleteScheduledEventsMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<DeleteScheduledEventsMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<DeleteScheduledEventsMutation>(DeleteScheduledEventsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'deleteScheduledEvents');
+      return withWrapper((wrappedRequestHeaders) => client.request<DeleteScheduledEventsMutation>(DeleteScheduledEventsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'deleteScheduledEvents', 'mutation');
     },
     finalizeScheduledEvent(variables: FinalizeScheduledEventMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<FinalizeScheduledEventMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<FinalizeScheduledEventMutation>(FinalizeScheduledEventDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'finalizeScheduledEvent');
+      return withWrapper((wrappedRequestHeaders) => client.request<FinalizeScheduledEventMutation>(FinalizeScheduledEventDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'finalizeScheduledEvent', 'mutation');
     },
     getEquipmentScheduledEvents(variables: GetEquipmentScheduledEventsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetEquipmentScheduledEventsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetEquipmentScheduledEventsQuery>(GetEquipmentScheduledEventsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getEquipmentScheduledEvents');
+      return withWrapper((wrappedRequestHeaders) => client.request<GetEquipmentScheduledEventsQuery>(GetEquipmentScheduledEventsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getEquipmentScheduledEvents', 'query');
     },
     getProposalBookingScheduledEvents(variables: GetProposalBookingScheduledEventsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetProposalBookingScheduledEventsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetProposalBookingScheduledEventsQuery>(GetProposalBookingScheduledEventsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getProposalBookingScheduledEvents');
+      return withWrapper((wrappedRequestHeaders) => client.request<GetProposalBookingScheduledEventsQuery>(GetProposalBookingScheduledEventsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getProposalBookingScheduledEvents', 'query');
     },
     getScheduledEventEquipments(variables: GetScheduledEventEquipmentsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetScheduledEventEquipmentsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetScheduledEventEquipmentsQuery>(GetScheduledEventEquipmentsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getScheduledEventEquipments');
+      return withWrapper((wrappedRequestHeaders) => client.request<GetScheduledEventEquipmentsQuery>(GetScheduledEventEquipmentsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getScheduledEventEquipments', 'query');
     },
     getScheduledEventWithEquipments(variables: GetScheduledEventWithEquipmentsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetScheduledEventWithEquipmentsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetScheduledEventWithEquipmentsQuery>(GetScheduledEventWithEquipmentsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getScheduledEventWithEquipments');
+      return withWrapper((wrappedRequestHeaders) => client.request<GetScheduledEventWithEquipmentsQuery>(GetScheduledEventWithEquipmentsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getScheduledEventWithEquipments', 'query');
     },
     getScheduledEvents(variables: GetScheduledEventsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetScheduledEventsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetScheduledEventsQuery>(GetScheduledEventsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getScheduledEvents');
+      return withWrapper((wrappedRequestHeaders) => client.request<GetScheduledEventsQuery>(GetScheduledEventsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getScheduledEvents', 'query');
     },
     getScheduledEventsWithEquipments(variables: GetScheduledEventsWithEquipmentsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetScheduledEventsWithEquipmentsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetScheduledEventsWithEquipmentsQuery>(GetScheduledEventsWithEquipmentsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getScheduledEventsWithEquipments');
+      return withWrapper((wrappedRequestHeaders) => client.request<GetScheduledEventsWithEquipmentsQuery>(GetScheduledEventsWithEquipmentsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getScheduledEventsWithEquipments', 'query');
     },
     reopenScheduledEvent(variables: ReopenScheduledEventMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<ReopenScheduledEventMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ReopenScheduledEventMutation>(ReopenScheduledEventDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'reopenScheduledEvent');
+      return withWrapper((wrappedRequestHeaders) => client.request<ReopenScheduledEventMutation>(ReopenScheduledEventDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'reopenScheduledEvent', 'mutation');
     },
     updateScheduledEvent(variables: UpdateScheduledEventMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<UpdateScheduledEventMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<UpdateScheduledEventMutation>(UpdateScheduledEventDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'updateScheduledEvent');
+      return withWrapper((wrappedRequestHeaders) => client.request<UpdateScheduledEventMutation>(UpdateScheduledEventDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'updateScheduledEvent', 'mutation');
     },
     getUsers(variables?: GetUsersQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetUsersQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetUsersQuery>(GetUsersDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getUsers');
+      return withWrapper((wrappedRequestHeaders) => client.request<GetUsersQuery>(GetUsersDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getUsers', 'query');
     }
   };
 }

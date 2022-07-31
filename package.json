@@ -52,7 +52,7 @@
     "graphql-tag": "^2.12.6",
     "jsonwebtoken": "^8.5.1",
     "knex": "^0.95.14",
-    "luxon": "^2.4.0",
+    "luxon": "^2.5.0",
     "pg": "^8.7.3",
     "reflect-metadata": "^0.1.13",
     "type-graphql": "^1.1.1",

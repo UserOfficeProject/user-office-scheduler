@@ -39,7 +39,7 @@
     "@user-office-software/duo-validation": "^2.4.3",
     "apollo-graphql": "^0.9.7",
     "apollo-server": "^3.10.0",
-    "apollo-server-core": "^3.10.0",
+    "apollo-server-core": "^3.10.1",
     "apollo-server-express": "^3.10.0",
     "bcrypt": "^5.0.1",
     "class-transformer": "^0.5.1",

@@ -10,6 +10,7 @@ import {
   Redirect,
 } from 'react-router-dom';
 import Theme from 'theme';
+import { QueryParamProvider } from 'use-query-params';
 
 import { AppContextProvider } from 'context/AppContext';
 import { SettingsContextProvider } from 'context/SettingsContextProvider';
@@ -17,8 +18,8 @@ import { UserContextProvider, UserContext } from 'context/UserContext';
 // import { useUnauthorizedApi } from 'hooks/common/useDataApi';
 
 import Dashboard from './Dashboard';
-import NotAuthenticated from './NotAuthenticated';
-import { PATH_ROOT, PATH_NOT_AUTHENTICATED } from './paths';
+import ExternalAuth from './ExternalAuth';
+import { PATH_ROOT, EXTERNAL_AUTH } from './paths';
 
 const PrivateRoute: React.FC<RouteProps> = ({
   component,
@@ -37,7 +38,7 @@ const PrivateRoute: React.FC<RouteProps> = ({
       {...{ rest }}
       render={(props): JSX.Element => {
         if (!user) {
-          return <Redirect to={PATH_NOT_AUTHENTICATED} />;
+          return <Redirect to={EXTERNAL_AUTH} />;
         }
 
         return <Component {...props} />;
@@ -71,18 +72,20 @@ class App extends React.Component {
                 <UserContextProvider>
                   <AppContextProvider>
                     <Router basename={process.env.PUBLIC_URL}>
-                      <div className="App">
-                        <Switch>
-                          <Route
-                            path={PATH_NOT_AUTHENTICATED}
-                            component={NotAuthenticated}
-                          />
-                          <PrivateRoute
-                            path={PATH_ROOT}
-                            component={Dashboard}
-                          />
-                        </Switch>
-                      </div>
+                      <QueryParamProvider ReactRouterRoute={Route}>
+                        <div className="App">
+                          <Switch>
+                            <Route
+                              path={EXTERNAL_AUTH}
+                              component={ExternalAuth}
+                            />
+                            <PrivateRoute
+                              path={PATH_ROOT}
+                              component={Dashboard}
+                            />
+                          </Switch>
+                        </div>
+                      </QueryParamProvider>
                     </Router>
                   </AppContextProvider>
                 </UserContextProvider>

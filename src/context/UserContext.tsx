@@ -1,11 +1,20 @@
 import { getTranslation } from '@user-office-software/duo-localisation';
 import jwtDecode from 'jwt-decode';
 import { useSnackbar } from 'notistack';
-import React, { createContext, useContext, useEffect, useReducer } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useReducer,
+} from 'react';
 import { useCookies } from 'react-cookie';
 
 import Loader from 'components/common/Loader';
-import { User, Role, UserRole } from 'generated/sdk';
+import { User, Role, UserRole, SettingsId } from 'generated/sdk';
+import { useDataApi } from 'hooks/common/useDataApi';
+
+import { SettingsContext } from './SettingsContextProvider';
 
 export type AuthenticatedUser = Pick<
   User,
@@ -19,7 +28,7 @@ export type UserContextData = {
   currentRole: UserRole | null;
   roles: Role[];
   handleNewToken: (token: string) => void;
-  handleLogout: () => void;
+  handleLogout: () => Promise<void>;
 };
 
 const initialState = {
@@ -29,7 +38,7 @@ const initialState = {
   roles: [],
   currentRole: null,
   handleNewToken: () => {},
-  handleLogout: () => {},
+  handleLogout: async () => {},
 };
 
 export const UserContext = createContext<UserContextData>(initialState);
@@ -81,7 +90,9 @@ type UserContextProviderProps = { children: React.ReactNode };
 export function UserContextProvider({ children }: UserContextProviderProps) {
   const { enqueueSnackbar } = useSnackbar();
   const [userState, dispatch] = useReducer(reducer, initialState);
-  const [cookies] = useCookies();
+  const [cookies, removeCookie] = useCookies();
+  const { settings } = useContext(SettingsContext);
+  const api = useDataApi();
 
   const handleNewToken = (token: string) => {
     let decodedToken = null;
@@ -104,8 +115,26 @@ export function UserContextProvider({ children }: UserContextProviderProps) {
     }
   };
 
-  const handleLogout = () =>
-    dispatch({ type: UserActionType.SET_NOT_AUTHENTICATED, payload: null });
+  const handleLogout = useCallback(async () => {
+    const token = cookies.token;
+    if (token) {
+      api()
+        .logout({ token })
+        .finally(() => {
+          dispatch({
+            type: UserActionType.SET_NOT_AUTHENTICATED,
+            payload: null,
+          });
+          removeCookie('token', null);
+          const logoutUrl = settings.get(
+            SettingsId.EXTERNAL_AUTH_LOGOUT_URL
+          )?.settingsValue;
+          if (logoutUrl) {
+            window.location.assign(logoutUrl);
+          }
+        });
+    }
+  }, [api, cookies, removeCookie, settings]);
 
   useEffect(() => {
     const { token } = cookies;
@@ -129,7 +158,7 @@ export function UserContextProvider({ children }: UserContextProviderProps) {
       });
       handleLogout();
     }
-  }, [userState, enqueueSnackbar]);
+  }, [userState, enqueueSnackbar, handleLogout]);
 
   return (
     <UserContext.Provider

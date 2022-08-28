@@ -1,6 +1,7 @@
 import {
   Menu as MenuIcon,
   AccountCircle as AccountCircleIcon,
+  ExitToApp,
 } from '@mui/icons-material';
 import {
   AppBar,
@@ -8,19 +9,16 @@ import {
   Toolbar,
   Typography,
   Badge,
-  Popper,
-  Card,
-  ClickAwayListener,
-  CardHeader,
-  Avatar,
   useMediaQuery,
+  Box,
+  Menu,
+  MenuItem,
 } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import clsx from 'clsx';
 import React, { useState, useContext } from 'react';
 
 import { UserContext } from 'context/UserContext';
-import { getFullUserName } from 'utils/user';
 
 export const drawerWidth = 240;
 
@@ -72,13 +70,24 @@ export default function AppToolbar({
 
   const classes = useStyles();
 
-  const { user } = useContext(UserContext);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { user, handleLogout } = useContext(UserContext);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const [profileOpen, setProfileOpen] = useState<boolean>(false);
 
   const handleProfileOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
-    setProfileOpen((prev) => !prev);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleOnLogout = () => {
+    setIsLoggingOut(true);
+    handleLogout()
+      .then(() => {})
+      .finally(() => {
+        setIsLoggingOut(false);
+      });
   };
 
   return (
@@ -105,6 +114,9 @@ export default function AppToolbar({
         >
           User Office Scheduler
         </Typography>
+        <Box display="flex" flexGrow={1} justifyContent="end">
+          Logged in as {user?.email}
+        </Box>
         <IconButton
           color="inherit"
           aria-controls="simple-menu"
@@ -116,22 +128,24 @@ export default function AppToolbar({
             <AccountCircleIcon />
           </Badge>
         </IconButton>
-        <Popper
-          open={profileOpen}
+        <Menu
+          id="simple-menu"
           anchorEl={anchorEl}
-          placement="bottom-end"
-          className={classes.profilePopper}
+          keepMounted
+          open={Boolean(anchorEl)}
+          onClose={handleClose}
         >
-          <ClickAwayListener onClickAway={() => setProfileOpen(false)}>
-            <Card>
-              <CardHeader
-                avatar={<Avatar />}
-                title={getFullUserName(user)}
-                subheader={user?.email}
-              />
-            </Card>
-          </ClickAwayListener>
-        </Popper>
+          <MenuItem
+            data-cy="logout"
+            onClick={handleOnLogout}
+            disabled={isLoggingOut}
+          >
+            <Box paddingRight={1} paddingTop={1}>
+              <ExitToApp />
+            </Box>
+            Logout
+          </MenuItem>
+        </Menu>
       </Toolbar>
     </AppBar>
   );

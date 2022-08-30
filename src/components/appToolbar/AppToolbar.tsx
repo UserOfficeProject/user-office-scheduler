@@ -3,6 +3,7 @@ import {
   AccountCircle as AccountCircleIcon,
   ExitToApp,
 } from '@mui/icons-material';
+import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
 import {
   AppBar,
   IconButton,
@@ -13,12 +14,18 @@ import {
   Box,
   Menu,
   MenuItem,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
 } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import clsx from 'clsx';
 import React, { useState, useContext } from 'react';
 
 import { UserContext } from 'context/UserContext';
+
+import RoleSelection from './RoleSelection';
 
 export const drawerWidth = 240;
 
@@ -73,6 +80,7 @@ export default function AppToolbar({
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { user, handleLogout } = useContext(UserContext);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const [show, setShow] = useState(false);
 
   const handleProfileOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -89,64 +97,99 @@ export default function AppToolbar({
         setIsLoggingOut(false);
       });
   };
+  const handleModalClose = () => setShow(false);
 
   return (
-    <AppBar
-      position="fixed"
-      className={clsx(classes.appBar, open && classes.appBarShift)}
-    >
-      <Toolbar className={classes.toolbar}>
-        <IconButton
-          edge="start"
-          color="inherit"
-          aria-label="Open drawer"
-          onClick={handleDrawerOpen}
-          className={clsx(classes.menuButton, open && classes.menuButtonHidden)}
-        >
-          <MenuIcon />
-        </IconButton>
-        <Typography
-          component="h1"
-          variant="h6"
-          color="inherit"
-          noWrap
-          className={classes.title}
-        >
-          User Office Scheduler
-        </Typography>
-        <Box display="flex" flexGrow={1} justifyContent="end">
-          Logged in as {user?.email}
-        </Box>
-        <IconButton
-          color="inherit"
-          aria-controls="simple-menu"
-          aria-haspopup="true"
-          data-cy="profile-page-btn"
-          onClick={handleProfileOpen}
-        >
-          <Badge color="secondary">
-            <AccountCircleIcon />
-          </Badge>
-        </IconButton>
-        <Menu
-          id="simple-menu"
-          anchorEl={anchorEl}
-          keepMounted
-          open={Boolean(anchorEl)}
-          onClose={handleClose}
-        >
-          <MenuItem
-            data-cy="logout"
-            onClick={handleOnLogout}
-            disabled={isLoggingOut}
+    <>
+      <Dialog
+        aria-labelledby="simple-modal-title"
+        aria-describedby="simple-modal-description"
+        open={show}
+        onClose={handleModalClose}
+        style={{ backdropFilter: 'blur(6px)' }}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogContent>
+          <RoleSelection onClose={handleModalClose} />
+        </DialogContent>
+        <DialogActions>
+          <Button variant="text" onClick={handleModalClose}>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <AppBar
+        position="fixed"
+        className={clsx(classes.appBar, open && classes.appBarShift)}
+      >
+        <Toolbar className={classes.toolbar}>
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="Open drawer"
+            onClick={handleDrawerOpen}
+            className={clsx(
+              classes.menuButton,
+              open && classes.menuButtonHidden
+            )}
           >
-            <Box paddingRight={1} paddingTop={1}>
-              <ExitToApp />
-            </Box>
-            Logout
-          </MenuItem>
-        </Menu>
-      </Toolbar>
-    </AppBar>
+            <MenuIcon />
+          </IconButton>
+          <Typography
+            component="h1"
+            variant="h6"
+            color="inherit"
+            noWrap
+            className={classes.title}
+          >
+            User Office Scheduler
+          </Typography>
+          <Box display="flex" flexGrow={1} justifyContent="end">
+            Logged in as {user?.email}
+          </Box>
+          <IconButton
+            color="inherit"
+            aria-controls="simple-menu"
+            aria-haspopup="true"
+            data-cy="profile-page-btn"
+            onClick={handleProfileOpen}
+          >
+            <Badge color="secondary">
+              <AccountCircleIcon />
+            </Badge>
+          </IconButton>
+          <Menu
+            id="simple-menu"
+            anchorEl={anchorEl}
+            keepMounted
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+          >
+            <MenuItem
+              onClick={() => {
+                setShow(true);
+                handleClose();
+              }}
+            >
+              <Box paddingRight={1} paddingTop={1}>
+                <SupervisedUserCircleIcon />
+              </Box>
+              Roles
+            </MenuItem>
+            <MenuItem
+              data-cy="logout"
+              onClick={handleOnLogout}
+              disabled={isLoggingOut}
+            >
+              <Box paddingRight={1} paddingTop={1}>
+                <ExitToApp />
+              </Box>
+              Logout
+            </MenuItem>
+          </Menu>
+        </Toolbar>
+      </AppBar>
+    </>
   );
 }

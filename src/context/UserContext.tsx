@@ -1,6 +1,4 @@
-import { getTranslation } from '@user-office-software/duo-localisation';
 import jwtDecode from 'jwt-decode';
-import { useSnackbar } from 'notistack';
 import React, {
   createContext,
   useCallback,
@@ -11,7 +9,13 @@ import React, {
 import { useCookies } from 'react-cookie';
 
 import Loader from 'components/common/Loader';
-import { User, Role, UserRole, SettingsId } from 'generated/sdk';
+import {
+  User,
+  Role,
+  UserRole,
+  SettingsId,
+  AuthJwtPayload,
+} from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 
 import { SettingsContext } from './SettingsContextProvider';
@@ -88,7 +92,6 @@ function reducer(
 type UserContextProviderProps = { children: React.ReactNode };
 
 export function UserContextProvider({ children }: UserContextProviderProps) {
-  const { enqueueSnackbar } = useSnackbar();
   const [userState, dispatch] = useReducer(reducer, initialState);
   const [cookies, removeCookie] = useCookies();
   const { settings } = useContext(SettingsContext);
@@ -98,7 +101,7 @@ export function UserContextProvider({ children }: UserContextProviderProps) {
     let decodedToken = null;
     if (token) {
       try {
-        decodedToken = jwtDecode(token);
+        decodedToken = jwtDecode<AuthJwtPayload | null>(token);
       } catch (error) {
         // malformed token?
         console.error(error);
@@ -141,24 +144,6 @@ export function UserContextProvider({ children }: UserContextProviderProps) {
 
     handleNewToken(token);
   }, [cookies]);
-
-  useEffect(() => {
-    if (
-      userState.stateInitialized &&
-      userState.user &&
-      (!Array.isArray(userState.roles) ||
-        !userState.roles.find(
-          ({ shortCode }) =>
-            shortCode.toUpperCase() === UserRole.INSTRUMENT_SCIENTIST ||
-            shortCode.toUpperCase() === UserRole.USER_OFFICER
-        ))
-    ) {
-      enqueueSnackbar(getTranslation('INSUFFICIENT_PERMISSIONS'), {
-        variant: 'error',
-      });
-      handleLogout();
-    }
-  }, [userState, enqueueSnackbar, handleLogout]);
 
   return (
     <UserContext.Provider

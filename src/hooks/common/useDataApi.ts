@@ -197,7 +197,7 @@ class AuthorizedGraphQLClient extends GraphQLClient {
 }
 
 export function useDataApi() {
-  const { token, handleNewToken, handleLogout } = useContext(UserContext);
+  const { token, handleNewToken } = useContext(UserContext);
   const { enqueueSnackbar } = useSnackbar();
 
   return useCallback(
@@ -210,13 +210,12 @@ export function useDataApi() {
               enqueueSnackbar,
               (reason) => {
                 console.log(reason);
-                handleLogout();
               },
               handleNewToken
             )
           : new GraphQLClient(endpoint)
       ),
-    [token, handleNewToken, handleLogout, enqueueSnackbar]
+    [token, handleNewToken, enqueueSnackbar]
   );
 }
 

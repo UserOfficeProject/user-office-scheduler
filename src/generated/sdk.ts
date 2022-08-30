@@ -156,6 +156,7 @@ export type Call = {
   id: Scalars['Int'];
   instruments: Array<InstrumentWithAvailabilityTime>;
   isActive: Scalars['Boolean'];
+  pdfTemplateId: Maybe<Scalars['Int']>;
   proposalCount: Scalars['Int'];
   proposalSequence: Maybe<Scalars['Int']>;
   proposalWorkflow: Maybe<ProposalWorkflow>;
@@ -231,6 +232,7 @@ export type CreateCallInput = {
   endReview: Scalars['DateTime'];
   endSEPReview?: InputMaybe<Scalars['DateTime']>;
   esiTemplateId?: InputMaybe<Scalars['Int']>;
+  pdfTemplateId?: InputMaybe<Scalars['Int']>;
   proposalSequence?: InputMaybe<Scalars['Int']>;
   proposalWorkflowId: Scalars['Int'];
   referenceNumberFormat?: InputMaybe<Scalars['String']>;
@@ -790,6 +792,7 @@ export type Mutation = {
   createGenericTemplate: GenericTemplateResponseWrap;
   createInstitution: InstitutionResponseWrap;
   createInstrument: InstrumentResponseWrap;
+  createPdfTemplate: PdfTemplateResponseWrap;
   createProposal: ProposalResponseWrap;
   createProposalStatus: ProposalStatusResponseWrap;
   createProposalWorkflow: ProposalWorkflowResponseWrap;
@@ -816,6 +819,7 @@ export type Mutation = {
   deleteInstitution: InstitutionResponseWrap;
   deleteInstrument: InstrumentResponseWrap;
   deleteLostTime: LostTimeResponseWrap;
+  deletePdfTemplate: PdfTemplateResponseWrap;
   deleteProposal: ProposalResponseWrap;
   deleteProposalStatus: ProposalStatusResponseWrap;
   deleteProposalWorkflow: ProposalWorkflowResponseWrap;
@@ -885,6 +889,7 @@ export type Mutation = {
   updateInstrument: InstrumentResponseWrap;
   updateLostTime: LostTimeResponseWrap;
   updatePassword: BasicUserDetailsResponseWrap;
+  updatePdfTemplate: PdfTemplateResponseWrap;
   updateProposal: ProposalResponseWrap;
   updateProposalStatus: ProposalStatusResponseWrap;
   updateProposalWorkflow: ProposalWorkflowResponseWrap;
@@ -1118,6 +1123,12 @@ export type MutationCreateInstrumentArgs = {
 };
 
 
+export type MutationCreatePdfTemplateArgs = {
+  templateData: Scalars['String'];
+  templateId: Scalars['Int'];
+};
+
+
 export type MutationCreateProposalArgs = {
   callId: Scalars['Int'];
 };
@@ -1288,6 +1299,11 @@ export type MutationDeleteInstrumentArgs = {
 
 export type MutationDeleteLostTimeArgs = {
   deleteLostTimeInput: DeleteLostTimeInput;
+};
+
+
+export type MutationDeletePdfTemplateArgs = {
+  pdfTemplateId: Scalars['Int'];
 };
 
 
@@ -1681,6 +1697,12 @@ export type MutationUpdatePasswordArgs = {
 };
 
 
+export type MutationUpdatePdfTemplateArgs = {
+  pdfTemplateId: Scalars['Int'];
+  templateData?: InputMaybe<Scalars['String']>;
+};
+
+
 export type MutationUpdateProposalArgs = {
   abstract?: InputMaybe<Scalars['String']>;
   proposalPk: Scalars['Int'];
@@ -1921,6 +1943,26 @@ export type PageResponseWrap = {
   rejection: Maybe<Rejection>;
 };
 
+export type PdfTemplate = {
+  created: Scalars['DateTime'];
+  creatorId: Scalars['Int'];
+  pdfTemplateId: Scalars['Int'];
+  templateData: Scalars['String'];
+  templateId: Scalars['Int'];
+};
+
+export type PdfTemplateResponseWrap = {
+  pdfTemplate: Maybe<PdfTemplate>;
+  rejection: Maybe<Rejection>;
+};
+
+export type PdfTemplatesFilter = {
+  creatorId?: InputMaybe<Scalars['Int']>;
+  pdfTemplateData?: InputMaybe<Scalars['String']>;
+  pdfTemplateIds?: InputMaybe<Array<Scalars['Int']>>;
+  templateIds?: InputMaybe<Array<Scalars['Int']>>;
+};
+
 export type PermissionsWithAccessToken = {
   accessPermissions: Scalars['String'];
   accessToken: Scalars['String'];
@@ -2119,6 +2161,7 @@ export type ProposalTemplate = {
   isArchived: Scalars['Boolean'];
   json: Scalars['String'];
   name: Scalars['String'];
+  pdfTemplate: Maybe<PdfTemplate>;
   questionaryCount: Scalars['Int'];
   steps: Array<TemplateStep>;
   templateId: Scalars['Int'];
@@ -2274,6 +2317,8 @@ export type Query = {
   me: Maybe<User>;
   myShipments: Maybe<Array<Shipment>>;
   myVisits: Array<Visit>;
+  pdfTemplate: Maybe<PdfTemplate>;
+  pdfTemplates: Maybe<Array<PdfTemplate>>;
   previousCollaborators: Maybe<UserQueryResult>;
   proposal: Maybe<Proposal>;
   proposalBooking: Maybe<ProposalBooking>;
@@ -2489,6 +2534,16 @@ export type QueryInstrumentsBySepArgs = {
 
 export type QueryIsNaturalKeyPresentArgs = {
   naturalKey: Scalars['String'];
+};
+
+
+export type QueryPdfTemplateArgs = {
+  pdfTemplateId: Scalars['Int'];
+};
+
+
+export type QueryPdfTemplatesArgs = {
+  filter?: InputMaybe<PdfTemplatesFilter>;
 };
 
 
@@ -3307,6 +3362,7 @@ export type Template = {
   isArchived: Scalars['Boolean'];
   json: Scalars['String'];
   name: Scalars['String'];
+  pdfTemplate: Maybe<PdfTemplate>;
   questionaryCount: Scalars['Int'];
   steps: Array<TemplateStep>;
   templateId: Scalars['Int'];
@@ -3320,6 +3376,7 @@ export type TemplateCategory = {
 export enum TemplateCategoryId {
   FEEDBACK = 'FEEDBACK',
   GENERIC_TEMPLATE = 'GENERIC_TEMPLATE',
+  PDF = 'PDF',
   PROPOSAL_QUESTIONARY = 'PROPOSAL_QUESTIONARY',
   SAMPLE_DECLARATION = 'SAMPLE_DECLARATION',
   SHIPMENT_DECLARATION = 'SHIPMENT_DECLARATION',
@@ -3334,6 +3391,7 @@ export type TemplateGroup = {
 export enum TemplateGroupId {
   FEEDBACK = 'FEEDBACK',
   GENERIC_TEMPLATE = 'GENERIC_TEMPLATE',
+  PDF_TEMPLATE = 'PDF_TEMPLATE',
   PROPOSAL = 'PROPOSAL',
   PROPOSAL_ESI = 'PROPOSAL_ESI',
   SAMPLE = 'SAMPLE',
@@ -3485,6 +3543,7 @@ export type UpdateCallInput = {
   endSEPReview?: InputMaybe<Scalars['DateTime']>;
   esiTemplateId?: InputMaybe<Scalars['Int']>;
   id: Scalars['Int'];
+  pdfTemplateId?: InputMaybe<Scalars['Int']>;
   proposalSequence?: InputMaybe<Scalars['Int']>;
   proposalWorkflowId: Scalars['Int'];
   referenceNumberFormat?: InputMaybe<Scalars['String']>;
@@ -3949,6 +4008,11 @@ export type ExternalTokenLoginMutationVariables = Exact<{
 
 export type ExternalTokenLoginMutation = { externalTokenLogin: { token: string | null, rejection: { reason: string, context: string | null, exception: string | null } | null } };
 
+export type GetMyRolesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetMyRolesQuery = { me: { firstname: string, lastname: string, roles: Array<{ id: number, shortCode: string, title: string }> } | null };
+
 export type GetUsersQueryVariables = Exact<{
   filter?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
@@ -3966,6 +4030,14 @@ export type LogoutMutationVariables = Exact<{
 
 
 export type LogoutMutation = { logout: { token: string | null, rejection: { reason: string, context: string | null } | null } };
+
+export type SelectRoleMutationVariables = Exact<{
+  token: Scalars['String'];
+  selectedRoleId: Scalars['Int'];
+}>;
+
+
+export type SelectRoleMutation = { selectRole: { token: string | null, rejection: { reason: string } | null } };
 
 export const EquipmentFragmentDoc = gql`
     fragment equipment on Equipment {
@@ -4616,6 +4688,19 @@ export const ExternalTokenLoginDocument = gql`
   }
 }
     `;
+export const GetMyRolesDocument = gql`
+    query getMyRoles {
+  me {
+    firstname
+    lastname
+    roles {
+      id
+      shortCode
+      title
+    }
+  }
+}
+    `;
 export const GetUsersDocument = gql`
     query getUsers($filter: String, $first: Int, $offset: Int, $userRole: UserRole, $subtractUsers: [Int!]) {
   users(
@@ -4639,6 +4724,16 @@ export const LogoutDocument = gql`
     rejection {
       reason
       context
+    }
+  }
+}
+    `;
+export const SelectRoleDocument = gql`
+    mutation selectRole($token: String!, $selectedRoleId: Int!) {
+  selectRole(token: $token, selectedRoleId: $selectedRoleId) {
+    token
+    rejection {
+      reason
     }
   }
 }
@@ -4768,11 +4863,17 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     externalTokenLogin(variables: ExternalTokenLoginMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<ExternalTokenLoginMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<ExternalTokenLoginMutation>(ExternalTokenLoginDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'externalTokenLogin', 'mutation');
     },
+    getMyRoles(variables?: GetMyRolesQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetMyRolesQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetMyRolesQuery>(GetMyRolesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getMyRoles', 'query');
+    },
     getUsers(variables?: GetUsersQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetUsersQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetUsersQuery>(GetUsersDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getUsers', 'query');
     },
     logout(variables: LogoutMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<LogoutMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<LogoutMutation>(LogoutDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'logout', 'mutation');
+    },
+    selectRole(variables: SelectRoleMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<SelectRoleMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<SelectRoleMutation>(SelectRoleDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'selectRole', 'mutation');
     }
   };
 }

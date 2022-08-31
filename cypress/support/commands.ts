@@ -136,10 +136,7 @@ Cypress.Commands.add('configureSession', (token: string) => {
   cy.clearCookies();
 
   cy.fixture('tokens').then((tokens) => {
-    cy.setCookie('token', tokens[token], {
-      path: '/',
-      secure: false,
-    });
+    localStorage.setItem('token', tokens[token]);
   });
 });
 Cypress.Commands.add('finishedLoading', finishedLoading);

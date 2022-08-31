@@ -1,5 +1,6 @@
 import MaterialTable from '@material-table/core';
 import Button from '@mui/material/Button';
+import { useSnackbar } from 'notistack';
 import React, { useContext, useState, useEffect } from 'react';
 import { Redirect, useHistory } from 'react-router';
 
@@ -22,6 +23,7 @@ const RoleSelection: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const api = useDataApi();
   const history = useHistory();
   const [roles, setRoles] = useState<Role[]>([]);
+  const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
     let unmounted = false;
@@ -63,18 +65,21 @@ const RoleSelection: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       selectedRoleId: role.id,
     });
 
-    if (!result.selectRole.rejection) {
+    if (result.selectRole.token) {
+      handleNewToken(result.selectRole.token);
       history.push('/');
 
       setTimeout(() => {
         if (!result.selectRole.token) {
           return;
         }
-        window.localStorage.setItem('token', result.selectRole.token);
-        handleNewToken(result.selectRole.token);
 
         onClose();
       }, 500);
+    } else {
+      enqueueSnackbar(result.selectRole.rejection?.reason ?? 'Login failed.', {
+        variant: 'error',
+      });
     }
   };
 

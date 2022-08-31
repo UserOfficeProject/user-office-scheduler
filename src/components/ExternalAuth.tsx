@@ -1,8 +1,8 @@
 import React, { useContext, useEffect } from 'react';
-import { useCookies } from 'react-cookie';
 import { StringParam, useQueryParams } from 'use-query-params';
 
 import { SettingsContext } from 'context/SettingsContextProvider';
+import { UserContext } from 'context/UserContext';
 import { SettingsId } from 'generated/sdk';
 import { useUnauthorizedApi } from 'hooks/common/useDataApi';
 
@@ -14,8 +14,8 @@ function ExternalAuth() {
   const [urlQueryParams] = useQueryParams(ExternalAuthQueryParams);
 
   const unauthorizedApi = useUnauthorizedApi();
-  const [, setCookie] = useCookies();
   const { settings } = useContext(SettingsContext);
+  const { handleNewToken } = useContext(UserContext);
   const [statusMessage, setStatusMessage] = React.useState('Loading...');
 
   useEffect(() => {
@@ -31,8 +31,12 @@ function ExternalAuth() {
         })
         .then(({ externalTokenLogin }) => {
           if (externalTokenLogin.token) {
-            setCookie('token', externalTokenLogin.token);
+            handleNewToken(externalTokenLogin.token);
             window.location.assign('/');
+          } else {
+            setStatusMessage(
+              externalTokenLogin.rejection?.reason ?? 'Login failed.'
+            );
           }
         });
     };
@@ -58,7 +62,7 @@ function ExternalAuth() {
     } else {
       handleNoCode();
     }
-  }, [setCookie, settings, unauthorizedApi, urlQueryParams.code]);
+  }, [settings, unauthorizedApi, urlQueryParams.code]);
 
   return <span>{statusMessage}</span>;
 }

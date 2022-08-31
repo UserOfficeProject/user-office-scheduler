@@ -6,7 +6,6 @@ import React, {
   useEffect,
   useReducer,
 } from 'react';
-import { useCookies } from 'react-cookie';
 
 import Loader from 'components/common/Loader';
 import {
@@ -93,33 +92,11 @@ type UserContextProviderProps = { children: React.ReactNode };
 
 export function UserContextProvider({ children }: UserContextProviderProps) {
   const [userState, dispatch] = useReducer(reducer, initialState);
-  const [cookies, removeCookie] = useCookies();
   const { settings } = useContext(SettingsContext);
   const api = useDataApi();
 
-  const handleNewToken = (token: string) => {
-    let decodedToken = null;
-    if (token) {
-      try {
-        decodedToken = jwtDecode<AuthJwtPayload | null>(token);
-      } catch (error) {
-        // malformed token?
-        console.error(error);
-      }
-    }
-
-    if (decodedToken) {
-      dispatch({
-        type: UserActionType.SET_USER_FROM_TOKEN,
-        payload: { token, decodedToken },
-      });
-    } else {
-      dispatch({ type: UserActionType.SET_NOT_AUTHENTICATED, payload: null });
-    }
-  };
-
   const handleLogout = useCallback(async () => {
-    const token = cookies.token;
+    const token = localStorage.getItem('token');
     if (token) {
       api()
         .logout({ token })
@@ -128,22 +105,47 @@ export function UserContextProvider({ children }: UserContextProviderProps) {
             type: UserActionType.SET_NOT_AUTHENTICATED,
             payload: null,
           });
-          removeCookie('token', null);
+          localStorage.removeItem('token');
           const logoutUrl = settings.get(
             SettingsId.EXTERNAL_AUTH_LOGOUT_URL
           )?.settingsValue;
           if (logoutUrl) {
-            window.location.assign(logoutUrl);
+            const logoutUrlWithRedirect = new URL(logoutUrl);
+            logoutUrlWithRedirect.searchParams.set(
+              'post_logout_redirect_uri',
+              window.location.href
+            );
+            window.location.assign(logoutUrlWithRedirect);
           }
         });
     }
-  }, [api, cookies, removeCookie, settings]);
+  }, [api, settings]);
+
+  const handleNewToken = (token: string | null) => {
+    let decodedToken = null;
+    try {
+      decodedToken = jwtDecode<AuthJwtPayload | null>(token as string);
+    } catch (error) {
+      console.error(error);
+    }
+
+    if (!decodedToken) {
+      dispatch({ type: UserActionType.SET_NOT_AUTHENTICATED, payload: null });
+
+      return;
+    }
+
+    localStorage.setItem('token', token as string);
+    dispatch({
+      type: UserActionType.SET_USER_FROM_TOKEN,
+      payload: { token, decodedToken },
+    });
+  };
 
   useEffect(() => {
-    const { token } = cookies;
-
+    const token = localStorage.getItem('token');
     handleNewToken(token);
-  }, [cookies]);
+  }, []);
 
   return (
     <UserContext.Provider

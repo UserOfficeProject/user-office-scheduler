@@ -142,6 +142,7 @@ export type Call = {
   id: Scalars['Int'];
   instruments: Array<InstrumentWithAvailabilityTime>;
   isActive: Scalars['Boolean'];
+  pdfTemplateId: Maybe<Scalars['Int']>;
   proposalCount: Scalars['Int'];
   proposalSequence: Maybe<Scalars['Int']>;
   proposalWorkflow: Maybe<ProposalWorkflow>;
@@ -171,6 +172,7 @@ export type CallsFilter = {
   isEnded?: InputMaybe<Scalars['Boolean']>;
   isReviewEnded?: InputMaybe<Scalars['Boolean']>;
   isSEPReviewEnded?: InputMaybe<Scalars['Boolean']>;
+  sepIds?: InputMaybe<Array<Scalars['Int']>>;
   templateIds?: InputMaybe<Array<Scalars['Int']>>;
 };
 
@@ -210,6 +212,7 @@ export type CreateCallInput = {
   endReview: Scalars['DateTime'];
   endSEPReview?: InputMaybe<Scalars['DateTime']>;
   esiTemplateId?: InputMaybe<Scalars['Int']>;
+  pdfTemplateId?: InputMaybe<Scalars['Int']>;
   proposalSequence?: InputMaybe<Scalars['Int']>;
   proposalWorkflowId: Scalars['Int'];
   referenceNumberFormat?: InputMaybe<Scalars['String']>;
@@ -224,6 +227,12 @@ export type CreateCallInput = {
   surveyComment: Scalars['String'];
   templateId: Scalars['Int'];
   title?: InputMaybe<Scalars['String']>;
+};
+
+export type CreatePredefinedMessageInput = {
+  key: Scalars['String'];
+  message: Scalars['String'];
+  title: Scalars['String'];
 };
 
 export type CreateProposalStatusInput = {
@@ -278,6 +287,10 @@ export type DeleteApiAccessTokenInput = {
   accessTokenId: Scalars['String'];
 };
 
+export type DeletePredefinedMessageInput = {
+  id: Scalars['Int'];
+};
+
 export type DeleteProposalWorkflowStatusInput = {
   proposalStatusId: Scalars['Int'];
   proposalWorkflowId: Scalars['Int'];
@@ -322,6 +335,9 @@ export enum Event {
   CALL_SEP_REVIEW_ENDED = 'CALL_SEP_REVIEW_ENDED',
   EMAIL_INVITE = 'EMAIL_INVITE',
   INSTRUMENT_DELETED = 'INSTRUMENT_DELETED',
+  PREDEFINED_MESSAGE_CREATED = 'PREDEFINED_MESSAGE_CREATED',
+  PREDEFINED_MESSAGE_DELETED = 'PREDEFINED_MESSAGE_DELETED',
+  PREDEFINED_MESSAGE_UPDATED = 'PREDEFINED_MESSAGE_UPDATED',
   PROPOSAL_ACCEPTED = 'PROPOSAL_ACCEPTED',
   PROPOSAL_ALL_SEP_REVIEWERS_SELECTED = 'PROPOSAL_ALL_SEP_REVIEWERS_SELECTED',
   PROPOSAL_ALL_SEP_REVIEWS_SUBMITTED = 'PROPOSAL_ALL_SEP_REVIEWS_SUBMITTED',
@@ -499,11 +515,6 @@ export type FieldDependencyInput = {
   dependencyId: Scalars['String'];
 };
 
-export type Fields = {
-  countries: Array<Entry>;
-  nationalities: Array<Entry>;
-};
-
 export type FileMetadata = {
   createdDate: Scalars['DateTime'];
   fileId: Scalars['String'];
@@ -519,6 +530,10 @@ export type FileUploadConfig = {
   required: Scalars['Boolean'];
   small_label: Scalars['String'];
   tooltip: Scalars['String'];
+};
+
+export type FilesMetadataFilter = {
+  fileIds: Array<Scalars['String']>;
 };
 
 export type GenericTemplate = {
@@ -654,6 +669,8 @@ export type Mutation = {
   createGenericTemplate: GenericTemplateResponseWrap;
   createInstitution: InstitutionResponseWrap;
   createInstrument: InstrumentResponseWrap;
+  createPdfTemplate: PdfTemplateResponseWrap;
+  createPredefinedMessage: PredefinedMessageResponseWrap;
   createProposal: ProposalResponseWrap;
   createProposalStatus: ProposalStatusResponseWrap;
   createProposalWorkflow: ProposalWorkflowResponseWrap;
@@ -677,6 +694,8 @@ export type Mutation = {
   deleteGenericTemplate: GenericTemplateResponseWrap;
   deleteInstitution: InstitutionResponseWrap;
   deleteInstrument: InstrumentResponseWrap;
+  deletePdfTemplate: PdfTemplateResponseWrap;
+  deletePredefinedMessage: PredefinedMessageResponseWrap;
   deleteProposal: ProposalResponseWrap;
   deleteProposalStatus: ProposalStatusResponseWrap;
   deleteProposalWorkflow: ProposalWorkflowResponseWrap;
@@ -738,6 +757,8 @@ export type Mutation = {
   updateInstitution: InstitutionResponseWrap;
   updateInstrument: InstrumentResponseWrap;
   updatePassword: BasicUserDetailsResponseWrap;
+  updatePdfTemplate: PdfTemplateResponseWrap;
+  updatePredefinedMessage: PredefinedMessageResponseWrap;
   updateProposal: ProposalResponseWrap;
   updateProposalStatus: ProposalStatusResponseWrap;
   updateProposalWorkflow: ProposalWorkflowResponseWrap;
@@ -940,6 +961,17 @@ export type MutationCreateInstrumentArgs = {
 };
 
 
+export type MutationCreatePdfTemplateArgs = {
+  templateData: Scalars['String'];
+  templateId: Scalars['Int'];
+};
+
+
+export type MutationCreatePredefinedMessageArgs = {
+  createPredefinedMessageInput: CreatePredefinedMessageInput;
+};
+
+
 export type MutationCreateProposalArgs = {
   callId: Scalars['Int'];
 };
@@ -1098,6 +1130,16 @@ export type MutationDeleteInstitutionArgs = {
 
 export type MutationDeleteInstrumentArgs = {
   id: Scalars['Int'];
+};
+
+
+export type MutationDeletePdfTemplateArgs = {
+  pdfTemplateId: Scalars['Int'];
+};
+
+
+export type MutationDeletePredefinedMessageArgs = {
+  deletePredefinedMessageInput: DeletePredefinedMessageInput;
 };
 
 
@@ -1448,6 +1490,17 @@ export type MutationUpdatePasswordArgs = {
 };
 
 
+export type MutationUpdatePdfTemplateArgs = {
+  pdfTemplateId: Scalars['Int'];
+  templateData?: InputMaybe<Scalars['String']>;
+};
+
+
+export type MutationUpdatePredefinedMessageArgs = {
+  updatePredefinedMessageInput: UpdatePredefinedMessageInput;
+};
+
+
 export type MutationUpdateProposalArgs = {
   abstract?: InputMaybe<Scalars['String']>;
   proposalPk: Scalars['Int'];
@@ -1652,7 +1705,9 @@ export type NumberInputConfig = {
 export enum NumberValueConstraint {
   NONE = 'NONE',
   ONLY_NEGATIVE = 'ONLY_NEGATIVE',
-  ONLY_POSITIVE = 'ONLY_POSITIVE'
+  ONLY_NEGATIVE_INTEGER = 'ONLY_NEGATIVE_INTEGER',
+  ONLY_POSITIVE = 'ONLY_POSITIVE',
+  ONLY_POSITIVE_INTEGER = 'ONLY_POSITIVE_INTEGER'
 }
 
 export type OrcIdInformation = {
@@ -1685,11 +1740,49 @@ export type PageResponseWrap = {
   rejection: Maybe<Rejection>;
 };
 
+export type PdfTemplate = {
+  created: Scalars['DateTime'];
+  creatorId: Scalars['Int'];
+  pdfTemplateId: Scalars['Int'];
+  templateData: Scalars['String'];
+  templateId: Scalars['Int'];
+};
+
+export type PdfTemplateResponseWrap = {
+  pdfTemplate: Maybe<PdfTemplate>;
+  rejection: Maybe<Rejection>;
+};
+
+export type PdfTemplatesFilter = {
+  creatorId?: InputMaybe<Scalars['Int']>;
+  pdfTemplateData?: InputMaybe<Scalars['String']>;
+  pdfTemplateIds?: InputMaybe<Array<Scalars['Int']>>;
+  templateIds?: InputMaybe<Array<Scalars['Int']>>;
+};
+
 export type PermissionsWithAccessToken = {
   accessPermissions: Scalars['String'];
   accessToken: Scalars['String'];
   id: Scalars['String'];
   name: Scalars['String'];
+};
+
+export type PredefinedMessage = {
+  dateModified: Scalars['DateTime'];
+  id: Scalars['Int'];
+  lastModifiedBy: Scalars['Int'];
+  message: Scalars['String'];
+  modifiedBy: BasicUserDetails;
+  title: Scalars['String'];
+};
+
+export type PredefinedMessageResponseWrap = {
+  predefinedMessage: Maybe<PredefinedMessage>;
+  rejection: Maybe<Rejection>;
+};
+
+export type PredefinedMessagesFilter = {
+  key?: InputMaybe<Scalars['String']>;
 };
 
 export type PrepareDbResponseWrap = {
@@ -1840,6 +1933,7 @@ export type ProposalTemplate = {
   isArchived: Scalars['Boolean'];
   json: Scalars['String'];
   name: Scalars['String'];
+  pdfTemplate: Maybe<PdfTemplate>;
   questionaryCount: Scalars['Int'];
   steps: Array<TemplateStep>;
   templateId: Scalars['Int'];
@@ -1970,18 +2064,18 @@ export type Query = {
   callsByInstrumentScientist: Maybe<Array<Call>>;
   checkEmailExist: Maybe<Scalars['Boolean']>;
   checkToken: TokenResult;
+  countries: Maybe<Array<Entry>>;
   esi: Maybe<ExperimentSafetyInput>;
   eventLogs: Maybe<Array<EventLog>>;
   factoryVersion: Scalars['String'];
   features: Array<Feature>;
   feedback: Maybe<Feedback>;
   feedbacks: Array<Feedback>;
-  fileMetadata: Maybe<Array<FileMetadata>>;
+  fileMetadata: Maybe<FileMetadata>;
+  filesMetadata: Array<FileMetadata>;
   genericTemplate: Maybe<GenericTemplate>;
   genericTemplates: Maybe<Array<GenericTemplate>>;
-  getFields: Maybe<Fields>;
   getOrcIDInformation: Maybe<OrcIdInformation>;
-  getPageContent: Maybe<Scalars['String']>;
   institutions: Maybe<Array<Institution>>;
   instrument: Maybe<Instrument>;
   instrumentScientistHasAccess: Maybe<Scalars['Boolean']>;
@@ -1993,8 +2087,15 @@ export type Query = {
   me: Maybe<User>;
   myShipments: Maybe<Array<Shipment>>;
   myVisits: Array<Visit>;
+  nationalities: Maybe<Array<Entry>>;
+  pageContent: Maybe<Scalars['String']>;
+  pdfTemplate: Maybe<PdfTemplate>;
+  pdfTemplates: Maybe<Array<PdfTemplate>>;
+  predefinedMessage: Maybe<PredefinedMessage>;
+  predefinedMessages: Array<PredefinedMessage>;
   previousCollaborators: Maybe<UserQueryResult>;
   proposal: Maybe<Proposal>;
+  proposalById: Maybe<Proposal>;
   proposalEvents: Maybe<Array<ProposalEvent>>;
   proposalReviews: Maybe<Array<Review>>;
   proposalStatus: Maybe<ProposalStatus>;
@@ -2006,6 +2107,7 @@ export type Query = {
   proposalsView: Maybe<ProposalsViewQueryResult>;
   quantities: Array<Quantity>;
   queriesAndMutations: Maybe<QueriesAndMutations>;
+  questionByNaturalKey: Question;
   questionary: Maybe<Questionary>;
   questions: Array<QuestionWithUsage>;
   review: Maybe<Review>;
@@ -2058,7 +2160,7 @@ export type QueryActiveTemplateIdArgs = {
 
 
 export type QueryBasicUserDetailsArgs = {
-  id: Scalars['Int'];
+  userId: Scalars['Int'];
 };
 
 
@@ -2079,7 +2181,7 @@ export type QueryBlankQuestionaryStepsArgs = {
 
 
 export type QueryCallArgs = {
-  id: Scalars['Int'];
+  callId: Scalars['Int'];
 };
 
 
@@ -2125,7 +2227,12 @@ export type QueryFeedbacksArgs = {
 
 
 export type QueryFileMetadataArgs = {
-  fileIds: Array<Scalars['String']>;
+  fileId: Scalars['String'];
+};
+
+
+export type QueryFilesMetadataArgs = {
+  filter: FilesMetadataFilter;
 };
 
 
@@ -2141,11 +2248,6 @@ export type QueryGenericTemplatesArgs = {
 
 export type QueryGetOrcIdInformationArgs = {
   authorizationCode: Scalars['String'];
-};
-
-
-export type QueryGetPageContentArgs = {
-  id: PageName;
 };
 
 
@@ -2193,6 +2295,31 @@ export type QueryIsNaturalKeyPresentArgs = {
 };
 
 
+export type QueryPageContentArgs = {
+  pageId: PageName;
+};
+
+
+export type QueryPdfTemplateArgs = {
+  pdfTemplateId: Scalars['Int'];
+};
+
+
+export type QueryPdfTemplatesArgs = {
+  filter?: InputMaybe<PdfTemplatesFilter>;
+};
+
+
+export type QueryPredefinedMessageArgs = {
+  predefinedMessageId: Scalars['Int'];
+};
+
+
+export type QueryPredefinedMessagesArgs = {
+  filter?: InputMaybe<PredefinedMessagesFilter>;
+};
+
+
 export type QueryPreviousCollaboratorsArgs = {
   filter?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
@@ -2210,13 +2337,18 @@ export type QueryProposalArgs = {
 };
 
 
+export type QueryProposalByIdArgs = {
+  proposalId: Scalars['String'];
+};
+
+
 export type QueryProposalReviewsArgs = {
   proposalPk: Scalars['Int'];
 };
 
 
 export type QueryProposalStatusArgs = {
-  id: Scalars['Int'];
+  proposalStatusId: Scalars['Int'];
 };
 
 
@@ -2226,7 +2358,7 @@ export type QueryProposalTemplatesArgs = {
 
 
 export type QueryProposalWorkflowArgs = {
-  id: Scalars['Int'];
+  proposalWorkflowId: Scalars['Int'];
 };
 
 
@@ -2244,6 +2376,11 @@ export type QueryProposalsViewArgs = {
   searchText?: InputMaybe<Scalars['String']>;
   sortDirection?: InputMaybe<Scalars['String']>;
   sortField?: InputMaybe<Scalars['String']>;
+};
+
+
+export type QueryQuestionByNaturalKeyArgs = {
+  naturalKey: Scalars['String'];
 };
 
 
@@ -2330,10 +2467,7 @@ export type QuerySepReviewersArgs = {
 
 
 export type QuerySepsArgs = {
-  active?: InputMaybe<Scalars['Boolean']>;
-  filter?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  offset?: InputMaybe<Scalars['Int']>;
+  filter?: InputMaybe<SePsFilter>;
 };
 
 
@@ -2358,7 +2492,7 @@ export type QueryTemplatesArgs = {
 
 
 export type QueryUserArgs = {
-  id: Scalars['Int'];
+  userId: Scalars['Int'];
 };
 
 
@@ -2612,6 +2746,14 @@ export type SepReviewer = {
   userId: Scalars['Int'];
 };
 
+export type SePsFilter = {
+  active?: InputMaybe<Scalars['Boolean']>;
+  callIds?: InputMaybe<Array<Scalars['Int']>>;
+  filter?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+};
+
 export type SePsQueryResult = {
   seps: Array<Sep>;
   totalCount: Scalars['Int'];
@@ -2764,6 +2906,8 @@ export type Settings = {
 export enum SettingsId {
   DATE_FORMAT = 'DATE_FORMAT',
   DATE_TIME_FORMAT = 'DATE_TIME_FORMAT',
+  DEFAULT_INST_SCI_REVIEWER_FILTER = 'DEFAULT_INST_SCI_REVIEWER_FILTER',
+  DEFAULT_INST_SCI_STATUS_FILTER = 'DEFAULT_INST_SCI_STATUS_FILTER',
   EXTERNAL_AUTH_LOGIN_URL = 'EXTERNAL_AUTH_LOGIN_URL',
   FEEDBACK_EXHAUST_DAYS = 'FEEDBACK_EXHAUST_DAYS',
   FEEDBACK_FREQUENCY_DAYS = 'FEEDBACK_FREQUENCY_DAYS',
@@ -2913,6 +3057,7 @@ export type Template = {
   isArchived: Scalars['Boolean'];
   json: Scalars['String'];
   name: Scalars['String'];
+  pdfTemplate: Maybe<PdfTemplate>;
   questionaryCount: Scalars['Int'];
   steps: Array<TemplateStep>;
   templateId: Scalars['Int'];
@@ -2926,6 +3071,7 @@ export type TemplateCategory = {
 export enum TemplateCategoryId {
   FEEDBACK = 'FEEDBACK',
   GENERIC_TEMPLATE = 'GENERIC_TEMPLATE',
+  PDF = 'PDF',
   PROPOSAL_QUESTIONARY = 'PROPOSAL_QUESTIONARY',
   SAMPLE_DECLARATION = 'SAMPLE_DECLARATION',
   SHIPMENT_DECLARATION = 'SHIPMENT_DECLARATION',
@@ -2940,6 +3086,7 @@ export type TemplateGroup = {
 export enum TemplateGroupId {
   FEEDBACK = 'FEEDBACK',
   GENERIC_TEMPLATE = 'GENERIC_TEMPLATE',
+  PDF_TEMPLATE = 'PDF_TEMPLATE',
   PROPOSAL = 'PROPOSAL',
   PROPOSAL_ESI = 'PROPOSAL_ESI',
   SAMPLE = 'SAMPLE',
@@ -3091,6 +3238,8 @@ export type UpdateCallInput = {
   endSEPReview?: InputMaybe<Scalars['DateTime']>;
   esiTemplateId?: InputMaybe<Scalars['Int']>;
   id: Scalars['Int'];
+  isActive?: InputMaybe<Scalars['Boolean']>;
+  pdfTemplateId?: InputMaybe<Scalars['Int']>;
   proposalSequence?: InputMaybe<Scalars['Int']>;
   proposalWorkflowId: Scalars['Int'];
   referenceNumberFormat?: InputMaybe<Scalars['String']>;
@@ -3110,6 +3259,13 @@ export type UpdateCallInput = {
 export type UpdateFeaturesInput = {
   action: FeatureUpdateAction;
   featureIds: Array<FeatureId>;
+};
+
+export type UpdatePredefinedMessageInput = {
+  id: Scalars['Int'];
+  key: Scalars['String'];
+  message: Scalars['String'];
+  title: Scalars['String'];
 };
 
 export type UpdateProposalStatusInput = {

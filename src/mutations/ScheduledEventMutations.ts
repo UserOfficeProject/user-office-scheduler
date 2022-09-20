@@ -13,6 +13,7 @@ import { ScheduledEventDataSource } from '../datasources/ScheduledEventDataSourc
 import Authorized from '../decorators/Authorized';
 import EventBus from '../decorators/EventBus';
 import ValidateArgs from '../decorators/ValidateArgs';
+import { eventBus } from '../events';
 import { Event, ProposalBookingStatusCore } from '../generated/sdk';
 import { instrumentScientistHasInstrument } from '../helpers/instrumentHelpers';
 import { instrumentScientistHasAccess } from '../helpers/permissionHelpers';
@@ -228,7 +229,6 @@ export default class ScheduledEventMutations {
     return result;
   }
 
-  @EventBus(Event.PROPOSAL_BOOKING_TIME_COMPLETED)
   @ValidateArgs(finalizeBookingValidationSchema)
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
   async finalize(
@@ -262,6 +262,18 @@ export default class ScheduledEventMutations {
       scheduledEvent.proposalBookingId,
       action
     );
+
+    const isCompletedAction = action === ProposalBookingFinalizeAction.COMPLETE;
+
+    eventBus.publish({
+      type: isCompletedAction
+        ? Event.PROPOSAL_BOOKING_TIME_COMPLETED
+        : Event.PROPOSAL_BOOKING_TIME_REOPENED,
+      isRejection: false,
+      key: 'scheduledevent',
+      loggedInUserId: +ctx.user!.id,
+      scheduledevent: scheduledEvent,
+    });
 
     return result;
   }

@@ -238,9 +238,22 @@ export function createPostToRabbitMQHandler({
           return;
         }
 
+        const proposalBooking = await proposalBookingDataSource.get(
+          scheduledevent.proposalBookingId
+        );
+
+        if (!proposalBooking) {
+          logger.logWarn('Proposal booking not found', {
+            scheduledevent,
+          });
+
+          return;
+        }
+
         const message = {
           id: scheduledevent.id,
           proposalBookingId: scheduledevent.proposalBookingId,
+          proposalPk: proposalBooking.proposal.primaryKey,
           startsAt: DateTime.fromJSDate(scheduledevent.startsAt).toFormat(
             TZ_LESS_DATE_TIME
           ),

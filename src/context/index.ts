@@ -1,4 +1,4 @@
-import { getSdk } from '../generated/sdk';
+import { Sdk } from '../generated/sdk';
 import EquipmentMutations from '../mutations/EquipmentMutations';
 import LostTimeMutations from '../mutations/LostTimeMutations';
 import ProposalBookingMutations from '../mutations/ProposalBookingMutations';
@@ -35,7 +35,7 @@ export interface BasicResolverContext {
   user?: User;
   roles?: Role[];
   clients: {
-    userOffice: () => ReturnType<typeof getSdk>;
+    userOffice: () => Sdk;
   };
 }
 

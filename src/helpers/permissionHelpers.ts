@@ -93,6 +93,10 @@ export function isUserOfficer(agent: ResolverContext | null) {
   return agent?.currentRole?.shortCode === Roles.USER_OFFICER;
 }
 
+export function isApiToken(agent: ResolverContext | null) {
+  return (agent?.user as any)?.isApiAccessToken;
+}
+
 export function isEquipmentResponsibleOrOwner(
   agent: ResolverContext | null,
   userIds: number[]

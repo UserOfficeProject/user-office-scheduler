@@ -6,6 +6,7 @@ import { ProposalBookingStatusCore } from '../generated/sdk';
 import { instrumentScientistHasInstrument } from '../helpers/instrumentHelpers';
 import {
   instrumentScientistHasAccess,
+  isApiToken,
   userHacAccess,
 } from '../helpers/permissionHelpers';
 import { ProposalBooking } from '../models/ProposalBooking';
@@ -24,7 +25,8 @@ export default class ProposalBookingQueries {
     const results = await Promise.all(
       instrumentIds.map(
         async (instrumentId) =>
-          await instrumentScientistHasInstrument(ctx, instrumentId)
+          (await instrumentScientistHasInstrument(ctx, instrumentId)) ||
+          isApiToken(ctx)
       )
     );
 
@@ -47,7 +49,8 @@ export default class ProposalBookingQueries {
 
     if (
       !(await instrumentScientistHasAccess(ctx, proposalBooking)) &&
-      !(await userHacAccess(ctx, proposalBooking))
+      !(await userHacAccess(ctx, proposalBooking)) &&
+      !isApiToken(ctx)
     ) {
       return null;
     }

@@ -4,6 +4,7 @@ import Authorized from '../decorators/Authorized';
 import { instrumentScientistHasInstrument } from '../helpers/instrumentHelpers';
 import {
   instrumentScientistHasAccess,
+  isApiToken,
   isUserOfficer,
   userHacAccess,
 } from '../helpers/permissionHelpers';
@@ -61,7 +62,8 @@ export default class ScheduledEventQueries {
   ): Promise<ScheduledEvent[]> {
     if (
       !(await instrumentScientistHasAccess(ctx, proposalBookingId)) &&
-      !(await userHacAccess(ctx, proposalBookingId))
+      !(await userHacAccess(ctx, proposalBookingId)) &&
+      !isApiToken(ctx)
     ) {
       return [];
     }

@@ -73,14 +73,25 @@ const apolloServer = async (app: Express) => {
 
           if (authJwtPayload) {
             if (authJwtPayload && 'accessTokenId' in authJwtPayload) {
-              throw new Error(
-                'Accessing the Scheduler with API token is not supported yet'
-              );
-            }
+              const { accessTokenAndPermissions } = await context.clients
+                .userOffice()
+                .getAccessTokenAndPermissions({
+                  accessTokenId: authJwtPayload.accessTokenId,
+                });
 
-            context.user = authJwtPayload?.user;
-            context.roles = authJwtPayload?.roles;
-            context.currentRole = authJwtPayload?.currentRole;
+              const user = {
+                accessPermissions: accessTokenAndPermissions?.accessPermissions
+                  ? JSON.parse(accessTokenAndPermissions.accessPermissions)
+                  : null,
+                isApiAccessToken: true,
+              } as any;
+
+              context.user = user;
+            } else {
+              context.user = authJwtPayload?.user;
+              context.roles = authJwtPayload?.roles;
+              context.currentRole = authJwtPayload?.currentRole;
+            }
           }
         } catch (error) {
           logger.logException('failed to decode token', error);

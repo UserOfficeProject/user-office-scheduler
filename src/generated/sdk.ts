@@ -13,7 +13,6 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  /** The javascript `Date` as string. Type represents date and time as the ISO Date string. */
   DateTime: any;
   IntStringDateBoolArray: any;
   _Any: any;
@@ -102,7 +101,7 @@ export type AuthJwtApiTokenPayload = {
 export type AuthJwtPayload = {
   currentRole: Role;
   roles: Array<Role>;
-  user: User;
+  user: UserJwt;
 };
 
 export type BasicUserDetails = {
@@ -426,8 +425,8 @@ export type Feature = {
 export enum FeatureId {
   EMAIL_INVITE = 'EMAIL_INVITE',
   EMAIL_SEARCH = 'EMAIL_SEARCH',
-  EXTERNAL_AUTH = 'EXTERNAL_AUTH',
   INSTRUMENT_MANAGEMENT = 'INSTRUMENT_MANAGEMENT',
+  OAUTH = 'OAUTH',
   RISK_ASSESSMENT = 'RISK_ASSESSMENT',
   SAMPLE_SAFETY = 'SAMPLE_SAFETY',
   SCHEDULER = 'SCHEDULER',
@@ -586,6 +585,7 @@ export type InstitutionResponseWrap = {
 
 export type InstitutionsFilter = {
   isVerified?: InputMaybe<Scalars['Boolean']>;
+  name?: InputMaybe<Scalars['String']>;
 };
 
 export type Instrument = {
@@ -627,11 +627,6 @@ export type IntervalConfig = {
   units: Array<Unit>;
 };
 
-export type LogoutTokenWrap = {
-  rejection: Maybe<Rejection>;
-  token: Maybe<Scalars['String']>;
-};
-
 export type MoveProposalWorkflowStatusInput = {
   from: IndexWithGroupId;
   proposalWorkflowId: Scalars['Int'];
@@ -652,7 +647,7 @@ export type Mutation = {
   assignChairOrSecretary: SepResponseWrap;
   assignInstrumentsToCall: CallResponseWrap;
   assignProposalsToInstrument: SuccessResponseWrap;
-  assignProposalsToSep: NextProposalStatusResponseWrap;
+  assignProposalsToSep: SuccessResponseWrap;
   assignReviewersToSEP: SepResponseWrap;
   assignScientistsToInstrument: SuccessResponseWrap;
   assignSepReviewersToProposal: SepResponseWrap;
@@ -717,8 +712,7 @@ export type Mutation = {
   importProposal: ProposalResponseWrap;
   importTemplate: TemplateResponseWrap;
   importUnits: UnitsResponseWrap;
-  login: TokenResponseWrap;
-  logout: LogoutTokenWrap;
+  logout: TokenResponseWrap;
   mergeInstitutions: InstitutionResponseWrap;
   moveProposalWorkflowStatus: ProposalWorkflowConnectionResponseWrap;
   notifyProposal: ProposalResponseWrap;
@@ -765,7 +759,7 @@ export type Mutation = {
   updateQuestion: QuestionResponseWrap;
   updateQuestionTemplateRelation: TemplateResponseWrap;
   updateQuestionTemplateRelationSettings: TemplateResponseWrap;
-  updateReview: ReviewWithNextStatusResponseWrap;
+  updateReview: ReviewResponseWrap;
   updateSEP: SepResponseWrap;
   updateSEPTimeAllocation: SepProposalResponseWrap;
   updateSample: SampleResponseWrap;
@@ -1068,15 +1062,12 @@ export type MutationCreateUserArgs = {
   lastname: Scalars['String'];
   middlename?: InputMaybe<Scalars['String']>;
   nationality: Scalars['Int'];
-  orcid: Scalars['String'];
-  orcidHash: Scalars['String'];
   organisation: Scalars['Int'];
   organizationCountry?: InputMaybe<Scalars['Int']>;
   otherOrganisation?: InputMaybe<Scalars['String']>;
   password: Scalars['String'];
   position: Scalars['String'];
   preferredname?: InputMaybe<Scalars['String']>;
-  refreshToken: Scalars['String'];
   telephone: Scalars['String'];
   telephone_alt?: InputMaybe<Scalars['String']>;
   user_title?: InputMaybe<Scalars['String']>;
@@ -1227,6 +1218,7 @@ export type MutationEmailVerificationArgs = {
 
 export type MutationExternalTokenLoginArgs = {
   externalToken: Scalars['String'];
+  redirectUri: Scalars['String'];
 };
 
 
@@ -1256,12 +1248,6 @@ export type MutationImportTemplateArgs = {
 export type MutationImportUnitsArgs = {
   conflictResolutions: Array<ConflictResolution>;
   json: Scalars['String'];
-};
-
-
-export type MutationLoginArgs = {
-  email: Scalars['String'];
-  password: Scalars['String'];
 };
 
 
@@ -1633,14 +1619,12 @@ export type MutationUpdateUserArgs = {
   lastname?: InputMaybe<Scalars['String']>;
   middlename?: InputMaybe<Scalars['String']>;
   nationality?: InputMaybe<Scalars['Int']>;
-  orcid?: InputMaybe<Scalars['String']>;
   organisation?: InputMaybe<Scalars['Int']>;
   organizationCountry?: InputMaybe<Scalars['Int']>;
   otherOrganisation?: InputMaybe<Scalars['String']>;
   placeholder?: InputMaybe<Scalars['String']>;
   position?: InputMaybe<Scalars['String']>;
   preferredname?: InputMaybe<Scalars['String']>;
-  refreshToken?: InputMaybe<Scalars['String']>;
   roles?: InputMaybe<Array<Scalars['Int']>>;
   telephone?: InputMaybe<Scalars['String']>;
   telephone_alt?: InputMaybe<Scalars['String']>;
@@ -1681,19 +1665,6 @@ export type MutationValidateUnitsImportArgs = {
   unitsAsJson: Scalars['String'];
 };
 
-export type NextProposalStatus = {
-  description: Maybe<Scalars['String']>;
-  id: Maybe<Scalars['Int']>;
-  isDefault: Maybe<Scalars['Boolean']>;
-  name: Maybe<Scalars['String']>;
-  shortCode: Maybe<Scalars['String']>;
-};
-
-export type NextProposalStatusResponseWrap = {
-  nextProposalStatus: Maybe<NextProposalStatus>;
-  rejection: Maybe<Rejection>;
-};
-
 export type NumberInputConfig = {
   numberValueConstraint: Maybe<NumberValueConstraint>;
   required: Scalars['Boolean'];
@@ -1709,15 +1680,6 @@ export enum NumberValueConstraint {
   ONLY_POSITIVE = 'ONLY_POSITIVE',
   ONLY_POSITIVE_INTEGER = 'ONLY_POSITIVE_INTEGER'
 }
-
-export type OrcIdInformation = {
-  firstname: Maybe<Scalars['String']>;
-  lastname: Maybe<Scalars['String']>;
-  orcid: Maybe<Scalars['String']>;
-  orcidHash: Maybe<Scalars['String']>;
-  refreshToken: Maybe<Scalars['String']>;
-  token: Maybe<Scalars['String']>;
-};
 
 export type Page = {
   content: Maybe<Scalars['String']>;
@@ -2075,7 +2037,6 @@ export type Query = {
   filesMetadata: Array<FileMetadata>;
   genericTemplate: Maybe<GenericTemplate>;
   genericTemplates: Maybe<Array<GenericTemplate>>;
-  getOrcIDInformation: Maybe<OrcIdInformation>;
   institutions: Maybe<Array<Institution>>;
   instrument: Maybe<Instrument>;
   instrumentScientistHasAccess: Maybe<Scalars['Boolean']>;
@@ -2243,11 +2204,6 @@ export type QueryGenericTemplateArgs = {
 
 export type QueryGenericTemplatesArgs = {
   filter?: InputMaybe<GenericTemplatesFilter>;
-};
-
-
-export type QueryGetOrcIdInformationArgs = {
-  authorizationCode: Scalars['String'];
 };
 
 
@@ -2656,23 +2612,6 @@ export enum ReviewStatus {
   SUBMITTED = 'SUBMITTED'
 }
 
-export type ReviewWithNextProposalStatus = {
-  comment: Maybe<Scalars['String']>;
-  grade: Maybe<Scalars['Int']>;
-  id: Scalars['Int'];
-  nextProposalStatus: Maybe<NextProposalStatus>;
-  proposal: Maybe<Proposal>;
-  reviewer: Maybe<BasicUserDetails>;
-  sepID: Scalars['Int'];
-  status: ReviewStatus;
-  userID: Scalars['Int'];
-};
-
-export type ReviewWithNextStatusResponseWrap = {
-  rejection: Maybe<Rejection>;
-  review: Maybe<ReviewWithNextProposalStatus>;
-};
-
 export enum ReviewerFilter {
   ALL = 'ALL',
   ME = 'ME'
@@ -2909,6 +2848,7 @@ export enum SettingsId {
   DEFAULT_INST_SCI_REVIEWER_FILTER = 'DEFAULT_INST_SCI_REVIEWER_FILTER',
   DEFAULT_INST_SCI_STATUS_FILTER = 'DEFAULT_INST_SCI_STATUS_FILTER',
   EXTERNAL_AUTH_LOGIN_URL = 'EXTERNAL_AUTH_LOGIN_URL',
+  EXTERNAL_AUTH_LOGOUT_URL = 'EXTERNAL_AUTH_LOGOUT_URL',
   FEEDBACK_EXHAUST_DAYS = 'FEEDBACK_EXHAUST_DAYS',
   FEEDBACK_FREQUENCY_DAYS = 'FEEDBACK_FREQUENCY_DAYS',
   FEEDBACK_MAX_REQUESTS = 'FEEDBACK_MAX_REQUESTS',
@@ -3301,13 +3241,13 @@ export type User = {
   lastname: Scalars['String'];
   middlename: Maybe<Scalars['String']>;
   nationality: Maybe<Scalars['Int']>;
-  orcid: Scalars['String'];
+  oauthRefreshToken: Maybe<Scalars['String']>;
+  oidcSub: Maybe<Scalars['String']>;
   organisation: Scalars['Int'];
   placeholder: Scalars['Boolean'];
   position: Scalars['String'];
   preferredname: Maybe<Scalars['String']>;
   proposals: Array<Proposal>;
-  refreshToken: Scalars['String'];
   reviews: Array<Review>;
   roles: Array<Role>;
   seps: Array<Sep>;
@@ -3329,6 +3269,19 @@ export type UserReviewsArgs = {
   instrumentId?: InputMaybe<Scalars['Int']>;
   reviewer?: InputMaybe<ReviewerFilter>;
   status?: InputMaybe<ReviewStatus>;
+};
+
+export type UserJwt = {
+  created: Scalars['String'];
+  email: Scalars['String'];
+  firstname: Scalars['String'];
+  id: Scalars['Int'];
+  lastname: Scalars['String'];
+  oidcSub: Maybe<Scalars['String']>;
+  organisation: Scalars['Float'];
+  placeholder: Scalars['Boolean'];
+  position: Scalars['String'];
+  preferredname: Maybe<Scalars['String']>;
 };
 
 export type UserProposalsFilter = {
@@ -3418,6 +3371,13 @@ export type _Service = {
   sdl: Maybe<Scalars['String']>;
 };
 
+export type GetAccessTokenAndPermissionsQueryVariables = Exact<{
+  accessTokenId: Scalars['String'];
+}>;
+
+
+export type GetAccessTokenAndPermissionsQuery = { accessTokenAndPermissions: { id: string, accessPermissions: string } | null };
+
 export type InstrumentScientistHasAccessQueryVariables = Exact<{
   proposalPk: Scalars['Int'];
   instrumentId: Scalars['Int'];
@@ -3446,6 +3406,14 @@ export type UserHasAccessQueryVariables = Exact<{
 export type UserHasAccessQuery = { userHasAccessToProposal: boolean | null };
 
 
+export const GetAccessTokenAndPermissionsDocument = gql`
+    query getAccessTokenAndPermissions($accessTokenId: String!) {
+  accessTokenAndPermissions(accessTokenId: $accessTokenId) {
+    id
+    accessPermissions
+  }
+}
+    `;
 export const InstrumentScientistHasAccessDocument = gql`
     query instrumentScientistHasAccess($proposalPk: Int!, $instrumentId: Int!) {
   instrumentScientistHasAccess(
@@ -3481,6 +3449,9 @@ const defaultWrapper: SdkFunctionWrapper = (action, _operationName, _operationTy
 
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
+    getAccessTokenAndPermissions(variables: GetAccessTokenAndPermissionsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetAccessTokenAndPermissionsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetAccessTokenAndPermissionsQuery>(GetAccessTokenAndPermissionsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getAccessTokenAndPermissions', 'query');
+    },
     instrumentScientistHasAccess(variables: InstrumentScientistHasAccessQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<InstrumentScientistHasAccessQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<InstrumentScientistHasAccessQuery>(InstrumentScientistHasAccessDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'instrumentScientistHasAccess', 'query');
     },

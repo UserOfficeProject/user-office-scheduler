@@ -1,6 +1,6 @@
 import { StyledEngineProvider } from '@mui/material/styles';
 import { SnackbarProvider } from 'notistack';
-import React, { useContext } from 'react';
+import React, { ErrorInfo, useContext } from 'react';
 import { CookiesProvider } from 'react-cookie';
 import {
   BrowserRouter as Router,
@@ -15,7 +15,7 @@ import { QueryParamProvider } from 'use-query-params';
 import { AppContextProvider } from 'context/AppContext';
 import { SettingsContextProvider } from 'context/SettingsContextProvider';
 import { UserContextProvider, UserContext } from 'context/UserContext';
-// import { useUnauthorizedApi } from 'hooks/common/useDataApi';
+import { getUnauthorizedApi } from 'hooks/common/useDataApi';
 
 import Dashboard from './Dashboard';
 import ExternalAuth from './ExternalAuth';
@@ -52,11 +52,18 @@ class App extends React.Component {
     console.error('getDerivedStateFromError', error);
   }
 
-  componentDidCatch(error: Error): void {
-    console.log('componentDidCatch', error);
-
-    // const api = useUnauthorizedApi();
-    // api().addClientLog(error);
+  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+    let errorMessage = '';
+    try {
+      errorMessage = JSON.stringify({
+        error: error.toString(),
+        errorInfo: errorInfo.componentStack.toString(),
+      });
+    } catch (e) {
+      errorMessage = 'Exception while preparing error message';
+    } finally {
+      getUnauthorizedApi().addClientLog({ error: errorMessage });
+    }
   }
 
   render() {

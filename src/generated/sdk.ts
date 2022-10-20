@@ -249,6 +249,12 @@ export type CreateCallInput = {
   title?: InputMaybe<Scalars['String']>;
 };
 
+export type CreatePredefinedMessageInput = {
+  key: Scalars['String'];
+  message: Scalars['String'];
+  title: Scalars['String'];
+};
+
 export type CreateProposalStatusInput = {
   description: Scalars['String'];
   name: Scalars['String'];
@@ -313,6 +319,10 @@ export type DeleteEquipmentAssignmentInput = {
 };
 
 export type DeleteLostTimeInput = {
+  id: Scalars['Int'];
+};
+
+export type DeletePredefinedMessageInput = {
   id: Scalars['Int'];
 };
 
@@ -434,6 +444,9 @@ export enum Event {
   CALL_SEP_REVIEW_ENDED = 'CALL_SEP_REVIEW_ENDED',
   EMAIL_INVITE = 'EMAIL_INVITE',
   INSTRUMENT_DELETED = 'INSTRUMENT_DELETED',
+  PREDEFINED_MESSAGE_CREATED = 'PREDEFINED_MESSAGE_CREATED',
+  PREDEFINED_MESSAGE_DELETED = 'PREDEFINED_MESSAGE_DELETED',
+  PREDEFINED_MESSAGE_UPDATED = 'PREDEFINED_MESSAGE_UPDATED',
   PROPOSAL_ACCEPTED = 'PROPOSAL_ACCEPTED',
   PROPOSAL_ALL_SEP_REVIEWERS_SELECTED = 'PROPOSAL_ALL_SEP_REVIEWERS_SELECTED',
   PROPOSAL_ALL_SEP_REVIEWS_SUBMITTED = 'PROPOSAL_ALL_SEP_REVIEWS_SUBMITTED',
@@ -610,11 +623,6 @@ export type FieldDependencyInput = {
   dependencyId: Scalars['String'];
 };
 
-export type Fields = {
-  countries: Array<Entry>;
-  nationalities: Array<Entry>;
-};
-
 export type FileMetadata = {
   createdDate: Scalars['DateTime'];
   fileId: Scalars['String'];
@@ -630,6 +638,10 @@ export type FileUploadConfig = {
   required: Scalars['Boolean'];
   small_label: Scalars['String'];
   tooltip: Scalars['String'];
+};
+
+export type FilesMetadataFilter = {
+  fileIds: Array<Scalars['String']>;
 };
 
 export type FinalizeScheduledEventInput = {
@@ -793,6 +805,7 @@ export type Mutation = {
   createInstitution: InstitutionResponseWrap;
   createInstrument: InstrumentResponseWrap;
   createPdfTemplate: PdfTemplateResponseWrap;
+  createPredefinedMessage: PredefinedMessageResponseWrap;
   createProposal: ProposalResponseWrap;
   createProposalStatus: ProposalStatusResponseWrap;
   createProposalWorkflow: ProposalWorkflowResponseWrap;
@@ -820,6 +833,7 @@ export type Mutation = {
   deleteInstrument: InstrumentResponseWrap;
   deleteLostTime: LostTimeResponseWrap;
   deletePdfTemplate: PdfTemplateResponseWrap;
+  deletePredefinedMessage: PredefinedMessageResponseWrap;
   deleteProposal: ProposalResponseWrap;
   deleteProposalStatus: ProposalStatusResponseWrap;
   deleteProposalWorkflow: ProposalWorkflowResponseWrap;
@@ -890,6 +904,7 @@ export type Mutation = {
   updateLostTime: LostTimeResponseWrap;
   updatePassword: BasicUserDetailsResponseWrap;
   updatePdfTemplate: PdfTemplateResponseWrap;
+  updatePredefinedMessage: PredefinedMessageResponseWrap;
   updateProposal: ProposalResponseWrap;
   updateProposalStatus: ProposalStatusResponseWrap;
   updateProposalWorkflow: ProposalWorkflowResponseWrap;
@@ -1129,6 +1144,11 @@ export type MutationCreatePdfTemplateArgs = {
 };
 
 
+export type MutationCreatePredefinedMessageArgs = {
+  createPredefinedMessageInput: CreatePredefinedMessageInput;
+};
+
+
 export type MutationCreateProposalArgs = {
   callId: Scalars['Int'];
 };
@@ -1304,6 +1324,11 @@ export type MutationDeleteLostTimeArgs = {
 
 export type MutationDeletePdfTemplateArgs = {
   pdfTemplateId: Scalars['Int'];
+};
+
+
+export type MutationDeletePredefinedMessageArgs = {
+  deletePredefinedMessageInput: DeletePredefinedMessageInput;
 };
 
 
@@ -1703,6 +1728,11 @@ export type MutationUpdatePdfTemplateArgs = {
 };
 
 
+export type MutationUpdatePredefinedMessageArgs = {
+  updatePredefinedMessageInput: UpdatePredefinedMessageInput;
+};
+
+
 export type MutationUpdateProposalArgs = {
   abstract?: InputMaybe<Scalars['String']>;
   proposalPk: Scalars['Int'];
@@ -1919,7 +1949,9 @@ export type NumberInputConfig = {
 export enum NumberValueConstraint {
   NONE = 'NONE',
   ONLY_NEGATIVE = 'ONLY_NEGATIVE',
-  ONLY_POSITIVE = 'ONLY_POSITIVE'
+  ONLY_NEGATIVE_INTEGER = 'ONLY_NEGATIVE_INTEGER',
+  ONLY_POSITIVE = 'ONLY_POSITIVE',
+  ONLY_POSITIVE_INTEGER = 'ONLY_POSITIVE_INTEGER'
 }
 
 export type Page = {
@@ -1968,6 +2000,24 @@ export type PermissionsWithAccessToken = {
   accessToken: Scalars['String'];
   id: Scalars['String'];
   name: Scalars['String'];
+};
+
+export type PredefinedMessage = {
+  dateModified: Scalars['DateTime'];
+  id: Scalars['Int'];
+  lastModifiedBy: Scalars['Int'];
+  message: Scalars['String'];
+  modifiedBy: BasicUserDetails;
+  title: Scalars['String'];
+};
+
+export type PredefinedMessageResponseWrap = {
+  predefinedMessage: Maybe<PredefinedMessage>;
+  rejection: Maybe<Rejection>;
+};
+
+export type PredefinedMessagesFilter = {
+  key?: InputMaybe<Scalars['String']>;
 };
 
 export type PrepareDbResponseWrap = {
@@ -2291,6 +2341,7 @@ export type Query = {
   callsByInstrumentScientist: Maybe<Array<Call>>;
   checkEmailExist: Maybe<Scalars['Boolean']>;
   checkToken: TokenResult;
+  countries: Maybe<Array<Entry>>;
   equipment: Maybe<Equipment>;
   equipments: Array<Equipment>;
   esi: Maybe<ExperimentSafetyInput>;
@@ -2299,11 +2350,11 @@ export type Query = {
   features: Array<Feature>;
   feedback: Maybe<Feedback>;
   feedbacks: Array<Feedback>;
-  fileMetadata: Maybe<Array<FileMetadata>>;
+  fileMetadata: Maybe<FileMetadata>;
+  filesMetadata: Array<FileMetadata>;
   genericTemplate: Maybe<GenericTemplate>;
   genericTemplates: Maybe<Array<GenericTemplate>>;
-  getFields: Maybe<Fields>;
-  getPageContent: Maybe<Scalars['String']>;
+  getOrcIDInformation: Maybe<OrcIdInformation>;
   healthCheck: HealthStats;
   institutions: Maybe<Array<Institution>>;
   instrument: Maybe<Instrument>;
@@ -2317,14 +2368,19 @@ export type Query = {
   me: Maybe<User>;
   myShipments: Maybe<Array<Shipment>>;
   myVisits: Array<Visit>;
+  nationalities: Maybe<Array<Entry>>;
+  pageContent: Maybe<Scalars['String']>;
   pdfTemplate: Maybe<PdfTemplate>;
   pdfTemplates: Maybe<Array<PdfTemplate>>;
+  predefinedMessage: Maybe<PredefinedMessage>;
+  predefinedMessages: Array<PredefinedMessage>;
   previousCollaborators: Maybe<UserQueryResult>;
   proposal: Maybe<Proposal>;
   proposalBooking: Maybe<ProposalBooking>;
   proposalBookingLostTimes: Array<LostTime>;
   proposalBookingScheduledEvent: Maybe<ScheduledEvent>;
   proposalBookingScheduledEvents: Array<ScheduledEvent>;
+  proposalById: Maybe<Proposal>;
   proposalEvents: Maybe<Array<ProposalEvent>>;
   proposalReviews: Maybe<Array<Review>>;
   proposalStatus: Maybe<ProposalStatus>;
@@ -2336,6 +2392,7 @@ export type Query = {
   proposalsView: Maybe<ProposalsViewQueryResult>;
   quantities: Array<Quantity>;
   queriesAndMutations: Maybe<QueriesAndMutations>;
+  questionByNaturalKey: Question;
   questionary: Maybe<Questionary>;
   questions: Array<QuestionWithUsage>;
   review: Maybe<Review>;
@@ -2469,7 +2526,12 @@ export type QueryFeedbacksArgs = {
 
 
 export type QueryFileMetadataArgs = {
-  fileIds: Array<Scalars['String']>;
+  fileId: Scalars['String'];
+};
+
+
+export type QueryFilesMetadataArgs = {
+  filter: FilesMetadataFilter;
 };
 
 
@@ -2483,8 +2545,8 @@ export type QueryGenericTemplatesArgs = {
 };
 
 
-export type QueryGetPageContentArgs = {
-  pageId: PageName;
+export type QueryGetOrcIdInformationArgs = {
+  authorizationCode: Scalars['String'];
 };
 
 
@@ -2537,6 +2599,11 @@ export type QueryIsNaturalKeyPresentArgs = {
 };
 
 
+export type QueryPageContentArgs = {
+  pageId: PageName;
+};
+
+
 export type QueryPdfTemplateArgs = {
   pdfTemplateId: Scalars['Int'];
 };
@@ -2544,6 +2611,16 @@ export type QueryPdfTemplateArgs = {
 
 export type QueryPdfTemplatesArgs = {
   filter?: InputMaybe<PdfTemplatesFilter>;
+};
+
+
+export type QueryPredefinedMessageArgs = {
+  predefinedMessageId: Scalars['Int'];
+};
+
+
+export type QueryPredefinedMessagesArgs = {
+  filter?: InputMaybe<PredefinedMessagesFilter>;
 };
 
 
@@ -2586,6 +2663,11 @@ export type QueryProposalBookingScheduledEventsArgs = {
 };
 
 
+export type QueryProposalByIdArgs = {
+  proposalId: Scalars['String'];
+};
+
+
 export type QueryProposalReviewsArgs = {
   proposalPk: Scalars['Int'];
 };
@@ -2620,6 +2702,11 @@ export type QueryProposalsViewArgs = {
   searchText?: InputMaybe<Scalars['String']>;
   sortDirection?: InputMaybe<Scalars['String']>;
   sortField?: InputMaybe<Scalars['String']>;
+};
+
+
+export type QueryQuestionByNaturalKeyArgs = {
+  naturalKey: Scalars['String'];
 };
 
 
@@ -3543,6 +3630,7 @@ export type UpdateCallInput = {
   endSEPReview?: InputMaybe<Scalars['DateTime']>;
   esiTemplateId?: InputMaybe<Scalars['Int']>;
   id: Scalars['Int'];
+  isActive?: InputMaybe<Scalars['Boolean']>;
   pdfTemplateId?: InputMaybe<Scalars['Int']>;
   proposalSequence?: InputMaybe<Scalars['Int']>;
   proposalWorkflowId: Scalars['Int'];
@@ -3569,6 +3657,13 @@ export type UpdateLostTimeInput = {
   endsAt: Scalars['TzLessDateTime'];
   id: Scalars['Int'];
   startsAt: Scalars['TzLessDateTime'];
+};
+
+export type UpdatePredefinedMessageInput = {
+  id: Scalars['Int'];
+  key: Scalars['String'];
+  message: Scalars['String'];
+  title: Scalars['String'];
 };
 
 export type UpdateProposalStatusInput = {

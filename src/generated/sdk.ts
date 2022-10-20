@@ -116,7 +116,7 @@ export type AuthJwtApiTokenPayload = {
 export type AuthJwtPayload = {
   currentRole: Role;
   roles: Array<Role>;
-  user: User;
+  user: UserJwt;
 };
 
 export type BasicUserDetails = {
@@ -148,6 +148,7 @@ export type Call = {
   cycleComment: Scalars['String'];
   description: Maybe<Scalars['String']>;
   endCall: Scalars['DateTime'];
+  endCallInternal: Maybe<Scalars['DateTime']>;
   endCycle: Scalars['DateTime'];
   endNotify: Scalars['DateTime'];
   endReview: Scalars['DateTime'];
@@ -156,6 +157,7 @@ export type Call = {
   id: Scalars['Int'];
   instruments: Array<InstrumentWithAvailabilityTime>;
   isActive: Scalars['Boolean'];
+  isActiveInternal: Scalars['Boolean'];
   pdfTemplateId: Maybe<Scalars['Int']>;
   proposalCount: Scalars['Int'];
   proposalSequence: Maybe<Scalars['Int']>;
@@ -183,7 +185,10 @@ export type CallResponseWrap = {
 
 export type CallsFilter = {
   isActive?: InputMaybe<Scalars['Boolean']>;
+  isActiveInternal?: InputMaybe<Scalars['Boolean']>;
+  isCallEndedByEvent?: InputMaybe<Scalars['Boolean']>;
   isEnded?: InputMaybe<Scalars['Boolean']>;
+  isEndedInternal?: InputMaybe<Scalars['Boolean']>;
   isReviewEnded?: InputMaybe<Scalars['Boolean']>;
   isSEPReviewEnded?: InputMaybe<Scalars['Boolean']>;
   sepIds?: InputMaybe<Array<Scalars['Int']>>;
@@ -227,6 +232,7 @@ export type CreateCallInput = {
   cycleComment: Scalars['String'];
   description?: InputMaybe<Scalars['String']>;
   endCall: Scalars['DateTime'];
+  endCallInternal?: InputMaybe<Scalars['DateTime']>;
   endCycle: Scalars['DateTime'];
   endNotify: Scalars['DateTime'];
   endReview: Scalars['DateTime'];
@@ -440,6 +446,7 @@ export enum EvaluatorOperator {
 export enum Event {
   CALL_CREATED = 'CALL_CREATED',
   CALL_ENDED = 'CALL_ENDED',
+  CALL_ENDED_INTERNAL = 'CALL_ENDED_INTERNAL',
   CALL_REVIEW_ENDED = 'CALL_REVIEW_ENDED',
   CALL_SEP_REVIEW_ENDED = 'CALL_SEP_REVIEW_ENDED',
   EMAIL_INVITE = 'EMAIL_INVITE',
@@ -536,6 +543,7 @@ export enum FeatureId {
   EMAIL_INVITE = 'EMAIL_INVITE',
   EMAIL_SEARCH = 'EMAIL_SEARCH',
   INSTRUMENT_MANAGEMENT = 'INSTRUMENT_MANAGEMENT',
+  OAUTH = 'OAUTH',
   RISK_ASSESSMENT = 'RISK_ASSESSMENT',
   SAMPLE_SAFETY = 'SAMPLE_SAFETY',
   SCHEDULER = 'SCHEDULER',
@@ -858,7 +866,6 @@ export type Mutation = {
   importProposal: ProposalResponseWrap;
   importTemplate: TemplateResponseWrap;
   importUnits: UnitsResponseWrap;
-  login: TokenResponseWrap;
   logout: TokenResponseWrap;
   mergeInstitutions: InstitutionResponseWrap;
   moveProposalWorkflowStatus: ProposalWorkflowConnectionResponseWrap;
@@ -1462,12 +1469,6 @@ export type MutationImportTemplateArgs = {
 export type MutationImportUnitsArgs = {
   conflictResolutions: Array<ConflictResolution>;
   json: Scalars['String'];
-};
-
-
-export type MutationLoginArgs = {
-  email: Scalars['String'];
-  password: Scalars['String'];
 };
 
 
@@ -2354,7 +2355,6 @@ export type Query = {
   filesMetadata: Array<FileMetadata>;
   genericTemplate: Maybe<GenericTemplate>;
   genericTemplates: Maybe<Array<GenericTemplate>>;
-  getOrcIDInformation: Maybe<OrcIdInformation>;
   healthCheck: HealthStats;
   institutions: Maybe<Array<Institution>>;
   instrument: Maybe<Instrument>;
@@ -2542,11 +2542,6 @@ export type QueryGenericTemplateArgs = {
 
 export type QueryGenericTemplatesArgs = {
   filter?: InputMaybe<GenericTemplatesFilter>;
-};
-
-
-export type QueryGetOrcIdInformationArgs = {
-  authorizationCode: Scalars['String'];
 };
 
 
@@ -3619,11 +3614,13 @@ export type UpdateApiAccessTokenInput = {
 export type UpdateCallInput = {
   allocationTimeUnit: AllocationTimeUnits;
   callEnded?: InputMaybe<Scalars['Int']>;
+  callEndedInternal?: InputMaybe<Scalars['Boolean']>;
   callReviewEnded?: InputMaybe<Scalars['Int']>;
   callSEPReviewEnded?: InputMaybe<Scalars['Int']>;
   cycleComment: Scalars['String'];
   description?: InputMaybe<Scalars['String']>;
   endCall: Scalars['DateTime'];
+  endCallInternal?: InputMaybe<Scalars['DateTime']>;
   endCycle: Scalars['DateTime'];
   endNotify: Scalars['DateTime'];
   endReview: Scalars['DateTime'];
@@ -3706,7 +3703,7 @@ export type User = {
   lastname: Scalars['String'];
   middlename: Maybe<Scalars['String']>;
   nationality: Maybe<Scalars['Int']>;
-  oidcRefreshToken: Maybe<Scalars['String']>;
+  oauthRefreshToken: Maybe<Scalars['String']>;
   oidcSub: Maybe<Scalars['String']>;
   organisation: Scalars['Int'];
   placeholder: Scalars['Boolean'];
@@ -3734,6 +3731,19 @@ export type UserReviewsArgs = {
   instrumentId?: InputMaybe<Scalars['Int']>;
   reviewer?: InputMaybe<ReviewerFilter>;
   status?: InputMaybe<ReviewStatus>;
+};
+
+export type UserJwt = {
+  created: Scalars['String'];
+  email: Scalars['String'];
+  firstname: Scalars['String'];
+  id: Scalars['Int'];
+  lastname: Scalars['String'];
+  oidcSub: Maybe<Scalars['String']>;
+  organisation: Scalars['Float'];
+  placeholder: Scalars['Boolean'];
+  position: Scalars['String'];
+  preferredname: Maybe<Scalars['String']>;
 };
 
 export type UserProposalsFilter = {

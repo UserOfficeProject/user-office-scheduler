@@ -62,7 +62,7 @@ function ExternalAuth() {
     } else {
       handleNoCode();
     }
-  }, [settings, unauthorizedApi, urlQueryParams.code]);
+  }, [settings, unauthorizedApi, urlQueryParams.code, handleNewToken]);
 
   return <span>{statusMessage}</span>;
 }

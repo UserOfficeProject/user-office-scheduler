@@ -178,6 +178,7 @@ jobs:
           echo ::set-output name=SCHEDULER_BE_TAG::${SCHEDULER_BE_TAG}
           echo ::set-output name=UO_BE_TAG::${UO_BE_TAG}
           echo ::set-output name=GATEWAY_TAG::${GATEWAY_TAG}
+          echo ::set-output name=FACTORY_TAG::${FACTORY_TAG}
 
       - name: Download required repositories
         run: |
@@ -185,6 +186,7 @@ jobs:
           git clone --depth 1 --branch "${{ steps.resolve_rep.outputs.SCHEDULER_BE_TAG }}" https://github.com/UserOfficeProject/user-office-scheduler-backend.git
           git clone --depth 1 --branch "${{ steps.resolve_rep.outputs.UO_BE_TAG }}" https://github.com/UserOfficeProject/user-office-core.git
           git clone --depth 1 --branch "${{ steps.resolve_rep.outputs.GATEWAY_TAG }}" https://github.com/UserOfficeProject/user-office-gateway.git
+          git clone --depth 1 --branch "${{ steps.resolve_rep.outputs.FACTORY_TAG }}" https://github.com/UserOfficeProject/user-office-factory.git
 
       - name: Setup base docker-compose
         run: |

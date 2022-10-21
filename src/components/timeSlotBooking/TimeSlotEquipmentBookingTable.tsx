@@ -167,7 +167,7 @@ export default function TimeSlotEquipmentBookingTable({
         icons={tableIcons}
         title={
           <Typography component="h4" variant="h6">
-            Equipments
+            Equipment
           </Typography>
         }
         isLoading={loadingEquipments}

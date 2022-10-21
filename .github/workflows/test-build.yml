@@ -149,6 +149,11 @@ jobs:
             https://registry.hub.docker.com/v1/repositories/dmsc/duo-gateway/tags \
             https://api.github.com/repos/UserOfficeProject/user-office-gateway/branches
           )
+          
+          FACTORY_TAGS=$(check_feature ${{ github.head_ref }} \
+            https://registry.hub.docker.com/v1/repositories/dmsc/duo-factory/tags \
+            https://api.github.com/repos/UserOfficeProject/user-office-factory/branches
+          )
 
           SCHEDULER_BE_TAG=develop
           if [[ $SCHEDULER_BE_TAGS == "2" ]]; then
@@ -163,6 +168,11 @@ jobs:
           GATEWAY_TAG=develop
           if [[ $GATEWAY_TAGS == "2" ]]; then
             GATEWAY_TAG="${{ github.head_ref }}"
+          fi
+          
+          FACTORY_TAG=develop
+          if [[ $FACTORY_TAGS == "2" ]]; then
+            FACTORY_TAG="${{ github.head_ref }}"
           fi
 
           echo ::set-output name=SCHEDULER_BE_TAG::${SCHEDULER_BE_TAG}

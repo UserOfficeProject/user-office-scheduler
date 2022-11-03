@@ -204,7 +204,7 @@ jobs:
           REPO_DIR_NAME=$(basename $GITHUB_WORKSPACE)
 
           export USER_OFFICE_BACKEND_TAG=${{ steps.resolve_rep.outputs.UO_BE_TAG }}
-          export USER_OFFICE_BACKEND_DIR=apps/user-office-backend
+          export USER_OFFICE_BACKEND_DIR=user-office-core/apps/user-office-backend
           export USER_OFFICE_BACKEND=http://backend:4000/graphql
           export USER_OFFICE_ENDPOINT=$USER_OFFICE_BACKEND
 

@@ -3,7 +3,7 @@ import { EquipmentDataSource } from '../datasources/EquipmentDataSource';
 import { ScheduledEventDataSource } from '../datasources/ScheduledEventDataSource';
 import Authorized from '../decorators/Authorized';
 import { getUserInstruments } from '../helpers/instrumentHelpers';
-import { isUserOfficer } from '../helpers/permissionHelpers';
+import { isApiToken, isUserOfficer } from '../helpers/permissionHelpers';
 import {
   Equipment,
   EquipmentAssignmentStatus,
@@ -31,7 +31,7 @@ export default class EquipmentQueries {
     ctx: ResolverContext,
     equipmentIds?: number[]
   ): Promise<Equipment[]> {
-    if (isUserOfficer(ctx)) {
+    if (isUserOfficer(ctx) || isApiToken(ctx)) {
       const allEquipments = this.equipmentDataSource.getAll(equipmentIds);
 
       return allEquipments;

@@ -41,8 +41,7 @@ export default class SystemQueries {
       const proto = Object.getPrototypeOf(element);
       if (!proto.constructor.name.startsWith('System')) {
         const names = Object.getOwnPropertyNames(proto).filter(
-          (item) =>
-            item !== 'constructor' || item.constructor.name.startsWith('System')
+          (item) => item !== 'constructor'
         );
 
         const classNamesWithMethod = names.map(

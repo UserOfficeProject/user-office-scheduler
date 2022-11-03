@@ -9,7 +9,7 @@ import LostTimeQueries from '../queries/LostTimeQueries';
 import ProposalBookingQueries from '../queries/ProposalBookingQueries';
 import ScheduledEventQueries from '../queries/ScheduledEventQueries';
 import SystemQueries from '../queries/SystemQueries';
-import { User, Role } from '../types/shared';
+import { Role, UserWithAccessPermissions } from '../types/shared';
 
 interface ResolverContextMutations {
   equipment: EquipmentMutations;
@@ -32,7 +32,7 @@ export interface BasicResolverContext {
   queries: ResolverContextQueries;
   mutations: ResolverContextMutations;
   currentRole?: Role;
-  user?: User;
+  user?: UserWithAccessPermissions | null;
   roles?: Role[];
   clients: {
     userOffice: () => Sdk;

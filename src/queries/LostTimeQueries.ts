@@ -1,7 +1,10 @@
 import { ResolverContext } from '../context';
 import { LostTimeDataSource } from '../datasources/LostTimeDataSource';
 import Authorized from '../decorators/Authorized';
-import { instrumentScientistHasAccess } from '../helpers/permissionHelpers';
+import {
+  instrumentScientistHasAccess,
+  isApiToken,
+} from '../helpers/permissionHelpers';
 import { LostTime } from '../models/LostTime';
 import { Roles } from '../types/shared';
 
@@ -19,7 +22,10 @@ export default class LostTimeQueries {
       scheduledEventId?: number;
     }
   ): Promise<LostTime[]> {
-    if (!(await instrumentScientistHasAccess(ctx, proposalBookingId))) {
+    if (
+      !(await instrumentScientistHasAccess(ctx, proposalBookingId)) &&
+      !isApiToken(ctx)
+    ) {
       return [];
     }
 

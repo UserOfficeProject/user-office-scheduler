@@ -21,13 +21,9 @@ const Authorized = (roles: Roles[] = []) => {
       const [ctx] = args;
       const isMutation = target.constructor.name.includes('Mutation');
 
-      console.log(ctx);
-
-      if ((ctx?.user as any).isApiAccessToken) {
+      if (ctx.user?.isApiAccessToken) {
         if (
-          (ctx?.user as any).accessPermissions?.[
-            `${target.constructor.name}.${name}`
-          ]
+          ctx.user.accessPermissions?.[`${target.constructor.name}.${name}`]
         ) {
           return await originalMethod?.apply(this, args);
         } else {

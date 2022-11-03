@@ -80,7 +80,10 @@ export default class ScheduledEventQueries {
     proposalBookingId: number,
     scheduledEventId: number
   ): Promise<ScheduledEvent | null> {
-    if (!(await instrumentScientistHasAccess(ctx, proposalBookingId))) {
+    if (
+      !(await instrumentScientistHasAccess(ctx, proposalBookingId)) &&
+      !isApiToken(ctx)
+    ) {
       return null;
     }
 
@@ -97,8 +100,8 @@ export default class ScheduledEventQueries {
     startsAt: Date,
     endsAt: Date
   ) {
-    // NOTE: For USER_OFFICER send null to recieve all equipment events
-    const userId = isUserOfficer(ctx) ? null : ctx.user?.id;
+    // NOTE: For USER_OFFICER and API access send null to recieve all equipment events
+    const userId = isUserOfficer(ctx) || isApiToken(ctx) ? null : ctx.user?.id;
 
     return this.scheduledEventDataSource.equipmentScheduledEvents(
       equipmentIds,

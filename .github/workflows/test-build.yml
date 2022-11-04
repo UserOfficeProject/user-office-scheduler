@@ -30,7 +30,7 @@ jobs:
 
       - name: Set up Docker Buildx
         if: steps.cached-image.outputs.cache-hit != 'true'
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v1.7.0
 
       - name: Build and cache image
         if: steps.cached-image.outputs.cache-hit != 'true'

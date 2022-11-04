@@ -18,7 +18,7 @@ jobs:
 
       - name: Cache app docker layers and image
         id: cached-image
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             /tmp/.buildx-layer-cache
@@ -92,7 +92,7 @@ jobs:
 
       - name: Load app cache
         id: cached-image
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             /tmp/.buildx-layer-cache
@@ -242,7 +242,7 @@ jobs:
     steps:
       - name: Load app cache
         id: cached-image
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             /tmp/.buildx-layer-cache

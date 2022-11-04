@@ -149,7 +149,7 @@ jobs:
             https://registry.hub.docker.com/v1/repositories/dmsc/duo-gateway/tags \
             https://api.github.com/repos/UserOfficeProject/user-office-gateway/branches
           )
-          
+
           FACTORY_TAGS=$(check_feature ${{ github.head_ref }} \
             https://registry.hub.docker.com/v1/repositories/dmsc/duo-factory/tags \
             https://api.github.com/repos/UserOfficeProject/user-office-factory/branches
@@ -169,16 +169,16 @@ jobs:
           if [[ $GATEWAY_TAGS == "2" ]]; then
             GATEWAY_TAG="${{ github.head_ref }}"
           fi
-          
+
           FACTORY_TAG=develop
           if [[ $FACTORY_TAGS == "2" ]]; then
             FACTORY_TAG="${{ github.head_ref }}"
           fi
 
-          echo ::set-output name=SCHEDULER_BE_TAG::${SCHEDULER_BE_TAG}
-          echo ::set-output name=UO_BE_TAG::${UO_BE_TAG}
-          echo ::set-output name=GATEWAY_TAG::${GATEWAY_TAG}
-          echo ::set-output name=FACTORY_TAG::${FACTORY_TAG}
+          echo "SCHEDULER_BE_TAG=${SCHEDULER_BE_TAG}" >> $GITHUB_OUTPUT
+          echo "UO_BE_TAG=${UO_BE_TAG}" >> $GITHUB_OUTPUT
+          echo "GATEWAY_TAG=${GATEWAY_TAG}" >> $GITHUB_OUTPUT
+          echo "FACTORY_TAG=${FACTORY_TAG}" >> $GITHUB_OUTPUT
 
       - name: Download required repositories
         run: |
@@ -215,7 +215,7 @@ jobs:
           export USER_OFFICE_SCHEDULER_FRONTEND_DIR=$REPO_DIR_NAME
 
           export USER_OFFICE_GATEWAY_TAG=${{ steps.resolve_rep.outputs.GATEWAY_TAG }}
-          
+
           export USER_OFFICE_FACTORY_TAG=${{ steps.resolve_rep.outputs.FACTORY_TAG }}
           export USER_OFFICE_FACTORY_ENDPOINT=noop
 

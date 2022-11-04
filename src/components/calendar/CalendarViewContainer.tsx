@@ -126,7 +126,8 @@ const useStyles = makeStyles((theme) => ({
     position: 'relative',
   },
   collapsibleGrid: {
-    overflow: 'hidden',
+    overflow: 'auto',
+    maxHeight: '100%',
   },
   collapsibleGridMobile: {
     position: 'absolute',
@@ -134,6 +135,7 @@ const useStyles = makeStyles((theme) => ({
     right: -16,
     // NOTE: This calculation in height is mainly because of the different container paddings on different screen sizes
     height: `calc(100% + 32px) !important`,
+    maxHeight: 'none',
     width: '200px',
     background: 'white',
     overflow: 'auto',
@@ -151,11 +153,14 @@ const useStyles = makeStyles((theme) => ({
     top: -24,
     right: -24,
     height: `calc(100% + 48px) !important`,
+    maxHeight: 'none',
   },
   eventToolbarCloseButton: {
     position: 'absolute',
     right: -24,
     top: -24,
+    width: '20px',
+    height: '20px',
     background: theme.palette.grey[200],
     borderRadius: 0,
   },
@@ -170,6 +175,8 @@ const useStyles = makeStyles((theme) => ({
     top: -24,
     background: theme.palette.grey[200],
     borderRadius: 0,
+    width: '20px',
+    height: '20px',
     zIndex: 1000,
   },
   eventToolbarOpenButtonMobile: {
@@ -723,7 +730,7 @@ export default function CalendarViewContainer() {
                     size="small"
                     data-cy="open-event-toolbar"
                   >
-                    <ChevronLeft />
+                    <ChevronLeft fontSize="small" />
                   </IconButton>
                 </Tooltip>
               )}
@@ -745,7 +752,7 @@ export default function CalendarViewContainer() {
               <Grid
                 item
                 xs
-                className={`${classes.collapsibleGrid} ${
+                className={`tinyScroll ${classes.collapsibleGrid} ${
                   isTabletOrMobile && classes.collapsibleGridMobile
                 }  ${isTablet && classes.collapsibleGridTablet}
                 ${!showTodoBox && classes.collapsibleGridNoWidth}`}
@@ -766,7 +773,7 @@ export default function CalendarViewContainer() {
                         size="small"
                         data-cy="close-event-toolbar"
                       >
-                        <CloseIcon />
+                        <CloseIcon fontSize="small" />
                       </IconButton>
                     </Tooltip>
                   )}

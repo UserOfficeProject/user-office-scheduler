@@ -12,18 +12,6 @@ context('Permission tests', () => {
     cy.configureClock();
   });
 
-  describe('Users with wrong roles', () => {
-    it('should show the `Not authenticated` page', () => {
-      cy.configureSession('NotUserInstrumentScientist');
-
-      cy.visit('/calendar');
-
-      cy.url().should('include', '/not-authenticated');
-      cy.contains(/you are not authenticated/i);
-      cy.contains(/click here to authenticate/i);
-    });
-  });
-
   describe('Users with right roles', () => {
     it('should show all instruments for user with `User officer` role', () => {
       cy.configureSession('UserOfficer');

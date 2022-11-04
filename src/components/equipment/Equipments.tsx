@@ -60,7 +60,7 @@ export default function Equipments() {
           <StyledPaper margin={[0, 1]} data-cy="role-selection-table">
             <MaterialTable
               icons={tableIcons}
-              title="Equipments"
+              title="Equipment"
               columns={columns}
               data={equipments}
               isLoading={loading}

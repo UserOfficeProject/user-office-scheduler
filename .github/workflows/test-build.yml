@@ -142,12 +142,17 @@ jobs:
 
           UO_BE_TAGS=$(check_feature ${{ github.head_ref }} \
             https://registry.hub.docker.com/v1/repositories/dmsc/duo-backend/tags \
-            https://api.github.com/repos/UserOfficeProject/user-office-backend/branches
+            https://api.github.com/repos/UserOfficeProject/user-office-core/branches
           )
 
           GATEWAY_TAGS=$(check_feature ${{ github.head_ref }} \
             https://registry.hub.docker.com/v1/repositories/dmsc/duo-gateway/tags \
             https://api.github.com/repos/UserOfficeProject/user-office-gateway/branches
+          )
+          
+          FACTORY_TAGS=$(check_feature ${{ github.head_ref }} \
+            https://registry.hub.docker.com/v1/repositories/dmsc/duo-factory/tags \
+            https://api.github.com/repos/UserOfficeProject/user-office-factory/branches
           )
 
           SCHEDULER_BE_TAG=develop
@@ -164,17 +169,24 @@ jobs:
           if [[ $GATEWAY_TAGS == "2" ]]; then
             GATEWAY_TAG="${{ github.head_ref }}"
           fi
+          
+          FACTORY_TAG=develop
+          if [[ $FACTORY_TAGS == "2" ]]; then
+            FACTORY_TAG="${{ github.head_ref }}"
+          fi
 
           echo ::set-output name=SCHEDULER_BE_TAG::${SCHEDULER_BE_TAG}
           echo ::set-output name=UO_BE_TAG::${UO_BE_TAG}
           echo ::set-output name=GATEWAY_TAG::${GATEWAY_TAG}
+          echo ::set-output name=FACTORY_TAG::${FACTORY_TAG}
 
       - name: Download required repositories
         run: |
           cd "$GITHUB_WORKSPACE/.."
           git clone --depth 1 --branch "${{ steps.resolve_rep.outputs.SCHEDULER_BE_TAG }}" https://github.com/UserOfficeProject/user-office-scheduler-backend.git
-          git clone --depth 1 --branch "${{ steps.resolve_rep.outputs.UO_BE_TAG }}" https://github.com/UserOfficeProject/user-office-backend.git
+          git clone --depth 1 --branch "${{ steps.resolve_rep.outputs.UO_BE_TAG }}" https://github.com/UserOfficeProject/user-office-core.git
           git clone --depth 1 --branch "${{ steps.resolve_rep.outputs.GATEWAY_TAG }}" https://github.com/UserOfficeProject/user-office-gateway.git
+          git clone --depth 1 --branch "${{ steps.resolve_rep.outputs.FACTORY_TAG }}" https://github.com/UserOfficeProject/user-office-factory.git
 
       - name: Setup base docker-compose
         run: |
@@ -192,7 +204,7 @@ jobs:
           REPO_DIR_NAME=$(basename $GITHUB_WORKSPACE)
 
           export USER_OFFICE_BACKEND_TAG=${{ steps.resolve_rep.outputs.UO_BE_TAG }}
-          export USER_OFFICE_BACKEND_DIR=user-office-backend
+          export USER_OFFICE_BACKEND_DIR=user-office-core/apps/user-office-backend
           export USER_OFFICE_BACKEND=http://backend:4000/graphql
           export USER_OFFICE_ENDPOINT=$USER_OFFICE_BACKEND
 
@@ -203,14 +215,14 @@ jobs:
           export USER_OFFICE_SCHEDULER_FRONTEND_DIR=$REPO_DIR_NAME
 
           export USER_OFFICE_GATEWAY_TAG=${{ steps.resolve_rep.outputs.GATEWAY_TAG }}
-
+          
+          export USER_OFFICE_FACTORY_TAG=${{ steps.resolve_rep.outputs.FACTORY_TAG }}
           export USER_OFFICE_FACTORY_ENDPOINT=noop
 
           export BUILD_TAG=${{ github.sha }}
 
           docker-compose -f docker-compose.all.yml \
             -f user-office-scheduler-backend/docker-compose.e2e.yml \
-            -f user-office-backend/docker-compose.e2e.yml \
             -f user-office-gateway/docker-compose.e2e.yml \
             -f "$REPO_DIR_NAME/docker-compose.e2e.yml" \
             up --exit-code-from cypress

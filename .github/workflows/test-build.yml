@@ -14,11 +14,11 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Cache app docker layers and image
         id: cached-image
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             /tmp/.buildx-layer-cache
@@ -30,7 +30,7 @@ jobs:
 
       - name: Set up Docker Buildx
         if: steps.cached-image.outputs.cache-hit != 'true'
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
 
       - name: Build and cache image
         if: steps.cached-image.outputs.cache-hit != 'true'
@@ -45,10 +45,10 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Login to GitHub Packages Docker Registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           registry: docker.pkg.github.com
           username: ${{ github.actor }}
@@ -74,10 +74,10 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Login to GitHub Packages Docker Registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           registry: docker.pkg.github.com
           username: ${{ github.actor }}
@@ -92,7 +92,7 @@ jobs:
 
       - name: Load app cache
         id: cached-image
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             /tmp/.buildx-layer-cache
@@ -149,7 +149,7 @@ jobs:
             https://registry.hub.docker.com/v1/repositories/dmsc/duo-gateway/tags \
             https://api.github.com/repos/UserOfficeProject/user-office-gateway/branches
           )
-          
+
           FACTORY_TAGS=$(check_feature ${{ github.head_ref }} \
             https://registry.hub.docker.com/v1/repositories/dmsc/duo-factory/tags \
             https://api.github.com/repos/UserOfficeProject/user-office-factory/branches
@@ -169,16 +169,16 @@ jobs:
           if [[ $GATEWAY_TAGS == "2" ]]; then
             GATEWAY_TAG="${{ github.head_ref }}"
           fi
-          
+
           FACTORY_TAG=develop
           if [[ $FACTORY_TAGS == "2" ]]; then
             FACTORY_TAG="${{ github.head_ref }}"
           fi
 
-          echo ::set-output name=SCHEDULER_BE_TAG::${SCHEDULER_BE_TAG}
-          echo ::set-output name=UO_BE_TAG::${UO_BE_TAG}
-          echo ::set-output name=GATEWAY_TAG::${GATEWAY_TAG}
-          echo ::set-output name=FACTORY_TAG::${FACTORY_TAG}
+          echo "SCHEDULER_BE_TAG=${SCHEDULER_BE_TAG}" >> $GITHUB_OUTPUT
+          echo "UO_BE_TAG=${UO_BE_TAG}" >> $GITHUB_OUTPUT
+          echo "GATEWAY_TAG=${GATEWAY_TAG}" >> $GITHUB_OUTPUT
+          echo "FACTORY_TAG=${FACTORY_TAG}" >> $GITHUB_OUTPUT
 
       - name: Download required repositories
         run: |
@@ -215,7 +215,7 @@ jobs:
           export USER_OFFICE_SCHEDULER_FRONTEND_DIR=$REPO_DIR_NAME
 
           export USER_OFFICE_GATEWAY_TAG=${{ steps.resolve_rep.outputs.GATEWAY_TAG }}
-          
+
           export USER_OFFICE_FACTORY_TAG=${{ steps.resolve_rep.outputs.FACTORY_TAG }}
           export USER_OFFICE_FACTORY_ENDPOINT=noop
 
@@ -242,7 +242,7 @@ jobs:
     steps:
       - name: Load app cache
         id: cached-image
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             /tmp/.buildx-layer-cache
@@ -264,7 +264,7 @@ jobs:
           docker load --input /tmp/.buildx-image-cache/img.tar
 
       - name: Login to DockerHub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}

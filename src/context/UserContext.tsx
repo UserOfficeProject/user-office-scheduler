@@ -1,11 +1,23 @@
-import { getTranslation } from '@user-office-software/duo-localisation';
 import jwtDecode from 'jwt-decode';
-import { useSnackbar } from 'notistack';
-import React, { createContext, useContext, useEffect, useReducer } from 'react';
-import { useCookies } from 'react-cookie';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useReducer,
+} from 'react';
 
 import Loader from 'components/common/Loader';
-import { User, Role, UserRole } from 'generated/sdk';
+import {
+  User,
+  Role,
+  UserRole,
+  SettingsId,
+  AuthJwtPayload,
+} from 'generated/sdk';
+import { useDataApi } from 'hooks/common/useDataApi';
+
+import { SettingsContext } from './SettingsContextProvider';
 
 export type AuthenticatedUser = Pick<
   User,
@@ -19,7 +31,7 @@ export type UserContextData = {
   currentRole: UserRole | null;
   roles: Role[];
   handleNewToken: (token: string) => void;
-  handleLogout: () => void;
+  handleLogout: () => Promise<void>;
 };
 
 const initialState = {
@@ -29,7 +41,7 @@ const initialState = {
   roles: [],
   currentRole: null,
   handleNewToken: () => {},
-  handleLogout: () => {},
+  handleLogout: async () => {},
 };
 
 export const UserContext = createContext<UserContextData>(initialState);
@@ -79,57 +91,61 @@ function reducer(
 type UserContextProviderProps = { children: React.ReactNode };
 
 export function UserContextProvider({ children }: UserContextProviderProps) {
-  const { enqueueSnackbar } = useSnackbar();
   const [userState, dispatch] = useReducer(reducer, initialState);
-  const [cookies] = useCookies();
+  const { settings } = useContext(SettingsContext);
+  const api = useDataApi();
 
-  const handleNewToken = (token: string) => {
-    let decodedToken = null;
+  const handleLogout = useCallback(async () => {
+    const token = localStorage.getItem('token');
     if (token) {
-      try {
-        decodedToken = jwtDecode(token);
-      } catch (error) {
-        // malformed token?
-        console.error(error);
-      }
+      api()
+        .logout({ token })
+        .finally(() => {
+          dispatch({
+            type: UserActionType.SET_NOT_AUTHENTICATED,
+            payload: null,
+          });
+          localStorage.removeItem('token');
+          const logoutUrl = settings.get(
+            SettingsId.EXTERNAL_AUTH_LOGOUT_URL
+          )?.settingsValue;
+          if (logoutUrl) {
+            const logoutUrlWithRedirect = new URL(logoutUrl);
+            logoutUrlWithRedirect.searchParams.set(
+              'post_logout_redirect_uri',
+              window.location.href
+            );
+            window.location.assign(logoutUrlWithRedirect);
+          }
+        });
+    }
+  }, [api, settings]);
+
+  const handleNewToken = (token: string | null) => {
+    let decodedToken = null;
+    try {
+      decodedToken = jwtDecode<AuthJwtPayload | null>(token as string);
+    } catch (error) {
+      console.error(error);
     }
 
-    if (decodedToken) {
-      dispatch({
-        type: UserActionType.SET_USER_FROM_TOKEN,
-        payload: { token, decodedToken },
-      });
-    } else {
+    if (!decodedToken) {
       dispatch({ type: UserActionType.SET_NOT_AUTHENTICATED, payload: null });
+
+      return;
     }
+
+    localStorage.setItem('token', token as string);
+    dispatch({
+      type: UserActionType.SET_USER_FROM_TOKEN,
+      payload: { token, decodedToken },
+    });
   };
 
-  const handleLogout = () =>
-    dispatch({ type: UserActionType.SET_NOT_AUTHENTICATED, payload: null });
-
   useEffect(() => {
-    const { token } = cookies;
-
+    const token = localStorage.getItem('token');
     handleNewToken(token);
-  }, [cookies]);
-
-  useEffect(() => {
-    if (
-      userState.stateInitialized &&
-      userState.user &&
-      (!Array.isArray(userState.roles) ||
-        !userState.roles.find(
-          ({ shortCode }) =>
-            shortCode.toUpperCase() === UserRole.INSTRUMENT_SCIENTIST ||
-            shortCode.toUpperCase() === UserRole.USER_OFFICER
-        ))
-    ) {
-      enqueueSnackbar(getTranslation('INSUFFICIENT_PERMISSIONS'), {
-        variant: 'error',
-      });
-      handleLogout();
-    }
-  }, [userState, enqueueSnackbar]);
+  }, []);
 
   return (
     <UserContext.Provider

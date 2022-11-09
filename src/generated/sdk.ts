@@ -116,7 +116,7 @@ export type AuthJwtApiTokenPayload = {
 export type AuthJwtPayload = {
   currentRole: Role;
   roles: Array<Role>;
-  user: User;
+  user: UserJwt;
 };
 
 export type BasicUserDetails = {
@@ -148,6 +148,7 @@ export type Call = {
   cycleComment: Scalars['String'];
   description: Maybe<Scalars['String']>;
   endCall: Scalars['DateTime'];
+  endCallInternal: Maybe<Scalars['DateTime']>;
   endCycle: Scalars['DateTime'];
   endNotify: Scalars['DateTime'];
   endReview: Scalars['DateTime'];
@@ -156,6 +157,7 @@ export type Call = {
   id: Scalars['Int'];
   instruments: Array<InstrumentWithAvailabilityTime>;
   isActive: Scalars['Boolean'];
+  isActiveInternal: Scalars['Boolean'];
   pdfTemplateId: Maybe<Scalars['Int']>;
   proposalCount: Scalars['Int'];
   proposalSequence: Maybe<Scalars['Int']>;
@@ -183,7 +185,10 @@ export type CallResponseWrap = {
 
 export type CallsFilter = {
   isActive?: InputMaybe<Scalars['Boolean']>;
+  isActiveInternal?: InputMaybe<Scalars['Boolean']>;
+  isCallEndedByEvent?: InputMaybe<Scalars['Boolean']>;
   isEnded?: InputMaybe<Scalars['Boolean']>;
+  isEndedInternal?: InputMaybe<Scalars['Boolean']>;
   isReviewEnded?: InputMaybe<Scalars['Boolean']>;
   isSEPReviewEnded?: InputMaybe<Scalars['Boolean']>;
   sepIds?: InputMaybe<Array<Scalars['Int']>>;
@@ -227,6 +232,7 @@ export type CreateCallInput = {
   cycleComment: Scalars['String'];
   description?: InputMaybe<Scalars['String']>;
   endCall: Scalars['DateTime'];
+  endCallInternal?: InputMaybe<Scalars['DateTime']>;
   endCycle: Scalars['DateTime'];
   endNotify: Scalars['DateTime'];
   endReview: Scalars['DateTime'];
@@ -440,6 +446,7 @@ export enum EvaluatorOperator {
 export enum Event {
   CALL_CREATED = 'CALL_CREATED',
   CALL_ENDED = 'CALL_ENDED',
+  CALL_ENDED_INTERNAL = 'CALL_ENDED_INTERNAL',
   CALL_REVIEW_ENDED = 'CALL_REVIEW_ENDED',
   CALL_SEP_REVIEW_ENDED = 'CALL_SEP_REVIEW_ENDED',
   EMAIL_INVITE = 'EMAIL_INVITE',
@@ -535,8 +542,8 @@ export type Feature = {
 export enum FeatureId {
   EMAIL_INVITE = 'EMAIL_INVITE',
   EMAIL_SEARCH = 'EMAIL_SEARCH',
-  EXTERNAL_AUTH = 'EXTERNAL_AUTH',
   INSTRUMENT_MANAGEMENT = 'INSTRUMENT_MANAGEMENT',
+  OAUTH = 'OAUTH',
   RISK_ASSESSMENT = 'RISK_ASSESSMENT',
   SAMPLE_SAFETY = 'SAMPLE_SAFETY',
   SCHEDULER = 'SCHEDULER',
@@ -705,6 +712,7 @@ export type InstitutionResponseWrap = {
 
 export type InstitutionsFilter = {
   isVerified?: InputMaybe<Scalars['Boolean']>;
+  name?: InputMaybe<Scalars['String']>;
 };
 
 export type Instrument = {
@@ -744,11 +752,6 @@ export type IntervalConfig = {
   small_label: Scalars['String'];
   tooltip: Scalars['String'];
   units: Array<Unit>;
-};
-
-export type LogoutTokenWrap = {
-  rejection: Maybe<Rejection>;
-  token: Maybe<Scalars['String']>;
 };
 
 export type LostTime = {
@@ -863,8 +866,7 @@ export type Mutation = {
   importProposal: ProposalResponseWrap;
   importTemplate: TemplateResponseWrap;
   importUnits: UnitsResponseWrap;
-  login: TokenResponseWrap;
-  logout: LogoutTokenWrap;
+  logout: TokenResponseWrap;
   mergeInstitutions: InstitutionResponseWrap;
   moveProposalWorkflowStatus: ProposalWorkflowConnectionResponseWrap;
   notifyProposal: ProposalResponseWrap;
@@ -1255,15 +1257,12 @@ export type MutationCreateUserArgs = {
   lastname: Scalars['String'];
   middlename?: InputMaybe<Scalars['String']>;
   nationality: Scalars['Int'];
-  orcid: Scalars['String'];
-  orcidHash: Scalars['String'];
   organisation: Scalars['Int'];
   organizationCountry?: InputMaybe<Scalars['Int']>;
   otherOrganisation?: InputMaybe<Scalars['String']>;
   password: Scalars['String'];
   position: Scalars['String'];
   preferredname?: InputMaybe<Scalars['String']>;
-  refreshToken: Scalars['String'];
   telephone: Scalars['String'];
   telephone_alt?: InputMaybe<Scalars['String']>;
   user_title?: InputMaybe<Scalars['String']>;
@@ -1429,6 +1428,7 @@ export type MutationEmailVerificationArgs = {
 
 export type MutationExternalTokenLoginArgs = {
   externalToken: Scalars['String'];
+  redirectUri: Scalars['String'];
 };
 
 
@@ -1469,12 +1469,6 @@ export type MutationImportTemplateArgs = {
 export type MutationImportUnitsArgs = {
   conflictResolutions: Array<ConflictResolution>;
   json: Scalars['String'];
-};
-
-
-export type MutationLoginArgs = {
-  email: Scalars['String'];
-  password: Scalars['String'];
 };
 
 
@@ -1877,14 +1871,12 @@ export type MutationUpdateUserArgs = {
   lastname?: InputMaybe<Scalars['String']>;
   middlename?: InputMaybe<Scalars['String']>;
   nationality?: InputMaybe<Scalars['Int']>;
-  orcid?: InputMaybe<Scalars['String']>;
   organisation?: InputMaybe<Scalars['Int']>;
   organizationCountry?: InputMaybe<Scalars['Int']>;
   otherOrganisation?: InputMaybe<Scalars['String']>;
   placeholder?: InputMaybe<Scalars['String']>;
   position?: InputMaybe<Scalars['String']>;
   preferredname?: InputMaybe<Scalars['String']>;
-  refreshToken?: InputMaybe<Scalars['String']>;
   roles?: InputMaybe<Array<Scalars['Int']>>;
   telephone?: InputMaybe<Scalars['String']>;
   telephone_alt?: InputMaybe<Scalars['String']>;
@@ -1962,15 +1954,6 @@ export enum NumberValueConstraint {
   ONLY_POSITIVE = 'ONLY_POSITIVE',
   ONLY_POSITIVE_INTEGER = 'ONLY_POSITIVE_INTEGER'
 }
-
-export type OrcIdInformation = {
-  firstname: Maybe<Scalars['String']>;
-  lastname: Maybe<Scalars['String']>;
-  orcid: Maybe<Scalars['String']>;
-  orcidHash: Maybe<Scalars['String']>;
-  refreshToken: Maybe<Scalars['String']>;
-  token: Maybe<Scalars['String']>;
-};
 
 export type Page = {
   content: Maybe<Scalars['String']>;
@@ -2372,7 +2355,6 @@ export type Query = {
   filesMetadata: Array<FileMetadata>;
   genericTemplate: Maybe<GenericTemplate>;
   genericTemplates: Maybe<Array<GenericTemplate>>;
-  getOrcIDInformation: Maybe<OrcIdInformation>;
   healthCheck: HealthStats;
   institutions: Maybe<Array<Institution>>;
   instrument: Maybe<Instrument>;
@@ -2560,11 +2542,6 @@ export type QueryGenericTemplateArgs = {
 
 export type QueryGenericTemplatesArgs = {
   filter?: InputMaybe<GenericTemplatesFilter>;
-};
-
-
-export type QueryGetOrcIdInformationArgs = {
-  authorizationCode: Scalars['String'];
 };
 
 
@@ -3311,6 +3288,7 @@ export enum SettingsId {
   DEFAULT_INST_SCI_REVIEWER_FILTER = 'DEFAULT_INST_SCI_REVIEWER_FILTER',
   DEFAULT_INST_SCI_STATUS_FILTER = 'DEFAULT_INST_SCI_STATUS_FILTER',
   EXTERNAL_AUTH_LOGIN_URL = 'EXTERNAL_AUTH_LOGIN_URL',
+  EXTERNAL_AUTH_LOGOUT_URL = 'EXTERNAL_AUTH_LOGOUT_URL',
   FEEDBACK_EXHAUST_DAYS = 'FEEDBACK_EXHAUST_DAYS',
   FEEDBACK_FREQUENCY_DAYS = 'FEEDBACK_FREQUENCY_DAYS',
   FEEDBACK_MAX_REQUESTS = 'FEEDBACK_MAX_REQUESTS',
@@ -3636,11 +3614,13 @@ export type UpdateApiAccessTokenInput = {
 export type UpdateCallInput = {
   allocationTimeUnit: AllocationTimeUnits;
   callEnded?: InputMaybe<Scalars['Int']>;
+  callEndedInternal?: InputMaybe<Scalars['Boolean']>;
   callReviewEnded?: InputMaybe<Scalars['Int']>;
   callSEPReviewEnded?: InputMaybe<Scalars['Int']>;
   cycleComment: Scalars['String'];
   description?: InputMaybe<Scalars['String']>;
   endCall: Scalars['DateTime'];
+  endCallInternal?: InputMaybe<Scalars['DateTime']>;
   endCycle: Scalars['DateTime'];
   endNotify: Scalars['DateTime'];
   endReview: Scalars['DateTime'];
@@ -3723,13 +3703,13 @@ export type User = {
   lastname: Scalars['String'];
   middlename: Maybe<Scalars['String']>;
   nationality: Maybe<Scalars['Int']>;
-  orcid: Scalars['String'];
+  oauthRefreshToken: Maybe<Scalars['String']>;
+  oidcSub: Maybe<Scalars['String']>;
   organisation: Scalars['Int'];
   placeholder: Scalars['Boolean'];
   position: Scalars['String'];
   preferredname: Maybe<Scalars['String']>;
   proposals: Array<Proposal>;
-  refreshToken: Scalars['String'];
   reviews: Array<Review>;
   roles: Array<Role>;
   seps: Array<Sep>;
@@ -3751,6 +3731,19 @@ export type UserReviewsArgs = {
   instrumentId?: InputMaybe<Scalars['Int']>;
   reviewer?: InputMaybe<ReviewerFilter>;
   status?: InputMaybe<ReviewStatus>;
+};
+
+export type UserJwt = {
+  created: Scalars['String'];
+  email: Scalars['String'];
+  firstname: Scalars['String'];
+  id: Scalars['Int'];
+  lastname: Scalars['String'];
+  oidcSub: Maybe<Scalars['String']>;
+  organisation: Scalars['Float'];
+  placeholder: Scalars['Boolean'];
+  position: Scalars['String'];
+  preferredname: Maybe<Scalars['String']>;
 };
 
 export type UserProposalsFilter = {
@@ -3851,6 +3844,13 @@ export type PrepareSchedulerDbMutationVariables = Exact<{
 
 
 export type PrepareSchedulerDbMutation = { resetSchedulerDb: string };
+
+export type CheckTokenQueryVariables = Exact<{
+  token: Scalars['String'];
+}>;
+
+
+export type CheckTokenQuery = { checkToken: { isValid: boolean } };
 
 export type AssignEquipmentToScheduledEventMutationVariables = Exact<{
   assignEquipmentsToScheduledEventInput: AssignEquipmentsToScheduledEventInput;
@@ -4105,6 +4105,19 @@ export type UpdateScheduledEventMutation = { updateScheduledEvent: { error: stri
 
 export type BasicUserDetailsFragment = { id: number, firstname: string, lastname: string, organisation: string, position: string, placeholder: boolean | null };
 
+export type ExternalTokenLoginMutationVariables = Exact<{
+  externalToken: Scalars['String'];
+  redirectUri: Scalars['String'];
+}>;
+
+
+export type ExternalTokenLoginMutation = { externalTokenLogin: { token: string | null, rejection: { reason: string, context: string | null, exception: string | null } | null } };
+
+export type GetMyRolesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetMyRolesQuery = { me: { firstname: string, lastname: string, roles: Array<{ id: number, shortCode: string, title: string }> } | null };
+
 export type GetUsersQueryVariables = Exact<{
   filter?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
@@ -4115,6 +4128,21 @@ export type GetUsersQueryVariables = Exact<{
 
 
 export type GetUsersQuery = { users: { totalCount: number, users: Array<{ id: number, firstname: string, lastname: string, organisation: string, position: string, placeholder: boolean | null }> } | null };
+
+export type LogoutMutationVariables = Exact<{
+  token: Scalars['String'];
+}>;
+
+
+export type LogoutMutation = { logout: { token: string | null, rejection: { reason: string, context: string | null } | null } };
+
+export type SelectRoleMutationVariables = Exact<{
+  token: Scalars['String'];
+  selectedRoleId: Scalars['Int'];
+}>;
+
+
+export type SelectRoleMutation = { selectRole: { token: string | null, rejection: { reason: string } | null } };
 
 export const EquipmentFragmentDoc = gql`
     fragment equipment on Equipment {
@@ -4184,6 +4212,13 @@ export const PrepareDbDocument = gql`
 export const PrepareSchedulerDbDocument = gql`
     mutation prepareSchedulerDB($includeSeeds: Boolean!) {
   resetSchedulerDb(includeSeeds: $includeSeeds)
+}
+    `;
+export const CheckTokenDocument = gql`
+    query checkToken($token: String!) {
+  checkToken(token: $token) {
+    isValid
+  }
 }
     `;
 export const AssignEquipmentToScheduledEventDocument = gql`
@@ -4746,6 +4781,31 @@ export const UpdateScheduledEventDocument = gql`
   }
 }
     ${BasicUserDetailsFragmentDoc}`;
+export const ExternalTokenLoginDocument = gql`
+    mutation externalTokenLogin($externalToken: String!, $redirectUri: String!) {
+  externalTokenLogin(externalToken: $externalToken, redirectUri: $redirectUri) {
+    token
+    rejection {
+      reason
+      context
+      exception
+    }
+  }
+}
+    `;
+export const GetMyRolesDocument = gql`
+    query getMyRoles {
+  me {
+    firstname
+    lastname
+    roles {
+      id
+      shortCode
+      title
+    }
+  }
+}
+    `;
 export const GetUsersDocument = gql`
     query getUsers($filter: String, $first: Int, $offset: Int, $userRole: UserRole, $subtractUsers: [Int!]) {
   users(
@@ -4762,6 +4822,27 @@ export const GetUsersDocument = gql`
   }
 }
     ${BasicUserDetailsFragmentDoc}`;
+export const LogoutDocument = gql`
+    mutation logout($token: String!) {
+  logout(token: $token) {
+    token
+    rejection {
+      reason
+      context
+    }
+  }
+}
+    `;
+export const SelectRoleDocument = gql`
+    mutation selectRole($token: String!, $selectedRoleId: Int!) {
+  selectRole(token: $token, selectedRoleId: $selectedRoleId) {
+    token
+    rejection {
+      reason
+    }
+  }
+}
+    `;
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string, operationType?: string) => Promise<T>;
 
@@ -4778,6 +4859,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     prepareSchedulerDB(variables: PrepareSchedulerDbMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<PrepareSchedulerDbMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<PrepareSchedulerDbMutation>(PrepareSchedulerDbDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'prepareSchedulerDB', 'mutation');
+    },
+    checkToken(variables: CheckTokenQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<CheckTokenQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<CheckTokenQuery>(CheckTokenDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'checkToken', 'query');
     },
     assignEquipmentToScheduledEvent(variables: AssignEquipmentToScheduledEventMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<AssignEquipmentToScheduledEventMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<AssignEquipmentToScheduledEventMutation>(AssignEquipmentToScheduledEventDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'assignEquipmentToScheduledEvent', 'mutation');
@@ -4881,8 +4965,20 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     updateScheduledEvent(variables: UpdateScheduledEventMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<UpdateScheduledEventMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<UpdateScheduledEventMutation>(UpdateScheduledEventDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'updateScheduledEvent', 'mutation');
     },
+    externalTokenLogin(variables: ExternalTokenLoginMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<ExternalTokenLoginMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ExternalTokenLoginMutation>(ExternalTokenLoginDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'externalTokenLogin', 'mutation');
+    },
+    getMyRoles(variables?: GetMyRolesQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetMyRolesQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetMyRolesQuery>(GetMyRolesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getMyRoles', 'query');
+    },
     getUsers(variables?: GetUsersQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetUsersQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetUsersQuery>(GetUsersDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getUsers', 'query');
+    },
+    logout(variables: LogoutMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<LogoutMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<LogoutMutation>(LogoutDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'logout', 'mutation');
+    },
+    selectRole(variables: SelectRoleMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<SelectRoleMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<SelectRoleMutation>(SelectRoleDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'selectRole', 'mutation');
     }
   };
 }

@@ -6,8 +6,9 @@ import jwtDecode from 'jwt-decode';
 import { useSnackbar, WithSnackbarProps } from 'notistack';
 import { useCallback, useContext } from 'react';
 
+import { SettingsContext } from 'context/SettingsContextProvider';
 import { UserContext } from 'context/UserContext';
-import { getSdk } from 'generated/sdk';
+import { getSdk, SettingsId } from 'generated/sdk';
 
 const BACKEND_ENDPOINT = process.env.REACT_APP_API_URL || '';
 
@@ -75,7 +76,10 @@ class UnauthorizedGraphQLClient extends GraphQLClient {
     super(endpoint);
   }
 
-  async request(query: string, variables?: Variables) {
+  async request<T = any, V = Variables>(
+    query: string,
+    variables?: V
+  ): Promise<T> {
     return super.request(query, variables).catch((error) => {
       // if the `notificationWithClientLog` fails
       // and it fails while reporting an error, it can
@@ -98,7 +102,7 @@ class UnauthorizedGraphQLClient extends GraphQLClient {
         );
       }
 
-      return error;
+      throw error;
     });
   }
 }
@@ -110,15 +114,19 @@ class AuthorizedGraphQLClient extends GraphQLClient {
     private endpoint: string,
     private token: string,
     private enqueueSnackbar: WithSnackbarProps['enqueueSnackbar'],
-    private error?: (reason: string) => void,
-    private tokenRenewed?: (newToken: string) => void
+    private onSessionExpired: () => void,
+    private tokenRenewed?: (newToken: string) => void,
+    private externalAuthLoginUrl?: string
   ) {
     super(endpoint);
     token && this.setHeader('authorization', `Bearer ${token}`);
     this.renewalDate = this.getRenewalDate(token);
   }
 
-  async request(query: string, variables?: Variables) {
+  async request<T = any, V = Variables>(
+    query: string,
+    variables?: V
+  ): Promise<T> {
     const nowTimestampSeconds = Date.now() / 1000;
 
     if (this.renewalDate < nowTimestampSeconds) {
@@ -129,7 +137,12 @@ class AuthorizedGraphQLClient extends GraphQLClient {
       });
 
       if (data.token.rejection) {
-        this.error && this.error(data.token.rejection.reason);
+        notificationWithClientLog(
+          this.enqueueSnackbar,
+          'Server rejected user credentials',
+          data.token.rejection.reason
+        );
+        this.onSessionExpired();
       } else {
         const newToken = data.token.token;
         this.setHeader('authorization', `Bearer ${newToken}`);
@@ -155,12 +168,12 @@ class AuthorizedGraphQLClient extends GraphQLClient {
             // everything else `error`
             unnamedErrors
           );
+        } else {
+          this.onSessionExpired();
         }
       }
 
-      this.error && this.error(error);
-
-      return error;
+      throw error;
     });
   }
 
@@ -198,6 +211,10 @@ class AuthorizedGraphQLClient extends GraphQLClient {
 
 export function useDataApi() {
   const { token, handleNewToken, handleLogout } = useContext(UserContext);
+  const settingsContext = useContext(SettingsContext);
+  const externalAuthLoginUrl = settingsContext.settings.get(
+    SettingsId.EXTERNAL_AUTH_LOGIN_URL
+  )?.settingsValue;
   const { enqueueSnackbar } = useSnackbar();
 
   return useCallback(
@@ -208,15 +225,15 @@ export function useDataApi() {
               endpoint,
               token,
               enqueueSnackbar,
-              (reason) => {
-                console.log(reason);
+              () => {
                 handleLogout();
               },
-              handleNewToken
+              handleNewToken,
+              externalAuthLoginUrl ? externalAuthLoginUrl : undefined
             )
           : new GraphQLClient(endpoint)
       ),
-    [token, handleNewToken, handleLogout, enqueueSnackbar]
+    [token, handleNewToken, enqueueSnackbar, handleLogout, externalAuthLoginUrl]
   );
 }
 
@@ -227,4 +244,8 @@ export function useUnauthorizedApi() {
     () => getSdk(new UnauthorizedGraphQLClient(endpoint, enqueueSnackbar)),
     [enqueueSnackbar]
   );
+}
+
+export function getUnauthorizedApi() {
+  return getSdk(new GraphQLClient(endpoint));
 }

@@ -4,9 +4,11 @@ import {
   LibraryAddCheck as LibraryAddCheckIcon,
 } from '@mui/icons-material';
 import { ListItem, ListItemIcon, ListItemText } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 
+import { UserContext } from 'context/UserContext';
+import { UserRole } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
 import { getArrayOfIdsFromQuery } from 'utils/common';
 
@@ -69,6 +71,7 @@ type CalendarLocalStorageState = {
 export default function MenuItems() {
   const query = useQuery();
   const location = useLocation();
+  const { currentRole } = useContext(UserContext);
 
   const [calendarPath, setCalendarPath] = useState(PATH_CALENDAR);
 
@@ -128,7 +131,7 @@ export default function MenuItems() {
     };
   }, []);
 
-  return (
+  const authorizedUser = (
     <>
       <ListItem component={NavLink} to={calendarPath} button>
         <ListItemIcon>
@@ -150,4 +153,12 @@ export default function MenuItems() {
       </ListItem>
     </>
   );
+
+  switch (currentRole) {
+    case UserRole.USER_OFFICER:
+    case UserRole.INSTRUMENT_SCIENTIST:
+      return authorizedUser;
+    default:
+      return null;
+  }
 }

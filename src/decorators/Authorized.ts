@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AuthenticationError, ApolloError } from 'apollo-server';
+import { GraphQLError } from 'graphql';
 
 import { ResolverContext } from '../context';
 import { Roles } from '../types/shared';
@@ -10,7 +10,6 @@ const Authorized = (roles: Roles[] = []) => {
     target: any,
     name: string,
     descriptor: {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       value?: (ctx: ResolverContext, ...args: any[]) => Promise<any>;
     }
   ) => {
@@ -20,7 +19,12 @@ const Authorized = (roles: Roles[] = []) => {
       const [ctx] = args;
 
       if (!ctx.user || !ctx.roles) {
-        throw new AuthenticationError('Not authenticated');
+        throw new GraphQLError('UNAUTHENTICATED', {
+          extensions: {
+            code: 'UNAUTHENTICATED',
+            value: 'Not authenticated',
+          },
+        });
       }
 
       const hasAccessRights = hasRole(roles, ctx.roles);
@@ -28,10 +32,12 @@ const Authorized = (roles: Roles[] = []) => {
       if (hasAccessRights) {
         return await originalMethod?.apply(this, args);
       } else {
-        throw new ApolloError(
-          'Insufficient permissions',
-          'INSUFFICIENT_PERMISSIONS'
-        );
+        throw new GraphQLError('INSUFFICIENT_PERMISSIONS', {
+          extensions: {
+            code: 'INSUFFICIENT_PERMISSIONS',
+            value: 'Insufficient',
+          },
+        });
       }
     };
   };

@@ -1,5 +1,5 @@
 import { logger } from '@user-office-software/duo-logger';
-import { ApolloError } from 'apollo-server';
+import { GraphQLError } from 'graphql';
 
 import {
   Equipment,
@@ -445,9 +445,9 @@ export default class PostgresEquipmentDataSource
 
       // NOTE: We check to see if all equipments can be used on the scheduled event instrument
       if (equipments.length !== input.equipmentIds.length) {
-        throw new ApolloError(
+        throw new GraphQLError(
           'Some of the equipments can not be used on scheduled event instrument',
-          'NOT_ALLOWED'
+          { extensions: { code: 'NOT_ALLOWED' } }
         );
       }
 

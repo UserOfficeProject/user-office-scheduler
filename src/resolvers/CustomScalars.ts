@@ -16,11 +16,11 @@ function parseTzLessDateTime(value: string) {
 export const TzLessDateTime = new GraphQLScalarType({
   name: 'TzLessDateTime',
   description: `DateTime without timezone in '${TZ_LESS_DATE_TIME}' format`,
-  serialize(value: Date) {
-    return DateTime.fromJSDate(value).toFormat(TZ_LESS_DATE_TIME);
+  serialize(value: Date | unknown) {
+    return DateTime.fromJSDate(value as Date).toFormat(TZ_LESS_DATE_TIME);
   },
-  parseValue(value: string) {
-    return parseTzLessDateTime(value);
+  parseValue(value: string | unknown) {
+    return parseTzLessDateTime(value as string);
   },
   parseLiteral(ast) {
     if (ast.kind !== Kind.STRING) {

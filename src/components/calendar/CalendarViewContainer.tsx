@@ -79,7 +79,7 @@ export enum SchedulerViews {
 }
 
 const schedulerViewPeriods = [Views.DAY, Views.WEEK, Views.MONTH];
-export type SchedulerViewPeriod = typeof schedulerViewPeriods[number];
+export type SchedulerViewPeriod = (typeof schedulerViewPeriods)[number];
 export const isSchedulerViewPeriod = (
   arg: View
 ): arg is SchedulerViewPeriod => {

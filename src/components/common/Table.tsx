@@ -147,7 +147,7 @@ function EnhancedTableHead<T>(props: EnhancedTableProps<T>) {
         )}
         {columns.map((headCell) => (
           <TableCell
-            key={`${headCell.id}`}
+            key={String(headCell.id)}
             align={headCell.numeric ? 'right' : 'left'}
             padding={headCell.padding ? headCell.padding : 'normal'}
             sortDirection={orderBy === headCell.id ? order : false}

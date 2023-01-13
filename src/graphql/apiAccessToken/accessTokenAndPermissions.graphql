@@ -1,0 +1,6 @@
+query getAccessTokenAndPermissions($accessTokenId: String!) {
+  accessTokenAndPermissions(accessTokenId: $accessTokenId) {
+    id
+    accessPermissions
+  }
+}

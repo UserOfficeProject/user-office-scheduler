@@ -11,10 +11,11 @@ import jsonwebtoken from 'jsonwebtoken';
 
 import baseContext from '../buildContext';
 import { ResolverContext } from '../context';
+import { AuthJwtApiTokenPayload, AuthJwtPayload } from '../generated/sdk';
 import initGraphQLClient from '../graphql/client';
 import federationSources from '../resolvers/federationSources';
 import { registerEnums } from '../resolvers/registerEnums';
-import { AuthJwtPayload, AuthJwtApiTokenPayload } from '../types/shared';
+import { UserWithAccessPermissions } from '../types/shared';
 import { buildFederatedSchema } from '../utils/buildFederatedSchema';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -73,17 +74,28 @@ const apolloServer = async (app: Express) => {
 
           if (authJwtPayload) {
             if (authJwtPayload && 'accessTokenId' in authJwtPayload) {
-              throw new Error(
-                'Accessing the Scheduler with API token is not supported yet'
-              );
-            }
+              const { accessTokenAndPermissions } = await context.clients
+                .userOffice()
+                .getAccessTokenAndPermissions({
+                  accessTokenId: authJwtPayload.accessTokenId,
+                });
 
-            context.user = authJwtPayload?.user;
-            context.roles = authJwtPayload?.roles;
-            context.currentRole = authJwtPayload?.currentRole;
+              const user = {
+                accessPermissions: accessTokenAndPermissions?.accessPermissions
+                  ? JSON.parse(accessTokenAndPermissions.accessPermissions)
+                  : null,
+                isApiAccessToken: true,
+              } as UserWithAccessPermissions;
+
+              context.user = user;
+            } else {
+              context.user = authJwtPayload?.user;
+              context.roles = authJwtPayload?.roles;
+              context.currentRole = authJwtPayload?.currentRole;
+            }
           }
         } catch (error) {
-          logger.logException('failed to decode token', error);
+          logger.logException('Context creation error', error);
           throw error;
         }
       }

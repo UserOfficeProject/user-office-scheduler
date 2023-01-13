@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { ResolverContext } from '../context';
 import { ProposalBooking } from '../models/ProposalBooking';
 import { Roles } from '../types/shared';
@@ -23,11 +22,11 @@ export async function instrumentScientistHasAccess(
     return false;
   }
 
-  if (hasRole([Roles.USER_OFFICER], ctx.roles!)) {
+  if (hasRole([Roles.USER_OFFICER], ctx.roles)) {
     return true;
   }
 
-  if (!hasRole([Roles.INSTRUMENT_SCIENTIST], ctx.roles!)) {
+  if (!hasRole([Roles.INSTRUMENT_SCIENTIST], ctx.roles)) {
     return false;
   }
 
@@ -64,11 +63,11 @@ export async function userHacAccess(
     return false;
   }
 
-  if (hasRole([Roles.USER_OFFICER], ctx.roles!)) {
+  if (hasRole([Roles.USER_OFFICER], ctx.roles)) {
     return true;
   }
 
-  if (!hasRole([Roles.USER], ctx.roles!)) {
+  if (!hasRole([Roles.USER], ctx.roles)) {
     return false;
   }
 
@@ -91,6 +90,10 @@ export function isUserOfficer(agent: ResolverContext | null) {
   }
 
   return agent?.currentRole?.shortCode === Roles.USER_OFFICER;
+}
+
+export function isApiToken(agent: ResolverContext | null) {
+  return agent?.user?.isApiAccessToken;
 }
 
 export function isEquipmentResponsibleOrOwner(

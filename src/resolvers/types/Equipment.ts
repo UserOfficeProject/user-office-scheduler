@@ -63,7 +63,7 @@ export class EquipmentWithAssignmentStatus extends Equipment {
 
 @Resolver(() => Equipment)
 export class EquipmentResolvers {
-  @FieldResolver(() => [ScheduledEvent])
+  @FieldResolver(() => [ScheduledEvent], { nullable: true })
   events(
     @Root() equipment: Equipment,
     @Ctx() ctx: ResolverContext,

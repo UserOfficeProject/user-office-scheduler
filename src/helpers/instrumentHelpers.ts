@@ -7,7 +7,7 @@ export async function instrumentScientistHasInstrument(
   ctx: ResolverContext,
   instrumentId: number
 ): Promise<boolean> {
-  if (!hasRole([Roles.USER_OFFICER], ctx.roles!)) {
+  if (!hasRole([Roles.USER_OFFICER], ctx.roles)) {
     const { instrumentScientistHasInstrument } = await ctx.clients
       .userOffice()
       .instrumentScientistHasInstrument({

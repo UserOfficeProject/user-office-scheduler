@@ -3386,6 +3386,13 @@ export type _Service = {
   sdl: Maybe<Scalars['String']>;
 };
 
+export type GetAccessTokenAndPermissionsQueryVariables = Exact<{
+  accessTokenId: Scalars['String'];
+}>;
+
+
+export type GetAccessTokenAndPermissionsQuery = { accessTokenAndPermissions: { id: string, accessPermissions: string } | null };
+
 export type InstrumentScientistHasAccessQueryVariables = Exact<{
   proposalPk: Scalars['Int'];
   instrumentId: Scalars['Int'];
@@ -3414,6 +3421,14 @@ export type UserHasAccessQueryVariables = Exact<{
 export type UserHasAccessQuery = { userHasAccessToProposal: boolean | null };
 
 
+export const GetAccessTokenAndPermissionsDocument = gql`
+    query getAccessTokenAndPermissions($accessTokenId: String!) {
+  accessTokenAndPermissions(accessTokenId: $accessTokenId) {
+    id
+    accessPermissions
+  }
+}
+    `;
 export const InstrumentScientistHasAccessDocument = gql`
     query instrumentScientistHasAccess($proposalPk: Int!, $instrumentId: Int!) {
   instrumentScientistHasAccess(
@@ -3449,6 +3464,9 @@ const defaultWrapper: SdkFunctionWrapper = (action, _operationName, _operationTy
 
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
+    getAccessTokenAndPermissions(variables: GetAccessTokenAndPermissionsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetAccessTokenAndPermissionsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetAccessTokenAndPermissionsQuery>(GetAccessTokenAndPermissionsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getAccessTokenAndPermissions', 'query');
+    },
     instrumentScientistHasAccess(variables: InstrumentScientistHasAccessQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<InstrumentScientistHasAccessQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<InstrumentScientistHasAccessQuery>(InstrumentScientistHasAccessDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'instrumentScientistHasAccess', 'query');
     },

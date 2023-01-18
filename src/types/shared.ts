@@ -17,5 +17,7 @@ export type User = {
   email: string;
 };
 
-export type AuthJwtPayload = { user: User; roles: Role[]; currentRole: Role };
-export type AuthJwtApiTokenPayload = { accessTokenId: string };
+export interface UserWithAccessPermissions extends User {
+  accessPermissions?: Record<string, boolean>;
+  isApiAccessToken?: boolean;
+}

@@ -41,6 +41,15 @@ export class SchedulerConfig {
 
 let cachedVersion: string;
 
+@ObjectType()
+export class QueriesAndMutations {
+  @Field(() => [String])
+  public queries: string[];
+
+  @Field(() => [String])
+  public mutations: string[];
+}
+
 @Resolver()
 export class SystemQuery {
   @Query(() => HealthStats)
@@ -81,5 +90,10 @@ export class SystemQuery {
 
       return '<unknown>';
     }
+  }
+
+  @Query(() => QueriesAndMutations, { nullable: true })
+  async schedulerQueriesAndMutations(@Ctx() context: ResolverContext) {
+    return context.queries.system.getAllQueryAndMutationMethods(context);
   }
 }

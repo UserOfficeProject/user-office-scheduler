@@ -739,7 +739,7 @@ export type InstrumentWithAvailabilityTime = {
   name: Scalars['String'];
   scientists: Array<BasicUserDetails>;
   shortCode: Scalars['String'];
-  submitted: Maybe<Scalars['Boolean']>;
+  submitted: Scalars['Boolean'];
 };
 
 export type InstrumentsQueryResult = {
@@ -792,7 +792,7 @@ export type Mutation = {
   assignChairOrSecretary: SepResponseWrap;
   assignInstrumentsToCall: CallResponseWrap;
   assignProposalsToInstrument: SuccessResponseWrap;
-  assignProposalsToSep: NextProposalStatusResponseWrap;
+  assignProposalsToSep: SuccessResponseWrap;
   assignReviewersToSEP: SepResponseWrap;
   assignScientistsToInstrument: SuccessResponseWrap;
   assignSepReviewersToProposal: SepResponseWrap;
@@ -918,7 +918,7 @@ export type Mutation = {
   updateQuestion: QuestionResponseWrap;
   updateQuestionTemplateRelation: TemplateResponseWrap;
   updateQuestionTemplateRelationSettings: TemplateResponseWrap;
-  updateReview: ReviewWithNextStatusResponseWrap;
+  updateReview: ReviewResponseWrap;
   updateSEP: SepResponseWrap;
   updateSEPTimeAllocation: SepProposalResponseWrap;
   updateSample: SampleResponseWrap;
@@ -1194,7 +1194,7 @@ export type MutationCreateSepArgs = {
   active: Scalars['Boolean'];
   code: Scalars['String'];
   description: Scalars['String'];
-  numberRatingsRequired?: InputMaybe<Scalars['Int']>;
+  numberRatingsRequired?: Scalars['Int'];
 };
 
 
@@ -1793,7 +1793,7 @@ export type MutationUpdateSepArgs = {
   code: Scalars['String'];
   description: Scalars['String'];
   id: Scalars['Int'];
-  numberRatingsRequired?: InputMaybe<Scalars['Int']>;
+  numberRatingsRequired?: Scalars['Int'];
 };
 
 
@@ -1924,19 +1924,6 @@ export type NewScheduledEventInput = {
   instrumentId: Scalars['Int'];
   proposalBookingId?: InputMaybe<Scalars['Int']>;
   startsAt: Scalars['TzLessDateTime'];
-};
-
-export type NextProposalStatus = {
-  description: Maybe<Scalars['String']>;
-  id: Maybe<Scalars['Int']>;
-  isDefault: Maybe<Scalars['Boolean']>;
-  name: Maybe<Scalars['String']>;
-  shortCode: Maybe<Scalars['String']>;
-};
-
-export type NextProposalStatusResponseWrap = {
-  nextProposalStatus: Maybe<NextProposalStatus>;
-  rejection: Maybe<Rejection>;
 };
 
 export type NumberInputConfig = {
@@ -2423,6 +2410,7 @@ export type Query = {
   units: Maybe<Array<Unit>>;
   unitsAsJson: Maybe<Scalars['String']>;
   user: Maybe<User>;
+  userByOIDCSub: Maybe<User>;
   userHasAccessToProposal: Maybe<Scalars['Boolean']>;
   userInstruments: Maybe<InstrumentsQueryResult>;
   users: Maybe<UserQueryResult>;
@@ -2827,6 +2815,11 @@ export type QueryUserArgs = {
 };
 
 
+export type QueryUserByOidcSubArgs = {
+  oidcSub: Scalars['String'];
+};
+
+
 export type QueryUserHasAccessToProposalArgs = {
   proposalPk: Scalars['Int'];
 };
@@ -2986,23 +2979,6 @@ export enum ReviewStatus {
   DRAFT = 'DRAFT',
   SUBMITTED = 'SUBMITTED'
 }
-
-export type ReviewWithNextProposalStatus = {
-  comment: Maybe<Scalars['String']>;
-  grade: Maybe<Scalars['Int']>;
-  id: Scalars['Int'];
-  nextProposalStatus: Maybe<NextProposalStatus>;
-  proposal: Maybe<Proposal>;
-  reviewer: Maybe<BasicUserDetails>;
-  sepID: Scalars['Int'];
-  status: ReviewStatus;
-  userID: Scalars['Int'];
-};
-
-export type ReviewWithNextStatusResponseWrap = {
-  rejection: Maybe<Rejection>;
-  review: Maybe<ReviewWithNextProposalStatus>;
-};
 
 export enum ReviewerFilter {
   ALL = 'ALL',

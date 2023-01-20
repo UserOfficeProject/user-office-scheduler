@@ -1,7 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getTranslation } from '@user-office-software/duo-localisation';
 import { GraphQLClient } from 'graphql-request';
-import { Variables } from 'graphql-request/dist/types';
+import {
+  RequestOptions,
+  Variables,
+  VariablesAndRequestHeaders,
+} from 'graphql-request/dist/types';
 import jwtDecode from 'jwt-decode';
 import { useSnackbar, WithSnackbarProps } from 'notistack';
 import { useCallback, useContext } from 'react';
@@ -9,6 +13,7 @@ import { useCallback, useContext } from 'react';
 import { SettingsContext } from 'context/SettingsContextProvider';
 import { UserContext } from 'context/UserContext';
 import { getSdk, SettingsId } from 'generated/sdk';
+import { RequestQuery } from 'utils/utilTypes';
 
 const BACKEND_ENDPOINT = process.env.REACT_APP_API_URL || '';
 
@@ -76,34 +81,39 @@ class UnauthorizedGraphQLClient extends GraphQLClient {
     super(endpoint);
   }
 
-  async request<T = any, V = Variables>(
-    query: string,
-    variables?: V
+  async request<T = unknown, V extends Variables = Variables>(
+    query: RequestQuery<T, V> | RequestOptions<V, T>,
+    ...variablesAndRequestHeaders: VariablesAndRequestHeaders<V>
   ): Promise<T> {
-    return super.request(query, variables).catch((error) => {
-      // if the `notificationWithClientLog` fails
-      // and it fails while reporting an error, it can
-      // easily cause an infinite loop
-      if (this.skipErrorReport) {
+    return super
+      .request(query as RequestQuery<T, V>, ...variablesAndRequestHeaders)
+      .catch((error) => {
+        // if the `notificationWithClientLog` fails
+        // and it fails while reporting an error, it can
+        // easily cause an infinite loop
+        if (this.skipErrorReport) {
+          throw error;
+        }
+
+        // if the connection fails the `error` exists
+        // otherwise it won't, so this `includes` would fail
+        if (error.response.error?.includes('ECONNREFUSED')) {
+          notificationWithClientLog(
+            this.enqueueSnackbar,
+            'Connection problem!'
+          );
+        } else {
+          notificationWithClientLog(
+            this.enqueueSnackbar,
+            'Something went wrong!',
+            // Server error's should have `errors`
+            // everything else `error`
+            error.response.error ?? error.response.errors
+          );
+        }
+
         throw error;
-      }
-
-      // if the connection fails the `error` exists
-      // otherwise it won't, so this `includes` would fail
-      if (error.response.error?.includes('ECONNREFUSED')) {
-        notificationWithClientLog(this.enqueueSnackbar, 'Connection problem!');
-      } else {
-        notificationWithClientLog(
-          this.enqueueSnackbar,
-          'Something went wrong!',
-          // Server error's should have `errors`
-          // everything else `error`
-          error.response.error ?? error.response.errors
-        );
-      }
-
-      throw error;
-    });
+      });
   }
 }
 
@@ -123,9 +133,9 @@ class AuthorizedGraphQLClient extends GraphQLClient {
     this.renewalDate = this.getRenewalDate(token);
   }
 
-  async request<T = any, V = Variables>(
-    query: string,
-    variables?: V
+  async request<T = unknown, V extends Variables = Variables>(
+    query: RequestQuery<T, V> | RequestOptions<V, T>,
+    ...variablesAndRequestHeaders: VariablesAndRequestHeaders<V>
   ): Promise<T> {
     const nowTimestampSeconds = Date.now() / 1000;
 
@@ -150,31 +160,36 @@ class AuthorizedGraphQLClient extends GraphQLClient {
       }
     }
 
-    return super.request(query, variables).catch((error) => {
-      console.error({ error });
+    return super
+      .request(query as RequestQuery<T, V>, ...variablesAndRequestHeaders)
+      .catch((error) => {
+        console.error({ error });
 
-      // if the connection fails the `error` exists
-      // otherwise it won't, so this `includes` would fail
-      if (error.response.error?.includes('ECONNREFUSED')) {
-        notificationWithClientLog(this.enqueueSnackbar, 'Connection problem!');
-      } else {
-        const unnamedErrors = this.checkNamedErrors(error.response);
-
-        if (unnamedErrors) {
+        // if the connection fails the `error` exists
+        // otherwise it won't, so this `includes` would fail
+        if (error.response.error?.includes('ECONNREFUSED')) {
           notificationWithClientLog(
             this.enqueueSnackbar,
-            'Something went wrong!',
-            // Server error's should have `errors`
-            // everything else `error`
-            unnamedErrors
+            'Connection problem!'
           );
         } else {
-          this.onSessionExpired();
-        }
-      }
+          const unnamedErrors = this.checkNamedErrors(error.response);
 
-      throw error;
-    });
+          if (unnamedErrors) {
+            notificationWithClientLog(
+              this.enqueueSnackbar,
+              'Something went wrong!',
+              // Server error's should have `errors`
+              // everything else `error`
+              unnamedErrors
+            );
+          } else {
+            this.onSessionExpired();
+          }
+        }
+
+        throw error;
+      });
   }
 
   private getRenewalDate(token: string): number {

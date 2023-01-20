@@ -16,6 +16,7 @@ export type Scalars = {
   DateTime: any;
   IntStringDateBoolArray: any;
   _Any: any;
+  _FieldSet: any;
 };
 
 export type AddProposalWorkflowStatusInput = {
@@ -133,6 +134,7 @@ export type Call = {
   cycleComment: Scalars['String'];
   description: Maybe<Scalars['String']>;
   endCall: Scalars['DateTime'];
+  endCallInternal: Maybe<Scalars['DateTime']>;
   endCycle: Scalars['DateTime'];
   endNotify: Scalars['DateTime'];
   endReview: Scalars['DateTime'];
@@ -141,6 +143,7 @@ export type Call = {
   id: Scalars['Int'];
   instruments: Array<InstrumentWithAvailabilityTime>;
   isActive: Scalars['Boolean'];
+  isActiveInternal: Scalars['Boolean'];
   pdfTemplateId: Maybe<Scalars['Int']>;
   proposalCount: Scalars['Int'];
   proposalSequence: Maybe<Scalars['Int']>;
@@ -168,7 +171,10 @@ export type CallResponseWrap = {
 
 export type CallsFilter = {
   isActive?: InputMaybe<Scalars['Boolean']>;
+  isActiveInternal?: InputMaybe<Scalars['Boolean']>;
+  isCallEndedByEvent?: InputMaybe<Scalars['Boolean']>;
   isEnded?: InputMaybe<Scalars['Boolean']>;
+  isEndedInternal?: InputMaybe<Scalars['Boolean']>;
   isReviewEnded?: InputMaybe<Scalars['Boolean']>;
   isSEPReviewEnded?: InputMaybe<Scalars['Boolean']>;
   sepIds?: InputMaybe<Array<Scalars['Int']>>;
@@ -206,6 +212,7 @@ export type CreateCallInput = {
   cycleComment: Scalars['String'];
   description?: InputMaybe<Scalars['String']>;
   endCall: Scalars['DateTime'];
+  endCallInternal?: InputMaybe<Scalars['DateTime']>;
   endCycle: Scalars['DateTime'];
   endNotify: Scalars['DateTime'];
   endReview: Scalars['DateTime'];
@@ -330,6 +337,7 @@ export enum EvaluatorOperator {
 export enum Event {
   CALL_CREATED = 'CALL_CREATED',
   CALL_ENDED = 'CALL_ENDED',
+  CALL_ENDED_INTERNAL = 'CALL_ENDED_INTERNAL',
   CALL_REVIEW_ENDED = 'CALL_REVIEW_ENDED',
   CALL_SEP_REVIEW_ENDED = 'CALL_SEP_REVIEW_ENDED',
   EMAIL_INVITE = 'EMAIL_INVITE',
@@ -612,7 +620,7 @@ export type InstrumentWithAvailabilityTime = {
   name: Scalars['String'];
   scientists: Array<BasicUserDetails>;
   shortCode: Scalars['String'];
-  submitted: Maybe<Scalars['Boolean']>;
+  submitted: Scalars['Boolean'];
 };
 
 export type InstrumentsQueryResult = {
@@ -1004,7 +1012,7 @@ export type MutationCreateSepArgs = {
   active: Scalars['Boolean'];
   code: Scalars['String'];
   description: Scalars['String'];
-  numberRatingsRequired?: InputMaybe<Scalars['Int']>;
+  numberRatingsRequired?: Scalars['Int'];
 };
 
 
@@ -1546,7 +1554,7 @@ export type MutationUpdateSepArgs = {
   code: Scalars['String'];
   description: Scalars['String'];
   id: Scalars['Int'];
-  numberRatingsRequired?: InputMaybe<Scalars['Int']>;
+  numberRatingsRequired?: Scalars['Int'];
 };
 
 
@@ -2095,6 +2103,7 @@ export type Query = {
   units: Maybe<Array<Unit>>;
   unitsAsJson: Maybe<Scalars['String']>;
   user: Maybe<User>;
+  userByOIDCSub: Maybe<User>;
   userHasAccessToProposal: Maybe<Scalars['Boolean']>;
   userInstruments: Maybe<InstrumentsQueryResult>;
   users: Maybe<UserQueryResult>;
@@ -2449,6 +2458,11 @@ export type QueryTemplatesArgs = {
 
 export type QueryUserArgs = {
   userId: Scalars['Int'];
+};
+
+
+export type QueryUserByOidcSubArgs = {
+  oidcSub: Scalars['String'];
 };
 
 
@@ -3167,11 +3181,13 @@ export type UpdateApiAccessTokenInput = {
 export type UpdateCallInput = {
   allocationTimeUnit: AllocationTimeUnits;
   callEnded?: InputMaybe<Scalars['Int']>;
+  callEndedInternal?: InputMaybe<Scalars['Boolean']>;
   callReviewEnded?: InputMaybe<Scalars['Int']>;
   callSEPReviewEnded?: InputMaybe<Scalars['Int']>;
   cycleComment: Scalars['String'];
   description?: InputMaybe<Scalars['String']>;
   endCall: Scalars['DateTime'];
+  endCallInternal?: InputMaybe<Scalars['DateTime']>;
   endCycle: Scalars['DateTime'];
   endNotify: Scalars['DateTime'];
   endReview: Scalars['DateTime'];
@@ -3367,7 +3383,6 @@ export type VisitsFilter = {
 export type _Entity = BasicUserDetails | Call | Instrument | Proposal | Rejection | User;
 
 export type _Service = {
-  /** The sdl representing the federated service capabilities. Includes federation directives, removes federation types, and includes rest of full schema after schema directives have been applied */
   sdl: Maybe<Scalars['String']>;
 };
 

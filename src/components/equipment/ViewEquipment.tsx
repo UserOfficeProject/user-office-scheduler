@@ -151,14 +151,14 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
 
       if (equipmentWithEvents) {
         setRows(
-          equipmentWithEvents.events.map(
+          equipmentWithEvents.events?.map(
             ({ startsAt, endsAt, equipmentAssignmentStatus, ...rest }) => ({
               ...rest,
               equipmentAssignmentStatus,
               startsAt: parseTzLessDateTime(startsAt),
               endsAt: parseTzLessDateTime(endsAt),
             })
-          )
+          ) || []
         );
       }
     }

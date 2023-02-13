@@ -333,17 +333,18 @@ export default function CalendarViewContainer() {
 
   const equipmentEventsTransformed: GetScheduledEventsQuery['scheduledEvents'] =
     eqEvents
-      .map((eq) =>
-        eq.events.map((event) => ({
-          ...event,
-          bookingType: ScheduledEventBookingType.EQUIPMENT,
-          description: eq.name,
-          color: eq.color,
-          proposalBooking: event.proposalBooking as ProposalBooking,
-          instrument: event.instrument,
-          scheduledBy: event.scheduledBy,
-          equipmentId: event.equipmentId,
-        }))
+      .map(
+        (eq) =>
+          eq.events?.map((event) => ({
+            ...event,
+            bookingType: ScheduledEventBookingType.EQUIPMENT,
+            description: eq.name,
+            color: eq.color,
+            proposalBooking: event.proposalBooking as ProposalBooking,
+            instrument: event.instrument,
+            scheduledBy: event.scheduledBy,
+            equipmentId: event.equipmentId,
+          })) || []
       )
       .flat(1);
 
@@ -381,7 +382,7 @@ export default function CalendarViewContainer() {
       case ScheduledEventBookingType.EQUIPMENT: {
         const equipmentScheduledEvent = equipmentEventsOnly.find(
           (se) =>
-            se.id === selectedScheduledEvent.eventId &&
+            se?.id === selectedScheduledEvent.eventId &&
             se.equipmentId === selectedScheduledEvent.equipmentId
         );
 

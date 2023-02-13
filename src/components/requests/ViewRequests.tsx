@@ -61,7 +61,7 @@ export default function ViewRequests() {
 
       scheduledEvents.forEach((scheduledEvent) => {
         newRows.push(
-          ...scheduledEvent.events.map(
+          ...(scheduledEvent.events?.map(
             ({
               startsAt,
               endsAt,
@@ -83,7 +83,7 @@ export default function ViewRequests() {
               proposalId: proposalBooking?.proposal?.proposalId,
               scheduledBy: getFullUserName(scheduledBy),
             })
-          )
+          ) || [])
         );
       });
       setRows(newRows);

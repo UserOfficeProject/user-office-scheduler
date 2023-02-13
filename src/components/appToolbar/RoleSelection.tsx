@@ -1,5 +1,6 @@
 import MaterialTable from '@material-table/core';
 import Button from '@mui/material/Button';
+import { ClientError } from 'graphql-request';
 import { useSnackbar } from 'notistack';
 import React, { useContext, useState, useEffect } from 'react';
 import { Redirect, useHistory } from 'react-router';
@@ -60,24 +61,27 @@ const RoleSelection: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       return;
     }
     setLoading(true);
-    const result = await api().selectRole({
-      token,
-      selectedRoleId: role.id,
-    });
+    try {
+      const result = await api().selectRole({
+        token,
+        selectedRoleId: role.id,
+      });
 
-    if (result.selectRole.token) {
-      handleNewToken(result.selectRole.token);
+      handleNewToken(result.selectRole);
       history.push('/');
 
       setTimeout(() => {
-        if (!result.selectRole.token) {
+        if (!result.selectRole) {
           return;
         }
 
         onClose();
       }, 500);
-    } else {
-      enqueueSnackbar(result.selectRole.rejection?.reason ?? 'Login failed.', {
+    } catch (error) {
+      // TODO: This should be removed once we do error handling refactor
+      const [graphQLError] = (error as ClientError).response?.errors ?? [];
+
+      enqueueSnackbar(graphQLError?.message ?? 'Login failed.', {
         variant: 'error',
       });
     }

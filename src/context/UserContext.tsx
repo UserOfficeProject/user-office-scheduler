@@ -101,21 +101,18 @@ export function UserContextProvider({ children }: UserContextProviderProps) {
       api()
         .logout({ token })
         .finally(() => {
-          dispatch({
-            type: UserActionType.SET_NOT_AUTHENTICATED,
-            payload: null,
-          });
           localStorage.removeItem('token');
           const logoutUrl = settings.get(
             SettingsId.EXTERNAL_AUTH_LOGOUT_URL
           )?.settingsValue;
           if (logoutUrl) {
             const logoutUrlWithRedirect = new URL(logoutUrl);
-            logoutUrlWithRedirect.searchParams.set(
-              'post_logout_redirect_uri',
-              window.location.href
-            );
             window.location.assign(logoutUrlWithRedirect);
+          } else {
+            dispatch({
+              type: UserActionType.SET_NOT_AUTHENTICATED,
+              payload: null,
+            });
           }
         });
     }

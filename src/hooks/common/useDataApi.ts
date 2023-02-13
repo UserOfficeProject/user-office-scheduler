@@ -2,6 +2,7 @@
 import { getTranslation } from '@user-office-software/duo-localisation';
 import { GraphQLClient } from 'graphql-request';
 import {
+  ClientError,
   RequestOptions,
   Variables,
   VariablesAndRequestHeaders,
@@ -140,23 +141,26 @@ class AuthorizedGraphQLClient extends GraphQLClient {
     const nowTimestampSeconds = Date.now() / 1000;
 
     if (this.renewalDate < nowTimestampSeconds) {
-      const data = await getSdk(
-        new GraphQLClient(this.endpoint)
-      ).getRefreshedToken({
-        token: this.token,
-      });
+      try {
+        const data = await getSdk(
+          new GraphQLClient(this.endpoint)
+        ).getRefreshedToken({
+          token: this.token,
+        });
 
-      if (data.token.rejection) {
+        const newToken = data.token;
+        this.setHeader('authorization', `Bearer ${newToken}`);
+        this.tokenRenewed && this.tokenRenewed(newToken as string);
+      } catch (error) {
+        // TODO: This should be removed once we do error handling refactor
+        const [graphQLError] = (error as ClientError).response?.errors ?? [];
+
         notificationWithClientLog(
           this.enqueueSnackbar,
           'Server rejected user credentials',
-          data.token.rejection.reason
+          graphQLError?.message
         );
         this.onSessionExpired();
-      } else {
-        const newToken = data.token.token;
-        this.setHeader('authorization', `Bearer ${newToken}`);
-        this.tokenRenewed && this.tokenRenewed(newToken as string);
       }
     }
 

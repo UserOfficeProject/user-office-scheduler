@@ -1,3 +1,4 @@
+import { ClientError } from 'graphql-request';
 import React, { useContext, useEffect } from 'react';
 import { StringParam, useQueryParams } from 'use-query-params';
 
@@ -30,14 +31,13 @@ function ExternalAuth() {
           redirectUri: redirectUri,
         })
         .then(({ externalTokenLogin }) => {
-          if (externalTokenLogin.token) {
-            handleNewToken(externalTokenLogin.token);
-            window.location.assign('/');
-          } else {
-            setStatusMessage(
-              externalTokenLogin.rejection?.reason ?? 'Login failed.'
-            );
-          }
+          handleNewToken(externalTokenLogin);
+          window.location.assign('/');
+        })
+        .catch((error: ClientError) => {
+          // TODO: This should be removed once we do error handling refactor
+          const [graphQLError] = error.response?.errors ?? [];
+          setStatusMessage(graphQLError.message ?? 'Login failed.');
         });
     };
 

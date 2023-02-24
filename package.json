@@ -61,7 +61,7 @@
     "yup": "^0.32.11"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^2.16.3",
+    "@graphql-codegen/cli": "^3.0.0",
     "@graphql-codegen/typescript": "^2.8.7",
     "@graphql-codegen/typescript-graphql-request": "^4.5.8",
     "@graphql-codegen/typescript-operations": "^2.5.12",
@@ -73,7 +73,7 @@
     "@types/lodash.merge": "^4.6.7",
     "@types/luxon": "^2.0.8",
     "@types/node": "^18.11.19",
-    "@types/validator": "^13.7.0",
+    "@types/validator": "^13.7.12",
     "@types/yup": "^0.29.13",
     "@typescript-eslint/eslint-plugin": "^5.52.0",
     "@typescript-eslint/parser": "^5.38.0",

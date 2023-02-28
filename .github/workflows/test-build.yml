@@ -47,19 +47,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Login to GitHub Packages Docker Registry
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
         with:
-          registry: docker.pkg.github.com
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build new e2e test image if changed
         run: |
           DOCKERFILE_VERSION=${{ hashFiles('Dockerfile.e2e', 'cypress/*.json') }}
-          MANIFEST_URL="https://docker.pkg.github.com/v2/userofficeproject/user-office-scheduler-frontend/e2e-cypress/manifests/$DOCKERFILE_VERSION"
+          MANIFEST_URL="https://ghcr.io/userofficeproject/user-office-scheduler-frontend/e2e-cypress/manifests/$DOCKERFILE_VERSION"
           MANIFEST_STATUS=$(curl -H 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' -o /dev/null --silent --get --write-out '%{http_code}' $MANIFEST_URL)
-          TAG="docker.pkg.github.com/userofficeproject/user-office-scheduler-frontend/e2e-cypress:$DOCKERFILE_VERSION"
+          TAG="ghcr.io/userofficeproject/user-office-scheduler-frontend/e2e-cypress:$DOCKERFILE_VERSION"
 
           echo MANIFEST_STATUS $MANIFEST_STATUS
 
@@ -76,17 +76,17 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Login to GitHub Packages Docker Registry
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
         with:
-          registry: docker.pkg.github.com
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pull cypress image
         run: |
           DOCKERFILE_VERSION=${{ hashFiles('Dockerfile.e2e', 'cypress/*.json') }}
-          TAG="docker.pkg.github.com/userofficeproject/user-office-scheduler-frontend/e2e-cypress:$DOCKERFILE_VERSION"
+          TAG="ghcr.io/userofficeproject/user-office-scheduler-frontend/e2e-cypress:$DOCKERFILE_VERSION"
           docker pull $TAG 
           docker tag $TAG e2e-cypress:latest
 
@@ -273,9 +273,19 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Login to GitHub Container Registry
+        # Don't login if dependabot is creating the PR
+        if: ${{ !startsWith(github.head_ref, 'dependabot') }}
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Push
         # Don't push the image if dependabot is creating the PR
         if: ${{ !startsWith(github.head_ref, 'dependabot') }}
         run: |
-          docker tag duo-scheduler-frontend:${{ github.sha }} dmsc/duo-scheduler-frontend:${{ github.head_ref }}
+          docker tag duo-scheduler-frontend:${{ github.sha }} dmsc/duo-scheduler-frontend:${{ github.head_ref }} ghcr.io/userofficeproject/user-office-scheduler-frontend:${{ github.head_ref }}
           docker push dmsc/duo-scheduler-frontend:${{ github.head_ref }}
+          docker push ghcr.io/userofficeproject/user-office-scheduler-frontend:${{ github.head_ref }}

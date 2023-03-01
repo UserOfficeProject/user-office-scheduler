@@ -47,35 +47,22 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and push backend
+        uses: docker/build-push-action@v3
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          context: .
+          file: Dockerfile.e2e
+          tags: e2e-cypress:latest
+          outputs: type=docker,dest=/tmp/e2e-cypress.tar
 
-      - name: Build new e2e test image if changed
-        run: |
-          DOCKERFILE_VERSION=${{ hashFiles('Dockerfile.e2e', 'cypress/*.json') }}
-          MANIFEST_URL="https://ghcr.io/userofficeproject/user-office-scheduler-frontend/e2e-cypress/manifests/$DOCKERFILE_VERSION"
-          MANIFEST_STATUS=$(curl -H 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' -o /dev/null --silent --get --write-out '%{http_code}' $MANIFEST_URL)
-
-
-          if ${{ startsWith(github.head_ref, 'dependabot') }}; then
-            TAG="e2e-cypress:latest"
-          else
-            TAG="ghcr.io/userofficeproject/user-office-scheduler-frontend/e2e-cypress:$DOCKERFILE_VERSION"
-          fi
-
-          echo MANIFEST_STATUS $MANIFEST_STATUS
-
-          if [[ $MANIFEST_STATUS != "200" ]]; then
-            docker build -t $TAG --file Dockerfile.e2e .
-
-            if ${{ !startsWith(github.head_ref, 'dependabot') }}; then
-              docker push $TAG
-            fi
-          fi
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: e2e-cypress
+          path: /tmp/e2e-cypress.tar
 
   e2e:
     runs-on: ubuntu-latest
@@ -85,21 +72,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-      - name: Pull cypress image
-        # Don't pull if dependabot is creating the PR
-        if: ${{ !startsWith(github.head_ref, 'dependabot') }}
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: e2e-cypress
+          path: /tmp
+
+      - name: Load Docker image
         run: |
-          DOCKERFILE_VERSION=${{ hashFiles('Dockerfile.e2e', 'cypress/*.json') }}
-          TAG="ghcr.io/userofficeproject/user-office-scheduler-frontend/e2e-cypress:$DOCKERFILE_VERSION"
-          docker pull $TAG 
-          docker tag $TAG e2e-cypress:latest
+          docker load --input /tmp/e2e-cypress.tar
+          docker image ls -a
 
       - name: Load app cache
         id: cached-image
@@ -231,10 +216,6 @@ jobs:
           export USER_OFFICE_FACTORY_ENDPOINT=noop
 
           export BUILD_TAG=${{ github.sha }}
-
-          docker ps
-          docker ps -a
-          docker image ls
 
           docker-compose -f docker-compose.all.yml \
             -f user-office-scheduler-backend/docker-compose.e2e.yml \

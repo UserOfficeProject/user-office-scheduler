@@ -87,7 +87,12 @@ jobs:
 
       - name: Pull cypress image
         run: |
-          DOCKERFILE_VERSION=${{ hashFiles('Dockerfile.e2e', 'cypress/*.json') }}
+          if [[ startsWith(github.head_ref, 'dependabot') ]]; then
+            DOCKERFILE_VERSION=latest
+          else
+            DOCKERFILE_VERSION=${{ hashFiles('Dockerfile.e2e', 'cypress/*.json') }}
+          fi
+
           TAG="ghcr.io/userofficeproject/user-office-scheduler-frontend/e2e-cypress:$DOCKERFILE_VERSION"
           docker pull $TAG 
           docker tag $TAG e2e-cypress:latest

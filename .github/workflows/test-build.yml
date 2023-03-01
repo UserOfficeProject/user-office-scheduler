@@ -54,10 +54,10 @@ jobs:
           path: |
             /tmp/.buildx-layer-cache
             /tmp/.buildx-image-cache
-          key: ${{ runner.os }}-buildx-${{ github.head_ref }}-${{ github.sha }}
+          key: Cypress-${{ runner.os }}-buildx-${{ github.head_ref }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-buildx-${{ github.head_ref }}-
-            ${{ runner.os }}-buildx-
+            Cypress-${{ runner.os }}-buildx-${{ github.head_ref }}-
+            Cypress-${{ runner.os }}-buildx-
 
       - name: Set up Docker Buildx
         if: steps.cached-cypress-image.outputs.cache-hit != 'true'
@@ -104,7 +104,7 @@ jobs:
           path: |
             /tmp/.buildx-layer-cache
             /tmp/.buildx-image-cache
-          key: ${{ runner.os }}-buildx-${{ github.head_ref }}-${{ github.sha }}
+          key: Cypress-${{ runner.os }}-buildx-${{ github.head_ref }}-${{ github.sha }}
 
       - name: Fail on cypress cache miss
         if: steps.cached-cypress-image.outputs.cache-hit != 'true'

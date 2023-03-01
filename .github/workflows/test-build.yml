@@ -47,28 +47,28 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
+      - name: Cache app docker layers and image
+        id: cached-cypress-image
+        uses: actions/cache@v3
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          path: |
+            /tmp/.buildx-layer-cache
+            /tmp/.buildx-image-cache
+          key: Cypress-${{ runner.os }}-buildx-${{ github.head_ref }}-${{ github.sha }}
+          restore-keys: |
+            Cypress-${{ runner.os }}-buildx-${{ github.head_ref }}-
+            Cypress-${{ runner.os }}-buildx-
 
-      - name: Build new e2e test image if changed
-        # Don't push the image if dependabot is creating the PR
-        if: ${{ !startsWith(github.head_ref, 'dependabot') }}
+      - name: Set up Docker Buildx
+        if: steps.cached-cypress-image.outputs.cache-hit != 'true'
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and cache image
+        if: steps.cached-cypress-image.outputs.cache-hit != 'true'
         run: |
-          DOCKERFILE_VERSION=${{ hashFiles('Dockerfile.e2e', 'cypress/*.json') }}
-          MANIFEST_URL="https://ghcr.io/userofficeproject/user-office-scheduler-frontend/e2e-cypress/manifests/$DOCKERFILE_VERSION"
-          MANIFEST_STATUS=$(curl -H 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' -o /dev/null --silent --get --write-out '%{http_code}' $MANIFEST_URL)
-          TAG="ghcr.io/userofficeproject/user-office-scheduler-frontend/e2e-cypress:$DOCKERFILE_VERSION"
+          mkdir -p /tmp/.buildx-image-cache
 
-          echo MANIFEST_STATUS $MANIFEST_STATUS
-
-          if [[ $MANIFEST_STATUS != "200" ]]; then
-            docker build -t $TAG --file Dockerfile.e2e .
-            docker push $TAG
-          fi
+          docker buildx build --cache-to="type=local,dest=/tmp/.buildx-layer-cache,mode=max" --cache-from="type=local,src=/tmp/.buildx-layer-cache" -t e2e-cypress:latest -f Dockerfile.e2e -o type=docker,dest=- . > /tmp/.buildx-image-cache/e2e-cypress.tar
 
   e2e:
     runs-on: ubuntu-latest
@@ -77,20 +77,6 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - uses: actions/checkout@v3
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Pull cypress image
-        run: |
-          DOCKERFILE_VERSION=${{ hashFiles('Dockerfile.e2e', 'cypress/*.json') }}
-          TAG="ghcr.io/userofficeproject/user-office-scheduler-frontend/e2e-cypress:$DOCKERFILE_VERSION"
-          docker pull $TAG 
-          docker tag $TAG e2e-cypress:latest
 
       - name: Load app cache
         id: cached-image
@@ -110,6 +96,26 @@ jobs:
       - name: Load cached app image
         run: |
           docker load --input /tmp/.buildx-image-cache/img.tar
+
+      - name: Load cypress cache
+        id: cached-cypress-image
+        uses: actions/cache@v3
+        with:
+          path: |
+            /tmp/.buildx-layer-cache
+            /tmp/.buildx-image-cache
+          key: Cypress-${{ runner.os }}-buildx-${{ github.head_ref }}-${{ github.sha }}
+
+      - name: Fail on cypress cache miss
+        if: steps.cached-cypress-image.outputs.cache-hit != 'true'
+        run: |
+          echo "No cache hit!"
+          exit 1
+
+      - name: Load cached cypress image
+        run: |
+          docker load --input /tmp/.buildx-image-cache/e2e-cypress.tar
+          docker image ls -a
 
       - name: Resolve required repositories
         id: resolve_rep

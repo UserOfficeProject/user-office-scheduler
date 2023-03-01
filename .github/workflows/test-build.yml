@@ -47,22 +47,28 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Cache app docker layers and image
+        id: cached-cypress-image
+        uses: actions/cache@v3
+        with:
+          path: |
+            /tmp/.buildx-layer-cache
+            /tmp/.buildx-image-cache
+          key: ${{ runner.os }}-buildx-${{ github.head_ref }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-${{ github.head_ref }}-
+            ${{ runner.os }}-buildx-
+
       - name: Set up Docker Buildx
+        if: steps.cached-cypress-image.outputs.cache-hit != 'true'
         uses: docker/setup-buildx-action@v2
 
-      - name: Build and push backend
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          file: Dockerfile.e2e
-          tags: e2e-cypress:latest
-          outputs: type=docker,dest=/tmp/e2e-cypress.tar
+      - name: Build and cache image
+        if: steps.cached-cypress-image.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p /tmp/.buildx-image-cache
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: e2e-cypress
-          path: /tmp/e2e-cypress.tar
+          docker buildx build --cache-to="type=local,dest=/tmp/.buildx-layer-cache,mode=max" --cache-from="type=local,src=/tmp/.buildx-layer-cache" -t e2e-cypress:latest -o type=docker,dest=- . > /tmp/.buildx-image-cache/e2e-cypress.tar
 
   e2e:
     runs-on: ubuntu-latest
@@ -71,20 +77,6 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - uses: actions/checkout@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Download artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: e2e-cypress
-          path: /tmp
-
-      - name: Load Docker image
-        run: |
-          docker load --input /tmp/e2e-cypress.tar
-          docker image ls -a
 
       - name: Load app cache
         id: cached-image
@@ -104,6 +96,26 @@ jobs:
       - name: Load cached app image
         run: |
           docker load --input /tmp/.buildx-image-cache/img.tar
+
+      - name: Load cypress cache
+        id: cached-cypress-image
+        uses: actions/cache@v3
+        with:
+          path: |
+            /tmp/.buildx-layer-cache
+            /tmp/.buildx-image-cache
+          key: ${{ runner.os }}-buildx-${{ github.head_ref }}-${{ github.sha }}
+
+      - name: Fail on cypress cache miss
+        if: steps.cached-cypress-image.outputs.cache-hit != 'true'
+        run: |
+          echo "No cache hit!"
+          exit 1
+
+      - name: Load cached cypress image
+        run: |
+          docker load --input /tmp/.buildx-image-cache/e2e-cypress.tar
+          docker image ls -a
 
       - name: Resolve required repositories
         id: resolve_rep

@@ -41,6 +41,8 @@ jobs:
 
   cypress:
     runs-on: ubuntu-latest
+    # Don't push the built image if dependabot is creating the PR
+    if: github.actor != 'dependabot[bot]'
     needs: build
 
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -55,6 +57,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build new e2e test image if changed
+        # Don't push the image if dependabot is creating the PR
+        if: ${{ !startsWith(github.head_ref, 'dependabot') }}
         run: |
           DOCKERFILE_VERSION=${{ hashFiles('Dockerfile.e2e', 'cypress/*.json') }}
           MANIFEST_URL="https://ghcr.io/userofficeproject/user-office-scheduler-frontend/e2e-cypress/manifests/$DOCKERFILE_VERSION"

@@ -68,7 +68,7 @@ jobs:
         run: |
           mkdir -p /tmp/.buildx-image-cache
 
-          docker buildx build --cache-to="type=local,dest=/tmp/.buildx-layer-cache,mode=max" --cache-from="type=local,src=/tmp/.buildx-layer-cache" -t e2e-cypress:latest -o type=docker,dest=- . > /tmp/.buildx-image-cache/e2e-cypress.tar
+          docker buildx build --cache-to="type=local,dest=/tmp/.buildx-layer-cache,mode=max" --cache-from="type=local,src=/tmp/.buildx-layer-cache" -t e2e-cypress:latest -f Dockerfile.e2e -o type=docker,dest=- . > /tmp/.buildx-image-cache/e2e-cypress.tar
 
   e2e:
     runs-on: ubuntu-latest

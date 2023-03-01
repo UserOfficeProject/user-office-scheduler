@@ -55,19 +55,26 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build new e2e test image if changed
-        # Don't push the image if dependabot is creating the PR
-        if: ${{ !startsWith(github.head_ref, 'dependabot') }}
         run: |
           DOCKERFILE_VERSION=${{ hashFiles('Dockerfile.e2e', 'cypress/*.json') }}
           MANIFEST_URL="https://ghcr.io/userofficeproject/user-office-scheduler-frontend/e2e-cypress/manifests/$DOCKERFILE_VERSION"
           MANIFEST_STATUS=$(curl -H 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' -o /dev/null --silent --get --write-out '%{http_code}' $MANIFEST_URL)
-          TAG="ghcr.io/userofficeproject/user-office-scheduler-frontend/e2e-cypress:$DOCKERFILE_VERSION"
+
+
+          if ${{ startsWith(github.head_ref, 'dependabot') }}; then
+            TAG="e2e-cypress:latest"
+          else
+            TAG="ghcr.io/userofficeproject/user-office-scheduler-frontend/e2e-cypress:$DOCKERFILE_VERSION"
+          fi
 
           echo MANIFEST_STATUS $MANIFEST_STATUS
 
           if [[ $MANIFEST_STATUS != "200" ]]; then
             docker build -t $TAG --file Dockerfile.e2e .
-            docker push $TAG
+
+            if ${{ !startsWith(github.head_ref, 'dependabot') }}; then
+              docker push $TAG
+            fi
           fi
 
   e2e:
@@ -86,13 +93,10 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pull cypress image
+        # Don't pull if dependabot is creating the PR
+        if: ${{ !startsWith(github.head_ref, 'dependabot') }}
         run: |
-          if ${{ startsWith(github.head_ref, 'dependabot') }}; then
-            DOCKERFILE_VERSION=latest
-          else
-            DOCKERFILE_VERSION=${{ hashFiles('Dockerfile.e2e', 'cypress/*.json') }}
-          fi
-
+          DOCKERFILE_VERSION=${{ hashFiles('Dockerfile.e2e', 'cypress/*.json') }}
           TAG="ghcr.io/userofficeproject/user-office-scheduler-frontend/e2e-cypress:$DOCKERFILE_VERSION"
           docker pull $TAG 
           docker tag $TAG e2e-cypress:latest

@@ -41,8 +41,6 @@ jobs:
 
   cypress:
     runs-on: ubuntu-latest
-    # Don't push the built image if dependabot is creating the PR
-    if: github.actor != 'dependabot[bot]'
     needs: build
 
     # Steps represent a sequence of tasks that will be executed as part of the job

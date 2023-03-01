@@ -232,6 +232,9 @@ jobs:
 
           export BUILD_TAG=${{ github.sha }}
 
+          docker ps
+          docker ps -a
+
           docker-compose -f docker-compose.all.yml \
             -f user-office-scheduler-backend/docker-compose.e2e.yml \
             -f user-office-gateway/docker-compose.e2e.yml \

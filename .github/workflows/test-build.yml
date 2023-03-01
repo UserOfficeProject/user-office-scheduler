@@ -87,7 +87,7 @@ jobs:
 
       - name: Pull cypress image
         run: |
-          if [[ startsWith(github.head_ref, 'dependabot') ]]; then
+          if startsWith(github.head_ref, 'dependabot'); then
             DOCKERFILE_VERSION=latest
           else
             DOCKERFILE_VERSION=${{ hashFiles('Dockerfile.e2e', 'cypress/*.json') }}

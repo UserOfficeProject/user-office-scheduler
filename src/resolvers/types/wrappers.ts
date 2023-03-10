@@ -1,12 +1,12 @@
 import { Field, ObjectType } from 'type-graphql';
 
-import { Response } from '../Decorators';
 import { Equipment } from './Equipment';
 import { LostTime } from './LostTime';
 import { ProposalBooking } from './ProposalBooking';
 import { Rejection } from './Rejection';
 import { ScheduledEvent } from './ScheduledEvent';
 import { ScheduledEventWithRejection } from './ScheduledEventWithRejection';
+import { Response } from '../Decorators';
 
 @ObjectType()
 export class ResponseWrapBase {

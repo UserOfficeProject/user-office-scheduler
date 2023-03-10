@@ -1,5 +1,4 @@
 import { BaseContext, ApolloServer, ContextFunction } from '@apollo/server';
-import { ApolloServerPluginLandingPageGraphQLPlayground } from '@apollo/server-plugin-landing-page-graphql-playground';
 import {
   ExpressContextFunctionArgument,
   expressMiddleware,
@@ -8,6 +7,7 @@ import {
   ApolloServerPluginInlineTraceDisabled,
   ApolloServerPluginLandingPageDisabled,
 } from '@apollo/server/plugin/disabled';
+import { ApolloServerPluginLandingPageGraphQLPlayground } from '@apollo/server-plugin-landing-page-graphql-playground';
 import { logger } from '@user-office-software/duo-logger';
 import { json } from 'body-parser';
 import cors from 'cors';

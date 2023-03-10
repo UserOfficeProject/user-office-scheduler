@@ -1,3 +1,5 @@
+import database from './database';
+import { createLostTimeObject, LostTimeRecord } from './records';
 import { LostTime } from '../../models/LostTime';
 import {
   AddLostTimeInput,
@@ -5,8 +7,6 @@ import {
   UpdateLostTimeInput,
 } from '../../resolvers/mutations/LostTimeMutation';
 import { LostTimeDataSource } from '../LostTimeDataSource';
-import database from './database';
-import { createLostTimeObject, LostTimeRecord } from './records';
 
 export default class PostgresLostTimeDataSource implements LostTimeDataSource {
   readonly tableName = 'lost_time';

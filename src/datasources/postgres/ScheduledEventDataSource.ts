@@ -1,3 +1,9 @@
+import database from './database';
+import {
+  ScheduledEventRecord,
+  createScheduledEventObject,
+  MetaFields,
+} from './records';
 import { ProposalBookingStatusCore } from '../../generated/sdk';
 import { ProposalBookingFinalizeAction } from '../../models/ProposalBooking';
 import {
@@ -13,12 +19,6 @@ import { ScheduledEventFilter } from '../../resolvers/queries/ScheduledEventQuer
 import { ProposalBookingScheduledEventFilter } from '../../resolvers/types/ProposalBooking';
 import { isSetAndPopulated } from '../../utils/helperFunctions';
 import { ScheduledEventDataSource } from '../ScheduledEventDataSource';
-import database from './database';
-import {
-  ScheduledEventRecord,
-  createScheduledEventObject,
-  MetaFields,
-} from './records';
 
 type CreateFields = Omit<
   ScheduledEventRecord,

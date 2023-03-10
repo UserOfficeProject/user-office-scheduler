@@ -10,15 +10,15 @@ import {
   Root,
 } from 'type-graphql';
 
+import { Instrument } from './Instrument';
+import { ScheduledEvent } from './ScheduledEvent';
+import { BasicUserDetails } from './User';
 import { ResolverContext } from '../../context';
 import {
   Equipment as EquipmentBase,
   EquipmentAssignmentStatus,
 } from '../../models/Equipment';
 import { TzLessDateTime } from '../CustomScalars';
-import { Instrument } from './Instrument';
-import { ScheduledEvent } from './ScheduledEvent';
-import { BasicUserDetails } from './User';
 
 @ObjectType()
 export class Equipment implements Partial<EquipmentBase> {

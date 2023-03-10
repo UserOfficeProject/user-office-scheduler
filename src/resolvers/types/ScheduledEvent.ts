@@ -10,6 +10,10 @@ import {
   Directive,
 } from 'type-graphql';
 
+import { Equipment, EquipmentWithAssignmentStatus } from './Equipment';
+import { Instrument } from './Instrument';
+import { ProposalBooking } from './ProposalBooking';
+import { BasicUserDetails } from './User';
 import { ResolverContext } from '../../context';
 import { ProposalBookingStatusCore } from '../../generated/sdk';
 import { EquipmentAssignmentStatus } from '../../models/Equipment';
@@ -18,10 +22,6 @@ import {
   ScheduledEventBookingType,
 } from '../../models/ScheduledEvent';
 import { TzLessDateTime } from '../CustomScalars';
-import { Equipment, EquipmentWithAssignmentStatus } from './Equipment';
-import { Instrument } from './Instrument';
-import { ProposalBooking } from './ProposalBooking';
-import { BasicUserDetails } from './User';
 
 @ObjectType()
 @Directive('@key(fields: "id")')

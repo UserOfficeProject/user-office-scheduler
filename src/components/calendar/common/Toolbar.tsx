@@ -9,11 +9,11 @@ import { ScheduledEventFilter } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
 import { TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
 
+import InstrumentAndEquipmentFilter from './InstrumentAndEquipmentFilter';
 import {
   isSchedulerViewPeriod,
   SchedulerViewPeriod,
 } from '../CalendarViewContainer';
-import InstrumentAndEquipmentFilter from './InstrumentAndEquipmentFilter';
 
 const calendarNavigationToolbarButtonsText = {
   messages: {

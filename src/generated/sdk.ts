@@ -255,6 +255,7 @@ export type CreateProposalWorkflowInput = {
 export enum DataType {
   BOOLEAN = 'BOOLEAN',
   DATE = 'DATE',
+  DYNAMIC_MULTIPLE_CHOICE = 'DYNAMIC_MULTIPLE_CHOICE',
   EMBELLISHMENT = 'EMBELLISHMENT',
   FEEDBACK_BASIS = 'FEEDBACK_BASIS',
   FILE_UPLOAD = 'FILE_UPLOAD',
@@ -323,6 +324,15 @@ export enum DependenciesLogicOperator {
   AND = 'AND',
   OR = 'OR'
 }
+
+export type DynamicMultipleChoiceConfig = {
+  isMultipleSelect: Scalars['Boolean'];
+  required: Scalars['Boolean'];
+  small_label: Scalars['String'];
+  tooltip: Scalars['String'];
+  url: Scalars['String'];
+  variant: Scalars['String'];
+};
 
 export type EmbellishmentConfig = {
   html: Scalars['String'];
@@ -415,7 +425,9 @@ export enum Event {
   CALL_REVIEW_ENDED = 'CALL_REVIEW_ENDED',
   CALL_SEP_REVIEW_ENDED = 'CALL_SEP_REVIEW_ENDED',
   EMAIL_INVITE = 'EMAIL_INVITE',
+  INSTRUMENT_CREATED = 'INSTRUMENT_CREATED',
   INSTRUMENT_DELETED = 'INSTRUMENT_DELETED',
+  INSTRUMENT_UPDATED = 'INSTRUMENT_UPDATED',
   PREDEFINED_MESSAGE_CREATED = 'PREDEFINED_MESSAGE_CREATED',
   PREDEFINED_MESSAGE_DELETED = 'PREDEFINED_MESSAGE_DELETED',
   PREDEFINED_MESSAGE_UPDATED = 'PREDEFINED_MESSAGE_UPDATED',
@@ -493,6 +505,10 @@ export type ExperimentSafetyInput = {
   scheduledEventId: Scalars['Int'];
 };
 
+export type ExternalTokenResult = {
+  isValid: Scalars['Boolean'];
+};
+
 export type Feature = {
   description: Scalars['String'];
   id: FeatureId;
@@ -509,6 +525,7 @@ export enum FeatureId {
   SCHEDULER = 'SCHEDULER',
   SEP_REVIEW = 'SEP_REVIEW',
   SHIPPING = 'SHIPPING',
+  STFC_IDLE_TIMER = 'STFC_IDLE_TIMER',
   TECHNICAL_REVIEW = 'TECHNICAL_REVIEW',
   USER_MANAGEMENT = 'USER_MANAGEMENT',
   VISIT_MANAGEMENT = 'VISIT_MANAGEMENT'
@@ -562,7 +579,7 @@ export type FieldConditionInput = {
   params: Scalars['String'];
 };
 
-export type FieldConfig = BooleanConfig | DateConfig | EmbellishmentConfig | FeedbackBasisConfig | FileUploadConfig | GenericTemplateBasisConfig | IntervalConfig | NumberInputConfig | ProposalBasisConfig | ProposalEsiBasisConfig | RichTextInputConfig | SampleBasisConfig | SampleDeclarationConfig | SampleEsiBasisConfig | SelectionFromOptionsConfig | ShipmentBasisConfig | SubTemplateConfig | TextInputConfig | VisitBasisConfig;
+export type FieldConfig = BooleanConfig | DateConfig | DynamicMultipleChoiceConfig | EmbellishmentConfig | FeedbackBasisConfig | FileUploadConfig | GenericTemplateBasisConfig | IntervalConfig | NumberInputConfig | ProposalBasisConfig | ProposalEsiBasisConfig | RichTextInputConfig | SampleBasisConfig | SampleDeclarationConfig | SampleEsiBasisConfig | SelectionFromOptionsConfig | ShipmentBasisConfig | SubTemplateConfig | TextInputConfig | VisitBasisConfig;
 
 export type FieldDependency = {
   condition: FieldCondition;
@@ -2214,6 +2231,7 @@ export type Query = {
   calls: Maybe<Array<Call>>;
   callsByInstrumentScientist: Maybe<Array<Call>>;
   checkEmailExist: Maybe<Scalars['Boolean']>;
+  checkExternalToken: ExternalTokenResult;
   checkToken: TokenResult;
   countries: Maybe<Array<Entry>>;
   equipment: Maybe<Equipment>;
@@ -2361,6 +2379,11 @@ export type QueryCallsByInstrumentScientistArgs = {
 
 export type QueryCheckEmailExistArgs = {
   email: Scalars['String'];
+};
+
+
+export type QueryCheckExternalTokenArgs = {
+  token: Scalars['String'];
 };
 
 
@@ -3119,6 +3142,7 @@ export enum SettingsId {
   FEEDBACK_FREQUENCY_DAYS = 'FEEDBACK_FREQUENCY_DAYS',
   FEEDBACK_MAX_REQUESTS = 'FEEDBACK_MAX_REQUESTS',
   HEADER_LOGO_FILENAME = 'HEADER_LOGO_FILENAME',
+  IDLE_TIMEOUT = 'IDLE_TIMEOUT',
   PALETTE_ERROR_MAIN = 'PALETTE_ERROR_MAIN',
   PALETTE_INFO_MAIN = 'PALETTE_INFO_MAIN',
   PALETTE_PRIMARY_ACCENT = 'PALETTE_PRIMARY_ACCENT',

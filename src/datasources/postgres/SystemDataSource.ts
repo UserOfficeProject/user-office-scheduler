@@ -3,8 +3,8 @@ import path from 'path';
 
 import { logger } from '@user-office-software/duo-logger';
 
-import { SystemDataSource, HealthStats, DbStat } from '../SystemDataSource';
 import database from './database';
+import { SystemDataSource, HealthStats, DbStat } from '../SystemDataSource';
 
 const dbPatchesFolderPath = path.join(process.cwd(), 'db_patches');
 const seedsPath = path.join(dbPatchesFolderPath, 'db_seeds');

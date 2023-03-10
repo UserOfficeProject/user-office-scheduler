@@ -11,9 +11,9 @@ import {
   Arg,
 } from 'type-graphql';
 
+import { ProposalBooking } from './ProposalBooking';
 import { ResolverContext } from '../../context';
 import { ProposalBookingStatusCore } from '../../generated/sdk';
-import { ProposalBooking } from './ProposalBooking';
 
 @ObjectType()
 @Directive('@extends')

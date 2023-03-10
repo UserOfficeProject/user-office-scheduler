@@ -11,15 +11,15 @@ import {
   InputType,
 } from 'type-graphql';
 
+import { Call } from './Call';
+import { Instrument } from './Instrument';
+import { Proposal } from './Proposal';
+import { ScheduledEvent } from './ScheduledEvent';
 import { ResolverContext } from '../../context';
 import { ProposalBookingStatusCore } from '../../generated/sdk';
 import { ProposalBooking as ProposalBookingBase } from '../../models/ProposalBooking';
 import { ScheduledEventBookingType } from '../../models/ScheduledEvent';
 import { TzLessDateTime } from '../CustomScalars';
-import { Call } from './Call';
-import { Instrument } from './Instrument';
-import { Proposal } from './Proposal';
-import { ScheduledEvent } from './ScheduledEvent';
 
 @ObjectType()
 export class ProposalBooking implements Partial<ProposalBookingBase> {

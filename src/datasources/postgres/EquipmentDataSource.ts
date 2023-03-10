@@ -1,6 +1,17 @@
 import { logger } from '@user-office-software/duo-logger';
 import { GraphQLError } from 'graphql';
 
+import database, { UNIQUE_CONSTRAINT_VIOLATION } from './database';
+import {
+  EquipmentRecord,
+  createEquipmentObject,
+  EquipmentsScheduledEventsRecord,
+  EquipmentResponsibleRecord,
+  createEquipmentResponsibleObject,
+  createEquipmentInstrumentObject,
+  EquipmentInstrumentRecord,
+  ScheduledEventRecord,
+} from './records';
 import {
   Equipment,
   EquipmentAssignmentStatus,
@@ -20,17 +31,6 @@ import {
 } from '../../resolvers/mutations/EquipmentMutation';
 import { isSetAndPopulated } from '../../utils/helperFunctions';
 import { EquipmentDataSource } from '../EquipmentDataSource';
-import database, { UNIQUE_CONSTRAINT_VIOLATION } from './database';
-import {
-  EquipmentRecord,
-  createEquipmentObject,
-  EquipmentsScheduledEventsRecord,
-  EquipmentResponsibleRecord,
-  createEquipmentResponsibleObject,
-  createEquipmentInstrumentObject,
-  EquipmentInstrumentRecord,
-  ScheduledEventRecord,
-} from './records';
 
 export default class PostgresEquipmentDataSource
   implements EquipmentDataSource

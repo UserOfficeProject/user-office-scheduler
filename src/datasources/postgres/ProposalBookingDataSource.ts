@@ -1,3 +1,5 @@
+import database from './database';
+import { createProposalBookingObject, ProposalBookingRecord } from './records';
 import { ProposalBookingStatusCore } from '../../generated/sdk';
 import {
   ProposalBooking,
@@ -5,8 +7,6 @@ import {
 } from '../../models/ProposalBooking';
 import { ProposalProposalBookingFilter } from '../../resolvers/types/Proposal';
 import { ProposalBookingDataSource } from '../ProposalBookingDataSource';
-import database from './database';
-import { createProposalBookingObject, ProposalBookingRecord } from './records';
 
 type CreateFields = Pick<
   ProposalBookingRecord,

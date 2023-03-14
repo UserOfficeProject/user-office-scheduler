@@ -18,37 +18,62 @@ const PROPOSAL_SCHEDULING_QUEUE = process.env
 const EXCHANGE_NAME =
   process.env.SCHEDULER_EXCHANGE_NAME || 'user_office_scheduler_backend.fanout';
 
-const rabbitMQ = new RabbitMQMessageBroker();
+const createRabbitMQMessageBroker = async () => {
+  const rabbitMQ = new RabbitMQMessageBroker();
 
-// don't try to initialize during testing
-// causes infinite loop
-if (process.env.NODE_ENV !== 'test') {
-  rabbitMQ.setup({
+  await rabbitMQ.setup({
     hostname: process.env.RABBITMQ_HOSTNAME,
     username: process.env.RABBITMQ_USERNAME,
     password: process.env.RABBITMQ_PASSWORD,
   });
-}
 
-export function createListenToRabbitMQHandler({
+  return rabbitMQ;
+};
+
+let rabbitMQCachedBroker: null | RabbitMQMessageBroker = null;
+
+const getRabbitMQMessageBroker = async () => {
+  if (rabbitMQCachedBroker === null) {
+    rabbitMQCachedBroker = await createRabbitMQMessageBroker();
+  }
+
+  return rabbitMQCachedBroker;
+};
+
+export async function createListenToRabbitMQHandler({
   proposalBookingDataSource,
   equipmentDataSource,
 }: {
   proposalBookingDataSource: ProposalBookingDataSource;
   equipmentDataSource: EquipmentDataSource;
 }) {
+  // don't try to initialize during testing
+  // causes infinite loop
   if (process.env.UO_FEATURE_DISABLE_MESSAGE_BROKER === '1') {
     return async () => {
       // no op
     };
   }
 
+  const CORE_EXCHANGE_NAME = process.env.CORE_EXCHANGE_NAME;
+
+  if (!CORE_EXCHANGE_NAME) {
+    throw new Error('CORE_EXCHANGE_NAME environment variable not set');
+  }
+
+  const rabbitMQ = await getRabbitMQMessageBroker();
+
+  await rabbitMQ.bindQueueToExchange(
+    PROPOSAL_SCHEDULING_QUEUE,
+    CORE_EXCHANGE_NAME
+  );
+
   rabbitMQ.listenOn(PROPOSAL_SCHEDULING_QUEUE, async (type, message) => {
     switch (type) {
       case Event.PROPOSAL_STATUS_CHANGED_BY_WORKFLOW:
       case Event.PROPOSAL_STATUS_CHANGED_BY_USER:
         logger.logDebug(
-          `Listener on ${Queue.SCHEDULING_PROPOSAL}: Received event`,
+          `Listener on ${PROPOSAL_SCHEDULING_QUEUE}: Received event`,
           {
             type,
             message,
@@ -60,7 +85,7 @@ export function createListenToRabbitMQHandler({
 
       case Event.PROPOSAL_DELETED:
         logger.logDebug(
-          `Listener on ${Queue.SCHEDULING_PROPOSAL}: Received event`,
+          `Listener on ${PROPOSAL_SCHEDULING_QUEUE}: Received event`,
           {
             type,
             message,
@@ -72,7 +97,7 @@ export function createListenToRabbitMQHandler({
         return;
       case Event.INSTRUMENT_DELETED:
         logger.logDebug(
-          `Listener on ${Queue.SCHEDULING_PROPOSAL}: Received event`,
+          `Listener on ${PROPOSAL_SCHEDULING_QUEUE}: Received event`,
           {
             type,
             message,
@@ -97,11 +122,21 @@ export function createListenToRabbitMQHandler({
   };
 }
 
-export function createPostToRabbitMQHandler({
+export async function createPostToRabbitMQHandler({
   proposalBookingDataSource,
 }: {
   proposalBookingDataSource: ProposalBookingDataSource;
 }) {
+  // don't try to initialize during testing
+  // causes infinite loop
+  if (process.env.UO_FEATURE_DISABLE_MESSAGE_BROKER === '1') {
+    return async () => {
+      // no op
+    };
+  }
+
+  const rabbitMQ = await getRabbitMQMessageBroker();
+
   return async function messageBrokerHandler(event: ApplicationEvent) {
     switch (event.type) {
       case Event.PROPOSAL_BOOKING_TIME_SLOT_ADDED: {

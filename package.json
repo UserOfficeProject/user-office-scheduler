@@ -22,7 +22,7 @@
     "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.8.1",
     "@user-office-software/duo-localisation": "^1.2.0",
-    "@user-office-software/duo-validation": "^2.4.3",
+    "@user-office-software/duo-validation": "^3.4.5",
     "@graphql-codegen/cli": "^3.2.1",
     "@graphql-codegen/typescript": "^2.8.7",
     "@graphql-codegen/typescript-graphql-request": "^4.5.8",

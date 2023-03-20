@@ -72,7 +72,7 @@
     "@types/jest": "^27.0.3",
     "@types/lodash.merge": "^4.6.7",
     "@types/luxon": "^2.0.8",
-    "@types/node": "^18.15.1",
+    "@types/node": "^18.15.3",
     "@types/validator": "^13.7.14",
     "@types/yup": "^0.29.13",
     "@typescript-eslint/eslint-plugin": "^5.52.0",

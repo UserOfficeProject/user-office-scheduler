@@ -51,6 +51,16 @@ services:
     cap_add:
       - SYS_ADMIN
 
+  dev-auth-server:
+    image: "ghcr.io/userofficeproject/user-office-development-authorization-server:develop"
+    environment:
+      DATABASE_URL: postgres://duouser:duopassword@db:5432/duo
+      PORT: 5000
+    ports:
+      - "5000:5000"
+    depends_on:
+      - "db"
+
   backend:
     image: "ghcr.io/userofficeproject/user-office-backend:${USER_OFFICE_BACKEND_TAG}"
     environment:

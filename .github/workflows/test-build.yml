@@ -112,6 +112,13 @@ jobs:
           echo "No cache hit!"
           exit 1
 
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Load cached cypress image
         run: |
           docker load --input /tmp/.buildx-image-cache/e2e-cypress.tar

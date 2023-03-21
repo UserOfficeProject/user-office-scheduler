@@ -150,6 +150,8 @@ jobs:
             echo $found
           }
 
+          # NOTE: This might not work because ghcr.io/v2 is replacing the dockerhub api but not really tested.
+          # It might be that the url is: https://ghcr.io/v2/userofficeproject/user-office-backend/manifests/tags
           SCHEDULER_BE_TAGS=$(check_feature ${{ github.head_ref }} \
             https://ghcr.io/v2/userofficeproject/user-office-scheduler-backend/tags/list \
             https://api.github.com/repos/UserOfficeProject/user-office-scheduler-backend/branches

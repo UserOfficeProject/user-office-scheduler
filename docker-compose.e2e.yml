@@ -73,7 +73,7 @@ services:
       - "./${USER_OFFICE_BACKEND_DIR}/db_patches:/home/node/app/db_patches"
       
   scheduler-frontend:
-    image: "duo-scheduler-frontend:${BUILD_TAG}"
+    image: "user-office-scheduler-frontend:${BUILD_TAG}"
     labels:
       - "traefik.frontend.rule=PathPrefix:/"
       - "traefik.port=80"

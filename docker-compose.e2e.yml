@@ -3,7 +3,7 @@ version: "3.1"
 # Used by user-office-develop to be able to run every components
 services:
   scheduler-backend:
-    image: "dmsc/duo-scheduler-backend:${USER_OFFICE_SCHEDULER_BACKEND_TAG}"
+    image: "ghcr.io/userofficeproject/user-office-scheduler-backend:${USER_OFFICE_SCHEDULER_BACKEND_TAG}"
     environment:
       NODE_ENV: development
       DATABASE_HOSTNAME: scheduler-db

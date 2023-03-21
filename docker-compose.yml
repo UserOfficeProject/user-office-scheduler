@@ -14,7 +14,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
   duo-cron-job:
-    image: dmsc/duo-cron-job:develop
+    image: "ghcr.io/userofficeproject/user-office-cron:develop"
 
   db:
     image: postgres:11-alpine
@@ -34,7 +34,7 @@ services:
       POSTGRES_USER: schedulerUser
       POSTGRES_PASSWORD: schedulerPassword
     ports:
-      - 54320:5432 # avoid collision
+      - 5433:5432 # avoid collision
     volumes:
       - ./db_patches/:/docker-entrypoint-initdb.d/
 
@@ -47,7 +47,7 @@ services:
       - ./rabbitmq-isolated.conf:/etc/rabbitmq/rabbitmq.config
 
   factory:
-    image: dmsc/duo-factory:develop
+    image: "ghcr.io/userofficeproject/user-office-factory:develop"
     init: true
     environment:
       - NODE_ENV=development
@@ -62,7 +62,7 @@ services:
       - SYS_ADMIN
 
   gateway:
-    image: "dmsc/duo-gateway:develop"
+    image: "ghcr.io/userofficeproject/user-office-gateway:develop"
     environment:
       USER_OFFICE_BACKEND: http://backend:4000/graphql
       USER_OFFICE_SCHEDULER_BACKEND: http://host.docker.internal:4000/graphql
@@ -76,13 +76,13 @@ services:
       - "traefik.port=4100"
 
   frontend:
-    image: "dmsc/duo-frontend:develop"
+    image: "ghcr.io/userofficeproject/user-office-frontend:develop"
     labels:
       - "traefik.frontend.rule=PathPrefix:/"
       - "traefik.port=80"
 
   backend:
-    image: "dmsc/duo-backend:develop"
+    image: "ghcr.io/userofficeproject/user-office-backend:develop"
     environment:
       DATABASE_URL: postgres://duouser:duopassword@db:5432/duo
       secret: qMyLZALzs229ybdQXNyzYRdju7X784TH

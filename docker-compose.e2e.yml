@@ -9,7 +9,7 @@ services:
       - "8080:8080" # The Web UI (enabled by --api)
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      
+
   user-office-cron:
     image: "ghcr.io/userofficeproject/user-office-cron:develop"
     environment:
@@ -66,12 +66,21 @@ services:
       DATE_FORMAT: dd-MM-yyyy
       DATE_TIME_FORMAT: dd-MM-yyyy HH:mm
       EMAIL_AS_EXTERNAL_TOKEN_AUTHORIZATION: "true"
+      EAM_AUTH_URL: https://ios.esss.lu.se
+      EAM_AUTH_SECRET: dummyEAMsecret
+      EAM_AUTH_USER: dummyAuthUser
+      EAM_AUTH_PASS: dummyAuthPass
+      EAM_API_URL: https://ios.esss.lu.se:7443
+      EAM_PART_CODE: 12413
+      AUTH_DISCOVERY_URL: http://localhost:5000/.well-known/openid-configuration
+      AUTH_CLIENT_ID: useroffice
+      AUTH_CLIENT_SECRET: useroffice
     labels:
       - "traefik.frontend.rule=PathPrefix:/api, /downloads, /files, /download, /uploads"
       - "traefik.port=4000"
     volumes:
       - "./${USER_OFFICE_BACKEND_DIR}/db_patches:/home/node/app/db_patches"
-      
+
   scheduler-frontend:
     image: "user-office-scheduler-frontend:${BUILD_TAG}"
     labels:

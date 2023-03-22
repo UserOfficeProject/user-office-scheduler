@@ -16,7 +16,10 @@ const rabbitMQ = new RabbitMQMessageBroker();
 
 // don't try to initialize during testing
 // causes infinite loop
-if (process.env.NODE_ENV !== 'test') {
+if (
+  process.env.NODE_ENV !== 'test' &&
+  process.env.UO_FEATURE_DISABLE_MESSAGE_BROKER !== '1'
+) {
   rabbitMQ.setup({
     hostname: process.env.RABBITMQ_HOSTNAME,
     username: process.env.RABBITMQ_USERNAME,

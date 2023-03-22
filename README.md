@@ -17,6 +17,7 @@ Lints typescript code and log if there are any errors.<br>
 
 ### `npm run generate:local`
 
+
 Need to have `user-office-backend`, `user-office-scheduler-backend` and `user-office-gateway` running to run this command successfully.<br>
 It generates typescript `sdk.ts` file containing types from both `user-office-backend` and `user-office-scheduler-backend` that are shared and used in the `user-office-scheduler-frontend` code.
 

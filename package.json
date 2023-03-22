@@ -24,7 +24,7 @@
     "@user-office-software/duo-localisation": "^1.2.0",
     "@user-office-software/duo-validation": "^3.4.5",
     "@graphql-codegen/cli": "^3.2.1",
-    "@graphql-codegen/typescript": "^2.8.7",
+    "@graphql-codegen/typescript": "^3.0.2",
     "@graphql-codegen/typescript-graphql-request": "^4.5.8",
     "@graphql-codegen/typescript-operations": "^2.5.12",
     "@graphql-typed-document-node/core": "^3.1.1",

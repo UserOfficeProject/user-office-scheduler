@@ -47,7 +47,7 @@
     "date-fns": "^2.27.0",
     "dateformat": "^5.0.3",
     "formik": "^2.2.6",
-    "formik-mui": "^4.0.0-alpha.3",
+    "formik-mui": "^5.0.0-alpha.0",
     "formik-mui-lab": "^1.0.0-alpha.3",
     "graphql": "^16.6.0",
     "graphql-request": "^5.0.0",

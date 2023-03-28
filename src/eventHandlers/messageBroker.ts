@@ -19,15 +19,21 @@ const EXCHANGE_NAME =
   process.env.SCHEDULER_EXCHANGE_NAME || 'user_office_scheduler_backend.fanout';
 
 const createRabbitMQMessageBroker = async () => {
-  const rabbitMQ = new RabbitMQMessageBroker();
+  try {
+    const rabbitMQ = new RabbitMQMessageBroker();
 
-  await rabbitMQ.setup({
-    hostname: process.env.RABBITMQ_HOSTNAME,
-    username: process.env.RABBITMQ_USERNAME,
-    password: process.env.RABBITMQ_PASSWORD,
-  });
+    await rabbitMQ.setup({
+      hostname: process.env.RABBITMQ_HOSTNAME,
+      username: process.env.RABBITMQ_USERNAME,
+      password: process.env.RABBITMQ_PASSWORD,
+    });
 
-  return rabbitMQ;
+    return rabbitMQ;
+  } catch (error) {
+    throw new Error(
+      `Something went wrong while setting up the message broker: ${error}`
+    );
+  }
 };
 
 let rabbitMQCachedBroker: null | RabbitMQMessageBroker = null;

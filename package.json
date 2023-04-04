@@ -20,7 +20,7 @@
   "dependencies": {
     "@date-io/moment": "^2.16.1",
     "@emotion/react": "^11.7.1",
-    "@emotion/styled": "^11.8.1",
+    "@emotion/styled": "^11.10.6",
     "@user-office-software/duo-localisation": "^1.2.0",
     "@user-office-software/duo-validation": "^3.4.5",
     "@graphql-codegen/cli": "^3.2.1",

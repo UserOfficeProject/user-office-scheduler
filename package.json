@@ -110,7 +110,7 @@
     "http-proxy-middleware": "^2.0.1",
     "husky": "^4.3.8",
     "lint-staged": "^10.5.4",
-    "prettier": "^2.7.1"
+    "prettier": "^2.8.7"
   },
   "engines": {
     "npm": ">=8.0.0",

@@ -34,7 +34,7 @@
   "dependencies": {
     "@apollo/server": "^4.7.0",
     "@apollo/server-plugin-landing-page-graphql-playground": "^4.0.0",
-    "@apollo/subgraph": "^2.4.2",
+    "@apollo/subgraph": "^2.4.3",
     "@graphql-tools/utils": "^9.2.1",
     "@user-office-software/duo-localisation": "^1.2.0",
     "@user-office-software/duo-logger": "^2.1.1",

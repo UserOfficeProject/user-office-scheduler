@@ -61,7 +61,7 @@
     "yup": "^0.32.11"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^3.2.2",
+    "@graphql-codegen/cli": "^3.3.1",
     "@graphql-codegen/typescript": "^3.0.2",
     "@graphql-codegen/typescript-graphql-request": "^4.5.9",
     "@graphql-codegen/typescript-operations": "^3.0.4",

@@ -9,8 +9,8 @@ export default function useEquipmentScheduledEvents({
   endsAt,
   shouldGetAll = false,
 }: {
-  startsAt: Scalars['TzLessDateTime'];
-  endsAt: Scalars['TzLessDateTime'];
+  startsAt: Scalars['TzLessDateTime']['input'];
+  endsAt: Scalars['TzLessDateTime']['input'];
   equipmentIds: number[];
   shouldGetAll?: boolean;
 }) {

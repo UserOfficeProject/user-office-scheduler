@@ -1,12 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getTranslation } from '@user-office-software/duo-localisation';
 import { GraphQLClient } from 'graphql-request';
-import {
-  ClientError,
-  RequestOptions,
-  Variables,
-  VariablesAndRequestHeaders,
-} from 'graphql-request/dist/types';
+import { ClientError, RequestOptions, Variables } from 'graphql-request';
+import { VariablesAndRequestHeadersArgs } from 'graphql-request/build/esm/types';
 import jwtDecode from 'jwt-decode';
 import { useSnackbar, WithSnackbarProps } from 'notistack';
 import { useCallback, useContext } from 'react';
@@ -84,7 +80,7 @@ class UnauthorizedGraphQLClient extends GraphQLClient {
 
   async request<T = unknown, V extends Variables = Variables>(
     query: RequestQuery<T, V> | RequestOptions<V, T>,
-    ...variablesAndRequestHeaders: VariablesAndRequestHeaders<V>
+    ...variablesAndRequestHeaders: VariablesAndRequestHeadersArgs<V>
   ): Promise<T> {
     return super
       .request(query as RequestQuery<T, V>, ...variablesAndRequestHeaders)
@@ -136,7 +132,7 @@ class AuthorizedGraphQLClient extends GraphQLClient {
 
   async request<T = unknown, V extends Variables = Variables>(
     query: RequestQuery<T, V> | RequestOptions<V, T>,
-    ...variablesAndRequestHeaders: VariablesAndRequestHeaders<V>
+    ...variablesAndRequestHeaders: VariablesAndRequestHeadersArgs<V>
   ): Promise<T> {
     const nowTimestampSeconds = Date.now() / 1000;
 

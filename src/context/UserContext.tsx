@@ -126,9 +126,15 @@ export function UserContextProvider({ children }: UserContextProviderProps) {
     const loginUrl = settings.get(
       SettingsId.EXTERNAL_AUTH_LOGIN_URL
     )?.settingsValue;
-    //clearSession();
+    localStorage.removeItem('token');
     if (loginUrl) {
-      window.location.assign(loginUrl);
+      const loginUrlWithRedirect = new URL(loginUrl);
+      loginUrlWithRedirect.searchParams.set(
+        'redirect_uri',
+        window.location.origin
+      );
+      console.log(loginUrlWithRedirect);
+      window.location.assign(loginUrlWithRedirect);
     } else {
       // if there is no logout url, just clear the user context
       dispatch({

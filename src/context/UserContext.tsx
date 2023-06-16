@@ -32,6 +32,7 @@ export type UserContextData = {
   roles: Role[];
   handleNewToken: (token: string) => void;
   handleLogout: () => Promise<void>;
+  handleSessionExpired: () => Promise<void>;
 };
 
 const initialState = {
@@ -42,6 +43,9 @@ const initialState = {
   currentRole: null,
   handleNewToken: () => {},
   handleLogout: async () => {},
+  handleSessionExpired: async () => {
+    return;
+  },
 };
 
 export const UserContext = createContext<UserContextData>(initialState);
@@ -118,6 +122,22 @@ export function UserContextProvider({ children }: UserContextProviderProps) {
     }
   }, [api, settings]);
 
+  async function handleSessionExpired() {
+    const loginUrl = settings.get(
+      SettingsId.EXTERNAL_AUTH_LOGIN_URL
+    )?.settingsValue;
+    //clearSession();
+    if (loginUrl) {
+      window.location.assign(loginUrl);
+    } else {
+      // if there is no logout url, just clear the user context
+      dispatch({
+        type: UserActionType.SET_NOT_AUTHENTICATED,
+        payload: null,
+      });
+    }
+  }
+
   const handleNewToken = (token: string | null) => {
     let decodedToken = null;
     try {
@@ -150,6 +170,7 @@ export function UserContextProvider({ children }: UserContextProviderProps) {
         ...userState,
         handleNewToken,
         handleLogout,
+        handleSessionExpired,
       }}
     >
       {userState.stateInitialized ? children : <Loader />}

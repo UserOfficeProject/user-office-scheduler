@@ -133,7 +133,6 @@ export function UserContextProvider({ children }: UserContextProviderProps) {
         'redirect_uri',
         window.location.origin
       );
-      console.log(loginUrlWithRedirect);
       window.location.assign(loginUrlWithRedirect);
     } else {
       // if there is no logout url, just clear the user context

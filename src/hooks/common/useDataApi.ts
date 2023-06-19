@@ -225,7 +225,8 @@ class AuthorizedGraphQLClient extends GraphQLClient {
 }
 
 export function useDataApi() {
-  const { token, handleNewToken, handleLogout } = useContext(UserContext);
+  const { token, handleNewToken, handleSessionExpired } =
+    useContext(UserContext);
   const settingsContext = useContext(SettingsContext);
   const externalAuthLoginUrl = settingsContext.settings.get(
     SettingsId.EXTERNAL_AUTH_LOGIN_URL
@@ -241,14 +242,20 @@ export function useDataApi() {
               token,
               enqueueSnackbar,
               () => {
-                handleLogout();
+                handleSessionExpired();
               },
               handleNewToken,
               externalAuthLoginUrl ? externalAuthLoginUrl : undefined
             )
           : new GraphQLClient(endpoint)
       ),
-    [token, handleNewToken, enqueueSnackbar, handleLogout, externalAuthLoginUrl]
+    [
+      token,
+      handleNewToken,
+      enqueueSnackbar,
+      handleSessionExpired,
+      externalAuthLoginUrl,
+    ]
   );
 }
 

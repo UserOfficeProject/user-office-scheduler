@@ -93,13 +93,13 @@
     ]
   },
   "devDependencies": {
-    "@types/eslint": "^8.37.0",
+    "@types/eslint": "^8.40.2",
     "@faker-js/faker": "^8.0.2",
     "@types/node": "^20.2.3",
     "@typescript-eslint/eslint-plugin": "^5.59.11",
     "@typescript-eslint/parser": "^5.28.0",
     "cypress": "^9.6.1",
-    "eslint": "^8.40.0",
+    "eslint": "^8.43.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-cypress": "^2.12.1",
     "eslint-plugin-import": "^2.27.5",

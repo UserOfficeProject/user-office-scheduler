@@ -1,0 +1,51 @@
+query getProposalBooking(
+  $id: Int!
+  $filter: ProposalBookingScheduledEventFilter!
+) {
+  proposalBooking(id: $id) {
+    id
+    call {
+      id
+      shortCode
+      startCycle
+      endCycle
+      cycleComment
+    }
+    proposal {
+      primaryKey
+      title
+      proposalId
+      proposer {
+        ...basicUserDetails
+      }
+    }
+    scheduledEvents(filter: $filter) {
+      id
+      startsAt
+      endsAt
+      bookingType
+      scheduledBy {
+        ...basicUserDetails
+      }
+      localContact {
+        ...basicUserDetails
+      }
+      status
+      description
+    }
+    instrument {
+      id
+      name
+      beamlineManager {
+        ...basicUserDetails
+      }
+      scientists {
+       ...basicUserDetails
+      }
+    }
+    createdAt
+    updatedAt
+    status
+    allocatedTime
+  }
+}

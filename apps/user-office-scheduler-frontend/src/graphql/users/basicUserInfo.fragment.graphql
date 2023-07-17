@@ -1,0 +1,8 @@
+fragment basicUserDetails on BasicUserDetails {
+  id
+  firstname
+  lastname
+  organisation
+  position
+  placeholder
+}

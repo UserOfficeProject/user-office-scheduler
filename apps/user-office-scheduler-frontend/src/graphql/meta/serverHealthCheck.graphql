@@ -1,0 +1,9 @@
+query serverHealthCheck {
+  healthCheck {
+    message
+    dbStats {
+      total
+      state
+    }
+  }
+}

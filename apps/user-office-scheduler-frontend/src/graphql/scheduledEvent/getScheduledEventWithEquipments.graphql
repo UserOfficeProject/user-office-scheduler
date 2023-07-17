@@ -1,0 +1,46 @@
+query getScheduledEventWithEquipments(
+  $proposalBookingId: Int!
+  $scheduledEventId: Int!
+  $scheduledEventFilter: ProposalBookingScheduledEventFilter!
+) {
+  proposalBookingScheduledEvent(
+    proposalBookingId: $proposalBookingId
+    scheduledEventId: $scheduledEventId
+  ) {
+    id
+    startsAt
+    endsAt
+    status
+    proposalBooking {
+      id
+      status
+      allocatedTime
+      scheduledEvents(filter: $scheduledEventFilter) {
+        id
+        startsAt
+        endsAt
+      }
+      proposal {
+        primaryKey
+        title
+        proposalId
+        proposer {
+          ...basicUserDetails
+        }
+      }
+      call {
+        id
+        shortCode
+        startCycle
+        endCycle
+        cycleComment
+      }
+    }
+    scheduledBy {
+      ...basicUserDetails
+    }
+    equipments {
+      ...equipmentWithStatus
+    }
+  }
+}

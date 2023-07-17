@@ -1,0 +1,16 @@
+mutation createScheduledEvent($input: NewScheduledEventInput!) {
+  createScheduledEvent(newScheduledEvent: $input) {
+    error
+    scheduledEvent {
+      id
+      startsAt
+      endsAt
+      bookingType
+      scheduledBy {
+        ...basicUserDetails
+      }
+      status
+      description
+    }
+  }
+}

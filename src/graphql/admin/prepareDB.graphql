@@ -1,0 +1,3 @@
+mutation prepareDB($includeSeeds: Boolean!) {
+  prepareDB(includeSeeds: $includeSeeds)
+}

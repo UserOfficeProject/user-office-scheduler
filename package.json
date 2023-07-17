@@ -1,0 +1,119 @@
+{
+  "name": "user-office-scheduler-frontend",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UserOfficeProject/user-office-scheduler-frontend.git"
+  },
+  "private": true,
+  "scripts": {
+    "dev": "react-scripts start",
+    "build": "react-scripts --max_old_space_size=4096 build",
+    "eject": "react-scripts eject",
+    "lint": "tsc --noEmit && eslint . --ext .js,.jsx,.ts,.tsx --quiet",
+    "lint:all": "tsc --noEmit && eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "tsc --noEmit && eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "generate:local": "node scripts/generate-graphql-sdk.js",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run"
+  },
+  "dependencies": {
+    "@date-io/moment": "^2.16.1",
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.10.6",
+    "@user-office-software/duo-localisation": "^1.2.0",
+    "@user-office-software/duo-validation": "^3.4.5",
+    "@graphql-codegen/cli": "^4.0.0",
+    "@graphql-codegen/typescript": "^4.0.0",
+    "@graphql-codegen/typescript-graphql-request": "^5.0.0",
+    "@graphql-codegen/typescript-operations": "^4.0.0",
+    "@graphql-typed-document-node/core": "^3.2.0",
+    "@material-table/core": "^0.2.32",
+    "@mui/icons-material": "^5.4.1",
+    "@mui/lab": "^5.0.0-alpha.65",
+    "@mui/material": "^5.4.1",
+    "@mui/styles": "^5.4.1",
+    "@types/dateformat": "^5.0.0",
+    "@types/humanize-duration": "^3.27.0",
+    "@types/lodash": "^4.14.195",
+    "@types/react": "^17.0.44",
+    "@types/react-big-calendar": "^1.6.4",
+    "@types/react-calendar-timeline": "^0.26.5",
+    "@types/react-dom": "^17.0.15",
+    "@types/react-router": "^5.1.17",
+    "@types/react-router-dom": "^5.3.2",
+    "@types/yup": "^0.29.14",
+    "cypress-real-events": "^1.7.4",
+    "date-fns": "^2.27.0",
+    "dateformat": "^5.0.3",
+    "formik": "^2.4.2",
+    "formik-mui": "^5.0.0-alpha.0",
+    "formik-mui-lab": "^1.0.0",
+    "graphql": "^16.6.0",
+    "graphql-request": "^6.1.0",
+    "humanize-duration": "^3.27.2",
+    "interactjs": "^1.10.17",
+    "jwt-decode": "^3.1.2",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.4",
+    "notistack": "^2.0.5",
+    "react": "^17.0.2",
+    "react-big-calendar": "^1.8.1",
+    "react-calendar-timeline": "^0.27.1-beta",
+    "react-cookie": "^4.1.1",
+    "react-dom": "^17.0.2",
+    "react-router": "^5.3.1",
+    "react-router-dom": "^5.3.1",
+    "react-scripts": "^5.0.1",
+    "typescript": "^4.9.5",
+    "use-query-params": "^1.2.3",
+    "yup": "^1.2.0"
+  },
+  "lint-staged": {
+    "**/*.{js,ts,jsx,tsx}": "npm run lint"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@types/eslint": "^8.40.2",
+    "@faker-js/faker": "^8.0.2",
+    "@types/node": "^20.2.3",
+    "@typescript-eslint/eslint-plugin": "^5.59.11",
+    "@typescript-eslint/parser": "^5.28.0",
+    "cypress": "^9.6.1",
+    "eslint": "^8.43.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-cypress": "^2.12.1",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.4.0",
+    "eslint-plugin-unused-imports": "^2.0.0",
+    "http-proxy-middleware": "^2.0.6",
+    "husky": "^4.3.8",
+    "lint-staged": "^13.2.2",
+    "prettier": "^2.8.8"
+  },
+  "engines": {
+    "npm": ">=8.0.0",
+    "node": ">=16.0.0"
+  }
+}

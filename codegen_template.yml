@@ -1,0 +1,20 @@
+overwrite: true
+schema: "${SCHEMA_URL:http://localhost:4100/}" # Gateway has the port of 4100 by default
+documents: "src/graphql/**/*.graphql"
+generates:
+  src/generated/sdk.ts:
+    config:
+      skipTypename: true
+      namingConvention:
+        enumValues: change-case#upperCase
+      avoidOptionals:
+        field: true
+        object: false
+        inputValue: false
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-graphql-request
+config:
+  scalars:
+    TzLessDateTime: "string"

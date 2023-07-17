@@ -1,0 +1,9 @@
+query getEquipments {
+  equipments {
+    ...equipment
+    equipmentInstruments {
+      id
+      name
+    }
+  }
+}

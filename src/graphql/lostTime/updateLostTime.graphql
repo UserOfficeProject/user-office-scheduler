@@ -1,0 +1,11 @@
+mutation updateLostTime($input: UpdateLostTimeInput!) {
+  updateLostTime(updateLostTimeInput: $input) {
+    error
+    lostTime {
+      id
+      startsAt
+      endsAt
+      scheduledEventId
+    }
+  }
+}

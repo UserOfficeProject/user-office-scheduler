@@ -1,0 +1,8 @@
+mutation finalizeProposalBooking(
+  $action: ProposalBookingFinalizeAction!
+  $id: Int!
+) {
+  finalizeProposalBooking(action: $action, id: $id) {
+    error
+  }
+}

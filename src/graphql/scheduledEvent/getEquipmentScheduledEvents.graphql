@@ -1,0 +1,40 @@
+query getEquipmentScheduledEvents(
+  $equipmentIds: [Int!]!
+  $endsAt: TzLessDateTime!
+  $startsAt: TzLessDateTime!
+) {
+  equipments(equipmentIds: $equipmentIds) {
+    id
+    name
+    color
+    events(startsAt: $startsAt, endsAt: $endsAt) {
+      id
+      startsAt
+      endsAt
+      status
+      equipmentAssignmentStatus
+      equipmentId
+      proposalBooking {
+        status
+        proposal {
+          primaryKey
+          title
+          proposalId
+          proposer {
+            ...basicUserDetails
+          }
+        }
+      }
+      instrument {
+        id
+        name
+      }
+      scheduledBy {
+        ...basicUserDetails
+      }
+      localContact {
+        ...basicUserDetails
+      }
+    }
+  }
+}

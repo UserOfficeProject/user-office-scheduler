@@ -1,0 +1,8 @@
+mutation activateScheduledEvents($input: ActivateScheduledEventsInput!) {
+  activateScheduledEvents(activateScheduledEvents: $input) {
+    error
+    scheduledEvents {
+      ...scheduledEventWithRejection
+    }
+  }
+}

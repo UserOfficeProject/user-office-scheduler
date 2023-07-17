@@ -1,0 +1,101 @@
+version: "3.1"
+
+services:
+  # used to proxy the core UI FE and BE requests to the right container
+  # Core FE is accessible on localhost:33000/
+  # Core BE is accessible on localhost:33000/graphql
+  proxy:
+    image: traefik:1.7 # The official Traefik docker image
+    command: --api --docker # Enables the web UI and tells Traefik to listen to docker
+    ports:
+      - "33000:80" # The HTTP port
+      - "8080:8080" # The Web UI (enabled by --api)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  duo-cron-job:
+    image: "ghcr.io/userofficeproject/user-office-cron:develop"
+
+  db:
+    image: postgres:11-alpine
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: duopassword
+      POSTGRES_USER: duouser
+      POSTGRES_DB: duo
+    ports:
+      - 5432:5432
+
+  scheduler-db:
+    image: postgres:11-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: scheduler
+      POSTGRES_USER: schedulerUser
+      POSTGRES_PASSWORD: schedulerPassword
+    ports:
+      - 5433:5432 # avoid collision
+    volumes:
+      - ./db_patches/:/docker-entrypoint-initdb.d/
+
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    volumes:
+      - ./rabbitmq-isolated.conf:/etc/rabbitmq/rabbitmq.config
+
+  factory:
+    image: "ghcr.io/userofficeproject/user-office-factory:develop"
+    init: true
+    environment:
+      - NODE_ENV=development
+      - DATABASE_HOSTNAME=db
+      - DATABASE_PORT=5432
+      - DATABASE_USER=duouser
+      - DATABASE_PASSWORD=duopassword
+      - DATABASE_DATABASE=duo
+    ports:
+      - 4500:4500
+    cap_add:
+      - SYS_ADMIN
+
+  gateway:
+    image: "ghcr.io/userofficeproject/user-office-gateway:develop"
+    environment:
+      USER_OFFICE_BACKEND: http://backend:4000/graphql
+      USER_OFFICE_SCHEDULER_BACKEND: http://host.docker.internal:4000/graphql
+      NODE_ENV: development
+      ENABLE_SERVICE_POLLING: 1 # see gateway
+      KEEP_RETRYING: 1 # see gateway
+    ports:
+      - 4100:4100
+    labels:
+      - "traefik.frontend.rule=PathPrefix:/graphql"
+      - "traefik.port=4100"
+
+  frontend:
+    image: "ghcr.io/userofficeproject/user-office-frontend:develop"
+    labels:
+      - "traefik.frontend.rule=PathPrefix:/"
+      - "traefik.port=80"
+
+  backend:
+    image: "ghcr.io/userofficeproject/user-office-backend:develop"
+    environment:
+      DATABASE_URL: postgres://duouser:duopassword@db:5432/duo
+      secret: qMyLZALzs229ybdQXNyzYRdju7X784TH
+      tokenLife: 7d
+      baseURL: localhost:33000
+      SPARKPOST_TOKEN: dummytoken
+      NODE_ENV: development
+      UO_FEATURE_DISABLE_EAM: 1
+      USER_OFFICE_FACTORY_ENDPOINT: http://factory:4500/generate
+      RABBITMQ_HOSTNAME: rabbitmq
+      DEPENDENCY_CONFIG: ess
+    labels:
+      - "traefik.frontend.rule=PathPrefix:/api, /downloads, /files, /download, /uploads"
+      - "traefik.port=4000"
+    ports:
+      - 44000:4000 # avoid collision

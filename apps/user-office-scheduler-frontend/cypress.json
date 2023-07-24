@@ -1,9 +1,0 @@
-{
-  "video": false,
-  "viewportWidth": 1920,
-  "viewportHeight": 1080,
-  "baseUrl": "http://127.0.0.1:3000",
-  "chromeWebSecurity": false,
-  "retries": 1,
-  "defaultCommandTimeout": 15000
-}

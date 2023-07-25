@@ -13,7 +13,8 @@ import {
   UpdateEquipmentMutationVariables,
   UpdateScheduledEventMutation,
   UpdateScheduledEventMutationVariables,
-} from '../../src/generated/sdk';
+} from '@user-office-software-libs/shared-types';
+
 import { getE2EApi } from '../utils/e2eApi';
 
 const resetDB = (includeSeeds = false) => {

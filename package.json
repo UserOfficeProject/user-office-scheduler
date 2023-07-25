@@ -40,6 +40,7 @@
     "duo",
     "swap",
     "user-office",
+    "user-office-scheduler",
     "monorepo"
   ],
   "lint-staged": {

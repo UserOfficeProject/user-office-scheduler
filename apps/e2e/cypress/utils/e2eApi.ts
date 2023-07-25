@@ -1,6 +1,5 @@
+import { getSdk } from '@user-office-software-libs/shared-types';
 import { GraphQLClient } from 'graphql-request';
-
-import { getSdk } from '../../src/generated/sdk';
 
 export const getE2EApi = (token?: string | null) => {
   // NOTE: token is used when we want to do some action as a specific logged in user.

@@ -1,6 +1,6 @@
+import { ScheduledEventBookingType } from '@user-office-software-libs/shared-types';
 import moment from 'moment';
 
-import { ScheduledEventBookingType } from '../../src/generated/sdk';
 import initialDBData from '../support/initialDBData';
 import {
   defaultEventBookingHourDateTime,

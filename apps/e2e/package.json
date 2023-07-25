@@ -3,19 +3,36 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "@faker-js/faker": "^7.3.0",
-    "cypress-real-events": "^1.7.4",
+    "@faker-js/faker": "^7.5.0",
+    "cypress-real-events": "^1.8.1",
     "dotenv": "^8.6.0",
     "graphql": "^16.6.0",
-    "graphql-request": "^5.0.0",
+    "graphql-request": "^6.1.0",
     "graphql-tag": "^2.12.6",
     "jwt-decode": "^3.1.2",
     "moment": "^2.29.4",
-    "typescript": "^4.8.4"
+    "typescript": "^5.1.6"
+  },
+  "devDependencies": {
+    "@types/eslint": "^8.4.3",
+    "@types/node": "^16.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.28.0",
+    "@typescript-eslint/parser": "^5.28.0",
+    "eslint": "^8.17.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-cypress": "^2.13.3",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-unused-imports": "^2.0.0",
+    "prettier": "^2.7.0",
+    "ts-loader": "^9.4.3"
   },
   "scripts": {
-    "cypress:open": "cypress open",
-    "cy:run": "env TZ=Europe/Stockholm cypress run --headless --browser chrome --config defaultCommandTimeout=15000"
+    "lint": "tsc --noEmit && eslint . --ext .js,.ts --quiet",
+    "lint:fix": "tsc --noEmit && eslint . --ext .js,.ts --quiet --fix",
+    "cy:open": "cypress open",
+    "cy:run": "env TZ=Europe/Stockholm cypress run --headless --browser chrome --config defaultCommandTimeout=15000",
+    "cy:run:action": "cypress run --browser chrome"
   },
   "engines": {
     "npm": ">=8.0.0",

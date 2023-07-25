@@ -1,7 +1,8 @@
 import {
   ProposalBookingFinalizeAction,
   ScheduledEventBookingType,
-} from '../../src/generated/sdk';
+} from '@user-office-software-libs/shared-types';
+
 import initialDBData from '../support/initialDBData';
 import {
   defaultEventBookingHourDateTime,

@@ -50,7 +50,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged --shell"
+      "pre-commit": "npm run lint"
     }
   },
   "dependencies": {

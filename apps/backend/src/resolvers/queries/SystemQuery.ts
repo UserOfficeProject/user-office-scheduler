@@ -11,7 +11,7 @@ const SCHEDULER_CONFIG_AUTH_REDIRECT = process.env
   .SCHEDULER_CONFIG_AUTH_REDIRECT as string;
 
 if (!SCHEDULER_CONFIG_AUTH_REDIRECT) {
-  console.error('SCHEDULER_CONFIG_AUTH_REDIRECT is missing');
+  logger.logError('SCHEDULER_CONFIG_AUTH_REDIRECT is missing', {});
   process.exit(1);
 }
 

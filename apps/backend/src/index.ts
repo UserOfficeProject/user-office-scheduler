@@ -24,8 +24,9 @@ async function bootstrap() {
   });
 
   app.listen(PORT, () => {
-    console.info(
-      `Running a GraphQL API server at http://localhost:${PORT}${PATH}`
+    logger.logInfo(
+      `Running a GraphQL API server at http://localhost:${PORT}${PATH}`,
+      {}
     );
   });
 }

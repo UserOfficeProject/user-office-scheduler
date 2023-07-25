@@ -1,3 +1,5 @@
+import { logger } from '@user-office-software/duo-logger';
+
 import { getResponseField } from './Decorators';
 import { ResponseWrapBase } from './types/wrappers';
 import { Rejection, isRejection } from '../rejection';
@@ -17,7 +19,7 @@ export async function wrapResponse<T>(
         ((wrapper as any)[responseFieldName] = result);
   } else {
     wrapper.error = `No response fields found in '${ResponseWrapper.name}'`;
-    console.error(wrapper.error); // print out for easier debugging, most likely missing @Response() decorator
+    logger.logError(wrapper.error, { wrapper }); // print out for easier debugging, most likely missing @Response() decorator
   }
 
   return wrapper;

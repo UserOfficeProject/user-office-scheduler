@@ -1,3 +1,4 @@
+import { logger } from '@user-office-software/duo-logger';
 import { GraphQLClient } from 'graphql-request';
 
 import { getSdk } from '../generated/sdk';
@@ -5,7 +6,7 @@ import { getSdk } from '../generated/sdk';
 const USER_OFFICE_ENDPOINT = process.env.USER_OFFICE_ENDPOINT as string;
 
 if (!USER_OFFICE_ENDPOINT) {
-  console.error('env `USER_OFFICE_ENDPOINT` missing');
+  logger.logError('env `USER_OFFICE_ENDPOINT` missing', {});
   process.exit(1);
 }
 

@@ -44,9 +44,9 @@
     "monorepo"
   ],
   "lint-staged": {
-    "apps/backend/*.{js,ts,jsx,tsx}": "cd apps/backend && npm run lint",
-    "apps/frontend/*.{js,ts,jsx,tsx}": "cd apps/frontend && npm run lint:fix",
-    "apps/e2e/*.{js,ts,jsx,tsx}": "cd apps/e2e && npm run lint"
+    "*.{js,ts,jsx,tsx}": "cd apps/backend && npm run lint",
+    "*.{js,ts,jsx,tsx}": "cd apps/frontend && npm run lint:fix",
+    "*.{js,ts,jsx,tsx}": "cd apps/e2e && npm run lint"
   },
   "husky": {
     "hooks": {

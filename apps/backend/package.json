@@ -1,0 +1,99 @@
+{
+  "name": "user-office-scheduler-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UserOfficeProject/user-office-scheduler.git"
+  },
+  "private": true,
+  "scripts": {
+    "build": "rm -rf ./build && tsc",
+    "test": "exit 0",
+    "prod": "npm run build && node ./build/index.js",
+    "dev": "ts-node-dev --rs --respawn ./src/index.ts",
+    "dev:db:up": "docker-compose -f docker-compose.local.yml up -d",
+    "dev:db:down": "docker-compose -f docker-compose.local.yml down -v",
+    "dev:docker": "npm install && ts-node-dev --rs --respawn ./src/index.ts",
+    "lint": "tsc --noEmit && eslint ./src --ext .js,.ts --quiet",
+    "lint:all": "tsc --noEmit && eslint ./src --ext .js,.ts",
+    "lint:fix": "tsc --noEmit && eslint ./src --ext .js,.ts --fix --quiet",
+    "generate:local": "node scripts/generate-graphql-sdk.js"
+  },
+  "lint-staged": {
+    "**/*.{js,ts}": "npm run lint"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "author": "SWAP",
+  "license": "ISC",
+  "dependencies": {
+    "@apollo/server": "^4.7.4",
+    "@apollo/server-plugin-landing-page-graphql-playground": "^4.0.1",
+    "@apollo/subgraph": "^2.4.8",
+    "@graphql-tools/utils": "^10.0.1",
+    "@user-office-software/duo-localisation": "^1.2.0",
+    "@user-office-software/duo-logger": "^2.1.1",
+    "@user-office-software/duo-message-broker": "^1.5.0",
+    "@user-office-software/duo-validation": "^3.4.5",
+    "bcrypt": "^5.0.1",
+    "body-parser": "^1.20.2",
+    "class-transformer": "^0.5.1",
+    "cors": "^2.8.5",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.1.4",
+    "express": "^4.18.1",
+    "express-jwt": "^8.4.1",
+    "graphql": "^16.7.1",
+    "graphql-request": "^6.1.0",
+    "graphql-tag": "^2.12.6",
+    "jsonwebtoken": "^9.0.0",
+    "knex": "^2.4.2",
+    "lodash.merge": "^4.6.2",
+    "luxon": "^3.3.0",
+    "pg": "^8.11.0",
+    "reflect-metadata": "^0.1.13",
+    "type-graphql": "^2.0.0-beta.1",
+    "yup": "^0.32.11"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^4.0.1",
+    "@graphql-codegen/typescript": "^4.0.1",
+    "@graphql-codegen/typescript-graphql-request": "^5.0.0",
+    "@graphql-codegen/typescript-operations": "^4.0.1",
+    "@types/cors": "^2.8.13",
+    "@types/cookie-parser": "^1.4.2",
+    "@types/express": "^4.17.17",
+    "@types/express-jwt": "^7.4.2",
+    "@types/jsonwebtoken": "^9.0.2",
+    "@types/jest": "^27.0.3",
+    "@types/lodash.merge": "^4.6.7",
+    "@types/luxon": "^3.3.0",
+    "@types/node": "^20.3.1",
+    "@types/validator": "^13.7.17",
+    "@types/yup": "^0.29.13",
+    "@typescript-eslint/eslint-plugin": "^5.59.11",
+    "@typescript-eslint/parser": "^5.62.0",
+    "eslint": "^8.42.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-jest": "^27.2.3",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-unused-imports": "^2.0.0",
+    "husky": "^4.3.8",
+    "jest": "^27.4.5",
+    "lint-staged": "^13.2.3",
+    "prettier": "^2.8.8",
+    "ts-jest": "^27.1.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^4.9.5"
+  },
+  "engines": {
+    "npm": ">=8.0.0",
+    "node": ">=16.0.0"
+  }
+}

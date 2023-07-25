@@ -67,9 +67,9 @@ jobs:
 
           echo "CHECK_IF_CORE_IMAGE_EXISTS" >> $CHECK_IF_CORE_IMAGE_EXISTS
 
-          if [[ $CHECK_IF_CORE_IMAGE_EXISTS == true ]]; then
-              CORE_TAGS=$((CORE_TAGS+1))
-          fi
+          # if [[ $CHECK_IF_CORE_IMAGE_EXISTS == true ]]; then
+          #     CORE_TAGS=$((CORE_TAGS+1))
+          # fi
 
           # if [[ $CHECK_IF_GATEWAY_IMAGE_EXISTS == true ]]; then
           #     GATEWAY_TAGS=$((GATEWAY_TAGS+1))
@@ -79,9 +79,9 @@ jobs:
               FACTORY_TAGS=$((FACTORY_TAGS+1))
           fi
 
-          if [[ $CHECK_IF_CORE_IMAGE_EXISTS == null  ]]; then 
-              CORE_TAGS=$((CORE_TAGS+1))
-          fi
+          # if [[ $CHECK_IF_CORE_IMAGE_EXISTS == null  ]]; then 
+          #     CORE_TAGS=$((CORE_TAGS+1))
+          # fi
 
           # echo $CHECK_IF_GATEWAY_IMAGE_EXISTS
 

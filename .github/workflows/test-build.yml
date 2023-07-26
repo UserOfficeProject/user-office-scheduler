@@ -41,17 +41,17 @@ jobs:
             echo $found
           }
 
-          # FACTORY_TAGS=$(check_feature ${{ github.head_ref }} \
-          #   https://api.github.com/repos/UserOfficeProject/user-office-factory/branches?per_page=100
-          # )
+          FACTORY_TAGS=$(check_feature ${{ github.head_ref }} \
+            https://api.github.com/repos/UserOfficeProject/user-office-factory/branches?per_page=100
+          )
 
           # CORE_TAGS=$(check_feature ${{ github.head_ref }} \
           #   https://api.github.com/repos/UserOfficeProject/user-office-core/branches?per_page=100
           # )
 
-          GATEWAY_TAGS=$(check_feature ${{ github.head_ref }} \
-            https://api.github.com/repos/UserOfficeProject/user-office-gateway/branches?per_page=100
-          )
+          # GATEWAY_TAGS=$(check_feature ${{ github.head_ref }} \
+          #   https://api.github.com/repos/UserOfficeProject/user-office-gateway/branches?per_page=100
+          # )
 
           GHCR_TOKEN=$(echo ${{ secrets.GITHUB_TOKEN }} | base64)
 

@@ -297,15 +297,15 @@ jobs:
       - name: Run e2e tests
         env:
           SVC_ACC_TOKEN: ${{ secrets.SVC_ACC_TOKEN }}
-          USER_OFFICE_CORE_TAG: ${{ steps.resolve_rep.outputs.CORE_TAG }}
+          USER_OFFICE_CORE_TAG: ${{ needs.resolve_dep.outputs.CORE_TAG }}
           USER_OFFICE_BACKEND_DIR: user-office-core/apps/user-office-backend
           USER_OFFICE_BACKEND: http://backend:4000/graphql
           USER_OFFICE_ENDPOINT: http://backend:4000/graphql
           USER_OFFICE_SCHEDULER_BACKEND_DIR: apps/backend
           USER_OFFICE_SCHEDULER_BACKEND: http://localhost:4200/graphql
           USER_OFFICE_SCHEDULER_FRONTEND_DIR: apps/frontend
-          USER_OFFICE_GATEWAY_TAG: ${{ steps.resolve_rep.outputs.GATEWAY_TAG }}
-          USER_OFFICE_FACTORY_TAG: ${{ steps.resolve_rep.outputs.FACTORY_TAG }}
+          USER_OFFICE_GATEWAY_TAG: ${{ needs.resolve_dep.outputs.GATEWAY_TAG }}
+          USER_OFFICE_FACTORY_TAG: ${{ needs.resolve_dep.outputs.FACTORY_TAG }}
           USER_OFFICE_FACTORY_ENDPOINT: noop
           BUILD_TAG: ${{ github.sha }}
         

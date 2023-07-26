@@ -6,14 +6,14 @@ services:
   # used to proxy the core UI FE and BE requests to the right container
   # Core FE is accessible on localhost:33000/
   # Core BE is accessible on localhost:33000/graphql
-  proxy:
-    image: traefik:1.7 # The official Traefik docker image
-    command: --api --docker # Enables the web UI and tells Traefik to listen to docker
-    ports:
-      - "33000:80" # The HTTP port
-      - "8080:8080" # The Web UI (enabled by --api)
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+  # proxy:
+  #   image: traefik:1.7 # The official Traefik docker image
+  #   command: --api --docker # Enables the web UI and tells Traefik to listen to docker
+  #   ports:
+  #     - "33000:80" # The HTTP port
+  #     - "8080:8080" # The Web UI (enabled by --api)
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
 
   dev-auth-server:
     image: "ghcr.io/userofficeproject/user-office-development-authorization-server:develop"
@@ -83,12 +83,6 @@ services:
     labels:
       - "traefik.frontend.rule=PathPrefix:/graphql"
       - "traefik.port=4100"
-
-  frontend:
-    image: "ghcr.io/userofficeproject/user-office-frontend:${USER_OFFICE_CORE_TAG}"
-    labels:
-      - "traefik.frontend.rule=PathPrefix:/"
-      - "traefik.port=80"
 
   backend:
     image: "ghcr.io/userofficeproject/user-office-backend:${USER_OFFICE_CORE_TAG}"

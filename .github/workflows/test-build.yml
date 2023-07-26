@@ -89,12 +89,12 @@ jobs:
           #     CORE_TAGS=$((CORE_TAGS+1))
           # fi
 
-          # FACTORY_TAG=develop
-          # if [[ $FACTORY_TAGS == "2" ]]; then
-          #   FACTORY_TAG="${{ github.head_ref }}"
-          # fi
+          FACTORY_TAG=develop
+          if [[ $FACTORY_TAGS == "2" ]]; then
+            FACTORY_TAG="${{ github.head_ref }}"
+          fi
 
-          # echo "FACTORY_TAG=${FACTORY_TAG}" >> $GITHUB_OUTPUT
+          echo "FACTORY_TAG=${FACTORY_TAG}" >> $GITHUB_OUTPUT
 
           CORE_TAG=develop
           if [[ $CORE_TAGS == "2" ]]; then

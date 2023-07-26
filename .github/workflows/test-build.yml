@@ -45,19 +45,19 @@ jobs:
           #   https://api.github.com/repos/UserOfficeProject/user-office-factory/branches?per_page=100
           # )
 
-          CORE_TAGS=$(check_feature ${{ github.head_ref }} \
-            https://api.github.com/repos/UserOfficeProject/user-office-core/branches?per_page=100
-          )
-
-          # GATEWAY_TAGS=$(check_feature ${{ github.head_ref }} \
-          #   https://api.github.com/repos/UserOfficeProject/user-office-gateway/branches?per_page=100
+          # CORE_TAGS=$(check_feature ${{ github.head_ref }} \
+          #   https://api.github.com/repos/UserOfficeProject/user-office-core/branches?per_page=100
           # )
+
+          GATEWAY_TAGS=$(check_feature ${{ github.head_ref }} \
+            https://api.github.com/repos/UserOfficeProject/user-office-gateway/branches?per_page=100
+          )
 
           GHCR_TOKEN=$(echo ${{ secrets.GITHUB_TOKEN }} | base64)
 
-          # CHECK_IF_FACTORY_IMAGE_EXISTS=$(curl -H "Authorization: Bearer $GHCR_TOKEN" https://ghcr.io/v2/userofficeproject/user-office-factory/tags/list | jq --arg TAG ${{ github.head_ref }} '.tags as $t | $TAG | IN($t[])')
+          CHECK_IF_FACTORY_IMAGE_EXISTS=$(curl -H "Authorization: Bearer $GHCR_TOKEN" https://ghcr.io/v2/userofficeproject/user-office-factory/tags/list | jq --arg TAG ${{ github.head_ref }} '.tags as $t | $TAG | IN($t[])')
           CHECK_IF_CORE_IMAGE_EXISTS=$(curl -H "Authorization: Bearer $GHCR_TOKEN" https://ghcr.io/v2/userofficeproject/user-office-core/tags/list | jq --arg TAG ${{ github.head_ref }} '.tags as $t | $TAG | IN($t[])')
-          # CHECK_IF_GATEWAY_IMAGE_EXISTS=$(curl -H "Authorization: Bearer $GHCR_TOKEN" https://ghcr.io/v2/userofficeproject/user-office-gateway/tags/list | jq --arg TAG ${{ github.head_ref }} '.tags as $t | $TAG | IN($t[])')
+          CHECK_IF_GATEWAY_IMAGE_EXISTS=$(curl -H "Authorization: Bearer $GHCR_TOKEN" https://ghcr.io/v2/userofficeproject/user-office-gateway/tags/list | jq --arg TAG ${{ github.head_ref }} '.tags as $t | $TAG | IN($t[])')
 
           # echo "CHECK_IF_FACTORY_IMAGE_EXISTS" >> $CHECK_IF_FACTORY_IMAGE_EXISTS
 
@@ -103,12 +103,12 @@ jobs:
 
           echo "CORE_TAG=${CORE_TAG}" >> $GITHUB_OUTPUT
 
-          # GATEWAY_TAG=develop
-          # if [[ $GATEWAY_TAGS == "2" ]]; then
-          #   GATEWAY_TAG="${{ github.head_ref }}"
-          # fi
+          GATEWAY_TAG=develop
+          if [[ $GATEWAY_TAGS == "2" ]]; then
+            GATEWAY_TAG="${{ github.head_ref }}"
+          fi
 
-          # echo "GATEWAY_TAG=${GATEWAY_TAG}" >> $GITHUB_OUTPUT
+          echo "GATEWAY_TAG=${GATEWAY_TAG}" >> $GITHUB_OUTPUT
 
       - name: Resolved
         run: |

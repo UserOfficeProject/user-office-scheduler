@@ -15,8 +15,15 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
-  duo-cron-job:
-    image: "ghcr.io/userofficeproject/user-office-cron:develop"
+  dev-auth-server:
+    image: "ghcr.io/userofficeproject/user-office-development-authorization-server:develop"
+    environment:
+      DATABASE_URL: postgres://duouser:duopassword@db:5432/duo
+      PORT: 5000
+    ports:
+      - "5000:5000"
+    depends_on:
+      - "db"
 
   db:
     image: postgres:11-alpine
@@ -67,7 +74,7 @@ services:
     image: "ghcr.io/userofficeproject/user-office-gateway:${USER_OFFICE_GATEWAY_TAG}"
     environment:
       USER_OFFICE_BACKEND: http://backend:4000/graphql
-      USER_OFFICE_SCHEDULER_BACKEND: http://host.docker.internal:4000/graphql
+      USER_OFFICE_SCHEDULER_BACKEND: http://host.docker.internal:4200/graphql
       NODE_ENV: development
       ENABLE_SERVICE_POLLING: 1 # see gateway
       KEEP_RETRYING: 1 # see gateway
@@ -96,35 +103,11 @@ services:
       USER_OFFICE_FACTORY_ENDPOINT: http://factory:4500/generate
       RABBITMQ_HOSTNAME: rabbitmq
       DEPENDENCY_CONFIG: ess
+      AUTH_DISCOVERY_URL: http://dev-auth-server:5000/.well-known/openid-configuration
+      AUTH_CLIENT_ID: useroffice
+      AUTH_CLIENT_SECRET: useroffice
     labels:
       - "traefik.frontend.rule=PathPrefix:/api, /downloads, /files, /download, /uploads"
       - "traefik.port=4000"
     ports:
       - 44000:4000 # avoid collision
-  # scheduler-backend:
-  #   image: "ghcr.io/userofficeproject/user-office-scheduler-backend:${USER_OFFICE_SCHEDULER_BACKEND_TAG}"
-  #   environment:
-  #     NODE_ENV: development
-  #     DATABASE_HOSTNAME: scheduler-db
-  #     DATABASE_PORT: 5432
-  #     DATABASE_USER: schedulerUser
-  #     DATABASE_PASSWORD: schedulerPassword
-  #     DATABASE_DATABASE: scheduler
-  #     SCHEDULER_CONFIG_AUTH_REDIRECT: /not-authenticated#USER_OFFICE/shared-auth
-  #     USER_OFFICE_ENDPOINT: ${USER_OFFICE_ENDPOINT}
-  #     UO_FEATURE_DISABLE_MESSAGE_BROKER: 1
-  #     SKIP_DB_INIT: 1
-  #   depends_on:
-  #     - scheduler-db
-
-  # scheduler-db:
-  #   image: postgres:11-alpine
-  #   restart: always
-  #   environment:
-  #     POSTGRES_DB: scheduler
-  #     POSTGRES_USER: schedulerUser
-  #     POSTGRES_PASSWORD: schedulerPassword
-  #   ports:
-  #     - 5432
-  #   volumes:
-  #     - "./${USER_OFFICE_SCHEDULER_BACKEND_DIR}/db_patches/:/docker-entrypoint-initdb.d/"

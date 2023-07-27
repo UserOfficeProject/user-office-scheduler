@@ -307,6 +307,7 @@ jobs:
           USER_OFFICE_GATEWAY_TAG: ${{ needs.resolve_dep.outputs.GATEWAY_TAG }}
           USER_OFFICE_FACTORY_TAG: ${{ needs.resolve_dep.outputs.FACTORY_TAG }}
           USER_OFFICE_FACTORY_ENDPOINT: noop
+          CYPRESS_CACHE_FOLDER: .cache/Cypress
           BUILD_TAG: ${{ github.sha }}
         
         run: |

@@ -1,6 +1,6 @@
 {
   "video": false,
-  "baseUrl": "http://scheduler-proxy:80",
+  "baseUrl": "http://localhost:33000",
   "screenshotsFolder": "/tmp/screenshots",
   "viewportWidth": 1920,
   "viewportHeight": 1080,

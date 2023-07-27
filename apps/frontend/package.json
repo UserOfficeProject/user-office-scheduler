@@ -13,9 +13,7 @@
     "lint": "tsc --noEmit && eslint . --ext .js,.jsx,.ts,.tsx --quiet",
     "lint:all": "tsc --noEmit && eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "tsc --noEmit && eslint . --ext .js,.jsx,.ts,.tsx --fix",
-    "generate:local": "node scripts/generate-graphql-sdk.js",
-    "cy:open": "cypress open",
-    "cy:run": "cypress run"
+    "generate:local": "node scripts/generate-graphql-sdk.js"
   },
   "dependencies": {
     "@date-io/moment": "^2.16.1",
@@ -43,7 +41,6 @@
     "@types/react-router": "^5.1.17",
     "@types/react-router-dom": "^5.3.2",
     "@types/yup": "^0.29.14",
-    "cypress-real-events": "^1.7.4",
     "date-fns": "^2.27.0",
     "dateformat": "^5.0.3",
     "formik": "^2.4.2",
@@ -98,10 +95,8 @@
     "@types/node": "^20.2.3",
     "@typescript-eslint/eslint-plugin": "^5.59.11",
     "@typescript-eslint/parser": "^5.28.0",
-    "cypress": "^9.6.1",
     "eslint": "^8.43.0",
     "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-cypress": "^2.12.1",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.32.2",

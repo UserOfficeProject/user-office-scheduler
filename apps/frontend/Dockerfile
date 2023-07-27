@@ -6,7 +6,7 @@ RUN echo "GENERATE_SOURCEMAP=false" >> .env
 
 COPY package*.json /app/
 
-RUN CYPRESS_INSTALL_BINARY=0 npm ci --loglevel error --no-fund
+RUN npm ci --loglevel error --no-fund
 
 COPY ./ ./
 

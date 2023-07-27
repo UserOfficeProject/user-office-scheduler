@@ -6,11 +6,7 @@
     "url": "https://github.com/UserOfficeProject/user-office-scheduler.git"
   },
   "private": true,
-  "proxy": {
-    "/gateway": {
-      "target": "http://127.0.0.1:4100/graphql"
-    }
-  },
+  "proxy": "http://127.0.0.1:4100",
   "scripts": {
     "dev": "react-scripts start",
     "build": "react-scripts --max_old_space_size=4096 build",

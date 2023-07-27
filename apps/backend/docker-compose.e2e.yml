@@ -10,7 +10,7 @@ services:
   #   image: traefik:1.7 # The official Traefik docker image
   #   command: --api --docker # Enables the web UI and tells Traefik to listen to docker
   #   ports:
-  #     - "33000:80" # The HTTP port
+  #     - "80:80" # The HTTP port
   #     - "8080:8080" # The Web UI (enabled by --api)
   #   volumes:
   #     - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -86,11 +86,13 @@ services:
 
   backend:
     image: "ghcr.io/userofficeproject/user-office-backend:${USER_OFFICE_CORE_TAG}"
+    depends_on:
+      - "dev-auth-server"
     environment:
       DATABASE_URL: postgres://duouser:duopassword@db:5432/duo
       secret: qMyLZALzs229ybdQXNyzYRdju7X784TH
       tokenLife: 7d
-      baseURL: localhost:33000
+      baseURL: localhost:3000
       SPARKPOST_TOKEN: dummytoken
       NODE_ENV: development
       UO_FEATURE_DISABLE_EAM: 1
@@ -100,8 +102,11 @@ services:
       AUTH_DISCOVERY_URL: http://localhost:5000/.well-known/openid-configuration
       AUTH_CLIENT_ID: useroffice
       AUTH_CLIENT_SECRET: useroffice
+      TZ: Europe/Stockholm
+      DATE_FORMAT: dd-MM-yyyy
+      DATE_TIME_FORMAT: dd-MM-yyyy HH:mm
     labels:
       - "traefik.frontend.rule=PathPrefix:/api, /downloads, /files, /download, /uploads"
       - "traefik.port=4000"
     ports:
-      - 44000:4000 # avoid collision
+      - 4000:4000 # avoid collision

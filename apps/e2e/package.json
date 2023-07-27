@@ -33,8 +33,8 @@
     "lint": "tsc --noEmit && eslint . --ext .js,.ts --quiet",
     "lint:fix": "tsc --noEmit && eslint . --ext .js,.ts --quiet --fix",
     "cy:open": "cypress open",
-    "cy:run": "env TZ=Europe/Stockholm cypress run --headless --browser chrome --config defaultCommandTimeout=15000",
-    "cy:run:action": "cypress run --spec \"${CYPRES_SPEC_PATTERN}\" --browser chrome"
+    "cy:run": "env TZ=Europe/Stockholm cypress run --e2e",
+    "cy:run:action": "env TZ=Europe/Stockholm cypress run --spec \"${CYPRES_SPEC_PATTERN}\" --browser chrome"
   },
   "engines": {
     "npm": ">=8.0.0",

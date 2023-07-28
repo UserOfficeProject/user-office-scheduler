@@ -34,7 +34,7 @@
     "lint:fix": "tsc --noEmit && eslint . --ext .js,.ts --quiet --fix",
     "cy:open": "cypress open",
     "cy:run": "env TZ=Europe/Stockholm cypress run --e2e",
-    "cy:run:action": "env TZ=Europe/Stockholm cypress run --e2e --spec \"${CYPRES_SPEC_PATTERN}\" --browser chrome"
+    "cy:run:action": "env TZ=Europe/Stockholm cypress run --e2e --spec \"${CYPRES_SPEC_PATTERN}\""
   },
   "engines": {
     "npm": ">=8.0.0",

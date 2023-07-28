@@ -35,7 +35,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - "./${USER_OFFICE_BACKEND_DIR}/db_patches/:/docker-entrypoint-initdb.d/"
+      - ../../../user-office-core/apps/backend/db_patches/:/docker-entrypoint-initdb.d/
 
   scheduler-db:
     image: postgres:11-alpine
@@ -58,7 +58,7 @@ services:
       - ./rabbitmq-isolated.conf:/etc/rabbitmq/rabbitmq.config
 
   factory:
-    image: "ghcr.io/userofficeproject/user-office-factory:${USER_OFFICE_FACTORY_TAG}"
+    image: "ghcr.io/userofficeproject/user-office-factory:develop"
     init: true
     environment:
       - NODE_ENV=development
@@ -73,10 +73,10 @@ services:
       - SYS_ADMIN
 
   gateway:
-    image: "ghcr.io/userofficeproject/user-office-gateway:${USER_OFFICE_GATEWAY_TAG}"
+    image: "ghcr.io/userofficeproject/user-office-gateway:develop"
     environment:
       USER_OFFICE_BACKEND: http://backend:4000/graphql
-      USER_OFFICE_SCHEDULER_BACKEND: http://host.docker.internal:4200/graphql
+      USER_OFFICE_SCHEDULER_BACKEND: http://127.0.0.1:4200/graphql
       NODE_ENV: development
       ENABLE_SERVICE_POLLING: 1 # see gateway
       KEEP_RETRYING: 1 # see gateway
@@ -87,7 +87,7 @@ services:
       - "traefik.port=4100"
 
   backend:
-    image: "ghcr.io/userofficeproject/user-office-backend:${USER_OFFICE_CORE_TAG}"
+    image: "ghcr.io/userofficeproject/user-office-backend:develop"
     depends_on:
       - "dev-auth-server"
       - "db"

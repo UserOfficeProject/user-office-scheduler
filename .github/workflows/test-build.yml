@@ -309,6 +309,7 @@ jobs:
           USER_OFFICE_FACTORY_TAG: ${{ needs.resolve_dep.outputs.FACTORY_TAG }}
           USER_OFFICE_FACTORY_ENDPOINT: noop
           CYPRESS_CACHE_FOLDER: .cache/Cypress
+          CYPRES_SPEC_PATTERN: ${{ matrix.pattern }}
           BUILD_TAG: ${{ github.sha }}
         
         run: |

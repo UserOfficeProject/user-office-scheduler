@@ -76,7 +76,7 @@ services:
     image: "ghcr.io/userofficeproject/user-office-gateway:develop"
     environment:
       USER_OFFICE_BACKEND: http://backend:4000/graphql
-      USER_OFFICE_SCHEDULER_BACKEND: http://127.0.0.1:4200/graphql
+      USER_OFFICE_SCHEDULER_BACKEND: http://host.docker.internal:4200/graphql
       NODE_ENV: development
       ENABLE_SERVICE_POLLING: 1 # see gateway
       KEEP_RETRYING: 1 # see gateway
@@ -85,6 +85,8 @@ services:
     labels:
       - "traefik.frontend.rule=PathPrefix:/graphql"
       - "traefik.port=4100"
+    extra_hosts:
+    - "host.docker.internal:host-gateway"
 
   backend:
     image: "ghcr.io/userofficeproject/user-office-backend:develop"

@@ -47,7 +47,7 @@ services:
     ports:
       - 5433:5432 # avoid collision
     volumes:
-      - ./db_patches/:/docker-entrypoint-initdb.d/
+      - "./${USER_OFFICE_SCHEDULER_BACKEND_DIR}/db_patches/:/docker-entrypoint-initdb.d/"
 
   rabbitmq:
     image: "rabbitmq:3-management"

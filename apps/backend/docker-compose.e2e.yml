@@ -94,6 +94,9 @@ services:
       - "dev-auth-server"
       - "db"
     restart: on-failure
+    entrypoint: /tmp/wait-for-postgres.sh db 5432
+    volumes:
+      - "./wait-for-postgres.sh:/tmp/wait-for-postgres.sh"
     environment:
       USER_OFFICE_BACKEND_DIR: apps/backend
       USER_OFFICE_FRONTEND_DIR: apps/frontend

@@ -35,7 +35,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - "./${USER_OFFICE_BACKEND_DIR}/db_patches/:/docker-entrypoint-initdb.d/"
+      - "../../../user-office-core/apps/user-office-backend/db_patches/:/docker-entrypoint-initdb.d/"
 
   scheduler-db:
     image: postgres:11-alpine
@@ -47,7 +47,7 @@ services:
     ports:
       - 5433:5432 # avoid collision
     volumes:
-      - "./${USER_OFFICE_SCHEDULER_BACKEND_DIR}/db_patches/:/docker-entrypoint-initdb.d/"
+      - "./db_patches/:/docker-entrypoint-initdb.d/"
 
   rabbitmq:
     image: "rabbitmq:3-management"

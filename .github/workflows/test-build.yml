@@ -312,6 +312,9 @@ jobs:
           BUILD_TAG: ${{ github.sha }}
         
         run: |
+          ls
+          cd ..
+          ls
           REPO_DIR_NAME=$(basename $GITHUB_WORKSPACE)
 
           npm run e2e:after:dev

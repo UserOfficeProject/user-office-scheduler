@@ -58,7 +58,7 @@ services:
       - ./rabbitmq-isolated.conf:/etc/rabbitmq/rabbitmq.config
 
   factory:
-    image: "ghcr.io/userofficeproject/user-office-factory::${USER_OFFICE_FACTORY_TAG}"
+    image: "ghcr.io/userofficeproject/user-office-factory:${USER_OFFICE_FACTORY_TAG}"
     init: true
     environment:
       - NODE_ENV=development

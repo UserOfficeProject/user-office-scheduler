@@ -1,4 +1,4 @@
-version: "3.1"
+version: "3.8"
 
 # Used by user-office-develop to be able to run every components
 services:
@@ -58,7 +58,7 @@ services:
       - ./rabbitmq-isolated.conf:/etc/rabbitmq/rabbitmq.config
 
   factory:
-    image: "ghcr.io/userofficeproject/user-office-factory:${USER_OFFICE_FACTORY_TAG}"
+    image: "ghcr.io/userofficeproject/user-office-factory:develop"
     init: true
     environment:
       - NODE_ENV=development
@@ -73,7 +73,8 @@ services:
       - SYS_ADMIN
 
   gateway:
-    image: "ghcr.io/userofficeproject/user-office-gateway:${USER_OFFICE_GATEWAY_TAG}"
+    image: "ghcr.io/userofficeproject/user-office-gateway:develop"
+    # entrypoint: sh -c "sleep 15; node ./build/index.js"
     environment:
       USER_OFFICE_BACKEND: http://backend:4000/graphql
       USER_OFFICE_SCHEDULER_BACKEND: http://host.docker.internal:4200/graphql
@@ -82,14 +83,14 @@ services:
       KEEP_RETRYING: 1 # see gateway
     ports:
       - 4100:4100
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     labels:
       - "traefik.frontend.rule=PathPrefix:/graphql"
       - "traefik.port=4100"
-    extra_hosts:
-    - "host.docker.internal:host-gateway"
 
   backend:
-    image: "ghcr.io/userofficeproject/user-office-backend:${USER_OFFICE_CORE_TAG}"
+    image: "ghcr.io/userofficeproject/user-office-backend:develop"
     depends_on:
       - "dev-auth-server"
       - "db"

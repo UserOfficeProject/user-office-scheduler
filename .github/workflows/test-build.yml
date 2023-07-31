@@ -300,8 +300,8 @@ jobs:
           USER_OFFICE_CORE_TAG: ${{ needs.resolve_dep.outputs.CORE_TAG }}
           # TODO: When folder structure changes for the core we should change it here
           USER_OFFICE_BACKEND_DIR: ../user-office-core/apps/user-office-backend
-          USER_OFFICE_BACKEND: http://backend:4000/graphql
-          USER_OFFICE_ENDPOINT: http://backend:4000/graphql
+          USER_OFFICE_BACKEND: http://localhost:4000/graphql
+          USER_OFFICE_ENDPOINT: http://localhost:4000/graphql
           USER_OFFICE_SCHEDULER_BACKEND_DIR: apps/backend
           USER_OFFICE_SCHEDULER_BACKEND: http://localhost:4200/graphql
           USER_OFFICE_SCHEDULER_FRONTEND_DIR: apps/frontend

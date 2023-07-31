@@ -6,6 +6,7 @@
     "url": "https://github.com/UserOfficeProject/user-office-scheduler.git"
   },
   "private": true,
+  "proxy": "http://localhost:4100",
   "scripts": {
     "dev": "react-scripts start",
     "build": "react-scripts --max_old_space_size=4096 build",
@@ -102,7 +103,6 @@
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.4.0",
     "eslint-plugin-unused-imports": "^2.0.0",
-    "http-proxy-middleware": "^2.0.6",
     "husky": "^4.3.8",
     "lint-staged": "^13.2.2",
     "prettier": "^2.8.8"

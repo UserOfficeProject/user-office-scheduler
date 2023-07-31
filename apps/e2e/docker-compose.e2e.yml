@@ -1,40 +1,121 @@
-version: "3.1"
+version: "3.8"
 
+# Used by user-office-develop to be able to run every components
 services:
-  proxy:
-    image: traefik:1.7 # The official Traefik docker image
-    command: --api --docker # Enables the web UI and tells Traefik to listen to docker
-    ports:
-      - "80:80" # The HTTP port
-      - "8080:8080" # The Web UI (enabled by --api)
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-
-  frontend:
-    image: "duo-frontend:${BUILD_TAG}"
-    labels:
-      - "traefik.frontend.rule=PathPrefix:/"
-      - "traefik.port=80"
-    depends_on:
-      - backend
-
-  cypress:
-    image: e2e-cypress:latest
-    ipc: host # see https://github.com/cypress-io/cypress/issues/350
+  dev-auth-server:
+    image: "ghcr.io/userofficeproject/user-office-development-authorization-server:develop"
     environment:
-      CYPRESS_SVC_ACC_TOKEN: $SVC_ACC_TOKEN
-    entrypoint:
-      [
-        "/wait-for-frontend.sh",
-        "frontend:80",
-        'cypress run --spec "${CYPRES_SPEC_PATTERN}" --browser chrome --config defaultCommandTimeout=15000',
-      ]
+      DATABASE_URL: postgres://duouser:duopassword@db:5432/duo
+      PORT: 5000
+    ports:
+      - "5000:5000"
     depends_on:
-      - frontend
+      - "db"
+
+  db:
+    image: postgres:11-alpine
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: duopassword
+      POSTGRES_USER: duouser
+      POSTGRES_DB: duo
+    ports:
+      - 5432:5432
     volumes:
-      - "./${USER_OFFICE_FRONTEND_DIR}/cypress/screenshots:/tmp/screenshots"
-      - "./${USER_OFFICE_FRONTEND_DIR}/cypress/fixtures:/e2e/cypress/fixtures"
-      - "./${USER_OFFICE_FRONTEND_DIR}/cypress/integration:/e2e/cypress/integration"
-      - "./${USER_OFFICE_FRONTEND_DIR}/cypress/plugins:/e2e/cypress/plugins"
-      - "./${USER_OFFICE_FRONTEND_DIR}/cypress/support:/e2e/cypress/support"
-      - "./${USER_OFFICE_FRONTEND_DIR}/cypress/types:/e2e/cypress/types"
+      - "../../../user-office-core/apps/user-office-backend/db_patches/:/docker-entrypoint-initdb.d/"
+
+  scheduler-db:
+    image: postgres:11-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: scheduler
+      POSTGRES_USER: schedulerUser
+      POSTGRES_PASSWORD: schedulerPassword
+    ports:
+      - 5433:5432 # avoid collision
+    volumes:
+      - "./db_patches/:/docker-entrypoint-initdb.d/"
+
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    volumes:
+      - ./rabbitmq-isolated.conf:/etc/rabbitmq/rabbitmq.config
+
+  factory:
+    image: "ghcr.io/userofficeproject/user-office-factory:develop"
+    init: true
+    environment:
+      - NODE_ENV=development
+      - DATABASE_HOSTNAME=db
+      - DATABASE_PORT=5432
+      - DATABASE_USER=duouser
+      - DATABASE_PASSWORD=duopassword
+      - DATABASE_DATABASE=duo
+    ports:
+      - 4500:4500
+    cap_add:
+      - SYS_ADMIN
+
+  gateway:
+    image: "ghcr.io/userofficeproject/user-office-gateway:develop"
+    environment:
+      USER_OFFICE_BACKEND: http://backend:4000/graphql
+      USER_OFFICE_SCHEDULER_BACKEND: http://host.docker.internal:4200/graphql
+      NODE_ENV: development
+      ENABLE_SERVICE_POLLING: 1 # see gateway
+      KEEP_RETRYING: 1 # see gateway
+    ports:
+      - 4100:4100
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    labels:
+      - "traefik.frontend.rule=PathPrefix:/graphql"
+      - "traefik.port=4100"
+
+  backend:
+    image: "ghcr.io/userofficeproject/user-office-backend:develop"
+    depends_on:
+      - "dev-auth-server"
+      - "db"
+    restart: on-failure
+    # NOTE: Wait for the database to start
+    entrypoint: sh -c "sleep 10; node ./build/index.js"
+    environment:
+      USER_OFFICE_BACKEND_DIR: apps/backend
+      USER_OFFICE_FRONTEND_DIR: apps/frontend
+      USER_OFFICE_FRONTEND_E2E_DIR: apps/e2e
+      USER_OFFICE_BACKEND: http://localhost:4000/graphql
+      USER_OFFICE_ENDPOINT: http://localhost:4000/graphql
+      TZ: Europe/Stockholm
+      DATE_FORMAT: dd-MM-yyyy
+      DATE_TIME_FORMAT: dd-MM-yyyy HH:mm
+      PING_PUBLIC_CRT: dummypingsecret
+      DEPENDENCY_CONFIG: e2e
+      secret: qMyLZALzs229ybdQXNyzYRdju7X784TH
+      NODE_ENV: development
+      baseURL: localhost:3000
+      tokenLife: 7d
+      SPARKPOST_TOKEN: dummytoken
+      DATABASE_URL: postgres://duouser:duopassword@db:5432/duo
+      USER_OFFICE_FACTORY_ENDPOINT: http://factory:4500/generate
+      USER_OFFICE_FACTORY_TAG: develop
+      SCHEMA_URL: http://localhost:4000/graphql
+      CYPRESS_CACHE_FOLDER: .cache/Cypress
+      RABBITMQ_HOSTNAME: rabbitmq
+      EAM_AUTH_URL: https://ios.esss.lu.se
+      EAM_AUTH_SECRET: dummyEAMsecret
+      EAM_AUTH_USER: dummyAuthUser
+      EAM_AUTH_PASS: dummyAuthPass
+      EAM_API_URL: https://ios.esss.lu.se:7443
+      EAM_PART_CODE: 12413
+      AUTH_DISCOVERY_URL: http://dev-auth-server:5000/.well-known/openid-configuration
+      AUTH_CLIENT_ID: useroffice
+      AUTH_CLIENT_SECRET: useroffice
+    labels:
+      - "traefik.frontend.rule=PathPrefix:/api, /downloads, /files, /download, /uploads"
+      - "traefik.port=4000"
+    ports:
+      - 4000:4000 # avoid collision

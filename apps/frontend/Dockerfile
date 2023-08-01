@@ -1,5 +1,8 @@
 FROM node:16.13-alpine AS build-stage
 
+# NOTE: This is needed for multi-platform builds
+RUN apk add --update python3 make g++ && rm -rf /var/cache/apk/*
+
 WORKDIR /app
 
 RUN echo "GENERATE_SOURCEMAP=false" >> .env

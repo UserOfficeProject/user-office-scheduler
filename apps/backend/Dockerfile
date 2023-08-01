@@ -1,8 +1,11 @@
 FROM node:16.17.1-alpine AS build-stage
 
+RUN apk add --update python3 make g++ && rm -rf /var/cache/apk/*
+
 USER node
 
 RUN mkdir -p /home/node/app
+
 
 WORKDIR /home/node/app
 

@@ -359,7 +359,7 @@ jobs:
         with:
           context: ./apps/backend
           file: ./apps/backend/Dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm/v6,linux/arm64
           # Build but don't push if dependabot is creating the PR
           push: ${{ !startsWith(github.head_ref, 'dependabot') }}
           tags: ghcr.io/userofficeproject/user-office-scheduler-backend:${{ github.head_ref }}
@@ -369,7 +369,7 @@ jobs:
         with:
           context: ./apps/frontend
           file: ./apps/frontend/Dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm/v6,linux/arm64
           # Build but don't push if dependabot is creating the PR
           push: ${{ !startsWith(github.head_ref, 'dependabot') }}
           tags: ghcr.io/userofficeproject/user-office-scheduler-frontend:${{ github.head_ref }}

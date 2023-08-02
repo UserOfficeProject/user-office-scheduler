@@ -7,9 +7,6 @@
 
 # testing
 /coverage
-/cypress/videos/
-/cypress/screenshots/
-/cypress/node_modules
 
 # production
 /build

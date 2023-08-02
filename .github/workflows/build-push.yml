@@ -57,9 +57,8 @@ jobs:
         if: steps.extract_branch.outputs.branch != 'master'
         uses: docker/build-push-action@v3
         with:
-          build-args: BUILD_VERSION=${{ github.sha }}
           context: ./apps/backend
-          platforms: linux/amd64,linux/arm64/v8
+          platforms: linux/amd64,linux/arm64
           file: ./apps/backend/Dockerfile
           push: true
           tags: ${{ steps.meta-backend.outputs.tags }}
@@ -69,9 +68,8 @@ jobs:
         if: steps.extract_branch.outputs.branch != 'master'
         uses: docker/build-push-action@v3
         with:
-          build-args: BUILD_VERSION=${{ github.sha }}
           context: ./apps/frontend
-          platforms: linux/amd64,linux/arm64/v8
+          platforms: linux/amd64,linux/arm64
           file: ./apps/frontend/Dockerfile
           push: true
           tags: ${{ steps.meta-frontend.outputs.tags }}

@@ -1,8 +1,12 @@
-FROM node:16.16.0-alpine AS build-stage
+FROM node:16.17.1-alpine AS build-stage
+
+# NOTE: This is needed for multi-platform builds
+RUN apk add --update python3 make g++ && rm -rf /var/cache/apk/*
 
 USER node
 
 RUN mkdir -p /home/node/app
+
 
 WORKDIR /home/node/app
 
@@ -14,7 +18,7 @@ COPY --chown=node:node . .
 
 RUN npm run build
 
-FROM node:16.16.0-alpine
+FROM node:16.17.1-alpine
 
 USER node
 

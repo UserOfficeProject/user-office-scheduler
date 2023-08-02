@@ -10,7 +10,7 @@ export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> =
 export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: { input: string | number; output: string; }
+  ID: { input: string; output: string; }
   String: { input: string; output: string; }
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
@@ -248,6 +248,7 @@ export enum DataType {
   FILE_UPLOAD = 'FILE_UPLOAD',
   GENERIC_TEMPLATE = 'GENERIC_TEMPLATE',
   GENERIC_TEMPLATE_BASIS = 'GENERIC_TEMPLATE_BASIS',
+  INSTRUMENT_PICKER = 'INSTRUMENT_PICKER',
   INTERVAL = 'INTERVAL',
   NUMBER_INPUT = 'NUMBER_INPUT',
   PROPOSAL_BASIS = 'PROPOSAL_BASIS',
@@ -480,7 +481,7 @@ export type FieldConditionInput = {
   params: Scalars['String']['input'];
 };
 
-export type FieldConfig = BooleanConfig | DateConfig | DynamicMultipleChoiceConfig | EmbellishmentConfig | FeedbackBasisConfig | FileUploadConfig | GenericTemplateBasisConfig | IntervalConfig | NumberInputConfig | ProposalBasisConfig | ProposalEsiBasisConfig | RichTextInputConfig | SampleBasisConfig | SampleDeclarationConfig | SampleEsiBasisConfig | SelectionFromOptionsConfig | ShipmentBasisConfig | SubTemplateConfig | TextInputConfig | VisitBasisConfig;
+export type FieldConfig = BooleanConfig | DateConfig | DynamicMultipleChoiceConfig | EmbellishmentConfig | FeedbackBasisConfig | FileUploadConfig | GenericTemplateBasisConfig | InstrumentPickerConfig | IntervalConfig | NumberInputConfig | ProposalBasisConfig | ProposalEsiBasisConfig | RichTextInputConfig | SampleBasisConfig | SampleDeclarationConfig | SampleEsiBasisConfig | SelectionFromOptionsConfig | ShipmentBasisConfig | SubTemplateConfig | TextInputConfig | VisitBasisConfig;
 
 export type FieldDependency = {
   condition: FieldCondition;
@@ -566,6 +567,19 @@ export type Instrument = {
   name: Scalars['String']['output'];
   scientists: Array<BasicUserDetails>;
   shortCode: Scalars['String']['output'];
+};
+
+export type InstrumentOption = {
+  id: Scalars['Float']['output'];
+  name: Scalars['String']['output'];
+};
+
+export type InstrumentPickerConfig = {
+  instruments: Array<InstrumentOption>;
+  required: Scalars['Boolean']['output'];
+  small_label: Scalars['String']['output'];
+  tooltip: Scalars['String']['output'];
+  variant: Scalars['String']['output'];
 };
 
 export type InstrumentWithAvailabilityTime = {
@@ -932,6 +946,8 @@ export type MutationCreateInstrumentArgs = {
 
 export type MutationCreatePdfTemplateArgs = {
   templateData: Scalars['String']['input'];
+  templateFooter: Scalars['String']['input'];
+  templateHeader: Scalars['String']['input'];
   templateId: Scalars['Int']['input'];
 };
 
@@ -1459,6 +1475,8 @@ export type MutationUpdatePasswordArgs = {
 export type MutationUpdatePdfTemplateArgs = {
   pdfTemplateId: Scalars['Int']['input'];
   templateData?: InputMaybe<Scalars['String']['input']>;
+  templateFooter?: InputMaybe<Scalars['String']['input']>;
+  templateHeader?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1682,12 +1700,16 @@ export type PdfTemplate = {
   creatorId: Scalars['Int']['output'];
   pdfTemplateId: Scalars['Int']['output'];
   templateData: Scalars['String']['output'];
+  templateFooter: Scalars['String']['output'];
+  templateHeader: Scalars['String']['output'];
   templateId: Scalars['Int']['output'];
 };
 
 export type PdfTemplatesFilter = {
   creatorId?: InputMaybe<Scalars['Int']['input']>;
   pdfTemplateData?: InputMaybe<Scalars['String']['input']>;
+  pdfTemplateFooter?: InputMaybe<Scalars['String']['input']>;
+  pdfTemplateHeader?: InputMaybe<Scalars['String']['input']>;
   pdfTemplateIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   templateIds?: InputMaybe<Array<Scalars['Int']['input']>>;
 };
@@ -1954,6 +1976,7 @@ export type Query = {
   basicUserDetailsByEmail: Maybe<BasicUserDetails>;
   blankQuestionary: Questionary;
   blankQuestionarySteps: Maybe<Array<QuestionaryStep>>;
+  blankQuestionaryStepsByCallId: Maybe<Array<QuestionaryStep>>;
   call: Maybe<Call>;
   calls: Maybe<Array<Call>>;
   callsByInstrumentScientist: Maybe<Array<Call>>;
@@ -2073,6 +2096,11 @@ export type QueryBlankQuestionaryArgs = {
 
 export type QueryBlankQuestionaryStepsArgs = {
   templateId: Scalars['Int']['input'];
+};
+
+
+export type QueryBlankQuestionaryStepsByCallIdArgs = {
+  callId: Scalars['Int']['input'];
 };
 
 

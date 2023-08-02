@@ -11,6 +11,7 @@ uploads
 .vscode/settings.json
 *.env
 !example.env
+!example.development.env
 
 codegen_tmp.yml
 

@@ -1,0 +1,26 @@
+FROM cypress/included:12.13.0
+
+# Copy and install node modules needed for frontend
+WORKDIR /e2e
+COPY apps/frontend/src/generated user-office-scheduler-frontend/src/generated
+COPY apps/frontend/package* user-office-scheduler-frontend/
+
+WORKDIR /e2e/user-office-scheduler-frontend
+RUN npm ci --silent
+
+# Copy e2e tests to container. Install node modules needed for e2e tests
+WORKDIR /e2e
+COPY apps/e2e/cypress.config.ts ./user-office-scheduler-e2e/
+COPY apps/e2e/package* ./user-office-scheduler-e2e/
+COPY apps/e2e/tsconfig.json ./user-office-scheduler-e2e/tsconfig.json
+COPY apps/e2e/wait-for-frontend.sh ./user-office-scheduler-e2e/
+COPY apps/e2e/cypress ./user-office-scheduler-e2e/cypress/
+COPY apps/e2e/webpack.config.js ./user-office-scheduler-e2e/
+
+WORKDIR /e2e/user-office-scheduler-e2e
+RUN npm ci --silent
+
+# Install necessary dependencies for wait-for-frontend.sh
+RUN apt-get update && apt-get install curl -y
+
+ENTRYPOINT ["npm", "run", "cy:run"]

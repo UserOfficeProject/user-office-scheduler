@@ -1,0 +1,43 @@
+{
+  "name": "user-office-scheduler-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@faker-js/faker": "^7.5.0",
+    "cypress": "^12.17.2",
+    "cypress-real-events": "^1.8.1",
+    "dotenv": "^8.6.0",
+    "graphql": "^16.6.0",
+    "graphql-request": "^6.1.0",
+    "graphql-tag": "^2.12.6",
+    "jwt-decode": "^3.1.2",
+    "moment": "^2.29.4",
+    "typescript": "^5.1.6"
+  },
+  "devDependencies": {
+    "@cypress/webpack-preprocessor": "^5.17.1",
+    "@types/eslint": "^8.44.1",
+    "@types/node": "^20.4.5",
+    "@typescript-eslint/eslint-plugin": "^6.2.0",
+    "@typescript-eslint/parser": "^6.2.0",
+    "eslint": "^8.45.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-cypress": "^2.13.3",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-unused-imports": "^3.0.0",
+    "prettier": "^3.0.0",
+    "ts-loader": "^9.4.4"
+  },
+  "scripts": {
+    "lint": "tsc --noEmit && eslint . --ext .js,.ts --quiet",
+    "lint:fix": "tsc --noEmit && eslint . --ext .js,.ts --quiet --fix",
+    "cy:open": "cypress open",
+    "cy:run": "env TZ=Europe/Stockholm cypress run --e2e",
+    "cy:run:action": "env TZ=Europe/Stockholm cypress run --e2e --spec \"${CYPRES_SPEC_PATTERN}\""
+  },
+  "engines": {
+    "npm": ">=8.0.0",
+    "node": ">=16.0.0"
+  }
+}

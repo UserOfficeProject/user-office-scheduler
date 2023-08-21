@@ -1,9 +1,0 @@
-# Ignore everything except the required files
-# this improves docker caching
-*
-!src
-!public
-!package*
-!cypress
-!tsconfig.json
-!default.conf.template

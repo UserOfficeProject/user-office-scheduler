@@ -1,0 +1,11 @@
+node_modules
+.next
+build
+dist
+public
+
+src/serviceWorker.ts
+src/setupProxy.js
+src/generated/sdk.ts
+
+server.js

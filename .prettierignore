@@ -1,0 +1,10 @@
+# all
+**/package-lock.json
+**/node_modules/
+**/.github/workflows/
+**/README.md
+**/.vscode/
+**/src/generated/
+
+# frontend-e2e
+/apps/e2e/cypress/fixtures/

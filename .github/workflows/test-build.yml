@@ -271,7 +271,7 @@ jobs:
         id: cached-node-modules-backend
         uses: actions/cache@v3
         with:
-          path: apps/backend/node_modulescalhost
+          path: apps/backend/node_modules
           key: node-modules-backend-${{ hashFiles('apps/backend/package-lock.json') }}
 
       - name: Restore frontend node_modules

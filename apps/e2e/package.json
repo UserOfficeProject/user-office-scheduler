@@ -37,7 +37,7 @@
     "cy:run:action": "env TZ=Europe/Stockholm cypress run --e2e --spec \"${CYPRES_SPEC_PATTERN}\""
   },
   "engines": {
-    "npm": ">=8.0.0",
-    "node": ">=16.0.0"
+    "npm": ">=9.0.0",
+    "node": ">=18.0.0"
   }
 }

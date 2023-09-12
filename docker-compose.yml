@@ -105,7 +105,7 @@ services:
       AUTH_DISCOVERY_URL: http://host.docker.internal:5001/.well-known/openid-configuration
       AUTH_CLIENT_ID: useroffice
       AUTH_CLIENT_SECRET: useroffice
-      DEPENDENCY_CONFIG: e2e
+      DEPENDENCY_CONFIG: ess
       TZ: Europe/Stockholm
       DATE_FORMAT: dd-MM-yyyy
       DATE_TIME_FORMAT: dd-MM-yyyy HH:mm

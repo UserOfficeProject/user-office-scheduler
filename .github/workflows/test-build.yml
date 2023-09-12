@@ -7,7 +7,7 @@ on:
     branches: [develop]
 
 env:
-  NODE_VERSION: 16.x
+  NODE_VERSION: 18.x
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -135,7 +135,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: node_modules
-          key: node-modules-root-${{ hashFiles('package-lock.json') }}
+          key: node-modules-root-${{ hashFiles('package-lock.json') }}-${{ env.NODE_VERSION }}
 
       - name: Install root dependencies
         if: steps.cached-node-modules-root.outputs.cache-hit != 'true'
@@ -148,7 +148,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: apps/backend/node_modules
-          key: node-modules-backend-${{ hashFiles('apps/backend/package-lock.json') }}
+          key: node-modules-backend-${{ hashFiles('apps/backend/package-lock.json') }}-${{ env.NODE_VERSION }}
 
       - name: Install backend dependencies
         if: steps.cached-node-modules-backend.outputs.cache-hit != 'true'
@@ -159,7 +159,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: apps/frontend/node_modules
-          key: node-modules-frontend-${{ hashFiles('apps/frontend/package-lock.json') }}
+          key: node-modules-frontend-${{ hashFiles('apps/frontend/package-lock.json') }}-${{ env.NODE_VERSION }}
 
       - name: Install frontend dependencies
         if: steps.cached-node-modules-frontend.outputs.cache-hit != 'true'
@@ -183,21 +183,21 @@ jobs:
         uses: actions/cache@v3
         with:
           path: node_modules
-          key: node-modules-root-${{ hashFiles('package-lock.json') }}
+          key: node-modules-root-${{ hashFiles('package-lock.json') }}-${{ env.NODE_VERSION }}
 
       - name: Restore backend node_modules
         id: cached-node-modules-backend
         uses: actions/cache@v3
         with:
           path: apps/backend/node_modules
-          key: node-modules-backend-${{ hashFiles('apps/backend/package-lock.json') }}
+          key: node-modules-backend-${{ hashFiles('apps/backend/package-lock.json') }}-${{ env.NODE_VERSION }}
 
       - name: Restore frontend node_modules
         id: cached-node-modules-frontend
         uses: actions/cache@v3
         with:
           path: apps/frontend/node_modules
-          key: node-modules-frontend-${{ hashFiles('apps/frontend/package-lock.json') }}
+          key: node-modules-frontend-${{ hashFiles('apps/frontend/package-lock.json') }}-${{ env.NODE_VERSION }}
 
       - run: npm run build
         env:
@@ -222,7 +222,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: apps/backend/node_modules
-          key: node-modules-backend-${{ hashFiles('apps/backend/package-lock.json') }}
+          key: node-modules-backend-${{ hashFiles('apps/backend/package-lock.json') }}-${{ env.NODE_VERSION }}
 
       - name: Run backend unit tests
         env:
@@ -265,21 +265,21 @@ jobs:
         uses: actions/cache@v3
         with:
           path: node_modules
-          key: node-modules-root-${{ hashFiles('package-lock.json') }}
+          key: node-modules-root-${{ hashFiles('package-lock.json') }}-${{ env.NODE_VERSION }}
 
       - name: Restore backend node_modules
         id: cached-node-modules-backend
         uses: actions/cache@v3
         with:
           path: apps/backend/node_modules
-          key: node-modules-backend-${{ hashFiles('apps/backend/package-lock.json') }}
+          key: node-modules-backend-${{ hashFiles('apps/backend/package-lock.json') }}-${{ env.NODE_VERSION }}
 
       - name: Restore frontend node_modules
         id: cached-node-modules-frontend
         uses: actions/cache@v3
         with:
           path: apps/frontend/node_modules
-          key: node-modules-frontend-${{ hashFiles('apps/frontend/package-lock.json') }}
+          key: node-modules-frontend-${{ hashFiles('apps/frontend/package-lock.json') }}-${{ env.NODE_VERSION }}
 
       - name: Install e2e dependencies
         env:

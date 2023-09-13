@@ -2,8 +2,8 @@ version: '3.1'
 
 services:
   # used to proxy the core UI FE and BE requests to the right container
-  # Core FE is accessible on core.localhost:3000
-  # Scheduler BE is accessible on scheduler.localhost:3000
+  # Core FE is accessible on localhost:3000
+  # Scheduler FE is accessible on localhost:33000
   proxy:
     image: traefik:2.10 # The official Traefik docker image
     command:
@@ -12,8 +12,11 @@ services:
       - '--providers.docker=true'
       - '--providers.docker.exposedbydefault=false'
       - '--entrypoints.web.address=:80'
+      - '--entrypoints.ep1.address=:3000'
+      - '--entrypoints.ep2.address=:33000'
     ports:
-      - '3000:80'
+      - '3000:3000'
+      - '33000:33000'
       - '8080:8080' # The Web UI (enabled by --api)
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -65,7 +68,7 @@ services:
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.services.backend.loadbalancer.server.port=4100'
-      - 'traefik.http.routers.gateway.rule=(Host(`core.localhost`, `scheduler.localhost`) && PathPrefix(`/gateway`, `/graphql`))'
+      - 'traefik.http.routers.gateway.rule=(Host(`localhost`) && PathPrefix(`/gateway`, `/graphql`))'
     depends_on:
       - backend
       - scheduler-backend
@@ -82,8 +85,8 @@ services:
     image: 'ghcr.io/userofficeproject/user-office-frontend:develop'
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.core.rule=Host(`core.localhost`)'
-      - 'traefik.http.routers.core.entrypoints=web'
+      - 'traefik.http.routers.core.rule=Host(`localhost`)'
+      - 'traefik.http.routers.core.entrypoints=ep1'
     depends_on:
       - gateway
 
@@ -91,8 +94,8 @@ services:
     image: 'ghcr.io/userofficeproject/user-office-scheduler-frontend:develop'
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.scheduler.rule=Host(`scheduler.localhost`)'
-      - 'traefik.http.routers.scheduler.entrypoints=web'
+      - 'traefik.http.routers.scheduler.rule=Host(`localhost`)'
+      - 'traefik.http.routers.scheduler.entrypoints=ep2'
     depends_on:
       - gateway
 
@@ -122,6 +125,7 @@ services:
     depends_on:
       - duo-development-authorization-server
       - db
+      - rabbitmq
     extra_hosts:
       - 'host.docker.internal:host-gateway'
 
@@ -144,6 +148,7 @@ services:
     depends_on:
       - duo-development-authorization-server
       - scheduler-db
+      - rabbitmq
 
   duo-development-authorization-server:
     image: 'ghcr.io/userofficeproject/user-office-development-authorization-server:develop'

@@ -2,26 +2,21 @@ version: '3.1'
 
 services:
   # used to proxy the core UI FE and BE requests to the right container
-  # Core FE is accessible on localhost:33000/
-  # Core BE is accessible on localhost:33000/graphql
+  # Core FE is accessible on core.localhost:3000
+  # Scheduler BE is accessible on scheduler.localhost:3000
   proxy:
     image: traefik:2.10 # The official Traefik docker image
     command:
-      #- "--log.level=DEBUG"
+      - '--log.level=DEBUG'
       - '--api.insecure=true'
       - '--providers.docker=true'
       - '--providers.docker.exposedbydefault=false'
       - '--entrypoints.web.address=:80'
     ports:
-      - '33000:80' # The HTTP port
+      - '3000:80'
       - '8080:8080' # The Web UI (enabled by --api)
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    labels:
-      - 'traefik.enable=true'
-      - 'traefik.http.routers.traefik.rule=Host(`localhost`)'
-      - 'traefik.http.routers.traefik.entrypoints=web'
-      - 'traefik.http.routers.traefik.service=api@internal'
   db:
     image: postgres:11-alpine
     restart: always
@@ -32,7 +27,7 @@ services:
     volumes:
       - ../user-office-core/apps/user-office-backend/db_patches/:/docker-entrypoint-initdb.d/
 
-  schedulerdb:
+  scheduler-db:
     image: postgres:11-alpine
     restart: always
     environment:
@@ -70,7 +65,10 @@ services:
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.services.backend.loadbalancer.server.port=4100'
-      - 'traefik.http.routers.gateway.rule=(Host(`localhost`) && PathPrefix(`/gateway`, `/graphql`))'
+      - 'traefik.http.routers.gateway.rule=(Host(`core.localhost`, `scheduler.localhost`) && PathPrefix(`/gateway`, `/graphql`))'
+    depends_on:
+      - backend
+      - scheduler-backend
 
   rabbitmq:
     image: 'rabbitmq:3-management'
@@ -80,14 +78,22 @@ services:
     volumes:
       - ./rabbitmq-isolated.conf:/etc/rabbitmq/rabbitmq.config
 
+  frontend:
+    image: 'ghcr.io/userofficeproject/user-office-frontend:develop'
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.core.rule=Host(`core.localhost`)'
+      - 'traefik.http.routers.core.entrypoints=web'
+    depends_on:
+      - gateway
+
   scheduler-frontend:
     image: 'ghcr.io/userofficeproject/user-office-scheduler-frontend:develop'
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.scheduler-frontend.rule=(Host(`localhost`) && PathPrefix(`/`))'
+      - 'traefik.http.routers.scheduler.rule=Host(`scheduler.localhost`)'
+      - 'traefik.http.routers.scheduler.entrypoints=web'
     depends_on:
-      - backend
-      - scheduler-backend
       - gateway
 
   backend:
@@ -96,7 +102,7 @@ services:
       DATABASE_URL: postgres://duouser:duopassword@db:5432/duo
       secret: qMyLZALzs229ybdQXNyzYRdju7X784TH
       tokenLife: 7d
-      baseURL: localhost:4000
+      baseURL: core.localhost:3000
       SPARKPOST_TOKEN: dummytoken
       NODE_ENV: development
       UO_FEATURE_DISABLE_EAM: 1
@@ -124,20 +130,20 @@ services:
     environment:
       NODE_ENV: development
       PORT: 4200
-      DATABASE_HOSTNAME: schedulerdb
+      DATABASE_HOSTNAME: scheduler-db
       DATABASE_PORT: 5432
       DATABASE_USER: schedulerUser
       DATABASE_PASSWORD: schedulerPassword
       DATABASE_DATABASE: scheduler
       RABBITMQ_HOSTNAME: rabbitmq
-      SCHEDULER_CONFIG_AUTH_REDIRECT: http://localhost:33000/shared-auth
+      SCHEDULER_CONFIG_AUTH_REDIRECT: http://scheduler.localhost:3000/shared-auth
       USER_OFFICE_ENDPOINT: http://backend:4000/graphql
       PROPOSAL_SCHEDULING_QUEUE_NAME: user-office-backend.proposal_scheduling.queue
       SCHEDULER_EXCHANGE_NAME: user_office_scheduler_backend.fanout
       CORE_EXCHANGE_NAME: user_office_backend.fanout
     depends_on:
       - duo-development-authorization-server
-      - schedulerdb
+      - scheduler-db
 
   duo-development-authorization-server:
     image: 'ghcr.io/userofficeproject/user-office-development-authorization-server:develop'

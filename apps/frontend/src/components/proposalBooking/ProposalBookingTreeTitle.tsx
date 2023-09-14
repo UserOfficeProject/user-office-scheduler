@@ -44,16 +44,24 @@ interface ProposalBookingTreeTitleProps {
   proposalBooking: InstrumentProposalBooking;
 }
 
+export function getAllocatedTime(
+  scheduledEvents: InstrumentProposalBooking['scheduledEvents']
+) {
+  const allocated = scheduledEvents.reduce(
+    (total, curr) =>
+      total + parseTzLessDateTime(curr.endsAt).diff(curr.startsAt, 'seconds'),
+    0
+  );
+
+  return allocated;
+}
+
 function ProposalBookingTreeTitle({
   proposalBooking,
 }: ProposalBookingTreeTitleProps) {
   const classes = useStyles();
 
-  const allocated = proposalBooking.scheduledEvents.reduce(
-    (total, curr) =>
-      total + parseTzLessDateTime(curr.endsAt).diff(curr.startsAt, 'seconds'),
-    0
-  );
+  const allocated = getAllocatedTime(proposalBooking.scheduledEvents);
 
   const allocatable = proposalBooking.allocatedTime - allocated;
 

@@ -70,15 +70,7 @@ const useStyles = makeStyles((theme) => ({
   },
   addButton: {
     minWidth: 'auto',
-    padding: theme.spacing(1),
-
-    '&.MuiTab-root.Mui-selected': {
-      backgroundColor: 'unset !important',
-    },
-
-    '&.Mui-disabled': {
-      pointerEvents: 'all',
-    },
+    margin: theme.spacing(1),
   },
 }));
 
@@ -142,29 +134,24 @@ const SimpleTabs: React.FC<SimpleTabsProps> = ({
           <Tab key={i} label={tabName} {...a11yProps(i, orientation)} />
         ))}
         {!!handleAdd && (
-          <Tab
+          <Button
+            variant="outlined"
+            color="primary"
+            component="span"
             className={classes.addButton}
-            disabled
-            label={
-              <Button
-                variant="outlined"
-                color="primary"
-                component="span"
-                onClick={handleAddNew}
-                disabled={isAddingNewItem}
-                startIcon={
-                  isAddingNewItem ? (
-                    <CircularProgress size={20} color="inherit" />
-                  ) : (
-                    <AddIcon />
-                  )
-                }
-                data-cy="add-new-experiment-time"
-              >
-                Add time
-              </Button>
+            onClick={handleAddNew}
+            disabled={isAddingNewItem}
+            startIcon={
+              isAddingNewItem ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : (
+                <AddIcon />
+              )
             }
-          />
+            data-cy="add-new-experiment-time"
+          >
+            Add time
+          </Button>
         )}
       </Tabs>
 

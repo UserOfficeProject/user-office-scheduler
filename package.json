@@ -26,7 +26,7 @@
     "install:libs:shared-types": "cd libs/shared-types && npm install",
     "install:libs:validation": "cd libs/validation && npm install",
     "postinstall": "concurrently \"npm run install:backend\" \"npm run install:frontend\" \"npm run install:e2e\"",
-    "dev:core": "docker-compose -f apps/e2e/docker-compose.e2e.yml up -d --remove-orphans",
+    "dev:core": "docker-compose -f docker-compose.core.yml up -d --remove-orphans",
     "dev": "concurrently \"npm run dev:core\" \"npm run dev:backend\" \"wait-on --interval 1000 http://127.0.0.1:4200/health-check && npm run dev:frontend\"",
     "dev:e2e": "concurrently \"npm run dev:core\" \"npm run dev:backend:e2e\" \"npm run dev:frontend\"",
     "dev:backend": "cd apps/backend && node ../../copyIfNotExist.js example.development.env .env && npm run dev",

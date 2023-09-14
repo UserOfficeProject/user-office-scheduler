@@ -66,7 +66,7 @@ import {
 } from 'utils/date';
 import { hasOverlappingEvents } from 'utils/scheduledEvent';
 
-import CalendarTodoBox from './common/CalendarTodoBox';
+import CalendarTodoBox, { DraggingEventType } from './common/CalendarTodoBox';
 import { CalendarScheduledEvent } from './common/Event';
 import CalendarView from './views/CalendarView';
 import TableView from './views/TableView';
@@ -226,10 +226,8 @@ export default function CalendarViewContainer() {
     | SlotInfo
     | null
   >(null);
-  const [draggingEventDetails, setDraggingEventDetails] = useState<{
-    proposalBookingId: number;
-    instrumentId: number;
-  } | null>(null);
+  const [draggingEventDetails, setDraggingEventDetails] =
+    useState<DraggingEventType | null>(null);
   const [isAddingOrResizingTimeSlot, setIsAddingOrResizingTimeSlot] =
     useState(false);
   const [view, setView] = useState<SchedulerViewPeriod>(
@@ -427,13 +425,7 @@ export default function CalendarViewContainer() {
     refresh();
   };
 
-  const addAndOpenNewTimeSlot = async ({
-    start,
-    end,
-  }: {
-    start: stringOrDate;
-    end: stringOrDate;
-  }) => {
+  const addAndOpenNewTimeSlot = async ({ start }: { start: stringOrDate }) => {
     if (
       !draggingEventDetails?.proposalBookingId ||
       !draggingEventDetails.instrumentId
@@ -444,9 +436,12 @@ export default function CalendarViewContainer() {
     setIsAddingOrResizingTimeSlot(true);
 
     const newEventStart = moment(start);
-    const newEventEnd = moment(end);
+    const newEventEnd = moment(start).add(
+      draggingEventDetails.timeToAllocate,
+      'seconds'
+    );
 
-    if (newEventEnd.diff(newEventStart, 'day')) {
+    if (view === Views.MONTH && newEventStart.hour() === 0) {
       newEventStart.set({ hour: 9, minute: 0, second: 0 });
       newEventEnd.set({ hour: 9, minute: 0, second: 0 });
     }
@@ -486,14 +481,8 @@ export default function CalendarViewContainer() {
     setDraggingEventDetails(null);
   };
 
-  const onDropFromOutside = async ({
-    start,
-    end,
-  }: {
-    start: stringOrDate;
-    end: stringOrDate;
-  }) => {
-    await addAndOpenNewTimeSlot({ start, end });
+  const onDropFromOutside = async ({ start }: { start: stringOrDate }) => {
+    await addAndOpenNewTimeSlot({ start });
   };
 
   const getUpdatedProposalBookings = (

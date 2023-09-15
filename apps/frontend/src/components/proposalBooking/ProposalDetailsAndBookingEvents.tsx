@@ -427,6 +427,7 @@ export default function ProposalDetailsAndBookingEvents({
                 </ListItemAvatar>
                 <ListItemText
                   primary="Allocated time"
+                  secondaryTypographyProps={{ id: 'allocated-time' }}
                   secondary={formatDuration(allocated)}
                   className={classes.flexColumn}
                 />
@@ -441,6 +442,7 @@ export default function ProposalDetailsAndBookingEvents({
                 </ListItemAvatar>
                 <ListItemText
                   primary="Allocatable time"
+                  secondaryTypographyProps={{ id: 'allocatable-time' }}
                   className={classes.flexColumn}
                   secondary={
                     <>

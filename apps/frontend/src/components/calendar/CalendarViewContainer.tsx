@@ -86,14 +86,14 @@ export const isSchedulerViewPeriod = (
   return schedulerViewPeriods.some((element) => element === arg);
 };
 
-export type CalendarScheduledEventWithUniqeId = CalendarScheduledEvent & {
+export type CalendarScheduledEventWithUniqueId = CalendarScheduledEvent & {
   eventId: number;
 };
 
 // NOTE: It is better practice to convert some values here for table rendering instead of using render function which adds additional complexity for sorting and stuff like that.
 const transformEvent = (
   scheduledEvents: GetScheduledEventsQuery['scheduledEvents']
-): CalendarScheduledEventWithUniqeId[] =>
+): CalendarScheduledEventWithUniqueId[] =>
   scheduledEvents.map((scheduledEvent, index) => ({
     /**
      * NOTE: This id should be unique and we can't just use scheduledEvent.id because we are mixing scheduled events and their equipment together.
@@ -360,7 +360,7 @@ export default function CalendarViewContainer() {
   };
 
   const onSelectEvent = (
-    selectedScheduledEvent: CalendarScheduledEventWithUniqeId
+    selectedScheduledEvent: CalendarScheduledEventWithUniqueId
   ) => {
     switch (selectedScheduledEvent.bookingType) {
       case ScheduledEventBookingType.USER_OPERATIONS: {
@@ -486,7 +486,7 @@ export default function CalendarViewContainer() {
   };
 
   const getUpdatedProposalBookings = (
-    updatedEvent: CalendarScheduledEventWithUniqeId
+    updatedEvent: CalendarScheduledEventWithUniqueId
   ) =>
     proposalBookings.map((booking) => ({
       ...booking,
@@ -507,7 +507,7 @@ export default function CalendarViewContainer() {
     }));
 
   const updateScheduledEvent = async (
-    updatedEvent: CalendarScheduledEventWithUniqeId
+    updatedEvent: CalendarScheduledEventWithUniqueId
   ) => {
     try {
       const {
@@ -559,7 +559,7 @@ export default function CalendarViewContainer() {
     end,
     isAllDay,
   }: {
-    event: CalendarScheduledEventWithUniqeId;
+    event: CalendarScheduledEventWithUniqueId;
     start: stringOrDate;
     end: stringOrDate;
     isAllDay: boolean;
@@ -585,7 +585,7 @@ export default function CalendarViewContainer() {
       view !== Views.MONTH &&
       moment(end).day() !== moment(event.end).day();
 
-    const updatedEvent: CalendarScheduledEventWithUniqeId = {
+    const updatedEvent: CalendarScheduledEventWithUniqueId = {
       ...event,
       start: shouldNotChangeStart ? event.start : moment(start).toDate(),
       end: shouldNotChangeEnd ? event.end : moment(end).toDate(),

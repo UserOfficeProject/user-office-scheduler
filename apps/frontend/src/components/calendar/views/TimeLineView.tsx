@@ -23,7 +23,7 @@ import { toTzLessDateTime, TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
 import { getFullUserName } from 'utils/user';
 
 import {
-  CalendarScheduledEventWithUniqeId,
+  CalendarScheduledEventWithUniqueId,
   SchedulerViewPeriod,
 } from '../CalendarViewContainer';
 import { getBookingTypeStyle } from '../common/Event';
@@ -31,9 +31,9 @@ import 'moment/locale/en-gb';
 import Toolbar, { getLabelText } from '../common/Toolbar';
 
 type TimeLineViewProps = {
-  events: CalendarScheduledEventWithUniqeId[];
+  events: CalendarScheduledEventWithUniqueId[];
   filter: ScheduledEventFilter;
-  onSelectEvent: (selectedEvent: CalendarScheduledEventWithUniqeId) => void;
+  onSelectEvent: (selectedEvent: CalendarScheduledEventWithUniqueId) => void;
 };
 
 type TimeLineGroupType = {
@@ -80,7 +80,7 @@ const getRootGroupItems = (
 ];
 
 const getEventItemGroup = (
-  eventItem: CalendarScheduledEventWithUniqeId,
+  eventItem: CalendarScheduledEventWithUniqueId,
   isLocalContactEvent = false
 ) => {
   switch (eventItem.bookingType) {
@@ -93,7 +93,7 @@ const getEventItemGroup = (
   }
 };
 
-const getEventTitle = (event: CalendarScheduledEventWithUniqeId) =>
+const getEventTitle = (event: CalendarScheduledEventWithUniqueId) =>
   `${event.proposalBooking?.proposal?.title || event.title} (${
     event.proposalBooking?.proposal?.proposalId || event.description
   }) - [${toTzLessDateTime(event.start)} - ${toTzLessDateTime(event.end)}] - ${

@@ -28,7 +28,7 @@ import 'styles/react-big-calendar.css';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 
 import {
-  CalendarScheduledEventWithUniqeId,
+  CalendarScheduledEventWithUniqueId,
   isSchedulerViewPeriod,
   SchedulerViewPeriod,
 } from '../CalendarViewContainer';
@@ -46,7 +46,7 @@ function slotPropGetter(date: Date) {
 
 function isOverlapping(
   { start, end }: { start: stringOrDate; end: stringOrDate },
-  calendarEvents: CalendarScheduledEventWithUniqeId[]
+  calendarEvents: CalendarScheduledEventWithUniqueId[]
 ): boolean {
   return calendarEvents.some((calendarEvent) => {
     if (
@@ -64,7 +64,7 @@ function isOverlapping(
 
 const DragAndDropCalendar = withDragAndDrop(
   BigCalendar as ComponentType<
-    CalendarProps<CalendarScheduledEventWithUniqeId, Record<string, unknown>>
+    CalendarProps<CalendarScheduledEventWithUniqueId, Record<string, unknown>>
   >
 );
 
@@ -83,14 +83,14 @@ const useStyles = makeStyles(() => ({
 
 type CalendarViewProps = {
   filter: ScheduledEventFilter;
-  events: CalendarScheduledEventWithUniqeId[];
-  onSelectEvent: (data: CalendarScheduledEventWithUniqeId) => void;
+  events: CalendarScheduledEventWithUniqueId[];
+  onSelectEvent: (data: CalendarScheduledEventWithUniqueId) => void;
   onDropFromOutside: (data: {
     start: stringOrDate;
     end: stringOrDate;
   }) => Promise<void>;
   onEventResize: (data: {
-    event: CalendarScheduledEventWithUniqeId;
+    event: CalendarScheduledEventWithUniqueId;
     start: stringOrDate;
     end: stringOrDate;
     isAllDay: boolean;

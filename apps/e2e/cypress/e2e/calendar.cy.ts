@@ -30,7 +30,7 @@ context('Calendar tests', () => {
   beforeEach(() => {
     cy.resetDB(true);
     cy.resetSchedulerDB(true);
-    cy.initializeSession('InstrumentScientist_1');
+    cy.login('instrumentScientist1');
     cy.visit('/calendar');
   });
 
@@ -320,7 +320,7 @@ context('Calendar tests', () => {
     });
 
     it('should be able to select multiple instruments and select instrument on event creation', () => {
-      cy.initializeSession('UserOfficer');
+      cy.login('officer');
       cy.visit('/calendar');
 
       const newScheduledEvent = {

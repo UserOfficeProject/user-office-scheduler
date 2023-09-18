@@ -202,7 +202,6 @@ jobs:
       - run: npm run build
         env:
           NODE_ENV: development
-          SCHEDULER_CONFIG_AUTH_REDIRECT: http://localhost:33000/shared-auth
           USER_OFFICE_ENDPOINT: http://localhost:4000/graphql
 
   test_backend:
@@ -232,7 +231,6 @@ jobs:
           DATABASE_USER: schedulerUser
           DATABASE_PASSWORD: schedulerPassword
           DATABASE_DATABASE: scheduler
-          SCHEDULER_CONFIG_AUTH_REDIRECT: http://localhost:33000/shared-auth
           USER_OFFICE_ENDPOINT: http://localhost:4000/graphql
         run: |
           REPO_DIR_NAME=$(basename $GITHUB_WORKSPACE)

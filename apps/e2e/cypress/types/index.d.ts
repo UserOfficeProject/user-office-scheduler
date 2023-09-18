@@ -37,6 +37,18 @@ declare global {
        */
       finishedLoading: () => void;
       /**
+       * Logs in user with provided credentials
+       *
+       * @returns {typeof login}
+       * @memberof Chainable
+       * @example
+       *    cy.login('user')
+       */
+      login: (
+        idOrCredentials: TestUserId | { email: string; password: string },
+        role?: number
+      ) => Cypress.Chainable<ExternalTokenLoginMutation>;
+      /**
        * Checks if the datepicker is mobile or desktop and use the proper way of clearing and typing the value.
        *
        * @returns {typeof chooseDatePicker}
@@ -46,8 +58,6 @@ declare global {
        */
       chooseDatePicker: (selector: string, value: string) => void;
       resetSchedulerDB: (includeSeeds?: boolean) => void;
-      initializeSession(token: string): void;
-      configureSession(token: string): void;
       configureClock(): void;
 
       createEvent(

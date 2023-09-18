@@ -147,6 +147,7 @@ context('Equipment tests', () => {
     });
 
     it('should be able to change equipment color', () => {
+      cy.configureClock();
       const newColorHex = '#ff0000'; // Red color HEX
       const newColorRgb = 'rgb(255, 0, 0)'; // Red color RGB
       cy.updateEquipment({

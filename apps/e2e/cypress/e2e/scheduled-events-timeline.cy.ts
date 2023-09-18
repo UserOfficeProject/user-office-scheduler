@@ -356,6 +356,7 @@ context('Scheduled events timeline tests', () => {
     });
 
     it('should be able to scroll inside timeline view', () => {
+      cy.configureClock();
       const RIGHT_ARROW_KEY_CODE = 39;
       cy.login('officer');
       cy.visit('/calendar');

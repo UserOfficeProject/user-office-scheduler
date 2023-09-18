@@ -16,6 +16,7 @@ import { AppContextProvider } from 'context/AppContext';
 import { SettingsContextProvider } from 'context/SettingsContextProvider';
 import { UserContextProvider, UserContext } from 'context/UserContext';
 import { getUnauthorizedApi } from 'hooks/common/useDataApi';
+import clearSession from 'utils/clearSession';
 
 import Dashboard from './Dashboard';
 import ExternalAuth from './ExternalAuth';
@@ -25,7 +26,7 @@ const PrivateRoute: React.FC<RouteProps> = ({
   component,
   ...rest
 }: RouteProps) => {
-  const { user } = useContext(UserContext);
+  const { token } = useContext(UserContext);
 
   if (!component) {
     throw new Error('`component` is missing!');
@@ -35,9 +36,9 @@ const PrivateRoute: React.FC<RouteProps> = ({
 
   return (
     <Route
-      {...{ rest }}
+      {...rest}
       render={(props): JSX.Element => {
-        if (!user) {
+        if (!token) {
           return <Redirect to={EXTERNAL_AUTH} />;
         }
 
@@ -48,8 +49,18 @@ const PrivateRoute: React.FC<RouteProps> = ({
 };
 
 class App extends React.Component {
+  state = { errorUserInformation: '' };
   static getDerivedStateFromError(error: Error) {
     console.error('getDerivedStateFromError', error);
+    const user = localStorage.getItem('user');
+    const errorUserInformation = {
+      id: user ? JSON.parse(user).id : 'Not logged in',
+      currentRole: localStorage.getItem('currentRole'),
+    };
+
+    clearSession();
+
+    return { errorUserInformation };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
@@ -58,6 +69,7 @@ class App extends React.Component {
       errorMessage = JSON.stringify({
         error: error.toString(),
         errorInfo: errorInfo.componentStack.toString(),
+        user: this.state.errorUserInformation,
       });
     } catch (e) {
       errorMessage = 'Exception while preparing error message';

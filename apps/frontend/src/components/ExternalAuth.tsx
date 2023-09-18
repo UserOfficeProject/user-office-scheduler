@@ -1,70 +1,166 @@
-import { ClientError } from 'graphql-request';
-import React, { useContext, useEffect } from 'react';
+import BugReportIcon from '@mui/icons-material/BugReport';
+import Lock from '@mui/icons-material/Lock';
+import { Button } from '@mui/material';
+import React, { useContext, useEffect, useRef } from 'react';
+import { useHistory } from 'react-router';
 import { StringParam, useQueryParams } from 'use-query-params';
 
+import AnimatedEllipsis from 'components/common/AnimatedEllipsis';
+import CenteredAlert from 'components/common/CenteredAlert';
 import { SettingsContext } from 'context/SettingsContextProvider';
 import { UserContext } from 'context/UserContext';
 import { SettingsId } from 'generated/sdk';
 import { useUnauthorizedApi } from 'hooks/common/useDataApi';
 
 const ExternalAuthQueryParams = {
+  sessionid: StringParam,
+  token: StringParam,
   code: StringParam,
+  error_description: StringParam,
 };
 
 function ExternalAuth() {
   const [urlQueryParams] = useQueryParams(ExternalAuthQueryParams);
 
   const unauthorizedApi = useUnauthorizedApi();
+  const history = useHistory();
+
+  const isFirstRun = useRef<boolean>(true);
+
+  const { handleLogin } = useContext(UserContext);
   const { settings } = useContext(SettingsContext);
-  const { handleNewToken } = useContext(UserContext);
-  const [statusMessage, setStatusMessage] = React.useState('Loading...');
+
+  const [View, setView] = React.useState<JSX.Element | null>(null);
 
   useEffect(() => {
-    const handleCode = (code: string) => {
-      setStatusMessage('Logging in...');
+    if (!isFirstRun.current) {
+      return;
+    }
+
+    isFirstRun.current = false;
+
+    const ErrorMessage = (props: { message?: string }) => (
+      <CenteredAlert
+        severity="error"
+        action={
+          <Button
+            color="inherit"
+            size="small"
+            variant="outlined"
+            onClick={() => {
+              localStorage.clear();
+              window.location.assign('/');
+            }}
+          >
+            Return to frontpage
+          </Button>
+        }
+        icon={<BugReportIcon fontSize="medium" />}
+      >
+        {props.message || 'Unknown error occurred'}
+      </CenteredAlert>
+    );
+
+    const LoadingMessage = () => (
+      <CenteredAlert
+        severity="info"
+        action={
+          <Button
+            color="inherit"
+            size="small"
+            variant="outlined"
+            onClick={() => history.push('/')}
+          >
+            Cancel
+          </Button>
+        }
+        icon={<Lock />}
+      >
+        <AnimatedEllipsis>Please wait</AnimatedEllipsis>
+      </CenteredAlert>
+    );
+
+    const ContactingAuthorizationServerMessage = () => (
+      <CenteredAlert
+        severity="info"
+        action={
+          <Button
+            color="inherit"
+            size="small"
+            variant="outlined"
+            onClick={() => history.push('/')}
+          >
+            Cancel
+          </Button>
+        }
+        icon={<Lock fontSize="medium" />}
+      >
+        <AnimatedEllipsis>Contacting authorization server</AnimatedEllipsis>
+      </CenteredAlert>
+    );
+
+    const handleAuthorizationCode = (authorizationCode: string) => {
       const { protocol, host, pathname } = window.location;
-      const redirectUri = [protocol, '//', host, pathname].join('');
+      const currentUrlWithoutParams = [protocol, '//', host, pathname].join('');
+
+      setView(<ContactingAuthorizationServerMessage />);
 
       unauthorizedApi()
         .externalTokenLogin({
-          externalToken: code,
-          redirectUri: redirectUri,
+          externalToken: authorizationCode,
+          redirectUri: currentUrlWithoutParams,
         })
         .then(({ externalTokenLogin }) => {
-          handleNewToken(externalTokenLogin);
-          window.location.assign('/');
+          handleLogin(externalTokenLogin);
+          window.location.href = '/';
         })
-        .catch((error: ClientError) => {
-          // TODO: This should be removed once we do error handling refactor
-          const [graphQLError] = error.response?.errors ?? [];
-          setStatusMessage(graphQLError.message ?? 'Login failed.');
+        .catch((error) => {
+          setView(<ErrorMessage message={error.message} />);
         });
     };
 
-    const handleNoCode = () => {
+    const handleNoAuthorizationCode = () => {
       const externalAuthLoginUrl = settings.get(
         SettingsId.EXTERNAL_AUTH_LOGIN_URL
       )?.settingsValue;
       if (!externalAuthLoginUrl) {
-        setStatusMessage('System configuration error');
+        setView(<ErrorMessage message="System configuration error" />);
 
         return;
       }
       const url = new URL(externalAuthLoginUrl);
-      url.searchParams.set('redirect_uri', window.location.href);
+      url.searchParams.set('redirect_uri', encodeURI(window.location.href));
       window.location.href = url.toString();
-      setStatusMessage('Redirecting to auth page...');
     };
 
-    const code = urlQueryParams.code;
-    if (code) {
-      handleCode(code);
+    const handleError = (error: string) => {
+      setView(<ErrorMessage message={error} />);
+    };
+
+    setView(<LoadingMessage />);
+
+    const errorDescription = urlQueryParams.error_description;
+    const authorizationCode =
+      urlQueryParams.sessionid ?? urlQueryParams.code ?? urlQueryParams.token;
+
+    if (errorDescription) {
+      handleError(errorDescription);
+    } else if (authorizationCode) {
+      handleAuthorizationCode(authorizationCode);
     } else {
-      handleNoCode();
+      handleNoAuthorizationCode();
     }
-  }, [settings, unauthorizedApi, urlQueryParams.code, handleNewToken]);
+  }, [
+    handleLogin,
+    history,
+    settings,
+    unauthorizedApi,
+    urlQueryParams.code,
+    urlQueryParams.error_description,
+    urlQueryParams.sessionid,
+    urlQueryParams.token,
+  ]);
 
-  return <span>{statusMessage}</span>;
+  return View;
 }
-
 export default ExternalAuth;

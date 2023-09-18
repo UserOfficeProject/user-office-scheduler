@@ -40,8 +40,10 @@ In the project directory, you can run:
 
 Runs the app in the development mode.<br>
 
-- Open [http://localhost:4000](http://localhost:4000) to view the GraphQL playground and schema in the browser.
-- Open [http://localhost:3000](http://localhost:3000) to view the app in the browser.
+- Open [http://localhost:4200](http://localhost:4200) to view the GraphQL playground and schema in the browser.
+- Open [http://localhost:33000](http://localhost:33000) to view the app in the browser.
+- Open [http://localhost:4100](http://localhost:4200) to view the federated(core + scheduler) GraphQL playground and schema in the browser.
+- Open [http://localhost:3000](http://localhost:3000) to view the core app in the browser.
 
 ### `npm run lint`
 

@@ -242,6 +242,14 @@ export type CreateCallInput = {
   title?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type CreateInternalReviewInput = {
+  comment?: InputMaybe<Scalars['String']['input']>;
+  files?: InputMaybe<Scalars['String']['input']>;
+  reviewerId?: InputMaybe<Scalars['Int']['input']>;
+  technicalReviewId: Scalars['Int']['input'];
+  title: Scalars['String']['input'];
+};
+
 export type CreatePredefinedMessageInput = {
   key: Scalars['String']['input'];
   message: Scalars['String']['input'];
@@ -306,6 +314,11 @@ export type DeleteEquipmentAssignmentInput = {
   equipmentId: Scalars['Int']['input'];
   proposalBookingId: Scalars['Int']['input'];
   scheduledEventId: Scalars['Int']['input'];
+};
+
+export type DeleteInternalReviewInput = {
+  id: Scalars['Int']['input'];
+  technicalReviewId: Scalars['Int']['input'];
 };
 
 export type DeleteLostTimeInput = {
@@ -439,6 +452,9 @@ export enum Event {
   INSTRUMENT_CREATED = 'INSTRUMENT_CREATED',
   INSTRUMENT_DELETED = 'INSTRUMENT_DELETED',
   INSTRUMENT_UPDATED = 'INSTRUMENT_UPDATED',
+  INTERNAL_REVIEW_CREATED = 'INTERNAL_REVIEW_CREATED',
+  INTERNAL_REVIEW_DELETED = 'INTERNAL_REVIEW_DELETED',
+  INTERNAL_REVIEW_UPDATED = 'INTERNAL_REVIEW_UPDATED',
   PREDEFINED_MESSAGE_CREATED = 'PREDEFINED_MESSAGE_CREATED',
   PREDEFINED_MESSAGE_DELETED = 'PREDEFINED_MESSAGE_DELETED',
   PREDEFINED_MESSAGE_UPDATED = 'PREDEFINED_MESSAGE_UPDATED',
@@ -718,6 +734,24 @@ export type InstrumentsQueryResult = {
   totalCount: Scalars['Int']['output'];
 };
 
+export type InternalReview = {
+  assignedBy: Scalars['Int']['output'];
+  assignedByUser: Maybe<BasicUserDetails>;
+  comment: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  files: Maybe<Scalars['String']['output']>;
+  id: Scalars['Int']['output'];
+  reviewer: Maybe<BasicUserDetails>;
+  reviewerId: Scalars['Int']['output'];
+  technicalReviewId: Scalars['Int']['output'];
+  title: Scalars['String']['output'];
+};
+
+export type InternalReviewsFilter = {
+  reviewerId?: InputMaybe<Scalars['Int']['input']>;
+  technicalReviewId?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export type IntervalConfig = {
   required: Scalars['Boolean']['output'];
   small_label: Scalars['String']['output'];
@@ -784,6 +818,7 @@ export type Mutation = {
   createGenericTemplateWithCopiedAnswers: Array<GenericTemplate>;
   createInstitution: Institution;
   createInstrument: Instrument;
+  createInternalReview: InternalReview;
   createPdfTemplate: PdfTemplate;
   createPredefinedMessage: PredefinedMessage;
   createProposal: Proposal;
@@ -811,6 +846,7 @@ export type Mutation = {
   deleteGenericTemplate: GenericTemplate;
   deleteInstitution: Institution;
   deleteInstrument: Instrument;
+  deleteInternalReview: InternalReview;
   deleteLostTime: LostTimeResponseWrap;
   deletePdfTemplate: PdfTemplate;
   deletePredefinedMessage: PredefinedMessage;
@@ -881,6 +917,7 @@ export type Mutation = {
   updateGenericTemplate: GenericTemplate;
   updateInstitution: Institution;
   updateInstrument: Instrument;
+  updateInternalReview: InternalReview;
   updateLostTime: LostTimeResponseWrap;
   updatePassword: BasicUserDetails;
   updatePdfTemplate: PdfTemplate;
@@ -1126,6 +1163,11 @@ export type MutationCreateInstrumentArgs = {
 };
 
 
+export type MutationCreateInternalReviewArgs = {
+  createInternalReviewInput: CreateInternalReviewInput;
+};
+
+
 export type MutationCreatePdfTemplateArgs = {
   templateData: Scalars['String']['input'];
   templateFooter: Scalars['String']['input'];
@@ -1176,7 +1218,9 @@ export type MutationCreateQuestionaryArgs = {
 export type MutationCreateSepArgs = {
   active: Scalars['Boolean']['input'];
   code: Scalars['String']['input'];
+  customGradeGuide?: InputMaybe<Scalars['Boolean']['input']>;
   description: Scalars['String']['input'];
+  gradeGuide?: InputMaybe<Scalars['String']['input']>;
   numberRatingsRequired?: Scalars['Int']['input'];
 };
 
@@ -1304,6 +1348,11 @@ export type MutationDeleteInstitutionArgs = {
 
 export type MutationDeleteInstrumentArgs = {
   id: Scalars['Int']['input'];
+};
+
+
+export type MutationDeleteInternalReviewArgs = {
+  deleteInternalReviewInput: DeleteInternalReviewInput;
 };
 
 
@@ -1700,6 +1749,11 @@ export type MutationUpdateInstrumentArgs = {
 };
 
 
+export type MutationUpdateInternalReviewArgs = {
+  updateInternalReviewInput: UpdateInternalReviewInput;
+};
+
+
 export type MutationUpdateLostTimeArgs = {
   updateLostTimeInput: UpdateLostTimeInput;
 };
@@ -1771,7 +1825,7 @@ export type MutationUpdateQuestionTemplateRelationSettingsArgs = {
 
 export type MutationUpdateReviewArgs = {
   comment: Scalars['String']['input'];
-  grade: Scalars['Int']['input'];
+  grade: Scalars['Float']['input'];
   reviewID: Scalars['Int']['input'];
   sepID: Scalars['Int']['input'];
   status: ReviewStatus;
@@ -1781,7 +1835,9 @@ export type MutationUpdateReviewArgs = {
 export type MutationUpdateSepArgs = {
   active: Scalars['Boolean']['input'];
   code: Scalars['String']['input'];
+  customGradeGuide?: InputMaybe<Scalars['Boolean']['input']>;
   description: Scalars['String']['input'];
+  gradeGuide?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['Int']['input'];
   numberRatingsRequired?: Scalars['Int']['input'];
 };
@@ -2305,6 +2361,8 @@ export type Query = {
   instrumentScientistProposals: Maybe<ProposalsViewResult>;
   instruments: Maybe<InstrumentsQueryResult>;
   instrumentsBySep: Maybe<Array<InstrumentWithAvailabilityTime>>;
+  internalReview: Maybe<InternalReview>;
+  internalReviews: Maybe<Array<InternalReview>>;
   isNaturalKeyPresent: Maybe<Scalars['Boolean']['output']>;
   me: Maybe<User>;
   myShipments: Maybe<Array<Shipment>>;
@@ -2346,7 +2404,6 @@ export type Query = {
   scheduledEventCore: Maybe<ScheduledEventCore>;
   scheduledEvents: Array<ScheduledEvent>;
   scheduledEventsCore: Array<ScheduledEventCore>;
-  schedulerConfig: SchedulerConfig;
   schedulerQueriesAndMutations: Maybe<QueriesAndMutations>;
   schedulerVersion: Scalars['String']['output'];
   sep: Maybe<Sep>;
@@ -2539,6 +2596,16 @@ export type QueryInstrumentsArgs = {
 export type QueryInstrumentsBySepArgs = {
   callId: Scalars['Int']['input'];
   sepId: Scalars['Int']['input'];
+};
+
+
+export type QueryInternalReviewArgs = {
+  internalReviewId: Scalars['Int']['input'];
+};
+
+
+export type QueryInternalReviewsArgs = {
+  filter?: InputMaybe<InternalReviewsFilter>;
 };
 
 
@@ -2927,7 +2994,7 @@ export type ReorderSepMeetingDecisionProposalsInput = {
 
 export type Review = {
   comment: Maybe<Scalars['String']['output']>;
-  grade: Maybe<Scalars['Int']['output']>;
+  grade: Maybe<Scalars['Float']['output']>;
   id: Scalars['Int']['output'];
   proposal: Maybe<Proposal>;
   reviewer: Maybe<BasicUserDetails>;
@@ -2962,7 +3029,9 @@ export type Role = {
 export type Sep = {
   active: Scalars['Boolean']['output'];
   code: Scalars['String']['output'];
+  customGradeGuide: Maybe<Scalars['Boolean']['output']>;
   description: Scalars['String']['output'];
+  gradeGuide: Maybe<Scalars['String']['output']>;
   id: Scalars['Int']['output'];
   numberRatingsRequired: Scalars['Float']['output'];
   proposalCount: Scalars['Int']['output'];
@@ -3160,10 +3229,6 @@ export type ScheduledEventsResponseWrap = {
   scheduledEvents: Array<ScheduledEventWithRejection>;
 };
 
-export type SchedulerConfig = {
-  authRedirect: Scalars['String']['output'];
-};
-
 export type SchedulerSuccessResponseWrap = {
   error: Maybe<Scalars['String']['output']>;
   isSuccess: Maybe<Scalars['Boolean']['output']>;
@@ -3204,6 +3269,7 @@ export enum SettingsId {
   FEEDBACK_EXHAUST_DAYS = 'FEEDBACK_EXHAUST_DAYS',
   FEEDBACK_FREQUENCY_DAYS = 'FEEDBACK_FREQUENCY_DAYS',
   FEEDBACK_MAX_REQUESTS = 'FEEDBACK_MAX_REQUESTS',
+  GRADE_PRECISION = 'GRADE_PRECISION',
   HEADER_LOGO_FILENAME = 'HEADER_LOGO_FILENAME',
   IDLE_TIMEOUT = 'IDLE_TIMEOUT',
   PALETTE_ERROR_MAIN = 'PALETTE_ERROR_MAIN',
@@ -3507,6 +3573,15 @@ export type UpdateFeaturesInput = {
   featureIds: Array<FeatureId>;
 };
 
+export type UpdateInternalReviewInput = {
+  comment?: InputMaybe<Scalars['String']['input']>;
+  files?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['Int']['input'];
+  reviewerId?: InputMaybe<Scalars['Int']['input']>;
+  technicalReviewId: Scalars['Int']['input'];
+  title: Scalars['String']['input'];
+};
+
 export type UpdateLostTimeInput = {
   endsAt: Scalars['TzLessDateTime']['input'];
   id: Scalars['Int']['input'];
@@ -3616,6 +3691,7 @@ export type UserQueryResult = {
 
 export enum UserRole {
   INSTRUMENT_SCIENTIST = 'INSTRUMENT_SCIENTIST',
+  INTERNAL_REVIEWER = 'INTERNAL_REVIEWER',
   SAMPLE_SAFETY_REVIEWER = 'SAMPLE_SAFETY_REVIEWER',
   SEP_CHAIR = 'SEP_CHAIR',
   SEP_REVIEWER = 'SEP_REVIEWER',
@@ -3800,11 +3876,6 @@ export type GetRefreshedTokenMutationVariables = Exact<{
 
 
 export type GetRefreshedTokenMutation = { token: string };
-
-export type GetSchedulerConfigQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetSchedulerConfigQuery = { schedulerConfig: { authRedirect: string } };
 
 export type ServerHealthCheckQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -4238,13 +4309,6 @@ export const AddClientLogDocument = gql`
 export const GetRefreshedTokenDocument = gql`
     mutation getRefreshedToken($token: String!) {
   token(token: $token)
-}
-    `;
-export const GetSchedulerConfigDocument = gql`
-    query getSchedulerConfig {
-  schedulerConfig {
-    authRedirect
-  }
 }
     `;
 export const ServerHealthCheckDocument = gql`
@@ -4716,9 +4780,6 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     getRefreshedToken(variables: GetRefreshedTokenMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<GetRefreshedTokenMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetRefreshedTokenMutation>(GetRefreshedTokenDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getRefreshedToken', 'mutation');
-    },
-    getSchedulerConfig(variables?: GetSchedulerConfigQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<GetSchedulerConfigQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetSchedulerConfigQuery>(GetSchedulerConfigDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getSchedulerConfig', 'query');
     },
     serverHealthCheck(variables?: ServerHealthCheckQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ServerHealthCheckQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ServerHealthCheckQuery>(ServerHealthCheckDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'serverHealthCheck', 'query');

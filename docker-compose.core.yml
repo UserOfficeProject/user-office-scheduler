@@ -3,7 +3,6 @@ version: '3.1'
 services:
   # used to proxy the core UI FE and BE requests to the right container
   # Core FE is accessible on localhost:3000
-  # Scheduler FE is accessible on localhost:33000
   proxy:
     image: traefik:2.10 # The official Traefik docker image
     command:
@@ -13,10 +12,8 @@ services:
       - '--providers.docker.exposedbydefault=false'
       - '--entrypoints.web.address=:80'
       - '--entrypoints.ep1.address=:3000'
-      - '--entrypoints.ep2.address=:33000'
     ports:
       - '3000:3000'
-      - '33000:33000'
       - '8080:8080' # The Web UI (enabled by --api)
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -29,6 +26,8 @@ services:
       POSTGRES_DB: duo
     volumes:
       - ../user-office-core/apps/user-office-backend/db_patches/:/docker-entrypoint-initdb.d/
+    ports:
+      - 5432:5432
 
   scheduler-db:
     image: postgres:11-alpine
@@ -39,6 +38,8 @@ services:
       POSTGRES_PASSWORD: schedulerPassword
     volumes:
       - './apps/backend/db_patches/:/docker-entrypoint-initdb.d/'
+    ports:
+      - 5433:5432
 
   factory:
     image: 'ghcr.io/userofficeproject/user-office-factory:develop'
@@ -59,7 +60,7 @@ services:
     image: 'ghcr.io/userofficeproject/user-office-gateway:develop'
     environment:
       USER_OFFICE_BACKEND: http://backend:4000/graphql
-      USER_OFFICE_SCHEDULER_BACKEND: http://scheduler-backend:4200/graphql
+      USER_OFFICE_SCHEDULER_BACKEND: http://host.docker.internal:4200/graphql
       NODE_ENV: development
       ENABLE_SERVICE_POLLING: 1 # see gateway
       KEEP_RETRYING: 1 # see gateway
@@ -71,7 +72,8 @@ services:
       - 'traefik.http.routers.gateway.rule=(Host(`localhost`) && PathPrefix(`/gateway`, `/graphql`))'
     depends_on:
       - backend
-      - scheduler-backend
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
 
   rabbitmq:
     image: 'rabbitmq:3-management'
@@ -90,22 +92,13 @@ services:
     depends_on:
       - gateway
 
-  scheduler-frontend:
-    image: 'ghcr.io/userofficeproject/user-office-scheduler-frontend:develop'
-    labels:
-      - 'traefik.enable=true'
-      - 'traefik.http.routers.scheduler.rule=Host(`localhost`)'
-      - 'traefik.http.routers.scheduler.entrypoints=ep2'
-    depends_on:
-      - gateway
-
   backend:
     image: 'ghcr.io/userofficeproject/user-office-backend:develop'
     environment:
       DATABASE_URL: postgres://duouser:duopassword@db:5432/duo
       secret: qMyLZALzs229ybdQXNyzYRdju7X784TH
       tokenLife: 7d
-      baseURL: core.localhost:3000
+      baseURL: localhost:3000
       SPARKPOST_TOKEN: dummytoken
       NODE_ENV: development
       UO_FEATURE_DISABLE_EAM: 1
@@ -121,33 +114,15 @@ services:
       CORE_EXCHANGE_NAME: user_office_backend.fanout
       SCHEDULER_EXCHANGE_NAME: user_office_scheduler_backend.fanout
       EVENT_SCHEDULING_QUEUE_NAME: user-office-scheduler-backend.event_scheduling.queue
-      SCHEDULER_ENDPOINT: http://scheduler-backend:4200/graphql
+      SCHEDULER_ENDPOINT: http://host.docker.internal:4200/graphql
     depends_on:
       - duo-development-authorization-server
       - db
       - rabbitmq
     extra_hosts:
       - 'host.docker.internal:host-gateway'
-
-  scheduler-backend:
-    image: 'ghcr.io/userofficeproject/user-office-scheduler-backend:develop'
-    environment:
-      NODE_ENV: development
-      PORT: 4200
-      DATABASE_HOSTNAME: scheduler-db
-      DATABASE_PORT: 5432
-      DATABASE_USER: schedulerUser
-      DATABASE_PASSWORD: schedulerPassword
-      DATABASE_DATABASE: scheduler
-      RABBITMQ_HOSTNAME: rabbitmq
-      USER_OFFICE_ENDPOINT: http://backend:4000/graphql
-      PROPOSAL_SCHEDULING_QUEUE_NAME: user-office-backend.proposal_scheduling.queue
-      SCHEDULER_EXCHANGE_NAME: user_office_scheduler_backend.fanout
-      CORE_EXCHANGE_NAME: user_office_backend.fanout
-    depends_on:
-      - duo-development-authorization-server
-      - scheduler-db
-      - rabbitmq
+    ports:
+      - 4000:4000
 
   duo-development-authorization-server:
     image: 'ghcr.io/userofficeproject/user-office-development-authorization-server:develop'

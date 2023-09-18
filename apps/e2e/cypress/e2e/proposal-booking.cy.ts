@@ -28,7 +28,7 @@ context('Proposal booking tests ', () => {
 
   describe('Proposal booking calls/proposals list', () => {
     it('should inform the user if the instrument has no calls', () => {
-      cy.initializeSession('InstrumentScientist_2');
+      cy.login('instrumentScientist2');
 
       cy.visit('/calendar');
 
@@ -41,7 +41,7 @@ context('Proposal booking tests ', () => {
     });
 
     it('should show the list of calls of the instrument has calls', () => {
-      cy.initializeSession('InstrumentScientist_1');
+      cy.login('instrumentScientist1');
 
       cy.visit('/calendar');
 
@@ -56,7 +56,7 @@ context('Proposal booking tests ', () => {
     });
 
     it('should not crash if the referenced proposal was deleted', () => {
-      cy.initializeSession('UserOfficer');
+      cy.login('officer');
 
       cy.visit('/calendar');
 
@@ -71,7 +71,7 @@ context('Proposal booking tests ', () => {
 
   describe('Proposal booking workflow', () => {
     beforeEach(() => {
-      cy.initializeSession('InstrumentScientist_1');
+      cy.login('instrumentScientist1');
     });
 
     describe('Book events', () => {
@@ -385,7 +385,7 @@ context('Proposal booking tests ', () => {
             cy.updateEvent({
               input: {
                 scheduledEventId: result.createScheduledEvent.scheduledEvent.id,
-                localContact: initialDBData.instrumentScientists[0].id,
+                localContact: initialDBData.users.instrumentScientist1.id,
                 startsAt: createdUserOperationsEvent.startsAt,
                 endsAt: createdUserOperationsEvent.endsAt,
               },
@@ -635,7 +635,7 @@ context('Proposal booking tests ', () => {
       });
 
       it('Officer should be able to assign change equipment owner', () => {
-        cy.initializeSession('UserOfficer');
+        cy.login('officer');
         let equipmentOwner: string;
         cy.visit('/equipments');
         cy.contains(initialDBData.equipments[0].name)
@@ -656,7 +656,7 @@ context('Proposal booking tests ', () => {
       });
 
       it('Officer should be able to assign equipment responsible people', () => {
-        cy.initializeSession('UserOfficer');
+        cy.login('officer');
         let equipmentResponsible: string;
         cy.visit('/equipments');
         cy.contains(initialDBData.equipments[0].name)
@@ -722,7 +722,7 @@ context('Proposal booking tests ', () => {
             instrumentIds: [initialDBData.instruments[0].id],
             equipmentResponsible: [
               shouldAssignEquipmentResponsible
-                ? initialDBData.instrumentScientists[0].id
+                ? initialDBData.users.instrumentScientist1.id
                 : 0,
             ],
             ownerUserId: 1,
@@ -737,7 +737,7 @@ context('Proposal booking tests ', () => {
             instrumentIds: [initialDBData.instruments[0].id],
             equipmentResponsible: [
               shouldAssignEquipmentResponsible
-                ? initialDBData.instrumentScientists[0].id
+                ? initialDBData.users.instrumentScientist1.id
                 : 0,
             ],
             ownerUserId: 1,
@@ -878,7 +878,7 @@ context('Proposal booking tests ', () => {
       });
 
       it('should be able to view equipment assignment request from requests page for equipments that user is owner or responsible', () => {
-        cy.initializeSession('UserOfficer');
+        cy.login('officer');
 
         cy.visit('/requests');
 
@@ -1279,7 +1279,7 @@ context('Proposal booking tests ', () => {
             action: ProposalBookingFinalizeAction.COMPLETE,
           },
         });
-        cy.initializeSession('InstrumentScientist_1');
+        cy.login('instrumentScientist1');
 
         cy.visit('/calendar');
 
@@ -1301,7 +1301,7 @@ context('Proposal booking tests ', () => {
             action: ProposalBookingFinalizeAction.COMPLETE,
           },
         });
-        cy.initializeSession('UserOfficer');
+        cy.login('officer');
 
         cy.visit('/calendar');
 

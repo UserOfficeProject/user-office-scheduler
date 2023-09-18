@@ -69,7 +69,7 @@ export async function createListenToRabbitMQHandler({
 
   const rabbitMQ = await getRabbitMQMessageBroker();
 
-  await rabbitMQ.bindQueueToExchange(
+  rabbitMQ.addQueueToExchangeBinding(
     PROPOSAL_SCHEDULING_QUEUE,
     CORE_EXCHANGE_NAME
   );

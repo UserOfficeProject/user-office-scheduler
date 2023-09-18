@@ -17,6 +17,15 @@ To be able to start both backend and frontend locally you will need to:
 If .env file is not preset during startup of the project, it will be created using example.env file template
 The `example.env` and `.env` files are located in `apps/backend` and `apps/frontend` accordingly.
 
+## Running with docker-compose
+
+If you want to get something running for testing purposes only, you can run the docker-compose file located at the root of the repository. Use the following steps:
+
+1. docker-compose up
+2. For core visit **localhost:3000**
+3. For scheduler visit **localhost:33000**
+4. Use the default users for login, Aaron_Harris49@gmail.com (User Officer) or Javon4@hotmail.com (User) with password "Test1234!"
+
 ## Monorepo future plans
 
 Plan on how to continue with the monorepo in the future:
@@ -31,8 +40,10 @@ In the project directory, you can run:
 
 Runs the app in the development mode.<br>
 
-- Open [http://localhost:4000](http://localhost:4000) to view the GraphQL playground and schema in the browser.
-- Open [http://localhost:3000](http://localhost:3000) to view the app in the browser.
+- Open [http://localhost:4200](http://localhost:4200) to view the GraphQL playground and schema in the browser.
+- Open [http://localhost:33000](http://localhost:33000) to view the app in the browser.
+- Open [http://localhost:4100](http://localhost:4200) to view the federated(core + scheduler) GraphQL playground and schema in the browser.
+- Open [http://localhost:3000](http://localhost:3000) to view the core app in the browser.
 
 ### `npm run lint`
 

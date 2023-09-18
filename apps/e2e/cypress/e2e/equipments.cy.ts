@@ -27,7 +27,7 @@ context('Equipment tests', () => {
   beforeEach(() => {
     cy.resetDB(true);
     cy.resetSchedulerDB(true);
-    cy.initializeSession('UserOfficer');
+    cy.login('officer');
     cy.visit('/equipments');
   });
 

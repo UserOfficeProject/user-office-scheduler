@@ -12,7 +12,7 @@ context('Scheduled events table tests', () => {
   beforeEach(() => {
     cy.resetDB(true);
     cy.resetSchedulerDB(true);
-    cy.initializeSession('InstrumentScientist_1');
+    cy.login('instrumentScientist1');
     cy.visit('/calendar');
   });
 
@@ -310,7 +310,7 @@ context('Scheduled events table tests', () => {
     it('should not reset dates if instrument is changed in filters', () => {
       cy.createEvent({ input: newScheduledEvent3 });
       cy.createEvent({ input: newScheduledUserOperationsEvent1 });
-      cy.initializeSession('UserOfficer');
+      cy.login('officer');
       cy.finishedLoading();
 
       selectInstrument();

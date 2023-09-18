@@ -13,7 +13,6 @@ import { SettingsId } from 'generated/sdk';
 import { useUnauthorizedApi } from 'hooks/common/useDataApi';
 
 const ExternalAuthQueryParams = {
-  sessionid: StringParam,
   token: StringParam,
   code: StringParam,
   error_description: StringParam,
@@ -140,8 +139,7 @@ function ExternalAuth() {
     setView(<LoadingMessage />);
 
     const errorDescription = urlQueryParams.error_description;
-    const authorizationCode =
-      urlQueryParams.sessionid ?? urlQueryParams.code ?? urlQueryParams.token;
+    const authorizationCode = urlQueryParams.code ?? urlQueryParams.token;
 
     if (errorDescription) {
       handleError(errorDescription);
@@ -157,7 +155,6 @@ function ExternalAuth() {
     unauthorizedApi,
     urlQueryParams.code,
     urlQueryParams.error_description,
-    urlQueryParams.sessionid,
     urlQueryParams.token,
   ]);
 

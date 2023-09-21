@@ -1,4 +1,5 @@
 import { ScheduledEventBookingType } from '@user-office-software-libs/shared-types';
+import moment from 'moment';
 
 import initialDBData from '../support/initialDBData';
 import {
@@ -8,6 +9,7 @@ import {
   getFormattedDateAfter,
   getHourDateTimeAfter,
   selectInstrument,
+  TZ_LESS_DATE_TIME_LOW_PREC_FORMAT,
 } from '../utils';
 
 function clickOnEventSlot(slot: string) {
@@ -381,11 +383,15 @@ context('Calendar tests', () => {
 
       cy.get('[data-cy=startsAt] input').should(
         'have.value',
-        defaultEventBookingHourDateTime
+        moment(defaultEventBookingHourDateTime).format(
+          TZ_LESS_DATE_TIME_LOW_PREC_FORMAT
+        )
       );
       cy.get('[data-cy=endsAt] input').should(
         'have.value',
-        getHourDateTimeAfter(1)
+        moment(getHourDateTimeAfter(1)).format(
+          TZ_LESS_DATE_TIME_LOW_PREC_FORMAT
+        )
       );
 
       cy.get('[data-cy=bookingType] input').should('have.value', '');

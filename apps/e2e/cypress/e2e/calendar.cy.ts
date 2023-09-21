@@ -402,8 +402,8 @@ context('Calendar tests', () => {
     });
   });
 
-  describe('Viewing existing event', () => {
-    it('should display a disabled form', () => {
+  describe('Modifying and removing existing event', () => {
+    it('should be able to edit scheduled background event', () => {
       const newScheduledEvent = {
         instrumentId: 1,
         bookingType: ScheduledEventBookingType.MAINTENANCE,
@@ -411,6 +411,9 @@ context('Calendar tests', () => {
         startsAt: defaultEventBookingHourDateTime,
         description: 'Test maintenance event',
       };
+
+      const newStartTime = getHourDateTimeAfter(2);
+      const newEndTime = getHourDateTimeAfter(3);
       cy.createEvent({ input: newScheduledEvent });
       cy.finishedLoading();
       selectInstrument();
@@ -418,20 +421,62 @@ context('Calendar tests', () => {
       cy.finishedLoading();
 
       const slot = new Date(defaultEventBookingHourDateTime).toISOString();
-      cy.get(`.rbc-day-slot [data-cy='event-slot-${slot}']`).scrollIntoView();
+      cy.get(
+        `.rbc-day-slot .rbc-background-event [data-cy='event-${slot}']`
+      ).scrollIntoView();
 
       clickOnEventSlot(slot);
 
-      cy.get('[data-cy=startsAt] input').should('be.disabled');
-      cy.get('[data-cy=endsAt] input').should('be.disabled');
+      cy.get('[data-cy=bookingType] input').should(
+        'have.value',
+        newScheduledEvent.bookingType
+      );
 
-      cy.get('[data-cy=bookingType] input').should('not.have.value', '');
-      cy.get('[data-cy=bookingType]').click();
+      cy.get('[data-cy="startsAt"] input').clear().type(newStartTime);
+      cy.get('[data-cy="endsAt"] input').clear().type(newEndTime);
 
-      cy.get('[role=listbox] [role=option]').should('not.exist');
+      cy.get('[data-cy=btn-save-event]').click();
+      cy.get('[data-cy="schedule-background-event"]').should('not.exist');
 
-      cy.get('[data-cy=btn-save-event]').should('be.disabled');
-      cy.get('[data-cy=btn-close-dialog]').should('not.be.disabled');
+      const newSlot = new Date(getHourDateTimeAfter(2)).toISOString();
+      cy.get(
+        `.rbc-day-slot .rbc-background-event [data-cy='event-${newSlot}']`
+      ).scrollIntoView();
+    });
+    it('should be able to remove scheduled background event', () => {
+      const newScheduledEvent = {
+        instrumentId: 1,
+        bookingType: ScheduledEventBookingType.MAINTENANCE,
+        endsAt: getHourDateTimeAfter(1),
+        startsAt: defaultEventBookingHourDateTime,
+        description: 'Test maintenance event',
+      };
+
+      cy.createEvent({ input: newScheduledEvent });
+      cy.finishedLoading();
+      selectInstrument();
+
+      cy.finishedLoading();
+
+      const slot = new Date(defaultEventBookingHourDateTime).toISOString();
+      cy.get(
+        `.rbc-day-slot .rbc-background-event [data-cy='event-${slot}']`
+      ).scrollIntoView();
+
+      clickOnEventSlot(slot);
+
+      cy.get('[data-cy=bookingType] input').should(
+        'have.value',
+        newScheduledEvent.bookingType
+      );
+
+      cy.get('[data-cy="delete-event"]').click();
+      cy.get('[data-cy="btn-ok"]').click();
+      cy.get('[data-cy="schedule-background-event"]').should('not.exist');
+
+      cy.get(
+        `.rbc-day-slot .rbc-background-event [data-cy='event-${slot}']`
+      ).should('not.exist');
     });
   });
 });

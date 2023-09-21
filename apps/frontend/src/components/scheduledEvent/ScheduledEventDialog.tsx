@@ -143,7 +143,11 @@ export default function ScheduledEventDialog({
   };
 
   return (
-    <Dialog open={isDialogOpen} onClose={() => closeDialog()}>
+    <Dialog
+      open={isDialogOpen}
+      onClose={() => closeDialog()}
+      data-cy="schedule-background-event"
+    >
       <Formik
         initialValues={initialValues}
         validationSchema={createValidationSchema}

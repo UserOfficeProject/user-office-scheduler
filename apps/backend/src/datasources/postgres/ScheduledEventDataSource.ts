@@ -69,7 +69,7 @@ export default class PostgreScheduledEventDataSource
       ends_at: updateScheduledEvent.endsAt,
     };
 
-    if (updateScheduledEvent.localContact) {
+    if (typeof updateScheduledEvent.localContact === 'number') {
       dataToUpdate.local_contact = updateScheduledEvent.localContact;
     }
 

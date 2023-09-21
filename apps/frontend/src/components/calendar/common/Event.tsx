@@ -141,9 +141,7 @@ export default function Event({
       return (
         <div data-cy={`event-${new Date(start).toISOString()}`}>
           <strong>{title}</strong>
-          <div className={classes.eventDescription} data-cy="test-test">
-            {description}
-          </div>
+          <div className={classes.eventDescription}>{description}</div>
         </div>
       );
   }

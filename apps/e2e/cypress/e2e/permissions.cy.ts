@@ -112,15 +112,15 @@ context('Permission tests', () => {
       let scheduledEventSlot = new Date(
         defaultEventBookingHourDateTime
       ).toISOString();
-      cy.get(`.rbc-event [data-cy='event-${scheduledEventSlot}']`).should(
-        'exist'
-      );
+      cy.get(
+        `.rbc-day-slot .rbc-background-event [data-cy='event-${scheduledEventSlot}']`
+      ).should('exist');
       let scheduledEventSlot2 = new Date(
         getHourDateTimeAfter(-2)
       ).toISOString();
-      cy.get(`.rbc-event [data-cy='event-${scheduledEventSlot2}']`).should(
-        'not.exist'
-      );
+      cy.get(
+        `.rbc-day-slot .rbc-background-event [data-cy='event-${scheduledEventSlot2}']`
+      ).should('not.exist');
 
       cy.login('instrumentScientist2');
       cy.visit('/calendar?instrument=2');
@@ -128,13 +128,13 @@ context('Permission tests', () => {
       scheduledEventSlot = new Date(
         defaultEventBookingHourDateTime
       ).toISOString();
-      cy.get(`.rbc-event [data-cy='event-${scheduledEventSlot}']`).should(
-        'not.exist'
-      );
+      cy.get(
+        `.rbc-day-slot .rbc-background-event [data-cy='event-${scheduledEventSlot}']`
+      ).should('not.exist');
       scheduledEventSlot2 = new Date(getHourDateTimeAfter(-2)).toISOString();
-      cy.get(`.rbc-event [data-cy='event-${scheduledEventSlot2}']`).should(
-        'exist'
-      );
+      cy.get(
+        `.rbc-day-slot .rbc-background-event [data-cy='event-${scheduledEventSlot2}']`
+      ).should('exist');
     });
   });
 });

@@ -1,10 +1,6 @@
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import { Dialog, DialogContent, DialogTitle } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
 import makeStyles from '@mui/styles/makeStyles';
 import React, { Dispatch, SetStateAction } from 'react';
 
@@ -76,6 +72,19 @@ export default function ProposalBookingDialog({
       }}
     >
       <DialogTitle>Proposal booking</DialogTitle>
+      <IconButton
+        aria-label="close"
+        onClick={handleCloseDialog}
+        data-cy="btn-close-dialog"
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: (theme) => theme.palette.grey[500],
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
       <DialogContent className="tinyScroll">
         <ProposalDetailsAndBookingEvents
           proposalBooking={proposalBooking as DetailedProposalBooking}
@@ -87,15 +96,6 @@ export default function ProposalBookingDialog({
           openedEventId={scheduledEventId}
         />
       </DialogContent>
-      <DialogActions>
-        <Button
-          color="primary"
-          onClick={handleCloseDialog}
-          data-cy="btn-close-dialog"
-        >
-          Close
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 }

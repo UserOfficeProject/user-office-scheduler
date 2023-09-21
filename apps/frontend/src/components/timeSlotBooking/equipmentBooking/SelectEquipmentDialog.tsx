@@ -1,10 +1,13 @@
+import CloseIcon from '@mui/icons-material/Close';
 import {
   DialogContent,
   DialogActions,
   Button,
   TableCell,
   Dialog,
+  DialogTitle,
 } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
 import { useSnackbar } from 'notistack';
 import React, { useState } from 'react';
 
@@ -101,6 +104,20 @@ export default function SelectEquipmentDialog({
       fullWidth
     >
       {(loading || isLoading) && <Loader />}
+      <DialogTitle>Equipments</DialogTitle>
+      <IconButton
+        aria-label="close"
+        onClick={() => closeDialog()}
+        data-cy="btn-close-dialog"
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: (theme) => theme.palette.grey[500],
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
       <DialogContent>
         <Table
           selectable
@@ -109,6 +126,7 @@ export default function SelectEquipmentDialog({
           }
           defaultOrderBy="name"
           tableTitle="Equipments"
+          showToolbar={false}
           headCells={defaultHeadCells}
           tableContainerMaxHeight={600}
           showEmptyRows
@@ -152,9 +170,6 @@ export default function SelectEquipmentDialog({
           data-cy="btn-assign-equipment"
         >
           Assign equipment
-        </Button>
-        <Button color="primary" onClick={() => closeDialog()}>
-          Close
         </Button>
       </DialogActions>
     </Dialog>

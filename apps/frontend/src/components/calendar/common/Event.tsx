@@ -90,7 +90,7 @@ export const getBookingTypeStyle = (
         filter: filter,
       };
     default:
-      return {};
+      return { background: event.color || '' };
   }
 };
 

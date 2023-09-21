@@ -22,6 +22,7 @@ import { ProposalBookingFinalizeAction } from '../models/ProposalBooking';
 import {
   ScheduledEvent,
   CalendarExplicitBookableTypes,
+  ScheduledEventBookingType,
 } from '../models/ScheduledEvent';
 import { rejection, Rejection } from '../rejection';
 import {
@@ -77,6 +78,7 @@ export default class ScheduledEventMutations {
       ctx,
       deleteScheduledEvents.instrumentId
     );
+
     if (!hasInstrument) {
       return rejection('NOT_ALLOWED');
     }
@@ -103,21 +105,24 @@ export default class ScheduledEventMutations {
       updateScheduledEvent.scheduledEventId
     );
 
-    if (
-      !scheduledEvent ||
-      scheduledEvent.status !== ProposalBookingStatusCore.DRAFT ||
-      !scheduledEvent.proposalBookingId
-    ) {
+    if (!scheduledEvent) {
       return rejection('NOT_FOUND');
     }
 
     if (
-      !(await instrumentScientistHasAccess(
-        ctx,
-        scheduledEvent.proposalBookingId
-      ))
+      scheduledEvent.bookingType ===
+        ScheduledEventBookingType.USER_OPERATIONS &&
+      scheduledEvent.proposalBookingId
     ) {
-      return rejection('NOT_ALLOWED');
+      if (
+        scheduledEvent.status !== ProposalBookingStatusCore.DRAFT ||
+        !(await instrumentScientistHasAccess(
+          ctx,
+          scheduledEvent.proposalBookingId
+        ))
+      ) {
+        return rejection('NOT_ALLOWED');
+      }
     }
 
     return this.scheduledEventDataSource

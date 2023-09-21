@@ -338,7 +338,7 @@ export type DeleteProposalWorkflowStatusInput = {
 export type DeleteScheduledEventsInput = {
   ids: Array<Scalars['Int']['input']>;
   instrumentId: Scalars['Int']['input'];
-  proposalBookingId: Scalars['Int']['input'];
+  proposalBookingId?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export enum DependenciesLogicOperator {
@@ -3610,7 +3610,10 @@ export type UpdateProposalWorkflowInput = {
 };
 
 export type UpdateScheduledEventInput = {
+  bookingType?: InputMaybe<ScheduledEventBookingType>;
+  description?: InputMaybe<Scalars['String']['input']>;
   endsAt: Scalars['TzLessDateTime']['input'];
+  instrumentId?: InputMaybe<Scalars['Int']['input']>;
   localContact?: InputMaybe<Scalars['Int']['input']>;
   scheduledEventId: Scalars['Int']['input'];
   startsAt: Scalars['TzLessDateTime']['input'];

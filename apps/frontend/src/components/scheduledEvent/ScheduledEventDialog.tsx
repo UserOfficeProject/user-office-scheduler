@@ -1,3 +1,5 @@
+import CloseIcon from '@mui/icons-material/Close';
+import DeleteIcon from '@mui/icons-material/Delete';
 import {
   Dialog,
   DialogTitle,
@@ -6,6 +8,7 @@ import {
   Button,
   CircularProgress,
 } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
 import {
   getTranslation,
   ResourceId,
@@ -14,17 +17,17 @@ import { createScheduledEventValidationSchema } from '@user-office-software/duo-
 import { Formik, Form } from 'formik';
 import moment from 'moment';
 import { useSnackbar } from 'notistack';
-import React from 'react';
+import React, { useContext, useState } from 'react';
 import { stringOrDate } from 'react-big-calendar';
 
-import {
-  ScheduledEventBookingType,
-  ScheduledEvent,
-  Maybe,
-} from 'generated/sdk';
+import { AppContext } from 'context/AppContext';
+import { ScheduledEventBookingType, Maybe } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
-import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
+import {
+  TZ_LESS_DATE_TIME_LOW_PREC_FORMAT,
+  toTzLessDateTime,
+} from 'utils/date';
 
 import ScheduledEventForm, {
   CalendarExplicitBookableTypes,
@@ -37,18 +40,21 @@ export type SlotInfo = {
   action: 'select' | 'click' | 'doubleClick';
 };
 
+export type BackgroundEvent = {
+  id: number;
+  bookingType: ScheduledEventBookingType;
+  startsAt: stringOrDate;
+  endsAt: stringOrDate;
+  instrument: Maybe<PartialInstrument>;
+  description: Maybe<string>;
+};
+
 const createValidationSchema = createScheduledEventValidationSchema(
   CalendarExplicitBookableTypes
 );
 
 type ScheduledEventDialogProps = {
-  selectedEvent:
-    | (Pick<
-        ScheduledEvent,
-        'id' | 'bookingType' | 'startsAt' | 'endsAt' | 'description'
-      > & { instrument: Maybe<PartialInstrument> })
-    | SlotInfo
-    | null;
+  selectedEvent: BackgroundEvent | SlotInfo | null;
   isDialogOpen: boolean;
   selectedInstrumentIds: number[];
   closeDialog: (shouldRefresh?: boolean) => void;
@@ -62,6 +68,8 @@ export default function ScheduledEventDialog({
 }: ScheduledEventDialogProps) {
   const { enqueueSnackbar } = useSnackbar();
   const api = useDataApi();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { showConfirmation } = useContext(AppContext);
 
   const isEdit = selectedEvent && 'id' in selectedEvent;
   const firstSelectedInstrumentId = selectedInstrumentIds[0] ?? '';
@@ -71,8 +79,8 @@ export default function ScheduledEventDialog({
       ? {
           instrument: selectedEvent.instrument?.id,
           bookingType: selectedEvent.bookingType,
-          startsAt: parseTzLessDateTime(selectedEvent.startsAt),
-          endsAt: parseTzLessDateTime(selectedEvent.endsAt),
+          startsAt: moment(selectedEvent.startsAt),
+          endsAt: moment(selectedEvent.endsAt),
           description: selectedEvent.description ?? '',
         }
       : {
@@ -82,6 +90,57 @@ export default function ScheduledEventDialog({
           endsAt: moment(selectedEvent?.end),
           description: '',
         };
+
+  const handleScheduledEventDelete = async () => {
+    if (!isEdit) {
+      return;
+    }
+
+    showConfirmation({
+      message: (
+        <>
+          Are you sure you want to delete{' '}
+          <strong>{selectedEvent.bookingType}</strong> (
+          {moment(selectedEvent.startsAt).format(
+            TZ_LESS_DATE_TIME_LOW_PREC_FORMAT
+          )}{' '}
+          -{' '}
+          {moment(selectedEvent.endsAt).format(
+            TZ_LESS_DATE_TIME_LOW_PREC_FORMAT
+          )}
+          ) scheduled event?
+        </>
+      ),
+      cb: async () => {
+        setIsDeleting(true);
+        if (!selectedEvent.instrument) {
+          return;
+        }
+
+        const {
+          deleteScheduledEvents: { error },
+        } = await api().deleteScheduledEvents({
+          input: {
+            ids: [selectedEvent.id],
+            instrumentId: selectedEvent.instrument.id,
+          },
+        });
+
+        setIsDeleting(false);
+
+        if (error) {
+          enqueueSnackbar(getTranslation(error as ResourceId), {
+            variant: 'error',
+          });
+        } else {
+          enqueueSnackbar('Scheduled event removed successfully', {
+            variant: 'success',
+          });
+          closeDialog(true);
+        }
+      },
+    });
+  };
 
   return (
     <Dialog open={isDialogOpen} onClose={() => closeDialog()}>
@@ -93,53 +152,89 @@ export default function ScheduledEventDialog({
             return;
           }
 
-          const {
-            createScheduledEvent: { error },
-          } = await api().createScheduledEvent({
-            input: {
-              instrumentId: +values.instrument,
-              // validation should take care about this
-              bookingType: values.bookingType as ScheduledEventBookingType,
-              endsAt: toTzLessDateTime(values.endsAt),
-              startsAt: toTzLessDateTime(values.startsAt),
-              description: values.description || null,
-            },
-          });
-
-          if (error) {
-            enqueueSnackbar(getTranslation(error as ResourceId), {
-              variant: 'error',
+          if (isEdit) {
+            const {
+              updateScheduledEvent: { error },
+            } = await api().updateScheduledEvent({
+              input: {
+                scheduledEventId: selectedEvent.id,
+                instrumentId: +values.instrument,
+                bookingType: values.bookingType as ScheduledEventBookingType,
+                endsAt: toTzLessDateTime(values.endsAt),
+                startsAt: toTzLessDateTime(values.startsAt),
+                description: values.description || null,
+              },
             });
+
+            if (error) {
+              enqueueSnackbar(getTranslation(error as ResourceId), {
+                variant: 'error',
+              });
+            } else {
+              closeDialog(true);
+            }
           } else {
-            closeDialog(true);
+            const {
+              createScheduledEvent: { error },
+            } = await api().createScheduledEvent({
+              input: {
+                instrumentId: +values.instrument,
+                // validation should take care about this
+                bookingType: values.bookingType as ScheduledEventBookingType,
+                endsAt: toTzLessDateTime(values.endsAt),
+                startsAt: toTzLessDateTime(values.startsAt),
+                description: values.description || null,
+              },
+            });
+
+            if (error) {
+              enqueueSnackbar(getTranslation(error as ResourceId), {
+                variant: 'error',
+              });
+            } else {
+              closeDialog(true);
+            }
           }
         }}
       >
-        {({ isSubmitting, setSubmitting }) => {
-          if (!isSubmitting && isEdit) {
-            setSubmitting(true);
-          }
-
+        {({ isSubmitting }) => {
           return (
             <Form>
               <DialogTitle>Event</DialogTitle>
+              <IconButton
+                aria-label="close"
+                onClick={() => closeDialog()}
+                data-cy="btn-close-dialog"
+                sx={{
+                  position: 'absolute',
+                  right: 8,
+                  top: 8,
+                  color: (theme) => theme.palette.grey[500],
+                }}
+              >
+                <CloseIcon />
+              </IconButton>
               <DialogContent>
                 <ScheduledEventForm />
               </DialogContent>
               <DialogActions>
-                <Button
-                  color="primary"
-                  onClick={() => closeDialog()}
-                  disabled={!isEdit && isSubmitting}
-                  data-cy="btn-close-dialog"
-                >
-                  Cancel
-                </Button>
+                {isEdit && (
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    disabled={isSubmitting || isDeleting}
+                    startIcon={<DeleteIcon />}
+                    onClick={handleScheduledEventDelete}
+                    data-cy="delete-event"
+                  >
+                    Delete
+                  </Button>
+                )}
                 <Button
                   type="submit"
                   variant="contained"
                   color="primary"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isDeleting}
                   data-cy="btn-save-event"
                 >
                   {!isEdit && isSubmitting ? (

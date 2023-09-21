@@ -18,6 +18,7 @@ import {
   ResourceId,
 } from '@user-office-software/duo-localisation';
 import generateScheduledEventFilter from 'filters/scheduledEvent/scheduledEventsFilter';
+import { partition } from 'lodash';
 import moment from 'moment';
 import 'moment/locale/en-gb';
 import { useSnackbar } from 'notistack';
@@ -35,6 +36,7 @@ import Loader from 'components/common/Loader';
 import EquipmentBookingDialog from 'components/equipment/EquipmentBookingDialog';
 import ProposalBookingDialog from 'components/proposalBooking/ProposalBookingDialog';
 import ScheduledEventDialog, {
+  BackgroundEvent,
   SlotInfo,
 } from 'components/scheduledEvent/ScheduledEventDialog';
 import {
@@ -49,11 +51,9 @@ import {
   ScheduledEventBookingType,
   GetScheduledEventsQuery,
   ProposalBooking,
-  Maybe,
 } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import { useQuery } from 'hooks/common/useQuery';
-import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 import useInstrumentProposalBookings from 'hooks/proposalBooking/useInstrumentProposalBookings';
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
 import useScheduledEvents from 'hooks/scheduledEvent/useScheduledEvents';
@@ -219,12 +219,7 @@ export default function CalendarViewContainer() {
     (querySchedulerView as SchedulerViews) || SchedulerViews.CALENDAR
   );
   const [selectedEvent, setSelectedEvent] = useState<
-    | (Pick<
-        ScheduledEvent,
-        'id' | 'bookingType' | 'startsAt' | 'endsAt' | 'description'
-      > & { instrument: Maybe<PartialInstrument> })
-    | SlotInfo
-    | null
+    SlotInfo | BackgroundEvent | null
   >(null);
   const [draggingEventDetails, setDraggingEventDetails] =
     useState<DraggingEventType | null>(null);
@@ -349,6 +344,14 @@ export default function CalendarViewContainer() {
   const events = useMemo(
     () => transformEvent([...scheduledEvents, ...equipmentEventsTransformed]),
     [scheduledEvents, equipmentEventsTransformed]
+  );
+
+  //NOTE: Based on bookingType split events in two arrays userEvents and backgroundEvents
+  const [userEvents, backgroundEvents] = partition(
+    events,
+    (e) =>
+      e.bookingType === ScheduledEventBookingType.USER_OPERATIONS ||
+      e.bookingType === ScheduledEventBookingType.EQUIPMENT
   );
 
   const closeDialog = (shouldRefresh?: boolean) => {
@@ -647,7 +650,8 @@ export default function CalendarViewContainer() {
         return (
           <TimeLineView
             filter={filter}
-            events={events}
+            events={userEvents}
+            backgroundEvents={backgroundEvents}
             onSelectEvent={onSelectEvent}
           />
         );
@@ -656,7 +660,8 @@ export default function CalendarViewContainer() {
         return (
           <CalendarView
             filter={filter}
-            events={events}
+            events={userEvents}
+            backgroundEvents={backgroundEvents}
             onSelectEvent={onSelectEvent}
             onDropFromOutside={onDropFromOutside}
             onEventResize={onEventResize}

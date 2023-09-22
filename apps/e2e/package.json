@@ -7,7 +7,7 @@
     "cypress": "^13.2.0",
     "cypress-real-events": "^1.10.3",
     "dotenv": "^8.6.0",
-    "graphql": "^16.6.0",
+    "graphql": "^16.8.1",
     "graphql-request": "^6.1.0",
     "graphql-tag": "^2.12.6",
     "jwt-decode": "^3.1.2",

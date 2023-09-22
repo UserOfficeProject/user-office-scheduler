@@ -1,0 +1,7 @@
+{
+  "*.{js,ts,jsx,tsx}": [
+    "npm run lint:e2e",
+    "npm run lint:frontend",
+    "npm run lint:backend"
+  ]
+}

@@ -45,7 +45,6 @@ context('Scheduled events timeline tests', () => {
       proposalBookingId: initialDBData.proposalBooking.id,
       bookingType: ScheduledEventBookingType.USER_OPERATIONS,
       startsAt: defaultEventBookingHourDateTime,
-
       endsAt: getHourDateTimeAfter(24),
     };
 

@@ -38,7 +38,7 @@
     "dotenv": "^16.1.4",
     "express": "^4.18.1",
     "express-jwt": "^8.4.1",
-    "graphql": "^16.7.1",
+    "graphql": "^16.8.1",
     "graphql-request": "^6.1.0",
     "graphql-tag": "^2.12.6",
     "jsonwebtoken": "^9.0.0",

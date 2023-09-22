@@ -12,7 +12,7 @@ import {
   selectInstrument,
 } from '../utils';
 
-context('Proposal booking tests ', () => {
+context('Proposal booking tests', () => {
   beforeEach(() => {
     cy.resetDB(true);
     cy.resetSchedulerDB(true);

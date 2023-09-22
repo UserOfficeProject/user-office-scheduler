@@ -13,7 +13,7 @@
     "lint:fix": "concurrently \"npm run lint:fix:backend\" \"npm run lint:fix:frontend\" \"npm run lint:fix:e2e\"",
     "lint:backend": "cd apps/backend && npm run lint",
     "lint:fix:backend": "cd apps/backend && npm run lint:fix",
-    "lint:frontend": "cd apps/frontend && npm run lint:fix",
+    "lint:frontend": "cd apps/frontend && npm run lint",
     "lint:fix:frontend": "cd apps/frontend && npm run lint",
     "lint:e2e": "cd apps/e2e && npm run lint",
     "lint:fix:e2e": "cd apps/e2e && npm run lint:fix",
@@ -23,8 +23,6 @@
     "install:backend": "cd apps/backend && npm install",
     "install:frontend": "cd apps/frontend && npm install",
     "install:e2e": "cd apps/e2e && npm install",
-    "install:libs:shared-types": "cd libs/shared-types && npm install",
-    "install:libs:validation": "cd libs/validation && npm install",
     "postinstall": "concurrently \"npm run install:backend\" \"npm run install:frontend\" \"npm run install:e2e\"",
     "dev:core": "docker-compose -f docker-compose.core.yml up -d --remove-orphans",
     "dev": "concurrently \"npm run dev:core\" \"npm run dev:backend\" \"wait-on --interval 1000 http://127.0.0.1:4200/health-check && npm run dev:frontend\"",
@@ -35,7 +33,8 @@
     "generate:shared:types": "cd apps/frontend && npm run generate:local",
     "e2e:after:dev": "concurrently -k -s first \"wait-on --verbose --interval 5000 http://127.0.0.1:4200/health-check && wait-on --verbose --interval 5000 http://127.0.0.1:33000 && cd apps/e2e && npm run cy:run:action\" \"npm run dev:e2e\"",
     "generate:sdk": "concurrently -k -s first \"npm run dev:backend\" \"wait-on http://127.0.0.1:4200/health-check && npm run generate:shared:types\"",
-    "start": "npm run dev"
+    "start": "npm run dev",
+    "prepare": "husky install"
   },
   "keywords": [
     "duo",
@@ -44,22 +43,12 @@
     "user-office-scheduler",
     "monorepo"
   ],
-  "lint-staged": {
-    "*.{js,ts,jsx,tsx}": "cd apps/backend && npm run lint",
-    "*.{js,ts,jsx,tsx}": "cd apps/frontend && npm run lint:fix",
-    "*.{js,ts,jsx,tsx}": "cd apps/e2e && npm run lint"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged --shell"
-    }
-  },
   "dependencies": {
     "concurrently": "^8.2.1",
     "wait-on": "^7.0.1"
   },
   "devDependencies": {
-    "husky": "^4.3.8",
+    "husky": "^8.0.0",
     "lint-staged": "^14.0.1"
   }
 }

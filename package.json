@@ -25,7 +25,6 @@
     "install:e2e": "cd apps/e2e && npm install",
     "install:libs:shared-types": "cd libs/shared-types && npm install",
     "install:libs:validation": "cd libs/validation && npm install",
-    "postinstall": "concurrently \"npm run install:backend\" \"npm run install:frontend\" \"npm run install:e2e\"",
     "dev:core": "docker-compose -f docker-compose.core.yml up -d --remove-orphans",
     "dev": "concurrently \"npm run dev:core\" \"npm run dev:backend\" \"wait-on --interval 1000 http://127.0.0.1:4200/health-check && npm run dev:frontend\"",
     "dev:e2e": "concurrently \"npm run dev:core\" \"npm run dev:backend:e2e\" \"npm run dev:frontend\"",
@@ -47,7 +46,7 @@
   "lint-staged": {
     "*.{js,ts,jsx,tsx}": "cd apps/backend && npm run lint",
     "*.{js,ts,jsx,tsx}": "cd apps/frontend && npm run lint:fix",
-    "*.{js,ts,jsx,tsx}": "cd apps/e2e && npm run lint"
+    "apps/e2e/*.{js,ts}": "cd apps/e2e && npm run lint"
   },
   "husky": {
     "hooks": {

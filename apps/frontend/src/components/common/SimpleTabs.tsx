@@ -71,12 +71,13 @@ const useStyles = makeStyles((theme) => ({
   addButton: {
     minWidth: 'auto',
     padding: theme.spacing(1),
+    pointerEvents: 'none',
 
     '&.MuiTab-root.Mui-selected': {
       backgroundColor: 'unset !important',
     },
 
-    '&.Mui-disabled': {
+    '& .MuiButton-root': {
       pointerEvents: 'all',
     },
   },
@@ -111,7 +112,9 @@ const SimpleTabs: React.FC<SimpleTabsProps> = ({
     event: React.SyntheticEvent<Element, Event>,
     newValue: number
   ) => {
-    setValue(newValue);
+    if (newValue < tabNames.length) {
+      setValue(newValue);
+    }
   };
 
   const handleAddNew = async () => {
@@ -144,7 +147,7 @@ const SimpleTabs: React.FC<SimpleTabsProps> = ({
         {!!handleAdd && (
           <Tab
             className={classes.addButton}
-            disabled
+            disabled={isAddingNewItem}
             label={
               <Button
                 variant="outlined"
@@ -164,7 +167,7 @@ const SimpleTabs: React.FC<SimpleTabsProps> = ({
                 Add time
               </Button>
             }
-          />
+          ></Tab>
         )}
       </Tabs>
 

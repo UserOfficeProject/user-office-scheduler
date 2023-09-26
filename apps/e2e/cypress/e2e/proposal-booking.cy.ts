@@ -2,6 +2,7 @@ import {
   ProposalBookingFinalizeAction,
   ScheduledEventBookingType,
 } from '@user-office-software-libs/shared-types';
+import parse from 'parse-duration';
 
 import initialDBData from '../support/initialDBData';
 import {
@@ -262,9 +263,25 @@ context('Proposal booking tests', () => {
         cy.get(
           '[data-cy="experiment-time-wrapper"] [data-cy="startsAtInfo"]'
         ).should('include.text', defaultEventBookingHourDateTime);
-        cy.get(
-          '[data-cy="experiment-time-wrapper"] [data-cy="endsAtInfo"]'
-        ).should('include.text', getHourDateTimeAfter(1, 'hours'));
+        cy.get('#allocatable-time').contains('0 seconds');
+        cy.get('#allocated-time')
+          .invoke('text')
+          .then((allocatedTimeText: string) => {
+            const parsedTimeInHours = parse(allocatedTimeText, 'hour');
+
+            if (!parsedTimeInHours) {
+              throw new Error(
+                'Cannot parse given humanized allocated time to hours'
+              );
+            }
+
+            cy.get(
+              '[data-cy="experiment-time-wrapper"] [data-cy="endsAtInfo"]'
+            ).should(
+              'include.text',
+              getHourDateTimeAfter(parsedTimeInHours, 'hours')
+            );
+          });
       });
 
       it('Draft events should have opacity', () => {

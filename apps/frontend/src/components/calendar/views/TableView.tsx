@@ -18,15 +18,15 @@ import {
 } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 
-import { CalendarScheduledEventWithUniqeId } from '../CalendarViewContainer';
+import { CalendarScheduledEventWithUniqueId } from '../CalendarViewContainer';
 import { getBookingTypeStyle } from '../common/Event';
 import Toolbar from '../common/Toolbar';
 
 type TableViewProps = {
   filter: ScheduledEventFilter;
-  events: CalendarScheduledEventWithUniqeId[];
+  events: CalendarScheduledEventWithUniqueId[];
   refresh: () => void;
-  onSelectEvent: (data: CalendarScheduledEventWithUniqeId) => void;
+  onSelectEvent: (data: CalendarScheduledEventWithUniqueId) => void;
 };
 const TableView: React.FC<TableViewProps> = ({
   filter,
@@ -39,10 +39,10 @@ const TableView: React.FC<TableViewProps> = ({
   const { enqueueSnackbar } = useSnackbar();
   const { showConfirmation } = useContext(AppContext);
   const [selectedExperimentTimes, setSelectedExperimentTimes] = useState<
-    CalendarScheduledEventWithUniqeId[]
+    CalendarScheduledEventWithUniqueId[]
   >([]);
 
-  const ViewTableRowIcon = (rowData: CalendarScheduledEventWithUniqeId) => (
+  const ViewTableRowIcon = (rowData: CalendarScheduledEventWithUniqueId) => (
     <ViewIcon
       style={{
         ...getBookingTypeStyle(rowData),
@@ -55,12 +55,12 @@ const TableView: React.FC<TableViewProps> = ({
    * NOTE: Custom action buttons are here because when we have them inside actions on the material-table
    * and selection flag is true they are not working properly.
    */
-  const RowActionButtons = (rowData: CalendarScheduledEventWithUniqeId) => (
+  const RowActionButtons = (rowData: CalendarScheduledEventWithUniqueId) => (
     <Tooltip title="View event">
       <IconButton
         data-cy="view-proposal"
         onClick={() => {
-          onSelectEvent(rowData as CalendarScheduledEventWithUniqeId);
+          onSelectEvent(rowData as CalendarScheduledEventWithUniqueId);
         }}
         sx={{ p: theme.spacing(1) }}
       >
@@ -75,7 +75,7 @@ const TableView: React.FC<TableViewProps> = ({
     rowActionButtons: RowActionButtons(event),
   }));
 
-  const columns: Column<CalendarScheduledEventWithUniqeId>[] = [
+  const columns: Column<CalendarScheduledEventWithUniqueId>[] = [
     {
       title: 'Actions',
       cellStyle: { padding: 0 },
@@ -103,7 +103,7 @@ const TableView: React.FC<TableViewProps> = ({
   ];
 
   const activateSelectedExperimentTimes = async (
-    userOperationsExperimentsInDraftState: CalendarScheduledEventWithUniqeId[]
+    userOperationsExperimentsInDraftState: CalendarScheduledEventWithUniqueId[]
   ) => {
     try {
       if (!userOperationsExperimentsInDraftState.length) {
@@ -198,7 +198,7 @@ const TableView: React.FC<TableViewProps> = ({
         data={eventsWithActions}
         onSelectionChange={(data) => setSelectedExperimentTimes(data)}
         options={{
-          rowStyle: (rowData: CalendarScheduledEventWithUniqeId) =>
+          rowStyle: (rowData: CalendarScheduledEventWithUniqueId) =>
             getBookingTypeStyle(rowData),
           pageSize: 10,
           selection: true,
@@ -208,7 +208,7 @@ const TableView: React.FC<TableViewProps> = ({
               'data-cy': 'select-all-table-rows',
             },
           },
-          selectionProps: (rowData: CalendarScheduledEventWithUniqeId) => ({
+          selectionProps: (rowData: CalendarScheduledEventWithUniqueId) => ({
             style: {
               ...getBookingTypeStyle(rowData),
               filter: 'none',

@@ -8,12 +8,16 @@ import ProposalBookingTree from 'components/proposalBooking/ProposalBookingTree'
 import { useQuery } from 'hooks/common/useQuery';
 import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
 
+export type DraggingEventType = {
+  proposalBookingId: number;
+  instrumentId: number;
+  timeToAllocate: number;
+};
+
 type CalendarTodoBoxProps = {
   onNewSimpleEvent: () => void;
   refreshCalendar: () => void;
-  setDraggedEvent: Dispatch<
-    SetStateAction<{ proposalBookingId: number; instrumentId: number } | null>
-  >;
+  setDraggedEvent: Dispatch<SetStateAction<DraggingEventType | null>>;
   proposalBookings: InstrumentProposalBooking[];
 };
 

@@ -180,7 +180,9 @@ context('Scheduled events timeline tests', () => {
 
       if (
         moment(getFormattedDateAfter('MMMM YYYY', 1, 'month')).month() !==
-        moment(newScheduledEvent3.startsAt).month()
+          moment(newScheduledEvent3.startsAt).month() &&
+        moment(getFormattedDateAfter('MMMM YYYY', 1, 'month')).month() !==
+          moment(newScheduledEvent3.endsAt).month()
       ) {
         cy.get('[data-cy="calendar-timeline-view"]').should(
           'not.contain',
@@ -188,6 +190,7 @@ context('Scheduled events timeline tests', () => {
         );
       } else {
         cy.contains(newScheduledEvent3.startsAt);
+        cy.contains(newScheduledEvent3.endsAt);
       }
 
       cy.get('[data-cy="calendar-timeline-view"]').should(

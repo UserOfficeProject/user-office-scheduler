@@ -25,7 +25,7 @@ services:
       POSTGRES_USER: duouser
       POSTGRES_DB: duo
     volumes:
-      - ../user-office-core/apps/user-office-backend/db_patches/:/docker-entrypoint-initdb.d/
+      - ../user-office-core/apps/backend/db_patches/:/docker-entrypoint-initdb.d/
     ports:
       - 5432:5432
 

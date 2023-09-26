@@ -19,14 +19,6 @@
     "lint:fix": "tsc --noEmit && eslint ./src --ext .js,.ts --fix --quiet",
     "generate:local": "node scripts/generate-graphql-sdk.js"
   },
-  "lint-staged": {
-    "**/*.{js,ts}": "npm run lint"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
   "author": "SWAP",
   "license": "ISC",
   "dependencies": {
@@ -46,7 +38,7 @@
     "dotenv": "^16.1.4",
     "express": "^4.18.1",
     "express-jwt": "^8.4.1",
-    "graphql": "^16.7.1",
+    "graphql": "^16.8.1",
     "graphql-request": "^6.1.0",
     "graphql-tag": "^2.12.6",
     "jsonwebtoken": "^9.0.0",
@@ -82,9 +74,7 @@
     "eslint-plugin-jest": "^27.2.3",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-unused-imports": "^2.0.0",
-    "husky": "^4.3.8",
     "jest": "^27.4.5",
-    "lint-staged": "^13.2.3",
     "prettier": "^2.8.8",
     "ts-jest": "^27.1.2",
     "ts-node-dev": "^2.0.0",

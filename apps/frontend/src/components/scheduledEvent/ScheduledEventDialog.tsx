@@ -1,4 +1,3 @@
-import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {
   Dialog,
@@ -8,7 +7,6 @@ import {
   Button,
   CircularProgress,
 } from '@mui/material';
-import IconButton from '@mui/material/IconButton';
 import {
   getTranslation,
   ResourceId,
@@ -20,6 +18,7 @@ import { useSnackbar } from 'notistack';
 import React, { useContext, useState } from 'react';
 import { stringOrDate } from 'react-big-calendar';
 
+import CloseDialogButton from 'components/common/CloseDialogButton';
 import { AppContext } from 'context/AppContext';
 import { ScheduledEventBookingType, Maybe } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
@@ -205,19 +204,7 @@ export default function ScheduledEventDialog({
           return (
             <Form>
               <DialogTitle>Event</DialogTitle>
-              <IconButton
-                aria-label="close"
-                onClick={() => closeDialog()}
-                data-cy="btn-close-dialog"
-                sx={{
-                  position: 'absolute',
-                  right: 8,
-                  top: 8,
-                  color: (theme) => theme.palette.grey[500],
-                }}
-              >
-                <CloseIcon />
-              </IconButton>
+              <CloseDialogButton onClick={() => closeDialog()} />
               <DialogContent>
                 <ScheduledEventForm />
               </DialogContent>

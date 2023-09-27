@@ -1,4 +1,3 @@
-import CloseIcon from '@mui/icons-material/Close';
 import {
   DialogContent,
   DialogActions,
@@ -7,10 +6,10 @@ import {
   Dialog,
   DialogTitle,
 } from '@mui/material';
-import IconButton from '@mui/material/IconButton';
 import { useSnackbar } from 'notistack';
 import React, { useState } from 'react';
 
+import CloseDialogButton from 'components/common/CloseDialogButton';
 import Loader from 'components/common/Loader';
 import Table, { HeadCell } from 'components/common/Table';
 import { EquipmentAssignmentStatus } from 'generated/sdk';
@@ -105,19 +104,7 @@ export default function SelectEquipmentDialog({
     >
       {(loading || isLoading) && <Loader />}
       <DialogTitle>Equipments</DialogTitle>
-      <IconButton
-        aria-label="close"
-        onClick={() => closeDialog()}
-        data-cy="btn-close-dialog"
-        sx={{
-          position: 'absolute',
-          right: 8,
-          top: 8,
-          color: (theme) => theme.palette.grey[500],
-        }}
-      >
-        <CloseIcon />
-      </IconButton>
+      <CloseDialogButton onClick={() => closeDialog()} />
       <DialogContent>
         <Table
           selectable

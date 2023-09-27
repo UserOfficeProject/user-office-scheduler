@@ -266,6 +266,7 @@ export type TableProps<T extends Record<string, unknown>> = {
   showEmptyRows?: boolean;
   tableContainerMaxHeight?: number;
   selectable?: boolean;
+  showToolbar?: boolean;
   tooltipActions?: TooltipAction[];
   rowActions?: RowActions<T>;
   renderRow: (row: T) => JSX.Element;
@@ -300,6 +301,7 @@ export default function Table<T extends { [k: string]: any }>({
   selectable,
   tooltipActions,
   rowActions,
+  showToolbar = true,
   renderRow,
   extractKey,
   onPageChange,
@@ -392,22 +394,24 @@ export default function Table<T extends { [k: string]: any }>({
 
   return (
     <>
-      <EnhancedTableToolbar
-        title={tableTitle}
-        numSelected={selected.length}
-        tooltipActions={tooltipActions?.map((action) => {
-          const onClick = () => {
-            action.onClick(selected);
-            action.clearSelect && setSelected([]);
-            action.clearSelect && onSelectionChange?.([]);
-          };
+      {showToolbar && (
+        <EnhancedTableToolbar
+          title={tableTitle}
+          numSelected={selected.length}
+          tooltipActions={tooltipActions?.map((action) => {
+            const onClick = () => {
+              action.onClick(selected);
+              action.clearSelect && setSelected([]);
+              action.clearSelect && onSelectionChange?.([]);
+            };
 
-          return {
-            ...action,
-            onClick,
-          };
-        })}
-      />
+            return {
+              ...action,
+              onClick,
+            };
+          })}
+        />
+      )}
       <TableContainer
         style={{ maxHeight: tableContainerMaxHeight }}
         className="MuiPaper-elevation2"

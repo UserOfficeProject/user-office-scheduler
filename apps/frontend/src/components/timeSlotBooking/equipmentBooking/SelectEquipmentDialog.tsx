@@ -4,10 +4,12 @@ import {
   Button,
   TableCell,
   Dialog,
+  DialogTitle,
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import React, { useState } from 'react';
 
+import CloseDialogButton from 'components/common/CloseDialogButton';
 import Loader from 'components/common/Loader';
 import Table, { HeadCell } from 'components/common/Table';
 import { EquipmentAssignmentStatus } from 'generated/sdk';
@@ -101,6 +103,8 @@ export default function SelectEquipmentDialog({
       fullWidth
     >
       {(loading || isLoading) && <Loader />}
+      <DialogTitle>Equipments</DialogTitle>
+      <CloseDialogButton onClick={() => closeDialog()} />
       <DialogContent>
         <Table
           selectable
@@ -109,6 +113,7 @@ export default function SelectEquipmentDialog({
           }
           defaultOrderBy="name"
           tableTitle="Equipments"
+          showToolbar={false}
           headCells={defaultHeadCells}
           tableContainerMaxHeight={600}
           showEmptyRows
@@ -152,9 +157,6 @@ export default function SelectEquipmentDialog({
           data-cy="btn-assign-equipment"
         >
           Assign equipment
-        </Button>
-        <Button color="primary" onClick={() => closeDialog()}>
-          Close
         </Button>
       </DialogActions>
     </Dialog>

@@ -32,6 +32,7 @@ import Toolbar, { getLabelText } from '../common/Toolbar';
 
 type TimeLineViewProps = {
   events: CalendarScheduledEventWithUniqueId[];
+  backgroundEvents: CalendarScheduledEventWithUniqueId[];
   filter: ScheduledEventFilter;
   onSelectEvent: (selectedEvent: CalendarScheduledEventWithUniqueId) => void;
 };
@@ -157,6 +158,7 @@ const useStyles = makeStyles((theme) => ({
 // TODO: Cleanup and refactor grouping logic
 const TimeLineView: React.FC<TimeLineViewProps> = ({
   events,
+  backgroundEvents,
   filter,
   onSelectEvent,
 }) => {
@@ -331,6 +333,24 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
       end_time: moment(event.end),
     }));
 
+  const getBackgroundTimelineEvents = () =>
+    backgroundEvents.map((event) => ({
+      id: `${event.id}_${event.bookingType}_${event.equipmentId}`,
+      group: getEventItemGroup(event),
+      title: getEventTitle(event),
+      itemProps: {
+        onClick: () => onSelectEvent(event),
+        onTouchStart: () => onSelectEvent(event),
+        style: {
+          ...getBookingTypeStyle(event),
+          overflow: 'hidden',
+        },
+        className: 'rct-background-event',
+      },
+      start_time: moment(event.start),
+      end_time: moment(event.end),
+    }));
+
   const timeLineGroups = [
     ...instrumentGroups,
     ...equipmentGroups,
@@ -367,6 +387,7 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
   const timelineEvents = [
     ...getInstrumentAndEquipmentTimelineEvents(),
     ...getLocalContactTimelineEvents(),
+    ...getBackgroundTimelineEvents(),
   ];
 
   return (

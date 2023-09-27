@@ -47,8 +47,8 @@ export class DeleteScheduledEventsInput {
   @Field(() => [Int])
   ids: number[];
 
-  @Field(() => Int)
-  proposalBookingId: number;
+  @Field(() => Int, { nullable: true })
+  proposalBookingId?: number;
 
   @Field(() => Int)
   instrumentId: number;
@@ -67,6 +67,15 @@ export class UpdateScheduledEventInput {
 
   @Field(() => Int, { nullable: true })
   localContact?: number;
+
+  @Field(() => Int, { nullable: true })
+  instrumentId?: number;
+
+  @Field(() => ScheduledEventBookingType, { nullable: true })
+  bookingType?: ScheduledEventBookingType;
+
+  @Field(() => String, { nullable: true })
+  description?: string;
 }
 
 @InputType()

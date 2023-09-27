@@ -14,6 +14,7 @@ import {
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import { useHistory } from 'react-router';
 
+import { BackgroundEvent } from 'components/scheduledEvent/ScheduledEventDialog';
 import { AppContext } from 'context/AppContext';
 import {
   ProposalBookingStatusCore,
@@ -32,7 +33,7 @@ import {
   isSchedulerViewPeriod,
   SchedulerViewPeriod,
 } from '../CalendarViewContainer';
-import Event, { eventPropGetter } from '../common/Event';
+import Event, { eventPropGetter, getBookingTypeStyle } from '../common/Event';
 import Toolbar from '../common/Toolbar';
 
 moment.locale('en-gb');
@@ -84,6 +85,7 @@ const useStyles = makeStyles(() => ({
 type CalendarViewProps = {
   filter: ScheduledEventFilter;
   events: CalendarScheduledEventWithUniqueId[];
+  backgroundEvents: CalendarScheduledEventWithUniqueId[];
   onSelectEvent: (data: CalendarScheduledEventWithUniqueId) => void;
   onDropFromOutside: (data: {
     start: stringOrDate;
@@ -95,11 +97,12 @@ type CalendarViewProps = {
     end: stringOrDate;
     isAllDay: boolean;
   }) => Promise<void>;
-  onSelectTimeSlot: (slotIfo: SlotInfo) => void;
+  onSelectTimeSlot: (slotIfo: SlotInfo | BackgroundEvent) => void;
 };
 const CalendarView: React.FC<CalendarViewProps> = ({
   filter,
   events,
+  backgroundEvents,
   onSelectEvent,
   onDropFromOutside,
   onEventResize,
@@ -148,7 +151,35 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     }
   };
 
+  const findEventByDate = (date: moment.Moment) =>
+    backgroundEvents.find((backgroundEvent) => {
+      const start = moment(backgroundEvent.start);
+      const end = moment(backgroundEvent.end);
+
+      if (date.isBetween(start.startOf('day'), end, null, '[)')) {
+        return backgroundEvent;
+      }
+    });
+
   const onSelectSlot = (slotInfo: SlotInfo) => {
+    if (slotInfo.action === 'click') {
+      const momentStartDate = moment(slotInfo.start);
+      const foundEvent = findEventByDate(momentStartDate);
+
+      if (foundEvent) {
+        onSelectTimeSlot({
+          id: foundEvent.eventId,
+          startsAt: foundEvent.start,
+          endsAt: foundEvent.end,
+          bookingType: foundEvent.bookingType,
+          instrument: foundEvent.instrument,
+          description: foundEvent.description,
+        });
+
+        return;
+      }
+    }
+
     if (isOverlapping({ start: slotInfo.start, end: slotInfo.end }, events)) {
       return;
     }
@@ -169,6 +200,24 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     return !isOverlapping(range, events);
   };
 
+  const dayPropGetter = (date: Date) => {
+    const momentDate = moment(date);
+    const foundEvent = findEventByDate(momentDate);
+
+    /**NOTE:
+     * Because background events are not shown in the month view (https://github.com/jquense/react-big-calendar/issues/2446)
+     * we will paint the background of the proper day slots with the event colors.
+     */
+    if (foundEvent && view === Views.MONTH) {
+      return {
+        style: getBookingTypeStyle(foundEvent),
+        className: 'rbc-background-event',
+      };
+    } else {
+      return {};
+    }
+  };
+
   return (
     <>
       <Toolbar filter={filter} multipleInstruments />
@@ -178,6 +227,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         resizable
         className={classes.calendar}
         localizer={localizer}
+        backgroundEvents={backgroundEvents}
         events={events}
         defaultView={view}
         views={{
@@ -198,6 +248,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         onEventResize={onEventResize}
         showMultiDayTimes={true}
         dayLayoutAlgorithm={'no-overlap'}
+        dayPropGetter={dayPropGetter}
         eventPropGetter={eventPropGetter}
         slotPropGetter={slotPropGetter as SlotPropGetter}
         onSelectEvent={onSelectEvent}

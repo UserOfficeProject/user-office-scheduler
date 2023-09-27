@@ -1,13 +1,8 @@
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-} from '@mui/material';
+import { Dialog, DialogContent, DialogTitle } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import React, { Dispatch, SetStateAction } from 'react';
 
+import CloseDialogButton from 'components/common/CloseDialogButton';
 import Loader from 'components/common/Loader';
 import useProposalBooking, {
   DetailedProposalBooking,
@@ -76,6 +71,7 @@ export default function ProposalBookingDialog({
       }}
     >
       <DialogTitle>Proposal booking</DialogTitle>
+      <CloseDialogButton onClick={handleCloseDialog} />
       <DialogContent className="tinyScroll">
         <ProposalDetailsAndBookingEvents
           proposalBooking={proposalBooking as DetailedProposalBooking}
@@ -87,15 +83,6 @@ export default function ProposalBookingDialog({
           openedEventId={scheduledEventId}
         />
       </DialogContent>
-      <DialogActions>
-        <Button
-          color="primary"
-          onClick={handleCloseDialog}
-          data-cy="btn-close-dialog"
-        >
-          Close
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 }

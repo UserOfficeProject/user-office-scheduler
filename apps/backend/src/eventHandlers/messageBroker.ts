@@ -11,6 +11,8 @@ import { ApplicationEvent } from '../events/applicationEvents';
 import { Event, Instrument } from '../generated/sdk';
 import { ScheduledEvent } from '../models/ScheduledEvent';
 import { TZ_LESS_DATE_TIME } from '../resolvers/CustomScalars';
+import { ProposalMessageData } from '../types/shared';
+import { hasTriggerStatus } from '../utils/helperFunctions';
 
 const PROPOSAL_SCHEDULING_QUEUE = process.env
   .PROPOSAL_SCHEDULING_QUEUE_NAME as Queue;
@@ -62,6 +64,8 @@ export async function createListenToRabbitMQHandler({
   }
 
   const CORE_EXCHANGE_NAME = process.env.CORE_EXCHANGE_NAME;
+  const upsertTriggerStatuses =
+    process.env.UPSERT_PROPOSAL_BOOKING_TRIGGER_STATUSES?.split(', ');
 
   if (!CORE_EXCHANGE_NAME) {
     throw new Error('CORE_EXCHANGE_NAME environment variable not set');
@@ -83,9 +87,18 @@ export async function createListenToRabbitMQHandler({
           {
             type,
             message,
+            upsertTriggerStatuses,
           }
         );
-        await proposalBookingDataSource.upsert(message);
+
+        const hasTriggeringStatus = hasTriggerStatus(
+          message as ProposalMessageData,
+          upsertTriggerStatuses
+        );
+
+        if (hasTriggeringStatus) {
+          await proposalBookingDataSource.upsert(message);
+        }
 
         return;
 
@@ -118,7 +131,8 @@ export async function createListenToRabbitMQHandler({
       default:
         // captured and logged by duo-message-broker
         // message forwarded to dead-letter queue (DL__PROPOSALS)
-        throw 'Received unknown event';
+        // throw 'Received unknown event';
+        return;
     }
   });
 

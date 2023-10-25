@@ -17,6 +17,9 @@ export class ScheduledEventFilter {
 
   @Field(() => [Int])
   localContactIds: number[];
+
+  @Field(() => Int, { nullable: true })
+  callId?: number;
 }
 
 @Resolver()

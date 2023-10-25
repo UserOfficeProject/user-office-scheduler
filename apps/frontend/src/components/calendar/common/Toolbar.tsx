@@ -7,7 +7,11 @@ import { useHistory } from 'react-router';
 
 import { ScheduledEventFilter } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
-import { TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
+import {
+  getMiddleOfTheMonth,
+  isStartDateInCurrentMonth,
+  TZ_LESS_DATE_TIME_FORMAT,
+} from 'utils/date';
 
 import InstrumentAndEquipmentFilter from './InstrumentAndEquipmentFilter';
 import {
@@ -111,12 +115,22 @@ const Toolbar = ({
           }}
           onView={(view: View) => {
             if (isSchedulerViewPeriod(view)) {
-              const newStartsAt = moment(startsAt).startOf(view);
+              let newStartsAt = moment(startsAt).startOf(view);
+
+              // NOTE: If startsAt is in the current month then navigate to todays date view, else navigate to the middle of the month view.
+              if (view !== Views.MONTH) {
+                if (isStartDateInCurrentMonth(startsAt)) {
+                  newStartsAt = moment().startOf(view);
+                } else {
+                  newStartsAt = getMiddleOfTheMonth(startsAt).startOf(view);
+                }
+              }
 
               query.set(
                 'startsAt',
                 newStartsAt.format(TZ_LESS_DATE_TIME_FORMAT)
               );
+
               query.set('viewPeriod', view);
               history.push(`?${query}`);
             }

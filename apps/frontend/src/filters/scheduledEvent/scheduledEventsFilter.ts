@@ -8,7 +8,8 @@ export default function generateScheduledEventFilter(
   instrumentIds: number[],
   localContactIds: number[],
   startsAt: Date,
-  activeView: View
+  activeView: View,
+  callId?: number | null
 ): ScheduledEventFilter {
   switch (activeView) {
     case 'day': {
@@ -19,6 +20,7 @@ export default function generateScheduledEventFilter(
         localContactIds,
         startsAt: toTzLessDateTime(newStartsAt),
         endsAt: toTzLessDateTime(newStartsAt.add(1, 'day')),
+        callId,
       };
     }
     case 'week': {
@@ -29,6 +31,7 @@ export default function generateScheduledEventFilter(
         localContactIds,
         startsAt: toTzLessDateTime(newStartsAt),
         endsAt: toTzLessDateTime(newStartsAt.add(1, 'week')),
+        callId,
       };
     }
     case 'month': {
@@ -39,6 +42,7 @@ export default function generateScheduledEventFilter(
         localContactIds,
         startsAt: toTzLessDateTime(newStartsAt),
         endsAt: toTzLessDateTime(newStartsAt.add(1, 'month')),
+        callId,
       };
     }
     default:
@@ -50,6 +54,7 @@ export default function generateScheduledEventFilter(
         endsAt: toTzLessDateTime(newStartsAt.add(1, 'week')),
         instrumentIds,
         localContactIds,
+        callId,
       };
   }
 }

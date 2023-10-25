@@ -32,6 +32,7 @@ export default class PostgreScheduledEventDataSource
   readonly equipmentsTableName = 'equipments';
   readonly equipSchdEvTableName = 'scheduled_events_equipments';
   readonly equipmentResponsibleTableName = 'equipment_responsible';
+  readonly proposalBookingsTableName = 'proposal_bookings';
   // eslint-disable-next-line quotes
   readonly nextId = database.raw("nextval('equipments_equipment_id_seq')");
 
@@ -200,20 +201,42 @@ export default class PostgreScheduledEventDataSource
               .andWhere('ends_at', '>=', filter.startsAt);
           }
 
+          if (filter.callId) {
+            query
+              .leftJoin(
+                `${this.proposalBookingsTableName}`,
+                `${this.tableName}.proposal_booking_id`,
+                `${this.proposalBookingsTableName}.proposal_booking_id`
+              )
+              .andWhere(
+                `${this.proposalBookingsTableName}.call_id`,
+                filter.callId
+              );
+          }
+
           if (
             isSetAndPopulated(filter.instrumentIds) &&
             isSetAndPopulated(filter.localContactIds)
           ) {
             query.where((qb) => {
-              qb.whereIn('instrument_id', filter.instrumentIds).orWhereIn(
-                'local_contact',
+              qb.whereIn(
+                `${this.tableName}.instrument_id`,
+                filter.instrumentIds
+              ).orWhereIn(
+                `${this.tableName}.local_contact`,
                 filter.localContactIds
               );
             });
           } else if (isSetAndPopulated(filter.instrumentIds)) {
-            query.whereIn('instrument_id', filter.instrumentIds);
+            query.whereIn(
+              `${this.tableName}.instrument_id`,
+              filter.instrumentIds
+            );
           } else if (isSetAndPopulated(filter.localContactIds)) {
-            query.whereIn('local_contact', filter.localContactIds);
+            query.whereIn(
+              `${this.tableName}.local_contact`,
+              filter.localContactIds
+            );
           }
         })
         .orderBy('starts_at');

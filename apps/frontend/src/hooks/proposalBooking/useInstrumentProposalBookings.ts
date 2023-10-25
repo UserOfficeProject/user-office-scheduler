@@ -6,7 +6,10 @@ import { useDataApi } from 'hooks/common/useDataApi';
 export type InstrumentProposalBooking =
   GetInstrumentProposalBookingsQuery['instrumentProposalBookings'][0];
 
-export default function useInstrumentProposalBookings(instrumentIds: number[]) {
+export default function useInstrumentProposalBookings(
+  instrumentIds: number[],
+  callId?: number | null
+) {
   const [loading, setLoading] = useState(false);
   const [proposalBookings, setProposalBookings] = useState<
     InstrumentProposalBooking[]
@@ -38,6 +41,7 @@ export default function useInstrumentProposalBookings(instrumentIds: number[]) {
     api()
       .getInstrumentProposalBookings({
         instrumentIds: instrumentIdsArray,
+        callId,
         filter: {},
       })
       .then((data) => {
@@ -60,7 +64,7 @@ export default function useInstrumentProposalBookings(instrumentIds: number[]) {
     return () => {
       unmount = true;
     };
-  }, [instrumentIdsStringified, api, counter]);
+  }, [instrumentIdsStringified, api, callId, counter]);
 
   return {
     loading,

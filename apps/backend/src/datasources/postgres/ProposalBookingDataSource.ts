@@ -86,13 +86,19 @@ export default class PostgresProposalBookingDataSource
   }
 
   async instrumentProposalBookings(
-    instrumentIds: number[]
+    instrumentIds: number[],
+    callId?: number
   ): Promise<ProposalBooking[]> {
     const proposalBookings = await database<ProposalBookingRecord>(
       this.tableName
     )
       .select()
       .whereIn('instrument_id', instrumentIds)
+      .modify((query) => {
+        if (callId) {
+          query.andWhere('call_id', callId);
+        }
+      })
       .orderBy('created_at', 'asc');
 
     return proposalBookings.map(createProposalBookingObject);

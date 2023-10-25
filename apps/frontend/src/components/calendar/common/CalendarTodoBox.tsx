@@ -1,10 +1,15 @@
 import { Add as AddIcon, Info as InfoIcon } from '@mui/icons-material';
-import { Button, useMediaQuery } from '@mui/material';
+import Autocomplete from '@mui/material/Autocomplete';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import makeStyles from '@mui/styles/makeStyles';
 import clsx from 'clsx';
 import React, { Dispatch, SetStateAction } from 'react';
+import { useHistory } from 'react-router';
 
 import ProposalBookingTree from 'components/proposalBooking/ProposalBookingTree';
+import useInstrumentCalls from 'hooks/call/useInstrumentCalls';
 import { useQuery } from 'hooks/common/useQuery';
 import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
 
@@ -53,8 +58,11 @@ export default function CalendarTodoBox({
   }));
   const classes = useStyles();
   const query = useQuery();
+  const history = useHistory();
+  const { calls, loading } = useInstrumentCalls();
 
   const queryInstrument = query.get('instrument');
+  const callId = query.get('call');
 
   if (!queryInstrument) {
     return (
@@ -85,6 +93,29 @@ export default function CalendarTodoBox({
       >
         New event
       </Button>
+
+      <Autocomplete
+        id="call-select"
+        aria-labelledby="call-select-label"
+        loading={loading}
+        onChange={(_, call) => {
+          if (call) {
+            query.set('call', `${call?.id}`);
+          } else {
+            query.delete('call');
+          }
+          history.push(`?${query}`);
+        }}
+        getOptionLabel={(option) => option.shortCode}
+        isOptionEqualToValue={(option, value) => option.id === value.id}
+        options={calls}
+        value={calls.find((v) => v.id.toString() === callId) || null}
+        data-cy="call-filter"
+        renderInput={(params) => (
+          <TextField {...params} variant="standard" label="Call" />
+        )}
+        sx={{ marginBottom: 1 }}
+      />
 
       <ProposalBookingTree
         refreshCalendar={refreshCalendar}

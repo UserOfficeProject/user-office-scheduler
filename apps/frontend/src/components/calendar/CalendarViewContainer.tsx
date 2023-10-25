@@ -214,6 +214,7 @@ export default function CalendarViewContainer() {
   const queryView = query.get('viewPeriod') as SchedulerViewPeriod;
   const queryStartsAt = query.get('startsAt');
   const queryLocalContact = query.get('localContact');
+  const queryCall = query.get('call');
 
   const [schedulerActiveView, setSchedulerActiveView] = useState(
     (querySchedulerView as SchedulerViews) || SchedulerViews.CALENDAR
@@ -234,7 +235,8 @@ export default function CalendarViewContainer() {
       getArrayOfIdsFromQuery(queryInstrument),
       getArrayOfIdsFromQuery(queryLocalContact),
       startsAt,
-      view
+      view,
+      queryCall ? +queryCall : null
     )
   );
   const [selectedProposalBooking, setSelectedProposalBooking] = useState<{
@@ -270,7 +272,10 @@ export default function CalendarViewContainer() {
     loading: loadingBookings,
     refresh: refreshBookings,
     setProposalBookings,
-  } = useInstrumentProposalBookings(getArrayOfIdsFromQuery(queryInstrument));
+  } = useInstrumentProposalBookings(
+    getArrayOfIdsFromQuery(queryInstrument),
+    queryCall ? +queryCall : null
+  );
 
   const {
     scheduledEvents,
@@ -318,11 +323,19 @@ export default function CalendarViewContainer() {
         getArrayOfIdsFromQuery(queryInstrument),
         getArrayOfIdsFromQuery(queryLocalContact),
         newStartDate,
-        queryView || view
+        queryView || view,
+        queryCall ? +queryCall : null
       )
     );
     setView(queryView || view);
-  }, [queryInstrument, queryLocalContact, view, getStartDate, queryView]);
+  }, [
+    queryInstrument,
+    queryLocalContact,
+    queryCall,
+    view,
+    getStartDate,
+    queryView,
+  ]);
 
   const equipmentEventsTransformed: GetScheduledEventsQuery['scheduledEvents'] =
     eqEvents

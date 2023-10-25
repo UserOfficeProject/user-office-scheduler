@@ -148,11 +148,11 @@ const CalendarView: React.FC<CalendarViewProps> = ({
       let newStartsAt = moment(startsAt).startOf(newView);
 
       // NOTE: If startsAt is in the current month then navigate to todays date view, else navigate to the middle of the month view.
-      if (view !== Views.MONTH) {
+      if (newView !== Views.MONTH) {
         if (isStartDateInCurrentMonth(startsAt)) {
-          newStartsAt = moment().startOf(view);
+          newStartsAt = moment().startOf(newView);
         } else {
-          newStartsAt = getMiddleOfTheMonth(startsAt).startOf(view);
+          newStartsAt = getMiddleOfTheMonth(startsAt).startOf(newView);
         }
       }
 

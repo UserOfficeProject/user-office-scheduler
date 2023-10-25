@@ -794,9 +794,7 @@ export default function CalendarViewContainer() {
                   >
                     <InputLabel
                       id="scheduler-view-label"
-                      className={`${classes.schedulerViewSelect} ${
-                        isTabletOrMobile && classes.schedulerViewSelectMobile
-                      }`}
+                      sx={{ paddingTop: isTabletOrMobile ? 3 : 0 }}
                     >
                       Scheduler view
                     </InputLabel>

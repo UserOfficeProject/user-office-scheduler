@@ -130,9 +130,7 @@ export async function createListenToRabbitMQHandler({
 
         return;
       default:
-        // captured and logged by duo-message-broker
         // message forwarded to dead-letter queue (DL__PROPOSALS)
-        // throw 'Received unknown event';
         return;
     }
   });

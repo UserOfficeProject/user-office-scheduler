@@ -82,6 +82,7 @@ export async function createListenToRabbitMQHandler({
     switch (type) {
       case Event.PROPOSAL_STATUS_CHANGED_BY_WORKFLOW:
       case Event.PROPOSAL_STATUS_CHANGED_BY_USER:
+      case Event.PROPOSAL_STATUS_ACTION_EXECUTED:
         logger.logDebug(
           `Listener on ${PROPOSAL_SCHEDULING_QUEUE}: Received event`,
           {

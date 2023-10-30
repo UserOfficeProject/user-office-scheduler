@@ -144,6 +144,7 @@ services:
       PROPOSAL_SCHEDULING_QUEUE_NAME: user-office-backend.proposal_scheduling.queue
       SCHEDULER_EXCHANGE_NAME: user_office_scheduler_backend.fanout
       CORE_EXCHANGE_NAME: user_office_backend.fanout
+      UPSERT_PROPOSAL_BOOKING_TRIGGER_STATUSES: SCHEDULING
     depends_on:
       - duo-development-authorization-server
       - scheduler-db

@@ -2,9 +2,9 @@ import { Add as AddIcon, Info as InfoIcon } from '@mui/icons-material';
 import Autocomplete from '@mui/material/Autocomplete';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
-import useMediaQuery from '@mui/material/useMediaQuery';
 import makeStyles from '@mui/styles/makeStyles';
 import clsx from 'clsx';
+import moment from 'moment';
 import React, { Dispatch, SetStateAction } from 'react';
 import { useHistory } from 'react-router';
 
@@ -12,6 +12,8 @@ import ProposalBookingTree from 'components/proposalBooking/ProposalBookingTree'
 import useInstrumentCalls from 'hooks/call/useInstrumentCalls';
 import { useQuery } from 'hooks/common/useQuery';
 import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
+import { getArrayOfIdsFromQuery } from 'utils/common';
+import { TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
 
 export type DraggingEventType = {
   proposalBookingId: number;
@@ -26,43 +28,47 @@ type CalendarTodoBoxProps = {
   proposalBookings: InstrumentProposalBooking[];
 };
 
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: 'flex',
+    height: '100%',
+    flexDirection: 'column',
+    paddingTop: theme.spacing(2),
+    paddingLeft: theme.spacing(2),
+    [theme.breakpoints.down('lg')]: {
+      padding: theme.spacing(2),
+    },
+  },
+  centered: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  textCenter: {
+    textAlign: 'center',
+  },
+  bottomSpacing: {
+    marginBottom: theme.spacing(2),
+  },
+  gray: {
+    color: theme.palette.grey[500],
+  },
+}));
+
 export default function CalendarTodoBox({
   onNewSimpleEvent,
   refreshCalendar,
   setDraggedEvent,
   proposalBookings,
 }: CalendarTodoBoxProps) {
-  const isTabletOrMobile = useMediaQuery('(max-width: 1224px)');
-  const useStyles = makeStyles((theme) => ({
-    root: {
-      display: 'flex',
-      height: '100%',
-      flexDirection: 'column',
-      paddingTop: theme.spacing(2),
-      paddingLeft: theme.spacing(2),
-      padding: isTabletOrMobile ? theme.spacing(2) : 0,
-    },
-    centered: {
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    textCenter: {
-      textAlign: 'center',
-    },
-    bottomSpacing: {
-      marginBottom: theme.spacing(2),
-    },
-    gray: {
-      color: theme.palette.grey[500],
-    },
-  }));
   const classes = useStyles();
   const query = useQuery();
   const history = useHistory();
-  const { calls, loading } = useInstrumentCalls();
-
   const queryInstrument = query.get('instrument');
   const callId = query.get('call');
+
+  const { calls, loading } = useInstrumentCalls(
+    getArrayOfIdsFromQuery(queryInstrument)
+  );
 
   if (!queryInstrument) {
     return (
@@ -101,8 +107,20 @@ export default function CalendarTodoBox({
         onChange={(_, call) => {
           if (call) {
             query.set('call', `${call?.id}`);
+            query.set(
+              'callStartCycle',
+              moment(call.startCycle).format(TZ_LESS_DATE_TIME_FORMAT)
+            );
+            query.set(
+              'callEndCycle',
+              moment(call.endCycle).format(TZ_LESS_DATE_TIME_FORMAT)
+            );
           } else {
             query.delete('call');
+            query.delete('callStartCycle');
+            query.delete('callEndCycle');
+            query.get('viewPeriod') === 'cycle' &&
+              query.set('viewPeriod', 'week');
           }
           history.push(`?${query}`);
         }}

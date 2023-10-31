@@ -22,10 +22,7 @@ import { getArrayOfIdsFromQuery } from 'utils/common';
 import { toTzLessDateTime, TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
 import { getFullUserName } from 'utils/user';
 
-import {
-  CalendarScheduledEventWithUniqueId,
-  SchedulerViewPeriod,
-} from '../CalendarViewContainer';
+import { CalendarScheduledEventWithUniqueId } from '../CalendarViewContainer';
 import { getBookingTypeStyle } from '../common/Event';
 import 'moment/locale/en-gb';
 import Toolbar, { getLabelText } from '../common/Toolbar';
@@ -169,12 +166,12 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
     InstrumentAndEquipmentContext
   );
 
-  const queryView =
-    (query.get('viewPeriod') as SchedulerViewPeriod) || Views.WEEK;
+  const queryView = (query.get('viewPeriod') as any) || Views.WEEK;
   const queryStartsAt = query.get('startsAt');
   const queryInstrument = query.get('instrument');
   const queryEquipment = query.get('equipment');
   const queryLocalContact = query.get('localContact');
+  const queryCallEndCycle = query.get('callEndCycle');
 
   const [instrumentGroups, setInstrumentGroups] = useState<TimeLineGroupType[]>(
     []
@@ -207,12 +204,15 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
   useEffect(() => {
     if (queryStartsAt) {
       const newVisibleTimeStart = moment.utc(queryStartsAt).local();
-      const newVisibleTimeEnd = moment(newVisibleTimeStart).add(1, queryView);
+      const newVisibleTimeEnd =
+        queryView === 'cycle'
+          ? moment(queryCallEndCycle)
+          : moment(newVisibleTimeStart).add(1, queryView);
 
       setVisibleTimeStart(newVisibleTimeStart);
       setVisibleTimeEnd(newVisibleTimeEnd);
     }
-  }, [queryStartsAt, queryView]);
+  }, [queryStartsAt, queryView, queryCallEndCycle]);
 
   useEffect(() => {
     const queryInstrumentIds = getArrayOfIdsFromQuery(queryInstrument);

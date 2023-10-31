@@ -172,6 +172,7 @@ export type Call = {
 };
 
 export type CallsFilter = {
+  instrumentIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   isActiveInternal?: InputMaybe<Scalars['Boolean']['input']>;
   isCallEndedByEvent?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3927,10 +3928,12 @@ export type UpdateEquipmentMutationVariables = Exact<{
 
 export type UpdateEquipmentMutation = { updateEquipment: { error: string | null, equipment: { id: number, name: string, description: string | null, color: string | null, maintenanceStartsAt: string | null, maintenanceEndsAt: string | null, autoAccept: boolean } | null } };
 
-export type GetCallsQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetCallsQueryVariables = Exact<{
+  filter?: InputMaybe<CallsFilter>;
+}>;
 
 
-export type GetCallsQuery = { calls: Array<{ id: number, shortCode: string }> | null };
+export type GetCallsQuery = { calls: Array<{ id: number, shortCode: string, startCycle: any, endCycle: any }> | null };
 
 export type GetUserInstrumentsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -4343,10 +4346,12 @@ export const UpdateEquipmentDocument = gql`
 }
     `;
 export const GetCallsDocument = gql`
-    query getCalls {
-  calls {
+    query getCalls($filter: CallsFilter) {
+  calls(filter: $filter) {
     id
     shortCode
+    startCycle
+    endCycle
   }
 }
     `;

@@ -8,8 +8,9 @@ export default function generateScheduledEventFilter(
   instrumentIds: number[],
   localContactIds: number[],
   startsAt: Date,
-  activeView: View,
-  callId?: number | null
+  activeView: View | 'cycle',
+  callId?: number | null,
+  callEndCycle?: moment.Moment
 ): ScheduledEventFilter {
   switch (activeView) {
     case 'day': {
@@ -42,6 +43,29 @@ export default function generateScheduledEventFilter(
         localContactIds,
         startsAt: toTzLessDateTime(newStartsAt),
         endsAt: toTzLessDateTime(newStartsAt.add(1, 'month')),
+        callId,
+      };
+    }
+    case 'cycle': {
+      console.log(callEndCycle, callEndCycle?.isValid());
+      const newStartsAt = moment(startsAt);
+      if (!callEndCycle?.isValid()) {
+        return {
+          startsAt: toTzLessDateTime(newStartsAt),
+          endsAt: toTzLessDateTime(newStartsAt.add(1, 'week')),
+          instrumentIds,
+          localContactIds,
+          callId,
+        };
+      }
+
+      const newEndsAt = moment(callEndCycle);
+
+      return {
+        instrumentIds,
+        localContactIds,
+        startsAt: toTzLessDateTime(newStartsAt),
+        endsAt: toTzLessDateTime(newEndsAt),
         callId,
       };
     }

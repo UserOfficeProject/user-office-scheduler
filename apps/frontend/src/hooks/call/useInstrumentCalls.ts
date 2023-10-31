@@ -5,18 +5,31 @@ import { useDataApi } from 'hooks/common/useDataApi';
 
 export type PartialCall = NonNullable<GetCallsQuery['calls']>[0];
 
-export default function useInstrumentCalls() {
+export default function useInstrumentCalls(instrumentIds: number[]) {
   const [loading, setLoading] = useState(true);
   const [calls, setCalls] = useState<PartialCall[]>([]);
+
+  const instrumentIdsStringified = JSON.stringify(instrumentIds);
 
   const api = useDataApi();
 
   useEffect(() => {
+    const instrumentIdsArray = JSON.parse(instrumentIdsStringified);
+
+    setLoading(true);
+
+    if (!instrumentIdsArray?.length) {
+      setCalls([]);
+      setLoading(false);
+
+      return;
+    }
+
     let unmount = false;
 
     setLoading(true);
     api()
-      .getCalls()
+      .getCalls({ filter: { instrumentIds: instrumentIdsArray } })
       .then((data) => {
         if (unmount) {
           return;
@@ -32,7 +45,7 @@ export default function useInstrumentCalls() {
     return () => {
       unmount = true;
     };
-  }, [api]);
+  }, [api, instrumentIdsStringified]);
 
   return { loading, calls } as const;
 }

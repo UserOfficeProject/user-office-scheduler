@@ -56,6 +56,40 @@ context('Proposal booking tests', () => {
       cy.contains(/call: call 1/i);
     });
 
+    it('should be able to filter proposal bookings and events by call', () => {
+      cy.login('instrumentScientist1');
+
+      cy.visit('/calendar');
+
+      cy.finishedLoading();
+
+      selectInstrument();
+
+      cy.get('[data-cy=btn-new-event]').should('exist');
+      cy.should('not.contain', /instrument has no calls/i);
+
+      // NOTE: This way we intercept multiple requests done on the /gateway endpoint and assign aliases by graphql operationName variable.
+      cy.intercept('POST', '/gateway', (req) => {
+        req.alias = req.body.operationName;
+      });
+
+      cy.get('[data-cy="call-filter"]').click();
+
+      cy.get('[role="presentation"] #call-select-listbox [role="option"]')
+        .first()
+        .click();
+
+      cy.wait('@getInstrumentProposalBookings')
+        .its('request.body.variables.callId')
+        .should('eq', 1);
+
+      cy.wait('@getScheduledEvents')
+        .its('request.body.variables.filter.callId')
+        .should('eq', 1);
+
+      cy.contains(/call: call 1/i);
+    });
+
     it('should not crash if the referenced proposal was deleted', () => {
       cy.login('officer');
 

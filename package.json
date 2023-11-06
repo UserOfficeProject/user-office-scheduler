@@ -45,7 +45,7 @@
   ],
   "dependencies": {
     "concurrently": "^8.2.2",
-    "wait-on": "^7.0.1"
+    "wait-on": "^7.1.0"
   },
   "devDependencies": {
     "husky": "^8.0.0",

@@ -16,11 +16,14 @@ import React, {
   useState,
 } from 'react';
 
+import { DraggingEventType } from 'components/calendar/common/CalendarTodoBox';
 import { ProposalBookingStatusCore } from 'generated/sdk';
 import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
 
 import ProposalBookingDialog from './ProposalBookingDialog';
-import ProposalBookingTreeTitle from './ProposalBookingTreeTitle';
+import ProposalBookingTreeTitle, {
+  getAllocatedTime,
+} from './ProposalBookingTreeTitle';
 
 type RenderTree = {
   id: string;
@@ -28,6 +31,7 @@ type RenderTree = {
   proposalBookingId?: number;
   completed?: boolean;
   instrumentId?: number;
+  timeToAllocate?: number;
   children?: RenderTree[];
   onClick?: React.MouseEventHandler;
 };
@@ -60,9 +64,7 @@ const useStyles = makeStyles((theme) => ({
 
 type ProposalBookingTreeProps = {
   refreshCalendar: () => void;
-  setDraggedEvent: Dispatch<
-    SetStateAction<{ proposalBookingId: number; instrumentId: number } | null>
-  >;
+  setDraggedEvent: Dispatch<SetStateAction<DraggingEventType | null>>;
   proposalBookings: InstrumentProposalBooking[];
 };
 
@@ -89,6 +91,9 @@ export default function ProposalBookingTree({
             completed:
               proposalBooking.status === ProposalBookingStatusCore.COMPLETED,
             instrumentId: proposalBooking.instrument?.id,
+            timeToAllocate:
+              proposalBooking.allocatedTime -
+              getAllocatedTime(proposalBooking.scheduledEvents),
             title: (
               <ProposalBookingTreeTitle proposalBooking={proposalBooking} />
             ),
@@ -115,12 +120,21 @@ export default function ProposalBookingTree({
         nodeId={nodes.id}
         label={nodes.title}
         onClick={nodes.onClick}
-        draggable={!!nodes.proposalBookingId && !nodes.completed}
+        draggable={
+          !!nodes.proposalBookingId &&
+          !nodes.completed &&
+          !!nodes.timeToAllocate
+        }
         onDragStart={() => {
-          if (nodes.proposalBookingId && nodes.instrumentId) {
+          if (
+            nodes.proposalBookingId &&
+            nodes.instrumentId &&
+            nodes.timeToAllocate
+          ) {
             setDraggedEvent({
               proposalBookingId: nodes.proposalBookingId,
               instrumentId: nodes.instrumentId,
+              timeToAllocate: nodes.timeToAllocate,
             });
           }
         }}

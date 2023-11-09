@@ -46,5 +46,23 @@ export default {
     { id: 2, name: 'Instrument 2' },
     { id: 3, name: 'Instrument 3' },
   ],
-  instrumentScientists: [{ id: 100 }, { id: 101 }],
+  users: {
+    officer: {
+      id: 2,
+      firstName: 'Anders',
+      lastName: 'Andersson',
+      email: 'Aaron_Harris49@gmail.com',
+      password: 'Test1234!',
+    },
+    instrumentScientist1: {
+      id: 100,
+      email: 'instr.sci1@local.host',
+      password: 'Test1234!',
+    },
+    instrumentScientist2: {
+      id: 101,
+      email: 'instr.sci2@local.host',
+      password: 'Test1234!',
+    },
+  },
 };

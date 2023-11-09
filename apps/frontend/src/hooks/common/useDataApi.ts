@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { getTranslation } from '@user-office-software/duo-localisation';
 import { GraphQLClient } from 'graphql-request';
 import { ClientError, RequestOptions, Variables } from 'graphql-request';
 import { VariablesAndRequestHeadersArgs } from 'graphql-request/build/esm/types';
@@ -16,26 +15,18 @@ const BACKEND_ENDPOINT = process.env.REACT_APP_API_URL || '';
 
 const endpoint = BACKEND_ENDPOINT + '/gateway';
 
-const getErrorMessage = (code: string | undefined): string | void => {
-  switch (code) {
-    case 'UNAUTHENTICATED':
-      return 'Token expired or bad token';
-    case 'INSUFFICIENT_PERMISSIONS':
-      return getTranslation('INSUFFICIENT_PERMISSIONS');
-    default:
-      return;
-  }
-};
-
 const notificationWithClientLog = async (
   enqueueSnackbar: WithSnackbarProps['enqueueSnackbar'],
   message: string,
-  error: unknown = ''
+  error: unknown = '',
+  writeToServerLog = true
 ) => {
   enqueueSnackbar(message, {
     variant: 'error',
     preventDuplicate: true,
   });
+
+  console.error({ message, error });
 
   if (error) {
     let stringifiedError: string;
@@ -57,14 +48,16 @@ const notificationWithClientLog = async (
       stringifiedError = String(error);
     }
 
-    try {
-      await getSdk(
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        new UnauthorizedGraphQLClient(endpoint, enqueueSnackbar, true)
-      ).addClientLog({ error: stringifiedError });
-    } catch (e) {
-      // if this fails we can't do anything
-      console.error('Failed to log client error', e);
+    if (writeToServerLog) {
+      try {
+        await getSdk(
+          // eslint-disable-next-line @typescript-eslint/no-use-before-define
+          new UnauthorizedGraphQLClient(endpoint, enqueueSnackbar, true)
+        ).addClientLog({ error: stringifiedError });
+      } catch (e) {
+        // if this fails we can't do anything
+        console.error('Failed to log client error', e);
+      }
     }
   }
 };
@@ -163,29 +156,50 @@ class AuthorizedGraphQLClient extends GraphQLClient {
     return super
       .request(query as RequestQuery<T, V>, ...variablesAndRequestHeaders)
       .catch((error) => {
-        console.error({ error });
-
-        // if the connection fails the `error` exists
-        // otherwise it won't, so this `includes` would fail
-        if (error.response.error?.includes('ECONNREFUSED')) {
+        if (!error || !error.response) {
           notificationWithClientLog(
             this.enqueueSnackbar,
-            'Connection problem!'
+            'No response received from server',
+            error
           );
+        } else if (
+          error.response.error &&
+          error.response.error.includes('ECONNREFUSED')
+        ) {
+          notificationWithClientLog(
+            this.enqueueSnackbar,
+            'Connection problem!',
+            error,
+            false
+          );
+        } else if (
+          error.response.errors &&
+          error.response.errors[0].message === 'UNAUTHENTICATED' &&
+          this.externalAuthLoginUrl
+        ) {
+          notificationWithClientLog(
+            this.enqueueSnackbar,
+            'Your session has expired, you will need to log in again through the external homepage',
+            error,
+            false
+          );
+          this.onSessionExpired();
+        } else if ((jwtDecode(this.token) as any).exp < nowTimestampSeconds) {
+          notificationWithClientLog(
+            this.enqueueSnackbar,
+            'Your session has expired, you will need to log in again.',
+            error,
+            false
+          );
+          this.onSessionExpired();
         } else {
-          const unnamedErrors = this.checkNamedErrors(error.response);
+          const [graphQLError] = error.response?.errors ?? [];
 
-          if (unnamedErrors) {
-            notificationWithClientLog(
-              this.enqueueSnackbar,
-              'Something went wrong!',
-              // Server error's should have `errors`
-              // everything else `error`
-              unnamedErrors
-            );
-          } else {
-            this.onSessionExpired();
-          }
+          notificationWithClientLog(
+            this.enqueueSnackbar,
+            graphQLError?.message || 'Something went wrong!',
+            error
+          );
         }
 
         throw error;
@@ -196,31 +210,6 @@ class AuthorizedGraphQLClient extends GraphQLClient {
     const after = 8 * 3600;
 
     return (jwtDecode(token) as any).iat + after;
-  }
-
-  private checkNamedErrors(errObj: any) {
-    // it is a graphql error
-    if (Array.isArray(errObj.errors)) {
-      const rest = errObj.errors.filter((err: any) => {
-        const errorMessage = getErrorMessage(err?.extensions?.code);
-        if (errorMessage) {
-          this.enqueueSnackbar(errorMessage, {
-            variant: 'error',
-            preventDuplicate: true,
-          });
-        }
-
-        return !errorMessage;
-      });
-
-      return rest.length > 0 ? rest : null;
-    }
-
-    if ('error' in errObj) {
-      return errObj.error;
-    }
-
-    return errObj;
   }
 }
 

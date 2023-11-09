@@ -15,7 +15,7 @@ context('Permission tests', () => {
 
   describe('Users with right roles', () => {
     it('should show all instruments for user with `User officer` role', () => {
-      cy.configureSession('UserOfficer');
+      cy.login('officer');
 
       cy.visit('/calendar');
 
@@ -44,7 +44,7 @@ context('Permission tests', () => {
     });
 
     it('should show only assigned instruments for user with `Instrument scientist` role', () => {
-      cy.configureSession('InstrumentScientist_1');
+      cy.login('instrumentScientist1');
 
       cy.visit('/calendar');
 
@@ -65,7 +65,7 @@ context('Permission tests', () => {
         .children()
         .contains(/instrument 1/i);
 
-      cy.configureSession('InstrumentScientist_2');
+      cy.login('instrumentScientist2');
       cy.visit('/calendar');
 
       cy.finishedLoading();
@@ -105,36 +105,36 @@ context('Permission tests', () => {
       cy.createEvent({ input: newScheduledEvent });
       cy.createEvent({ input: newScheduledEvent2 });
 
-      cy.configureSession('InstrumentScientist_1');
+      cy.login('instrumentScientist1');
 
       cy.visit('/calendar?instrument=1');
 
       let scheduledEventSlot = new Date(
         defaultEventBookingHourDateTime
       ).toISOString();
-      cy.get(`.rbc-event [data-cy='event-${scheduledEventSlot}']`).should(
-        'exist'
-      );
+      cy.get(
+        `.rbc-day-slot .rbc-background-event [data-cy='event-${scheduledEventSlot}']`
+      ).should('exist');
       let scheduledEventSlot2 = new Date(
         getHourDateTimeAfter(-2)
       ).toISOString();
-      cy.get(`.rbc-event [data-cy='event-${scheduledEventSlot2}']`).should(
-        'not.exist'
-      );
+      cy.get(
+        `.rbc-day-slot .rbc-background-event [data-cy='event-${scheduledEventSlot2}']`
+      ).should('not.exist');
 
-      cy.configureSession('InstrumentScientist_2');
+      cy.login('instrumentScientist2');
       cy.visit('/calendar?instrument=2');
 
       scheduledEventSlot = new Date(
         defaultEventBookingHourDateTime
       ).toISOString();
-      cy.get(`.rbc-event [data-cy='event-${scheduledEventSlot}']`).should(
-        'not.exist'
-      );
+      cy.get(
+        `.rbc-day-slot .rbc-background-event [data-cy='event-${scheduledEventSlot}']`
+      ).should('not.exist');
       scheduledEventSlot2 = new Date(getHourDateTimeAfter(-2)).toISOString();
-      cy.get(`.rbc-event [data-cy='event-${scheduledEventSlot2}']`).should(
-        'exist'
-      );
+      cy.get(
+        `.rbc-day-slot .rbc-background-event [data-cy='event-${scheduledEventSlot2}']`
+      ).should('exist');
     });
   });
 });

@@ -64,12 +64,29 @@ export default class PostgreScheduledEventDataSource
   async update(
     updateScheduledEvent: UpdateScheduledEventInput
   ): Promise<ScheduledEvent> {
+    const dataToUpdate: Record<string, unknown> = {
+      starts_at: updateScheduledEvent.startsAt,
+      ends_at: updateScheduledEvent.endsAt,
+    };
+
+    if (typeof updateScheduledEvent.localContact === 'number') {
+      dataToUpdate.local_contact = updateScheduledEvent.localContact;
+    }
+
+    if (updateScheduledEvent.bookingType) {
+      dataToUpdate.booking_type = updateScheduledEvent.bookingType;
+    }
+
+    if (updateScheduledEvent.description) {
+      dataToUpdate.description = updateScheduledEvent.description;
+    }
+
+    if (updateScheduledEvent.instrumentId) {
+      dataToUpdate.instrument_id = updateScheduledEvent.instrumentId;
+    }
+
     const [updatedRecord] = await database<ScheduledEventRecord>(this.tableName)
-      .update({
-        starts_at: updateScheduledEvent.startsAt,
-        ends_at: updateScheduledEvent.endsAt,
-        local_contact: updateScheduledEvent.localContact,
-      })
+      .update(dataToUpdate)
       .where('scheduled_event_id', updateScheduledEvent.scheduledEventId)
       .returning<ScheduledEventRecord[]>(['*']);
 
@@ -141,8 +158,15 @@ export default class PostgreScheduledEventDataSource
     const deletedRecord = await database<ScheduledEventRecord>(this.tableName)
       .del()
       .whereIn('scheduled_event_id', deleteScheduledEvents.ids)
-      .andWhere('proposal_booking_id', deleteScheduledEvents.proposalBookingId)
       .andWhere('instrument_id', deleteScheduledEvents.instrumentId)
+      .modify((query) => {
+        if (deleteScheduledEvents.proposalBookingId) {
+          query.andWhere(
+            'proposal_booking_id',
+            deleteScheduledEvents.proposalBookingId
+          );
+        }
+      })
       .returning('*');
 
     if (!deletedRecord.length) {

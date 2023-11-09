@@ -11,7 +11,10 @@ import {
   ScheduledEventBookingType,
 } from 'generated/sdk';
 import useUserInstruments from 'hooks/instrument/useUserInstruments';
-import { TZ_LESS_DATE_TIME_FORMAT, TZ_LESS_DATE_TIME_MASK } from 'utils/date';
+import {
+  TZ_LESS_DATE_TIME_LOW_PREC_FORMAT,
+  TZ_LESS_DATE_TIME_LOW_PREC_MASK,
+} from 'utils/date';
 
 export type BookingTypes = typeof ScheduledEventBookingType;
 
@@ -98,8 +101,8 @@ export default function ScheduledEventForm() {
             'data-cy': 'startsAt',
           }}
           label="Starts at"
-          mask={TZ_LESS_DATE_TIME_MASK}
-          inputFormat={TZ_LESS_DATE_TIME_FORMAT}
+          mask={TZ_LESS_DATE_TIME_LOW_PREC_MASK}
+          inputFormat={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
           ampm={false}
           minutesStep={60}
           fullWidth
@@ -115,8 +118,8 @@ export default function ScheduledEventForm() {
             'data-cy': 'endsAt',
           }}
           label="Ends at"
-          mask={TZ_LESS_DATE_TIME_MASK}
-          inputFormat={TZ_LESS_DATE_TIME_FORMAT}
+          mask={TZ_LESS_DATE_TIME_LOW_PREC_MASK}
+          inputFormat={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
           ampm={false}
           minutesStep={60}
           fullWidth

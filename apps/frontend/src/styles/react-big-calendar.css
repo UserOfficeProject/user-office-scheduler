@@ -1,3 +1,16 @@
 .rbc-day-slot .rbc-events-container {
   margin-right: 0;
 }
+
+.rbc-background-event {
+  opacity: 0.75;
+  width: calc(100% + 10px) !important;
+}
+
+/* NOTE: This is calendar timeline styling */
+.rct-background-event {
+  height: 100% !important;
+  top: 0 !important;
+  z-index: 30 !important;
+  opacity: 0.75 !important;
+}

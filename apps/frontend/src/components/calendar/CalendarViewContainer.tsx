@@ -18,6 +18,7 @@ import {
   ResourceId,
 } from '@user-office-software/duo-localisation';
 import generateScheduledEventFilter from 'filters/scheduledEvent/scheduledEventsFilter';
+import { partition } from 'lodash';
 import moment from 'moment';
 import 'moment/locale/en-gb';
 import { useSnackbar } from 'notistack';
@@ -35,6 +36,7 @@ import Loader from 'components/common/Loader';
 import EquipmentBookingDialog from 'components/equipment/EquipmentBookingDialog';
 import ProposalBookingDialog from 'components/proposalBooking/ProposalBookingDialog';
 import ScheduledEventDialog, {
+  BackgroundEvent,
   SlotInfo,
 } from 'components/scheduledEvent/ScheduledEventDialog';
 import {
@@ -49,11 +51,9 @@ import {
   ScheduledEventBookingType,
   GetScheduledEventsQuery,
   ProposalBooking,
-  Maybe,
 } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import { useQuery } from 'hooks/common/useQuery';
-import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 import useInstrumentProposalBookings from 'hooks/proposalBooking/useInstrumentProposalBookings';
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
 import useScheduledEvents from 'hooks/scheduledEvent/useScheduledEvents';
@@ -66,7 +66,7 @@ import {
 } from 'utils/date';
 import { hasOverlappingEvents } from 'utils/scheduledEvent';
 
-import CalendarTodoBox from './common/CalendarTodoBox';
+import CalendarTodoBox, { DraggingEventType } from './common/CalendarTodoBox';
 import { CalendarScheduledEvent } from './common/Event';
 import CalendarView from './views/CalendarView';
 import TableView from './views/TableView';
@@ -86,14 +86,14 @@ export const isSchedulerViewPeriod = (
   return schedulerViewPeriods.some((element) => element === arg);
 };
 
-export type CalendarScheduledEventWithUniqeId = CalendarScheduledEvent & {
+export type CalendarScheduledEventWithUniqueId = CalendarScheduledEvent & {
   eventId: number;
 };
 
 // NOTE: It is better practice to convert some values here for table rendering instead of using render function which adds additional complexity for sorting and stuff like that.
 const transformEvent = (
   scheduledEvents: GetScheduledEventsQuery['scheduledEvents']
-): CalendarScheduledEventWithUniqeId[] =>
+): CalendarScheduledEventWithUniqueId[] =>
   scheduledEvents.map((scheduledEvent, index) => ({
     /**
      * NOTE: This id should be unique and we can't just use scheduledEvent.id because we are mixing scheduled events and their equipment together.
@@ -219,17 +219,10 @@ export default function CalendarViewContainer() {
     (querySchedulerView as SchedulerViews) || SchedulerViews.CALENDAR
   );
   const [selectedEvent, setSelectedEvent] = useState<
-    | (Pick<
-        ScheduledEvent,
-        'id' | 'bookingType' | 'startsAt' | 'endsAt' | 'description'
-      > & { instrument: Maybe<PartialInstrument> })
-    | SlotInfo
-    | null
+    SlotInfo | BackgroundEvent | null
   >(null);
-  const [draggingEventDetails, setDraggingEventDetails] = useState<{
-    proposalBookingId: number;
-    instrumentId: number;
-  } | null>(null);
+  const [draggingEventDetails, setDraggingEventDetails] =
+    useState<DraggingEventType | null>(null);
   const [isAddingOrResizingTimeSlot, setIsAddingOrResizingTimeSlot] =
     useState(false);
   const [view, setView] = useState<SchedulerViewPeriod>(
@@ -353,6 +346,14 @@ export default function CalendarViewContainer() {
     [scheduledEvents, equipmentEventsTransformed]
   );
 
+  //NOTE: Based on bookingType split events in two arrays userEvents and backgroundEvents
+  const [userEvents, backgroundEvents] = partition(
+    events,
+    (e) =>
+      e.bookingType === ScheduledEventBookingType.USER_OPERATIONS ||
+      e.bookingType === ScheduledEventBookingType.EQUIPMENT
+  );
+
   const closeDialog = (shouldRefresh?: boolean) => {
     setSelectedEvent(null);
 
@@ -362,7 +363,7 @@ export default function CalendarViewContainer() {
   };
 
   const onSelectEvent = (
-    selectedScheduledEvent: CalendarScheduledEventWithUniqeId
+    selectedScheduledEvent: CalendarScheduledEventWithUniqueId
   ) => {
     switch (selectedScheduledEvent.bookingType) {
       case ScheduledEventBookingType.USER_OPERATIONS: {
@@ -427,13 +428,7 @@ export default function CalendarViewContainer() {
     refresh();
   };
 
-  const addAndOpenNewTimeSlot = async ({
-    start,
-    end,
-  }: {
-    start: stringOrDate;
-    end: stringOrDate;
-  }) => {
+  const addAndOpenNewTimeSlot = async ({ start }: { start: stringOrDate }) => {
     if (
       !draggingEventDetails?.proposalBookingId ||
       !draggingEventDetails.instrumentId
@@ -444,9 +439,12 @@ export default function CalendarViewContainer() {
     setIsAddingOrResizingTimeSlot(true);
 
     const newEventStart = moment(start);
-    const newEventEnd = moment(end);
+    const newEventEnd = moment(start).add(
+      draggingEventDetails.timeToAllocate,
+      'seconds'
+    );
 
-    if (newEventEnd.diff(newEventStart, 'day')) {
+    if (view === Views.MONTH && newEventStart.hour() === 0) {
       newEventStart.set({ hour: 9, minute: 0, second: 0 });
       newEventEnd.set({ hour: 9, minute: 0, second: 0 });
     }
@@ -486,18 +484,12 @@ export default function CalendarViewContainer() {
     setDraggingEventDetails(null);
   };
 
-  const onDropFromOutside = async ({
-    start,
-    end,
-  }: {
-    start: stringOrDate;
-    end: stringOrDate;
-  }) => {
-    await addAndOpenNewTimeSlot({ start, end });
+  const onDropFromOutside = async ({ start }: { start: stringOrDate }) => {
+    await addAndOpenNewTimeSlot({ start });
   };
 
   const getUpdatedProposalBookings = (
-    updatedEvent: CalendarScheduledEventWithUniqeId
+    updatedEvent: CalendarScheduledEventWithUniqueId
   ) =>
     proposalBookings.map((booking) => ({
       ...booking,
@@ -518,7 +510,7 @@ export default function CalendarViewContainer() {
     }));
 
   const updateScheduledEvent = async (
-    updatedEvent: CalendarScheduledEventWithUniqeId
+    updatedEvent: CalendarScheduledEventWithUniqueId
   ) => {
     try {
       const {
@@ -570,7 +562,7 @@ export default function CalendarViewContainer() {
     end,
     isAllDay,
   }: {
-    event: CalendarScheduledEventWithUniqeId;
+    event: CalendarScheduledEventWithUniqueId;
     start: stringOrDate;
     end: stringOrDate;
     isAllDay: boolean;
@@ -596,7 +588,7 @@ export default function CalendarViewContainer() {
       view !== Views.MONTH &&
       moment(end).day() !== moment(event.end).day();
 
-    const updatedEvent: CalendarScheduledEventWithUniqeId = {
+    const updatedEvent: CalendarScheduledEventWithUniqueId = {
       ...event,
       start: shouldNotChangeStart ? event.start : moment(start).toDate(),
       end: shouldNotChangeEnd ? event.end : moment(end).toDate(),
@@ -658,7 +650,8 @@ export default function CalendarViewContainer() {
         return (
           <TimeLineView
             filter={filter}
-            events={events}
+            events={userEvents}
+            backgroundEvents={backgroundEvents}
             onSelectEvent={onSelectEvent}
           />
         );
@@ -667,7 +660,8 @@ export default function CalendarViewContainer() {
         return (
           <CalendarView
             filter={filter}
-            events={events}
+            events={userEvents}
+            backgroundEvents={backgroundEvents}
             onSelectEvent={onSelectEvent}
             onDropFromOutside={onDropFromOutside}
             onEventResize={onEventResize}

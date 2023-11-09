@@ -1,0 +1,135 @@
+version: '3.1'
+
+services:
+  # used to proxy the core UI FE and BE requests to the right container
+  # Core FE is accessible on localhost:3000
+  proxy:
+    image: traefik:2.10 # The official Traefik docker image
+    command:
+      - '--log.level=DEBUG'
+      - '--api.insecure=true'
+      - '--providers.docker=true'
+      - '--providers.docker.exposedbydefault=false'
+      - '--entrypoints.web.address=:80'
+      - '--entrypoints.ep1.address=:3000'
+    ports:
+      - '3000:3000'
+      - '8080:8080' # The Web UI (enabled by --api)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+  db:
+    image: postgres:11-alpine
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: duopassword
+      POSTGRES_USER: duouser
+      POSTGRES_DB: duo
+    volumes:
+      - ../user-office-core/apps/backend/db_patches/:/docker-entrypoint-initdb.d/
+    ports:
+      - 5432:5432
+
+  scheduler-db:
+    image: postgres:11-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: scheduler
+      POSTGRES_USER: schedulerUser
+      POSTGRES_PASSWORD: schedulerPassword
+    volumes:
+      - './apps/backend/db_patches/:/docker-entrypoint-initdb.d/'
+    ports:
+      - 5433:5432
+
+  factory:
+    image: 'ghcr.io/userofficeproject/user-office-factory:develop'
+    init: true
+    environment:
+      - NODE_ENV=development
+      - DATABASE_HOSTNAME=db
+      - DATABASE_PORT=5432
+      - DATABASE_USER=duouser
+      - DATABASE_PASSWORD=duopassword
+      - DATABASE_DATABASE=duo
+    cap_add:
+      - SYS_ADMIN
+    depends_on:
+      - db
+
+  gateway:
+    image: 'ghcr.io/userofficeproject/user-office-gateway:develop'
+    environment:
+      USER_OFFICE_BACKEND: http://backend:4000/graphql
+      USER_OFFICE_SCHEDULER_BACKEND: http://host.docker.internal:4200/graphql
+      NODE_ENV: development
+      ENABLE_SERVICE_POLLING: 1 # see gateway
+      KEEP_RETRYING: 1 # see gateway
+    ports:
+      - 4100:4100
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.services.backend.loadbalancer.server.port=4100'
+      - 'traefik.http.routers.gateway.rule=(Host(`localhost`) && PathPrefix(`/gateway`, `/graphql`))'
+    depends_on:
+      - backend
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+
+  rabbitmq:
+    image: 'rabbitmq:3-management'
+    ports:
+      - '15672:15672'
+      - '5672:5672'
+    volumes:
+      - ./rabbitmq-isolated.conf:/etc/rabbitmq/rabbitmq.config
+
+  frontend:
+    image: 'ghcr.io/userofficeproject/user-office-frontend:develop'
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.core.rule=Host(`localhost`)'
+      - 'traefik.http.routers.core.entrypoints=ep1'
+    depends_on:
+      - gateway
+
+  backend:
+    image: 'ghcr.io/userofficeproject/user-office-backend:develop'
+    environment:
+      DATABASE_URL: postgres://duouser:duopassword@db:5432/duo
+      secret: qMyLZALzs229ybdQXNyzYRdju7X784TH
+      tokenLife: 7d
+      baseURL: localhost:3000
+      SPARKPOST_TOKEN: dummytoken
+      NODE_ENV: development
+      UO_FEATURE_DISABLE_EAM: 1
+      USER_OFFICE_FACTORY_ENDPOINT: http://factory:4500/generate
+      RABBITMQ_HOSTNAME: rabbitmq
+      AUTH_DISCOVERY_URL: http://host.docker.internal:5001/.well-known/openid-configuration
+      AUTH_CLIENT_ID: useroffice
+      AUTH_CLIENT_SECRET: useroffice
+      DEPENDENCY_CONFIG: ess
+      TZ: Europe/Stockholm
+      DATE_FORMAT: dd-MM-yyyy
+      DATE_TIME_FORMAT: dd-MM-yyyy HH:mm
+      CORE_EXCHANGE_NAME: user_office_backend.fanout
+      SCHEDULER_EXCHANGE_NAME: user_office_scheduler_backend.fanout
+      EVENT_SCHEDULING_QUEUE_NAME: user-office-scheduler-backend.event_scheduling.queue
+      SCHEDULER_ENDPOINT: http://host.docker.internal:4200/graphql
+    depends_on:
+      - duo-development-authorization-server
+      - db
+      - rabbitmq
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - 4000:4000
+
+  duo-development-authorization-server:
+    image: 'ghcr.io/userofficeproject/user-office-development-authorization-server:develop'
+    ports:
+      - 5001:5001
+    environment:
+      DATABASE_URL: postgres://duouser:duopassword@db:5432/duo
+      PORT: 5001
+    depends_on:
+      - db

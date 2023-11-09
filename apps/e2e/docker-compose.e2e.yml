@@ -6,9 +6,9 @@ services:
     image: "ghcr.io/userofficeproject/user-office-development-authorization-server:develop"
     environment:
       DATABASE_URL: postgres://duouser:duopassword@db:5432/duo
-      PORT: 5000
+      PORT: 5001
     ports:
-      - "5000:5000"
+      - "5001:5001"
     depends_on:
       - "db"
 
@@ -22,7 +22,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - "../../../user-office-core/apps/user-office-backend/db_patches/:/docker-entrypoint-initdb.d/"
+      - "../../../user-office-core/apps/backend/db_patches/:/docker-entrypoint-initdb.d/"
 
   scheduler-db:
     image: postgres:11-alpine
@@ -111,7 +111,7 @@ services:
       EAM_AUTH_PASS: dummyAuthPass
       EAM_API_URL: https://ios.esss.lu.se:7443
       EAM_PART_CODE: 12413
-      AUTH_DISCOVERY_URL: http://dev-auth-server:5000/.well-known/openid-configuration
+      AUTH_DISCOVERY_URL: http://dev-auth-server:5001/.well-known/openid-configuration
       AUTH_CLIENT_ID: useroffice
       AUTH_CLIENT_SECRET: useroffice
     labels:

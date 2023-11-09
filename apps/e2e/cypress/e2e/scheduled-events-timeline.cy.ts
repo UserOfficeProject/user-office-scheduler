@@ -14,7 +14,7 @@ context('Scheduled events timeline tests', () => {
   beforeEach(() => {
     cy.resetDB(true);
     cy.resetSchedulerDB(true);
-    cy.initializeSession('InstrumentScientist_1');
+    cy.login('instrumentScientist1');
     cy.visit('/calendar');
   });
 
@@ -180,7 +180,9 @@ context('Scheduled events timeline tests', () => {
 
       if (
         moment(getFormattedDateAfter('MMMM YYYY', 1, 'month')).month() !==
-        moment(newScheduledEvent3.startsAt).month()
+          moment(newScheduledEvent3.startsAt).month() &&
+        moment(getFormattedDateAfter('MMMM YYYY', 1, 'month')).month() !==
+          moment(newScheduledEvent3.endsAt).month()
       ) {
         cy.get('[data-cy="calendar-timeline-view"]').should(
           'not.contain',
@@ -188,6 +190,7 @@ context('Scheduled events timeline tests', () => {
         );
       } else {
         cy.contains(newScheduledEvent3.startsAt);
+        cy.contains(newScheduledEvent3.endsAt);
       }
 
       cy.get('[data-cy="calendar-timeline-view"]').should(
@@ -284,7 +287,7 @@ context('Scheduled events timeline tests', () => {
     });
 
     it('should not reset dates if page reloads', () => {
-      cy.initializeSession('UserOfficer');
+      cy.login('officer');
       cy.visit('/calendar');
       cy.finishedLoading();
 
@@ -314,7 +317,7 @@ context('Scheduled events timeline tests', () => {
     });
 
     it('should be able to select multiple instruments in timeline view', () => {
-      cy.initializeSession('UserOfficer');
+      cy.login('officer');
       cy.visit('/calendar');
 
       cy.finishedLoading();
@@ -356,8 +359,9 @@ context('Scheduled events timeline tests', () => {
     });
 
     it('should be able to scroll inside timeline view', () => {
+      cy.configureClock();
       const RIGHT_ARROW_KEY_CODE = 39;
-      cy.initializeSession('UserOfficer');
+      cy.login('officer');
       cy.visit('/calendar');
 
       cy.finishedLoading();

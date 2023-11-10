@@ -58,7 +58,7 @@ import useInstrumentProposalBookings from 'hooks/proposalBooking/useInstrumentPr
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
 import useScheduledEvents from 'hooks/scheduledEvent/useScheduledEvents';
 import { StyledContainer, StyledPaper } from 'styles/StyledComponents';
-import { getArrayOfIdsFromQuery } from 'utils/common';
+import { getArrayOfIdsFromQuery, getNumberFromQuery } from 'utils/common';
 import {
   parseTzLessDateTime,
   toTzLessDateTime,
@@ -214,7 +214,7 @@ export default function CalendarViewContainer() {
   const queryView = query.get('viewPeriod') as SchedulerViewPeriod;
   const queryStartsAt = query.get('startsAt');
   const queryLocalContact = query.get('localContact');
-  const queryCall = query.get('call');
+  const queryCall = getNumberFromQuery(query.get('call'));
 
   const [schedulerActiveView, setSchedulerActiveView] = useState(
     (querySchedulerView as SchedulerViews) || SchedulerViews.CALENDAR
@@ -236,7 +236,7 @@ export default function CalendarViewContainer() {
       getArrayOfIdsFromQuery(queryLocalContact),
       startsAt,
       view,
-      queryCall ? +queryCall : null
+      queryCall
     )
   );
   const [selectedProposalBooking, setSelectedProposalBooking] = useState<{
@@ -274,7 +274,7 @@ export default function CalendarViewContainer() {
     setProposalBookings,
   } = useInstrumentProposalBookings(
     getArrayOfIdsFromQuery(queryInstrument),
-    queryCall ? +queryCall : null
+    queryCall
   );
 
   const {
@@ -318,16 +318,18 @@ export default function CalendarViewContainer() {
 
   useEffect(() => {
     const newStartDate = getStartDate();
+    const newView = queryView || view;
+
     setFilter(
       generateScheduledEventFilter(
         getArrayOfIdsFromQuery(queryInstrument),
         getArrayOfIdsFromQuery(queryLocalContact),
         newStartDate,
-        queryView || view,
-        queryCall ? +queryCall : null
+        newView,
+        queryCall
       )
     );
-    setView(queryView || view);
+    setView(newView);
   }, [
     queryInstrument,
     queryLocalContact,

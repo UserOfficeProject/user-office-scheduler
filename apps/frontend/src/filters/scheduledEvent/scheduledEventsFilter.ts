@@ -11,50 +11,35 @@ export default function generateScheduledEventFilter(
   activeView: View,
   callId?: number | null
 ): ScheduledEventFilter {
+  let endsAt: moment.Moment;
+  const newStartsAt = moment(startsAt);
+
   switch (activeView) {
     case 'day': {
-      const newStartsAt = moment(startsAt);
-
-      return {
-        instrumentIds,
-        localContactIds,
-        startsAt: toTzLessDateTime(newStartsAt),
-        endsAt: toTzLessDateTime(newStartsAt.add(1, 'day')),
-        callId,
-      };
+      endsAt = newStartsAt.add(1, 'day');
+      break;
     }
     case 'week': {
-      const newStartsAt = moment(startsAt);
-
-      return {
-        instrumentIds,
-        localContactIds,
-        startsAt: toTzLessDateTime(newStartsAt),
-        endsAt: toTzLessDateTime(newStartsAt.add(1, 'week')),
-        callId,
-      };
+      endsAt = newStartsAt.add(1, 'week');
+      break;
     }
     case 'month': {
-      const newStartsAt = moment(startsAt);
-
-      return {
-        instrumentIds,
-        localContactIds,
-        startsAt: toTzLessDateTime(newStartsAt),
-        endsAt: toTzLessDateTime(newStartsAt.add(1, 'month')),
-        callId,
-      };
+      endsAt = newStartsAt.add(1, 'month');
+      break;
     }
     default:
       console.warn('activeView not implemented:', activeView);
-      const newStartsAt = moment(startsAt);
 
-      return {
-        startsAt: toTzLessDateTime(newStartsAt),
-        endsAt: toTzLessDateTime(newStartsAt.add(1, 'week')),
-        instrumentIds,
-        localContactIds,
-        callId,
-      };
+      endsAt = newStartsAt.add(1, 'week');
+
+      break;
   }
+
+  return {
+    instrumentIds,
+    localContactIds,
+    startsAt: toTzLessDateTime(newStartsAt),
+    endsAt: toTzLessDateTime(endsAt),
+    callId,
+  };
 }

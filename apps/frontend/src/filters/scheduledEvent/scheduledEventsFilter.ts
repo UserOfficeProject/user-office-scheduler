@@ -11,35 +11,37 @@ export default function generateScheduledEventFilter(
   activeView: View,
   callId?: number | null
 ): ScheduledEventFilter {
-  let endsAt: moment.Moment;
   const newStartsAt = moment(startsAt);
+  const filter = {
+    startsAt: toTzLessDateTime(newStartsAt),
+    endsAt: toTzLessDateTime(newStartsAt.add(1, 'week')),
+    instrumentIds,
+    localContactIds,
+    callId,
+  };
 
   switch (activeView) {
     case 'day': {
-      endsAt = newStartsAt.add(1, 'day');
+      filter.endsAt = toTzLessDateTime(newStartsAt.add(1, 'day'));
+
       break;
     }
     case 'week': {
-      endsAt = newStartsAt.add(1, 'week');
+      filter.endsAt = toTzLessDateTime(newStartsAt.add(1, 'week'));
+
       break;
     }
     case 'month': {
-      endsAt = newStartsAt.add(1, 'month');
+      filter.endsAt = toTzLessDateTime(newStartsAt.add(1, 'month'));
+
       break;
     }
     default:
       console.warn('activeView not implemented:', activeView);
-
-      endsAt = newStartsAt.add(1, 'week');
+      filter.endsAt = toTzLessDateTime(newStartsAt.add(1, 'week'));
 
       break;
   }
 
-  return {
-    instrumentIds,
-    localContactIds,
-    startsAt: toTzLessDateTime(newStartsAt),
-    endsAt: toTzLessDateTime(endsAt),
-    callId,
-  };
+  return filter;
 }

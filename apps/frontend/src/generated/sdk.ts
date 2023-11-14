@@ -3927,6 +3927,11 @@ export type UpdateEquipmentMutationVariables = Exact<{
 
 export type UpdateEquipmentMutation = { updateEquipment: { error: string | null, equipment: { id: number, name: string, description: string | null, color: string | null, maintenanceStartsAt: string | null, maintenanceEndsAt: string | null, autoAccept: boolean } | null } };
 
+export type GetCallsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetCallsQuery = { calls: Array<{ id: number, shortCode: string }> | null };
+
 export type GetUserInstrumentsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -3997,6 +4002,7 @@ export type FinalizeProposalBookingMutation = { finalizeProposalBooking: { error
 
 export type GetInstrumentProposalBookingsQueryVariables = Exact<{
   instrumentIds: Array<Scalars['Int']['input']> | Scalars['Int']['input'];
+  callId?: InputMaybe<Scalars['Int']['input']>;
   filter: ProposalBookingScheduledEventFilter;
 }>;
 
@@ -4336,6 +4342,14 @@ export const UpdateEquipmentDocument = gql`
   }
 }
     `;
+export const GetCallsDocument = gql`
+    query getCalls {
+  calls {
+    id
+    shortCode
+  }
+}
+    `;
 export const GetUserInstrumentsDocument = gql`
     query getUserInstruments {
   userInstruments {
@@ -4435,8 +4449,8 @@ export const FinalizeProposalBookingDocument = gql`
 }
     `;
 export const GetInstrumentProposalBookingsDocument = gql`
-    query getInstrumentProposalBookings($instrumentIds: [Int!]!, $filter: ProposalBookingScheduledEventFilter!) {
-  instrumentProposalBookings(instrumentIds: $instrumentIds) {
+    query getInstrumentProposalBookings($instrumentIds: [Int!]!, $callId: Int, $filter: ProposalBookingScheduledEventFilter!) {
+  instrumentProposalBookings(instrumentIds: $instrumentIds, callId: $callId) {
     id
     call {
       id
@@ -4857,6 +4871,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     updateEquipment(variables: UpdateEquipmentMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateEquipmentMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<UpdateEquipmentMutation>(UpdateEquipmentDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'updateEquipment', 'mutation');
+    },
+    getCalls(variables?: GetCallsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<GetCallsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetCallsQuery>(GetCallsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getCalls', 'query');
     },
     getUserInstruments(variables?: GetUserInstrumentsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<GetUserInstrumentsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetUserInstrumentsQuery>(GetUserInstrumentsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getUserInstruments', 'query');

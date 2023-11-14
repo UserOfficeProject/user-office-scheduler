@@ -58,7 +58,7 @@ import useInstrumentProposalBookings from 'hooks/proposalBooking/useInstrumentPr
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
 import useScheduledEvents from 'hooks/scheduledEvent/useScheduledEvents';
 import { StyledContainer, StyledPaper } from 'styles/StyledComponents';
-import { getArrayOfIdsFromQuery } from 'utils/common';
+import { getArrayOfIdsFromQuery, getNumberFromQuery } from 'utils/common';
 import {
   parseTzLessDateTime,
   toTzLessDateTime,
@@ -214,6 +214,7 @@ export default function CalendarViewContainer() {
   const queryView = query.get('viewPeriod') as SchedulerViewPeriod;
   const queryStartsAt = query.get('startsAt');
   const queryLocalContact = query.get('localContact');
+  const queryCall = getNumberFromQuery(query.get('call'));
 
   const [schedulerActiveView, setSchedulerActiveView] = useState(
     (querySchedulerView as SchedulerViews) || SchedulerViews.CALENDAR
@@ -234,7 +235,8 @@ export default function CalendarViewContainer() {
       getArrayOfIdsFromQuery(queryInstrument),
       getArrayOfIdsFromQuery(queryLocalContact),
       startsAt,
-      view
+      view,
+      queryCall
     )
   );
   const [selectedProposalBooking, setSelectedProposalBooking] = useState<{
@@ -270,7 +272,10 @@ export default function CalendarViewContainer() {
     loading: loadingBookings,
     refresh: refreshBookings,
     setProposalBookings,
-  } = useInstrumentProposalBookings(getArrayOfIdsFromQuery(queryInstrument));
+  } = useInstrumentProposalBookings(
+    getArrayOfIdsFromQuery(queryInstrument),
+    queryCall
+  );
 
   const {
     scheduledEvents,
@@ -313,16 +318,26 @@ export default function CalendarViewContainer() {
 
   useEffect(() => {
     const newStartDate = getStartDate();
+    const newView = queryView || view;
+
     setFilter(
       generateScheduledEventFilter(
         getArrayOfIdsFromQuery(queryInstrument),
         getArrayOfIdsFromQuery(queryLocalContact),
         newStartDate,
-        queryView || view
+        newView,
+        queryCall
       )
     );
-    setView(queryView || view);
-  }, [queryInstrument, queryLocalContact, view, getStartDate, queryView]);
+    setView(newView);
+  }, [
+    queryInstrument,
+    queryLocalContact,
+    queryCall,
+    view,
+    getStartDate,
+    queryView,
+  ]);
 
   const equipmentEventsTransformed: GetScheduledEventsQuery['scheduledEvents'] =
     eqEvents
@@ -781,9 +796,7 @@ export default function CalendarViewContainer() {
                   >
                     <InputLabel
                       id="scheduler-view-label"
-                      className={`${classes.schedulerViewSelect} ${
-                        isTabletOrMobile && classes.schedulerViewSelectMobile
-                      }`}
+                      sx={{ paddingTop: isTabletOrMobile ? 3 : 0 }}
                     >
                       Scheduler view
                     </InputLabel>

@@ -5,6 +5,14 @@ export const getArrayOfIdsFromQuery = (query: string | null) => {
   return queryIds || [];
 };
 
+export const getNumberFromQuery = (query: string | null) => {
+  if (query) {
+    return +query;
+  } else {
+    return null;
+  }
+};
+
 export function comaSeparatedArrayValues<T>(
   array: T[] | null,
   propertyToShow: keyof T

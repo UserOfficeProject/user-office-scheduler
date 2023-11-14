@@ -16,3 +16,13 @@ export const toTzLessDateTime = (dateTime: Moment | Date | string): string => {
 
   return dateTime.format(TZ_LESS_DATE_TIME_FORMAT);
 };
+
+export const isStartDateInCurrentMonth = (startDate: string | Date) => {
+  return moment(startDate).month() === moment().month();
+};
+
+export const getMiddleOfTheMonth = (startDate: string | Date) => {
+  const momentDate = moment(startDate);
+
+  return momentDate.startOf('month').add(momentDate.daysInMonth() / 2, 'days');
+};

@@ -1,8 +1,8 @@
 import { Grid, Alert, AlertProps } from '@mui/material';
-import { makeStyles } from '@mui/styles';
 import React from 'react';
+import { makeStyles } from 'tss-react/mui';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   grid: {
     display: 'flex',
     alignItems: 'center',
@@ -28,7 +28,7 @@ const useStyles = makeStyles(() => ({
 
 /** Message occupying full screen and displaying slightly customized MUI Alert component */
 function CenteredAlert(props: AlertProps) {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <Grid className={classes.grid}>

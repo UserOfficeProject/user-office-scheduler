@@ -205,7 +205,7 @@ const TableView: React.FC<TableViewProps> = ({
           headerSelectionProps: {
             inputProps: {
               'aria-label': 'Select All Rows',
-              'data-cy': 'select-all-table-rows',
+              // 'data-cy': 'select-all-table-rows',
             },
           },
           selectionProps: (rowData: CalendarScheduledEventWithUniqueId) => ({

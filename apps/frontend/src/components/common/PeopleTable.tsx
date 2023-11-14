@@ -1,7 +1,7 @@
 import MaterialTable, { Query, Options, Column } from '@material-table/core';
 import Button from '@mui/material/Button';
-import makeStyles from '@mui/styles/makeStyles';
 import React, { useState, useEffect } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 import { ActionButtonContainer } from 'components/common/ActionButtonContainer';
 import { tableIcons } from 'components/common/TableIcons';
@@ -75,7 +75,7 @@ type PeopleTableProps<
   userRole?: UserRole;
 };
 
-const useStyles = makeStyles({
+const useStyles = makeStyles()({
   tableWrapper: {
     '& .MuiToolbar-gutters': {
       paddingLeft: '0',
@@ -117,7 +117,7 @@ const PeopleTable: React.FC<PeopleTableProps> = ({
   const [searchText, setSearchText] = useState('');
   const [currentPageIds, setCurrentPageIds] = useState<number[]>([]);
 
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   useEffect(() => {
     if (isLoading !== undefined) {

@@ -1,12 +1,12 @@
-import makeStyles from '@mui/styles/makeStyles';
 import React from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 import { BasicProposalBooking } from 'components/calendar/common/Event';
 import { ScheduledEventStatusMap } from 'components/scheduledEvent/ScheduledEventForm';
 import { ProposalBookingStatusCore } from 'generated/sdk';
 import { getFullUserName } from 'utils/user';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   container: {
     paddingTop: '3px',
     display: 'flex',
@@ -40,7 +40,7 @@ function ProposalBookingInfo({
   booking,
   scheduledEventStatus,
 }: ProposalBookingInfoProps) {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const proposal = booking?.proposal;
 
   if (!proposal) {

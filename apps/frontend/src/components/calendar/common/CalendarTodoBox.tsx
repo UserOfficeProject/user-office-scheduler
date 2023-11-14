@@ -3,10 +3,9 @@ import Autocomplete from '@mui/material/Autocomplete';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import makeStyles from '@mui/styles/makeStyles';
-import clsx from 'clsx';
 import React, { Dispatch, SetStateAction } from 'react';
 import { useHistory } from 'react-router';
+import { makeStyles } from 'tss-react/mui';
 
 import ProposalBookingTree from 'components/proposalBooking/ProposalBookingTree';
 import useInstrumentCalls from 'hooks/call/useInstrumentCalls';
@@ -26,21 +25,15 @@ type CalendarTodoBoxProps = {
   proposalBookings: InstrumentProposalBooking[];
 };
 
-export default function CalendarTodoBox({
-  onNewSimpleEvent,
-  refreshCalendar,
-  setDraggedEvent,
-  proposalBookings,
-}: CalendarTodoBoxProps) {
-  const isTabletOrMobile = useMediaQuery('(max-width: 1224px)');
-  const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles<{ isTabletOrMobile: boolean }>()(
+  (theme, { isTabletOrMobile }) => ({
     root: {
       display: 'flex',
       height: '100%',
       flexDirection: 'column',
       paddingTop: theme.spacing(2),
       paddingLeft: theme.spacing(2),
-      padding: isTabletOrMobile ? theme.spacing(2) : 0,
+      paddingRight: isTabletOrMobile ? theme.spacing(2) : 0,
     },
     centered: {
       justifyContent: 'center',
@@ -55,8 +48,18 @@ export default function CalendarTodoBox({
     gray: {
       color: theme.palette.grey[500],
     },
-  }));
-  const classes = useStyles();
+  })
+);
+
+export default function CalendarTodoBox({
+  onNewSimpleEvent,
+  refreshCalendar,
+  setDraggedEvent,
+  proposalBookings,
+}: CalendarTodoBoxProps) {
+  const isTabletOrMobile = useMediaQuery('(max-width: 1224px)');
+
+  const { classes, cx } = useStyles({ isTabletOrMobile });
   const query = useQuery();
   const history = useHistory();
   const { calls, loading } = useInstrumentCalls();
@@ -67,7 +70,7 @@ export default function CalendarTodoBox({
   if (!queryInstrument) {
     return (
       <div
-        className={clsx(
+        className={cx(
           classes.root,
           classes.centered,
           classes.textCenter,

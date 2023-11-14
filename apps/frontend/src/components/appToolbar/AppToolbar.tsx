@@ -19,9 +19,8 @@ import {
   DialogActions,
   DialogContent,
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-import clsx from 'clsx';
 import React, { useState, useContext } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 import { UserContext } from 'context/UserContext';
 
@@ -34,13 +33,8 @@ type AppToolbarProps = {
   handleDrawerOpen: () => void;
 };
 
-export default function AppToolbar({
-  open,
-  handleDrawerOpen,
-}: AppToolbarProps) {
-  const isTabletOrMobile = useMediaQuery('(max-width: 1224px)');
-
-  const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles<{ isTabletOrMobile: boolean }>()(
+  (theme, { isTabletOrMobile }) => ({
     toolbar: {
       paddingRight: 24, // keep right padding when drawer closed
     },
@@ -73,9 +67,16 @@ export default function AppToolbar({
     profilePopper: {
       zIndex: theme.zIndex.drawer + 2,
     },
-  }));
+  })
+);
 
-  const classes = useStyles();
+export default function AppToolbar({
+  open,
+  handleDrawerOpen,
+}: AppToolbarProps) {
+  const isTabletOrMobile = useMediaQuery('(max-width: 1224px)');
+
+  const { classes, cx } = useStyles({ isTabletOrMobile });
 
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { user, handleLogout } = useContext(UserContext);
@@ -121,7 +122,7 @@ export default function AppToolbar({
       </Dialog>
       <AppBar
         position="fixed"
-        className={clsx(classes.appBar, open && classes.appBarShift)}
+        className={cx(classes.appBar, open && classes.appBarShift)}
       >
         <Toolbar className={classes.toolbar}>
           <IconButton
@@ -129,10 +130,7 @@ export default function AppToolbar({
             color="inherit"
             aria-label="Open drawer"
             onClick={handleDrawerOpen}
-            className={clsx(
-              classes.menuButton,
-              open && classes.menuButtonHidden
-            )}
+            className={cx(classes.menuButton, open && classes.menuButtonHidden)}
           >
             <MenuIcon />
           </IconButton>

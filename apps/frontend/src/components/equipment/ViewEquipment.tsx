@@ -19,12 +19,12 @@ import {
   Button,
   Box,
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import moment, { Moment } from 'moment';
 import { useSnackbar } from 'notistack';
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, generatePath } from 'react-router';
 import { Link } from 'react-router-dom';
+import { makeStyles } from 'tss-react/mui';
 
 import ScienceIcon from 'components/common/icons/ScienceIcon';
 import Loader from 'components/common/Loader';
@@ -38,7 +38,11 @@ import useEquipment from 'hooks/equipment/useEquipment';
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
 import { StyledContainer, StyledPaper } from 'styles/StyledComponents';
 import { comaSeparatedArrayValues } from 'utils/common';
-import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
+import {
+  parseTzLessDateTime,
+  toTzLessDateTime,
+  TZ_LESS_DATE_TIME_LOW_PREC_FORMAT,
+} from 'utils/date';
 import {
   isEquipmentOwner,
   isEquipmentResponsiblePerson,
@@ -52,7 +56,7 @@ type TableRow = {
   equipmentAssignmentStatus?: EquipmentAssignmentStatus | null;
 };
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   root: {
     flexShrink: 0,
     flexGrow: 0,
@@ -99,7 +103,8 @@ const MaintenanceInfo = ({
   ) {
     return (
       <>
-        {startsAt} - {endsAt}
+        {moment(startsAt).format(TZ_LESS_DATE_TIME_LOW_PREC_FORMAT).toString()}{' '}
+        - {moment(endsAt).format(TZ_LESS_DATE_TIME_LOW_PREC_FORMAT).toString()}
       </>
     );
   }
@@ -127,7 +132,7 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
   const { user: loggedInUser, currentRole } = useContext(UserContext);
   const { id } = useParams<{ id?: string }>();
   const finalEquipmentId = id ? parseInt(id) : equipmentId;
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { loading: equipmentLoading, equipment } =
     useEquipment(finalEquipmentId);
   const { loading: scheduledEventsLoading, scheduledEvents } =

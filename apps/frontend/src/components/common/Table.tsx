@@ -16,11 +16,10 @@ import {
   Typography,
   LabelDisplayedRowsArgs,
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-import clsx from 'clsx';
 import React, { useState, useEffect } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   root: {
     width: '100%',
   },
@@ -91,7 +90,7 @@ export interface HeadCell<T> {
 
 interface EnhancedTableProps<T> {
   headCells: HeadCell<T>[];
-  classes: ReturnType<typeof useStyles>;
+  classes: any;
   numSelected: number;
   order: Order;
   orderBy: keyof T | null;
@@ -171,7 +170,7 @@ function EnhancedTableHead<T>(props: EnhancedTableProps<T>) {
   );
 }
 
-const useToolbarStyles = makeStyles((theme) => ({
+const useToolbarStyles = makeStyles()((theme) => ({
   root: {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(1),
@@ -215,11 +214,11 @@ const EnhancedTableToolbar = ({
   title,
   tooltipActions,
 }: EnhancedTableToolbarProps) => {
-  const classes = useToolbarStyles();
+  const { classes, cx } = useToolbarStyles();
 
   return (
     <Toolbar
-      className={clsx(classes.root, {
+      className={cx(classes.root, {
         [classes.highlight]: numSelected > 0,
       })}
     >
@@ -308,7 +307,7 @@ export default function Table<T extends { [k: string]: any }>({
   onSelectionChange,
   ...rest
 }: TableProps<T>) {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const [order, setOrder] = useState<Order>('asc');
   const [orderBy, setOrderBy] = useState<keyof T | null>(
     defaultOrderBy ?? null

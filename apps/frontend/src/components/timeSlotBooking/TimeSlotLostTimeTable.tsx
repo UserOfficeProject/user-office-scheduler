@@ -3,17 +3,9 @@ import MaterialTable, {
   EditComponentProps,
 } from '@material-table/core';
 import { Add as AddIcon } from '@mui/icons-material';
-import AdapterMoment from '@mui/lab/AdapterMoment';
-import DateTimePicker from '@mui/lab/DateTimePicker';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
-import {
-  Button,
-  CircularProgress,
-  TextField,
-  Typography,
-  useTheme,
-} from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
+import { Button, CircularProgress, Typography, useTheme } from '@mui/material';
+import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import {
   getTranslation,
   ResourceId,
@@ -21,19 +13,16 @@ import {
 import moment from 'moment';
 import { useSnackbar } from 'notistack';
 import React, { Dispatch, SetStateAction, useCallback, useState } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 import { tableIcons } from 'components/common/TableIcons';
 import { ProposalBookingStatusCore } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import { ProposalBookingLostTime } from 'hooks/lostTime/useProposalBookingLostTimes';
 import { DetailedProposalBookingScheduledEvent } from 'hooks/proposalBooking/useProposalBooking';
-import {
-  toTzLessDateTime,
-  TZ_LESS_DATE_TIME_LOW_PREC_FORMAT,
-  TZ_LESS_DATE_TIME_LOW_PREC_MASK,
-} from 'utils/date';
+import { toTzLessDateTime } from 'utils/date';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   root: {
     margin: theme.spacing(4, 0, 0),
 
@@ -72,7 +61,7 @@ function TimeSlotLostTimeTable({
     scheduledEvent.status === ProposalBookingStatusCore.COMPLETED;
 
   const theme = useTheme();
-  const classes = useStyles();
+  const { classes } = useStyles();
   const api = useDataApi();
   const { enqueueSnackbar } = useSnackbar();
   const [isAddingNewLostTime, setIsAddingNewLostTime] = useState(false);
@@ -205,20 +194,20 @@ function TimeSlotLostTimeTable({
       <LocalizationProvider dateAdapter={AdapterMoment}>
         <DateTimePicker
           label="Starts at"
-          desktopModeMediaQuery={theme.breakpoints.up('sm')}
-          renderInput={(props) => (
-            <TextField
-              {...props}
-              variant="standard"
-              required
-              margin="none"
-              size="small"
-              fullWidth
-              data-cy="startsAt"
-            />
-          )}
-          mask={TZ_LESS_DATE_TIME_LOW_PREC_MASK}
-          inputFormat={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
+          // desktopModeMediaQuery={theme.breakpoints.up('sm')}
+          // renderInput={(props) => (
+          //   <TextField
+          //     {...props}
+          //     variant="standard"
+          //     required
+          //     margin="none"
+          //     size="small"
+          //     fullWidth
+          //     data-cy="startsAt"
+          //   />
+          // )}
+          // mask={TZ_LESS_DATE_TIME_LOW_PREC_MASK}
+          // inputFormat={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
           ampm={false}
           minutesStep={60}
           value={props.value}
@@ -229,7 +218,7 @@ function TimeSlotLostTimeTable({
         />
       </LocalizationProvider>
     ),
-    [handleSetDirty, theme.breakpoints]
+    [handleSetDirty]
   );
 
   // NOTE: Using useCallback to avoid console warning(https://github.com/material-table-core/core/issues/286)
@@ -242,22 +231,22 @@ function TimeSlotLostTimeTable({
       <LocalizationProvider dateAdapter={AdapterMoment}>
         <DateTimePicker
           label="Ends at"
-          desktopModeMediaQuery={theme.breakpoints.up('sm')}
-          renderInput={(inputProps) => (
-            <TextField
-              {...inputProps}
-              variant="standard"
-              required
-              margin="none"
-              size="small"
-              fullWidth
-              helperText={props.helperText}
-              error={props.error}
-              data-cy="endsAt"
-            />
-          )}
-          mask={TZ_LESS_DATE_TIME_LOW_PREC_MASK}
-          inputFormat={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
+          // desktopModeMediaQuery={theme.breakpoints.up('sm')}
+          // renderInput={(inputProps) => (
+          //   <TextField
+          //     {...inputProps}
+          //     variant="standard"
+          //     required
+          //     margin="none"
+          //     size="small"
+          //     fullWidth
+          //     helperText={props.helperText}
+          //     error={props.error}
+          //     data-cy="endsAt"
+          //   />
+          // )}
+          // mask={TZ_LESS_DATE_TIME_LOW_PREC_MASK}
+          // inputFormat={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
           ampm={false}
           minutesStep={60}
           value={props.value}
@@ -268,7 +257,7 @@ function TimeSlotLostTimeTable({
         />
       </LocalizationProvider>
     ),
-    [handleSetDirty, theme.breakpoints]
+    [handleSetDirty]
   );
 
   const columns: Column<ProposalBookingLostTime>[] = [

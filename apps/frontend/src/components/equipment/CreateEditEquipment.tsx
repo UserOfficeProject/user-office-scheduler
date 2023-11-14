@@ -1,6 +1,4 @@
 import { Save as SaveIcon } from '@mui/icons-material';
-import AdapterMoment from '@mui/lab/AdapterMoment';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import {
   Grid,
   FormControlLabel,
@@ -13,11 +11,12 @@ import {
   Button,
   CircularProgress,
   Box,
-  useTheme,
   TextField as MuiTextField,
   TextFieldProps,
   MenuItem,
 } from '@mui/material';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import {
   getTranslation,
   ResourceId,
@@ -25,13 +24,13 @@ import {
 import { equipmentValidationSchema } from '@user-office-software/duo-validation';
 import { Formik, Form, Field } from 'formik';
 import { TextField, CheckboxWithLabel, Autocomplete, Select } from 'formik-mui';
+import { DateTimePicker } from 'formik-mui-x-date-pickers';
 import moment, { Moment } from 'moment';
 import { useSnackbar } from 'notistack';
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useHistory, generatePath } from 'react-router';
 
 import FormikColorPicker from 'components/common/FormikColorPicker';
-import FormikDateTimeRangePicker from 'components/common/FormikDateTimeRangePicker';
 import Loader from 'components/common/Loader';
 import { PATH_VIEW_EQUIPMENT } from 'components/paths';
 import { UserContext } from 'context/UserContext';
@@ -52,7 +51,6 @@ import {
   toTzLessDateTime,
   parseTzLessDateTime,
   TZ_LESS_DATE_TIME_LOW_PREC_FORMAT,
-  TZ_LESS_DATE_TIME_LOW_PREC_MASK,
 } from 'utils/date';
 import {
   isEquipmentOwner,
@@ -62,7 +60,6 @@ import { getFullUserName } from 'utils/user';
 
 export default function CreateEditEquipment() {
   const history = useHistory();
-  const theme = useTheme();
   const { enqueueSnackbar } = useSnackbar();
   const { user } = useContext(UserContext);
   const { id } = useParams<{ id?: string }>();
@@ -129,14 +126,13 @@ export default function CreateEditEquipment() {
         name: equipment.name,
         description: equipment.description || '',
         instruments: equipment.equipmentInstruments || [],
-        maintenanceStartsEndsAt: [
-          equipment.maintenanceStartsAt
-            ? parseTzLessDateTime(equipment.maintenanceStartsAt)
-            : null,
-          equipment.maintenanceEndsAt
-            ? parseTzLessDateTime(equipment.maintenanceEndsAt)
-            : null,
-        ],
+        maintenanceStartsAt: equipment.maintenanceStartsAt
+          ? parseTzLessDateTime(equipment.maintenanceStartsAt)
+          : null,
+        maintenanceEndsAt: equipment.maintenanceEndsAt
+          ? parseTzLessDateTime(equipment.maintenanceEndsAt)
+          : null,
+
         equipmentResponsible: equipment.equipmentResponsible || [],
         ownerUserId: equipment.owner?.id || '',
         autoAccept: equipment.autoAccept,
@@ -146,7 +142,8 @@ export default function CreateEditEquipment() {
         name: '',
         description: '',
         instruments: [],
-        maintenanceStartsEndsAt: [moment(), moment()],
+        maintenanceStartsAt: moment().startOf('hour'),
+        maintenanceEndsAt: moment().startOf('hour'),
         equipmentResponsible: [],
         ownerUserId: user?.id || '',
         autoAccept: false,
@@ -162,21 +159,14 @@ export default function CreateEditEquipment() {
               initialValues={initialValues}
               validationSchema={equipmentValidationSchema}
               onSubmit={async (values, helper): Promise<void> => {
-                const [maintenanceStartsAt, maintenanceEndsAt] =
-                  values.maintenanceStartsEndsAt;
+                const { maintenanceStartsAt, maintenanceEndsAt } = values;
 
                 if (underMaintenance && indefiniteMaintenance === '0') {
                   if (!maintenanceStartsAt || !maintenanceEndsAt) {
                     !maintenanceStartsAt &&
-                      helper.setFieldError(
-                        'maintenanceStartsEndsAt',
-                        'Required'
-                      );
+                      helper.setFieldError('maintenanceStartsAt', 'Required');
                     !maintenanceEndsAt &&
-                      helper.setFieldError(
-                        'maintenanceStartsEndsAt',
-                        'Required'
-                      );
+                      helper.setFieldError('maintenanceStartsAt', 'Required');
 
                     return;
                   }
@@ -256,7 +246,7 @@ export default function CreateEditEquipment() {
                 }
               }}
             >
-              {({ isSubmitting }) => {
+              {({ isSubmitting, values, errors }) => {
                 return (
                   <Form>
                     <Grid container spacing={1} alignItems="center">
@@ -437,32 +427,45 @@ export default function CreateEditEquipment() {
                             </FormGroup>
                             {indefiniteMaintenance === '0' && (
                               <FormGroup row>
-                                <FormControl margin="normal">
+                                <FormControl margin="normal" fullWidth>
                                   <LocalizationProvider
                                     dateAdapter={AdapterMoment}
                                   >
                                     <Field
-                                      component={FormikDateTimeRangePicker}
-                                      desktopModeMediaQuery={theme.breakpoints.up(
-                                        'sm'
-                                      )}
-                                      orientation="portrait"
-                                      name="maintenanceStartsEndsAt"
-                                      startText="Starts at"
-                                      helperText="test test"
-                                      endText="Ends at"
-                                      label="Starts at"
-                                      data-cy="equipment-maintanance-time-range"
-                                      textField={{
-                                        variant: 'standard',
-                                        margin: 'normal',
+                                      component={DateTimePicker}
+                                      required
+                                      name="maintenanceStartsAt"
+                                      slotProps={{
+                                        textField: {
+                                          variant: 'standard',
+                                          margin: 'normal',
+                                          label: 'Starts at',
+                                          fullWidth: true,
+                                          required: true,
+                                          'data-cy': 'maintenanceStartsAt',
+                                        },
                                       }}
-                                      inputFormat={
-                                        TZ_LESS_DATE_TIME_LOW_PREC_FORMAT
-                                      }
-                                      mask={TZ_LESS_DATE_TIME_LOW_PREC_MASK}
+                                      format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
                                       ampm={false}
-                                      minutesStep={60}
+                                    />
+                                    <Field
+                                      component={DateTimePicker}
+                                      required
+                                      name="maintenanceEndsAt"
+                                      slotProps={{
+                                        textField: {
+                                          variant: 'standard',
+                                          margin: 'normal',
+                                          label: 'Ends at',
+                                          fullWidth: true,
+                                          required: true,
+                                          'data-cy': 'maintenanceEndsAt',
+                                          helperText: errors.maintenanceEndsAt,
+                                        },
+                                      }}
+                                      format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
+                                      ampm={false}
+                                      minDateTime={values.maintenanceStartsAt}
                                     />
                                   </LocalizationProvider>
                                 </FormControl>

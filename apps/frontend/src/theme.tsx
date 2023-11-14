@@ -4,18 +4,11 @@ import {
   useTheme,
   ThemeProvider,
 } from '@mui/material/styles';
-import { Theme } from '@mui/material/styles';
 import React, { useCallback, useContext } from 'react';
 import { useEffect } from 'react';
 
 import { SettingsContext } from 'context/SettingsContextProvider';
 import { SettingsId } from 'generated/sdk';
-
-// NOTE: This comes from: https://mui.com/guides/migration-v4/#types-property-quot-palette-quot-quot-spacing-quot-does-not-exist-on-type-defaulttheme
-declare module '@mui/styles/defaultTheme' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme {}
-}
 
 const ThemeWrapper: React.FC = (props) => {
   const { settings } = useContext(SettingsContext);

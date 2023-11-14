@@ -200,13 +200,13 @@ export default function ScheduledEventDialog({
           }
         }}
       >
-        {({ isSubmitting }) => {
+        {({ isSubmitting, values }) => {
           return (
             <Form>
               <DialogTitle>Event</DialogTitle>
               <CloseDialogButton onClick={() => closeDialog()} />
               <DialogContent>
-                <ScheduledEventForm />
+                <ScheduledEventForm minEndDate={values.startsAt} />
               </DialogContent>
               <DialogActions>
                 {isEdit && (

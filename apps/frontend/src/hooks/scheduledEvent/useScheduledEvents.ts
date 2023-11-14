@@ -8,6 +8,7 @@ export default function useScheduledEvents({
   startsAt,
   instrumentIds,
   localContactIds,
+  callId,
 }: ScheduledEventFilter) {
   const [loading, setLoading] = useState(true);
   const [scheduledEvents, setScheduledEvents] = useState<
@@ -48,6 +49,7 @@ export default function useScheduledEvents({
           endsAt,
           instrumentIds: instrumentIdsArray,
           localContactIds: localContactIdsArray,
+          callId,
         },
         scheduledEventFilter: {},
       })
@@ -73,6 +75,7 @@ export default function useScheduledEvents({
     instrumentIdsStringified,
     localContactIdsStringified,
     api,
+    callId,
   ]);
 
   return {

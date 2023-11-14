@@ -19,7 +19,13 @@ export default class ProposalBookingQueries {
   @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
   async instrumentProposalBookings(
     ctx: ResolverContext,
-    instrumentIds: number[]
+    {
+      instrumentIds,
+      callId,
+    }: {
+      instrumentIds: number[];
+      callId?: number;
+    }
   ): Promise<ProposalBooking[]> {
     const results = await Promise.all(
       instrumentIds.map(
@@ -34,7 +40,8 @@ export default class ProposalBookingQueries {
     );
 
     return this.proposalBookingDataSource.instrumentProposalBookings(
-      newInstrumentIdsByRole
+      newInstrumentIdsByRole,
+      callId
     );
   }
 

@@ -25,7 +25,8 @@ export default class MockupProposalBookingDataSource
     throw new Error('Method not implemented.');
   }
   instrumentProposalBookings(
-    instrumentIds: number[]
+    instrumentIds: number[],
+    callId?: number
   ): Promise<ProposalBooking[]> {
     throw new Error('Method not implemented.');
   }

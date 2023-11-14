@@ -22,7 +22,11 @@ import {
   ScheduledEventFilter,
 } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
-import { TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
+import {
+  getMiddleOfTheMonth,
+  isStartDateInCurrentMonth,
+  TZ_LESS_DATE_TIME_FORMAT,
+} from 'utils/date';
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import 'styles/react-big-calendar.css';
@@ -141,10 +145,18 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   const onViewChange = (newView: View) => {
     if (isSchedulerViewPeriod(newView)) {
       query.set('viewPeriod', newView);
-      query.set(
-        'startsAt',
-        moment(startsAt).startOf(newView).format(TZ_LESS_DATE_TIME_FORMAT)
-      );
+      let newStartsAt = moment(startsAt).startOf(newView);
+
+      // NOTE: If startsAt is in the current month then navigate to todays date view, else navigate to the middle of the month view.
+      if (newView !== Views.MONTH) {
+        if (isStartDateInCurrentMonth(startsAt)) {
+          newStartsAt = moment().startOf(newView);
+        } else {
+          newStartsAt = getMiddleOfTheMonth(startsAt).startOf(newView);
+        }
+      }
+
+      query.set('startsAt', newStartsAt.format(TZ_LESS_DATE_TIME_FORMAT));
       history.push(`?${query}`);
 
       setView(newView);

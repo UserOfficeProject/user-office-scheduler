@@ -14,7 +14,8 @@ export interface ProposalBookingDataSource {
     filter?: ProposalProposalBookingFilter
   ): Promise<ProposalBooking | null>;
   instrumentProposalBookings(
-    instrumentIds: number[]
+    instrumentIds: number[],
+    callId?: number
   ): Promise<ProposalBooking[]>;
   finalize(
     action: ProposalBookingFinalizeAction,

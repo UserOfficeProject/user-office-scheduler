@@ -418,8 +418,8 @@ context('Calendar tests', () => {
         description: 'Test maintenance event',
       };
 
-      const newStartTime = getHourDateTimeAfter(2);
-      const newEndTime = getHourDateTimeAfter(3);
+      const newStartTime = getHourDateTimeAfter(2).replace(' ', '');
+      const newEndTime = getHourDateTimeAfter(3).replace(' ', '');
       cy.createEvent({ input: newScheduledEvent });
       cy.finishedLoading();
       selectInstrument();
@@ -438,8 +438,8 @@ context('Calendar tests', () => {
         newScheduledEvent.bookingType
       );
 
-      cy.get('[data-cy="startsAt"] input').clear().type(newStartTime);
-      cy.get('[data-cy="endsAt"] input').clear().type(newEndTime);
+      cy.get('[data-cy="startsAt"]').clear().type(newStartTime);
+      cy.get('[data-cy="endsAt"]').clear().type(newEndTime);
 
       cy.get('[data-cy=btn-save-event]').click();
       cy.get('[data-cy="schedule-background-event"]').should('not.exist');

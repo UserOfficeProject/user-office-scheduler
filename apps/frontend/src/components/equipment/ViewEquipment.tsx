@@ -38,11 +38,7 @@ import useEquipment from 'hooks/equipment/useEquipment';
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
 import { StyledContainer, StyledPaper } from 'styles/StyledComponents';
 import { comaSeparatedArrayValues } from 'utils/common';
-import {
-  parseTzLessDateTime,
-  toTzLessDateTime,
-  TZ_LESS_DATE_TIME_LOW_PREC_FORMAT,
-} from 'utils/date';
+import { parseTzLessDateTime, toTzLessDateTime } from 'utils/date';
 import {
   isEquipmentOwner,
   isEquipmentResponsiblePerson,
@@ -103,8 +99,7 @@ const MaintenanceInfo = ({
   ) {
     return (
       <>
-        {moment(startsAt).format(TZ_LESS_DATE_TIME_LOW_PREC_FORMAT).toString()}{' '}
-        - {moment(endsAt).format(TZ_LESS_DATE_TIME_LOW_PREC_FORMAT).toString()}
+        {startsAt} - {endsAt}
       </>
     );
   }

@@ -142,8 +142,8 @@ export default function CreateEditEquipment() {
         name: '',
         description: '',
         instruments: [],
-        maintenanceStartsAt: moment().startOf('hour'),
-        maintenanceEndsAt: moment().startOf('hour'),
+        maintenanceStartsAt: null,
+        maintenanceEndsAt: null,
         equipmentResponsible: [],
         ownerUserId: user?.id || '',
         autoAccept: false,
@@ -259,6 +259,7 @@ export default function CreateEditEquipment() {
                           variant="standard"
                           fullWidth
                           data-cy="name"
+                          required
                         />
                       </Grid>
                       <Grid item sm={6} xs={12}>
@@ -441,8 +442,11 @@ export default function CreateEditEquipment() {
                                           margin: 'normal',
                                           label: 'Starts at',
                                           fullWidth: true,
-                                          required: true,
-                                          'data-cy': 'maintenanceStartsAt',
+                                          required:
+                                            indefiniteMaintenance === '0',
+                                          inputProps: {
+                                            'data-cy': 'maintenanceStartsAt',
+                                          },
                                         },
                                       }}
                                       format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
@@ -458,8 +462,11 @@ export default function CreateEditEquipment() {
                                           margin: 'normal',
                                           label: 'Ends at',
                                           fullWidth: true,
-                                          required: true,
-                                          'data-cy': 'maintenanceEndsAt',
+                                          required:
+                                            indefiniteMaintenance === '0',
+                                          inputProps: {
+                                            'data-cy': 'maintenanceEndsAt',
+                                          },
                                           helperText: errors.maintenanceEndsAt,
                                         },
                                       }}

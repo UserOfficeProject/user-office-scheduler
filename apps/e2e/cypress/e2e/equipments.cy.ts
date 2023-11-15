@@ -264,12 +264,12 @@ context('Equipment tests', () => {
       cy.get('[data-cy=underMaintenance]').click();
       cy.get('[data-cy=maintenanceTime-defined]').click();
 
-      cy.get('[data-cy="start-equipment-maintanance-time-range"] input')
+      cy.get('[data-cy="maintenanceStartsAt"]')
         .clear()
-        .type(getHourDateTimeAfter(-24));
-      cy.get('[data-cy="end-equipment-maintanance-time-range"] input')
+        .type(getHourDateTimeAfter(-24).replace(' ', ''));
+      cy.get('[data-cy="maintenanceEndsAt"]')
         .clear()
-        .type(getHourDateTimeAfter(48));
+        .type(getHourDateTimeAfter(48).replace(' ', ''));
 
       cy.get('[data-cy=btn-save-equipment]').click();
 

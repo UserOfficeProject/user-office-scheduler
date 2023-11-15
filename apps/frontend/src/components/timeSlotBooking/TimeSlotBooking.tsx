@@ -494,7 +494,7 @@ export default function TimeSlotBooking({
       <ActionButtonContainer>
         <Button
           variant="outlined"
-          color="primary"
+          color="error"
           startIcon={<DeleteIcon />}
           onClick={handleDelete}
           data-cy="delete-experiment-time"

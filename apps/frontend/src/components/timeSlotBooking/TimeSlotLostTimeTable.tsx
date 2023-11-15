@@ -3,7 +3,7 @@ import MaterialTable, {
   EditComponentProps,
 } from '@material-table/core';
 import { Add as AddIcon } from '@mui/icons-material';
-import { Button, CircularProgress, Typography, useTheme } from '@mui/material';
+import { Button, CircularProgress, Typography } from '@mui/material';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import {
@@ -20,7 +20,10 @@ import { ProposalBookingStatusCore } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 import { ProposalBookingLostTime } from 'hooks/lostTime/useProposalBookingLostTimes';
 import { DetailedProposalBookingScheduledEvent } from 'hooks/proposalBooking/useProposalBooking';
-import { toTzLessDateTime } from 'utils/date';
+import {
+  TZ_LESS_DATE_TIME_LOW_PREC_FORMAT,
+  toTzLessDateTime,
+} from 'utils/date';
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -60,7 +63,6 @@ function TimeSlotLostTimeTable({
   const isStepReadOnly =
     scheduledEvent.status === ProposalBookingStatusCore.COMPLETED;
 
-  const theme = useTheme();
   const { classes } = useStyles();
   const api = useDataApi();
   const { enqueueSnackbar } = useSnackbar();
@@ -194,23 +196,22 @@ function TimeSlotLostTimeTable({
       <LocalizationProvider dateAdapter={AdapterMoment}>
         <DateTimePicker
           label="Starts at"
-          // desktopModeMediaQuery={theme.breakpoints.up('sm')}
-          // renderInput={(props) => (
-          //   <TextField
-          //     {...props}
-          //     variant="standard"
-          //     required
-          //     margin="none"
-          //     size="small"
-          //     fullWidth
-          //     data-cy="startsAt"
-          //   />
-          // )}
-          // mask={TZ_LESS_DATE_TIME_LOW_PREC_MASK}
-          // inputFormat={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
+          slotProps={{
+            textField: {
+              variant: 'standard',
+              fullWidth: true,
+              inputProps: {
+                'data-cy': 'startsAt',
+              },
+              margin: 'none',
+              required: true,
+              size: 'small',
+            },
+          }}
+          format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
           ampm={false}
           minutesStep={60}
-          value={props.value}
+          value={moment(props.value)}
           onChange={(value) => {
             handleSetDirty(true);
             props.onChange(value);
@@ -231,29 +232,29 @@ function TimeSlotLostTimeTable({
       <LocalizationProvider dateAdapter={AdapterMoment}>
         <DateTimePicker
           label="Ends at"
-          // desktopModeMediaQuery={theme.breakpoints.up('sm')}
-          // renderInput={(inputProps) => (
-          //   <TextField
-          //     {...inputProps}
-          //     variant="standard"
-          //     required
-          //     margin="none"
-          //     size="small"
-          //     fullWidth
-          //     helperText={props.helperText}
-          //     error={props.error}
-          //     data-cy="endsAt"
-          //   />
-          // )}
-          // mask={TZ_LESS_DATE_TIME_LOW_PREC_MASK}
-          // inputFormat={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
+          slotProps={{
+            textField: {
+              variant: 'standard',
+              fullWidth: true,
+              inputProps: {
+                'data-cy': 'endsAt',
+              },
+              margin: 'none',
+              required: true,
+              size: 'small',
+              helperText: props.helperText,
+              error: props.error,
+            },
+          }}
+          format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
           ampm={false}
           minutesStep={60}
-          value={props.value}
+          value={moment(props.value)}
           onChange={(value) => {
             handleSetDirty(true);
             props.onChange(value);
           }}
+          minDateTime={moment(props.rowData.startsAt)}
         />
       </LocalizationProvider>
     ),

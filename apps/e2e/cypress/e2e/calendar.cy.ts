@@ -10,6 +10,7 @@ import {
   getHourDateTimeAfter,
   selectInstrument,
   TZ_LESS_DATE_TIME_LOW_PREC_FORMAT,
+  getHourDateTimeAfterWithoutSpaces,
 } from '../utils';
 
 function clickOnEventSlot(slot: string) {
@@ -418,8 +419,8 @@ context('Calendar tests', () => {
         description: 'Test maintenance event',
       };
 
-      const newStartTime = getHourDateTimeAfter(2).replace(' ', '');
-      const newEndTime = getHourDateTimeAfter(3).replace(' ', '');
+      const newStartTime = getHourDateTimeAfterWithoutSpaces(2);
+      const newEndTime = getHourDateTimeAfterWithoutSpaces(3);
       cy.createEvent({ input: newScheduledEvent });
       cy.finishedLoading();
       selectInstrument();

@@ -6,6 +6,7 @@ import {
   defaultEventBookingHourDateTime,
   getCurrentHourDateTime,
   getHourDateTimeAfter,
+  getHourDateTimeAfterWithoutSpaces,
 } from '../utils';
 
 const newEquipment = {
@@ -266,10 +267,10 @@ context('Equipment tests', () => {
 
       cy.get('[data-cy="maintenanceStartsAt"]')
         .clear()
-        .type(getHourDateTimeAfter(-24).replace(' ', ''));
+        .type(getHourDateTimeAfterWithoutSpaces(-24));
       cy.get('[data-cy="maintenanceEndsAt"]')
         .clear()
-        .type(getHourDateTimeAfter(48).replace(' ', ''));
+        .type(getHourDateTimeAfterWithoutSpaces(48));
 
       cy.get('[data-cy=btn-save-equipment]').click();
 

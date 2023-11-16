@@ -47,6 +47,12 @@ export const getHourDateTimeAfter = (
   return toTzLessDateTime(defaultEventBookingHourDateTimePlusHours);
 };
 
+export const getHourDateTimeAfterWithoutSpaces = (
+  amount: number,
+  unit: DurationInputArg2 = 'hour',
+  date = defaultEventBookingHourDateTime
+) => getHourDateTimeAfter(amount, unit, date).replace(/\s/g, '');
+
 export const getFormattedDateAfter = (
   format = 'DD',
   amount = 0,

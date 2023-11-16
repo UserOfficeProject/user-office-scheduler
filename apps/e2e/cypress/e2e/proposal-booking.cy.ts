@@ -9,6 +9,7 @@ import {
   defaultEventBookingHourDateTime,
   getCurrentHourDateTime,
   getHourDateTimeAfter,
+  getHourDateTimeAfterWithoutSpaces,
   openProposalBookingFromRightToolbar,
   selectInstrument,
 } from '../utils';
@@ -161,11 +162,11 @@ context('Proposal booking tests', () => {
 
         cy.get('[data-cy="startsAt"]')
           .clear()
-          .type(getHourDateTimeAfter(2, 'days').replace(' ', ''));
+          .type(getHourDateTimeAfterWithoutSpaces(2, 'days'));
 
         cy.get('[data-cy="endsAt"]')
           .clear()
-          .type(getHourDateTimeAfter(3, 'days').replace(' ', ''));
+          .type(getHourDateTimeAfterWithoutSpaces(3, 'days'));
 
         cy.get('[data-cy=btn-save-experiment-range-change]').click();
 
@@ -193,14 +194,14 @@ context('Proposal booking tests', () => {
 
         cy.get('[data-cy="startsAt"]')
           .clear()
-          .type(getHourDateTimeAfter(24).replace(' ', ''));
+          .type(getHourDateTimeAfterWithoutSpaces(24));
 
         cy.get('[data-cy=btn-reset-experiment-range-change]').click();
 
         cy.get('[data-cy="endsAtInfo"]').click();
         cy.get('[data-cy="endsAt"]')
           .clear()
-          .type(getHourDateTimeAfter(25).replace(' ', ''));
+          .type(getHourDateTimeAfterWithoutSpaces(25));
 
         cy.get('[data-cy=btn-reset-experiment-range-change]').click();
 
@@ -356,11 +357,11 @@ context('Proposal booking tests', () => {
 
         cy.get('[data-cy="startsAt"]')
           .clear()
-          .type(getHourDateTimeAfter(2).replace(' ', ''));
+          .type(getHourDateTimeAfterWithoutSpaces(2));
 
         cy.get('[data-cy="endsAt"]')
           .clear()
-          .type(getHourDateTimeAfter(50, 'days').replace(' ', ''));
+          .type(getHourDateTimeAfterWithoutSpaces(50, 'days'));
 
         cy.get('[data-cy=btn-save-experiment-range-change]').click();
 
@@ -560,7 +561,7 @@ context('Proposal booking tests', () => {
         cy.get('[data-cy="startsAtInfo"]').click();
         cy.get('[data-cy="startsAt"]')
           .clear()
-          .type(getHourDateTimeAfter(24).replace(' ', ''));
+          .type(getHourDateTimeAfterWithoutSpaces(24));
 
         cy.get('[data-cy=btn-save-experiment-range-change]').click();
 
@@ -570,11 +571,11 @@ context('Proposal booking tests', () => {
 
         cy.get('[data-cy="startsAt"]')
           .clear()
-          .type(getHourDateTimeAfter(23).replace(' ', ''));
+          .type(getHourDateTimeAfterWithoutSpaces(23));
 
         cy.get('[data-cy="endsAt"]')
           .clear()
-          .type(getHourDateTimeAfter(20).replace(' ', ''));
+          .type(getHourDateTimeAfterWithoutSpaces(20));
 
         cy.get('[data-cy=btn-save-experiment-range-change]').click();
 
@@ -598,7 +599,7 @@ context('Proposal booking tests', () => {
 
         cy.get('[data-cy="endsAt"]')
           .clear()
-          .type(getHourDateTimeAfter(1).replace(' ', ''));
+          .type(getHourDateTimeAfterWithoutSpaces(1));
 
         cy.get('[data-cy=btn-save-experiment-range-change]').click();
 
@@ -1128,11 +1129,11 @@ context('Proposal booking tests', () => {
 
         cy.chooseDatePicker(
           '[data-cy="startsAt"]',
-          getHourDateTimeAfter(24).replace(' ', '')
+          getHourDateTimeAfterWithoutSpaces(24)
         );
         cy.chooseDatePicker(
           '[data-cy="endsAt"]',
-          getHourDateTimeAfter(25).replace(' ', '')
+          getHourDateTimeAfterWithoutSpaces(25)
         );
 
         cy.get(
@@ -1152,11 +1153,11 @@ context('Proposal booking tests', () => {
 
         cy.chooseDatePicker(
           '[data-cy="startsAt"]',
-          getHourDateTimeAfter(48).replace(' ', '')
+          getHourDateTimeAfterWithoutSpaces(48)
         );
         cy.chooseDatePicker(
           '[data-cy="endsAt"]',
-          getHourDateTimeAfter(49).replace(' ', '')
+          getHourDateTimeAfterWithoutSpaces(49)
         );
 
         cy.get(
@@ -1206,11 +1207,11 @@ context('Proposal booking tests', () => {
 
         cy.chooseDatePicker(
           '[data-cy="startsAt"]',
-          getHourDateTimeAfter(48).replace(' ', '')
+          getHourDateTimeAfterWithoutSpaces(48)
         );
         cy.chooseDatePicker(
           '[data-cy="endsAt"]',
-          getHourDateTimeAfter(24).replace(' ', '')
+          getHourDateTimeAfterWithoutSpaces(24)
         );
 
         cy.get(
@@ -1244,10 +1245,7 @@ context('Proposal booking tests', () => {
         );
         cy.chooseDatePicker(
           '[data-cy="endsAt"]',
-          getHourDateTimeAfter(1, 'hour', getCurrentHourDateTime()).replace(
-            ' ',
-            ''
-          )
+          getHourDateTimeAfterWithoutSpaces(1, 'hour', getCurrentHourDateTime())
         );
 
         cy.get(

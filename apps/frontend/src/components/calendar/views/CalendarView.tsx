@@ -134,8 +134,15 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
   const onNavigate = (newDate: Date, newView: View) => {
     if (isSchedulerViewPeriod(newView)) {
-      const newStartDate = moment(newDate).startOf(newView);
-      setView(newView);
+      const queryLatestView = query.get('viewPeriod');
+      let newStartDate = moment(newDate);
+
+      if (queryLatestView === Views.DAY && queryLatestView !== newView) {
+        setView(queryLatestView);
+      } else {
+        newStartDate = newStartDate.startOf(newView);
+        setView(newView);
+      }
 
       query.set('startsAt', newStartDate.format(TZ_LESS_DATE_TIME_FORMAT));
       history.push(`?${query}`);

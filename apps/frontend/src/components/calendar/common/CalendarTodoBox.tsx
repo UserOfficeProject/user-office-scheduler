@@ -114,8 +114,9 @@ export default function CalendarTodoBox({
         options={calls}
         value={calls.find((v) => v.id.toString() === callId) || null}
         data-cy="call-filter"
+        componentsProps={{ popupIndicator: { sx: { margin: 0 } } }}
         renderInput={(params) => (
-          <TextField {...params} variant="standard" label="Call" />
+          <TextField {...params} variant="standard" label="Call" fullWidth />
         )}
         sx={{ marginBottom: 1 }}
       />

@@ -10,6 +10,7 @@ import React, {
   Dispatch,
   ReactNode,
   SetStateAction,
+  useCallback,
   useMemo,
   useState,
 } from 'react';
@@ -103,19 +104,20 @@ export default function ProposalBookingTree({
     [proposalBookings]
   );
 
-  // const ref = useCallback((el: Element) => {
-  //   el?.addEventListener('focusin', (e) => {
-  //     // Disable Treeview focus system which make draggable on TreeItem unusable
-  //     // see https://github.com/mui-org/material-ui/issues/29518
-  //     e.stopImmediatePropagation();
-  //   });
-  // }, []);
+  const ref = useCallback((el: HTMLLIElement | null) => {
+    el?.addEventListener('focusin', (e) => {
+      // Disable Treeview focus system which make draggable on TreeItem unusable
+      // see https://github.com/mui-org/material-ui/issues/29518
+      // and https://github.com/mui/mui-x/issues/9686
+      e.stopImmediatePropagation();
+    });
+  }, []);
 
   const renderTree = (nodes: RenderTree) => {
     return (
       <TreeItem
         key={nodes.id}
-        // ref={ref}
+        ref={ref}
         nodeId={nodes.id}
         label={nodes.title}
         onClick={nodes.onClick}

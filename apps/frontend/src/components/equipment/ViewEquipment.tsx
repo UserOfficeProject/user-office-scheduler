@@ -19,12 +19,12 @@ import {
   Button,
   Box,
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import moment, { Moment } from 'moment';
 import { useSnackbar } from 'notistack';
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, generatePath } from 'react-router';
 import { Link } from 'react-router-dom';
+import { makeStyles } from 'tss-react/mui';
 
 import ScienceIcon from 'components/common/icons/ScienceIcon';
 import Loader from 'components/common/Loader';
@@ -52,7 +52,7 @@ type TableRow = {
   equipmentAssignmentStatus?: EquipmentAssignmentStatus | null;
 };
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   root: {
     flexShrink: 0,
     flexGrow: 0,
@@ -127,7 +127,7 @@ export default function ViewEquipment({ equipmentId }: ViewEquipmentProps) {
   const { user: loggedInUser, currentRole } = useContext(UserContext);
   const { id } = useParams<{ id?: string }>();
   const finalEquipmentId = id ? parseInt(id) : equipmentId;
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { loading: equipmentLoading, equipment } =
     useEquipment(finalEquipmentId);
   const { loading: scheduledEventsLoading, scheduledEvents } =

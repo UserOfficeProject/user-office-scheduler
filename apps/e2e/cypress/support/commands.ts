@@ -224,7 +224,7 @@ const chooseDatePicker = (selector: string, value: string) => {
       cy.get(`[role="dialog"] ${selector}`).find('input').clear().type(value);
       cy.contains('[role="dialog"] button', 'OK').click();
     } else {
-      cy.get(selector).find('input').clear().type(value);
+      cy.get(selector).clear().type(value);
     }
   });
 };

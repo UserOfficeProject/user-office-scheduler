@@ -1,9 +1,9 @@
 import MaterialTable, { Column } from '@material-table/core';
 import { Add as AddIcon } from '@mui/icons-material';
 import { Button, Typography, Alert, AlertTitle } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import { useSnackbar } from 'notistack';
 import React, { useState, Dispatch, SetStateAction, useEffect } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 import Loader from 'components/common/Loader';
 import { tableIcons } from 'components/common/TableIcons';
@@ -22,7 +22,7 @@ export type EquipmentTableRow = {
   autoAccept: boolean;
 };
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   root: {
     '& .MuiToolbar-root': {
       padding: 0,
@@ -96,7 +96,7 @@ export default function TimeSlotEquipmentBookingTable({
   const isStepReadOnly =
     scheduledEvent.status !== ProposalBookingStatusCore.DRAFT;
 
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState(false);
   const [equipmentDialog, setEquipmentDialog] = useState(false);

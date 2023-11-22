@@ -1,5 +1,5 @@
-import makeStyles from '@mui/styles/makeStyles';
 import React from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 import {
   isCompletedEvent,
@@ -7,7 +7,7 @@ import {
 } from 'components/calendar/common/Event';
 import { ProposalBooking } from 'generated/sdk';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   container: {
     paddingTop: '3px',
     display: 'flex',
@@ -44,7 +44,7 @@ function EquipmentBookingInfo({
   instrument,
   proposalBooking,
 }: EquipmentBookingInfoProps) {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <div className={classes.container}>

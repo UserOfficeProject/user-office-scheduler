@@ -1,8 +1,8 @@
 import { FormControlLabel, Input, InputLabel } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import { FormikHelpers, FormikValues } from 'formik';
 import { debounce } from 'lodash';
 import React, { useState } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 const handleColorChange = debounce(
   (
@@ -17,7 +17,7 @@ const handleColorChange = debounce(
   500
 );
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   formControlLabel: {
     margin: 0,
     width: '100%',
@@ -47,7 +47,7 @@ const FormikColorPicker = ({
   form: FormikHelpers<FormikValues>;
   'data-cy'?: string;
 }) => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const [colorValue, setColorValue] = useState(field.value);
 
   return (

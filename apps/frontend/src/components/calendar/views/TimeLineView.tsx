@@ -1,5 +1,4 @@
 import Box from '@mui/material/Box';
-import makeStyles from '@mui/styles/makeStyles';
 import * as H from 'history';
 import { debounce } from 'lodash';
 import moment from 'moment';
@@ -14,6 +13,7 @@ import Timeline, {
 import containerResizeDetector from 'react-calendar-timeline/lib/resize-detector/container';
 import 'react-calendar-timeline/lib/Timeline.css';
 import { useHistory } from 'react-router';
+import { makeStyles } from 'tss-react/mui';
 
 import { InstrumentAndEquipmentContext } from 'context/InstrumentAndEquipmentContext';
 import { ScheduledEventBookingType, ScheduledEventFilter } from 'generated/sdk';
@@ -101,7 +101,7 @@ const getEventTitle = (event: CalendarScheduledEventWithUniqueId) =>
     event.status
   }`;
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   root: {
     '& .react-calendar-timeline': {
       '& .rct-header-root': {
@@ -164,7 +164,7 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
 }) => {
   const query = useQuery();
   const history = useHistory();
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { instruments, equipments, localContacts } = useContext(
     InstrumentAndEquipmentContext
   );

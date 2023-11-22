@@ -54,8 +54,3 @@ export const StyledContainer = styled(Container, {
     padding: paddingValue || theme.spacing(4, 0),
   };
 });
-
-export const ButtonContainer = styled('div')({
-  display: 'flex',
-  justifyContent: 'flex-end',
-});

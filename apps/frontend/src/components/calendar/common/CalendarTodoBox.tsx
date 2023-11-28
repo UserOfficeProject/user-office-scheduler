@@ -3,6 +3,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import moment from 'moment';
 import React, { Dispatch, SetStateAction } from 'react';
 import { useHistory } from 'react-router';
 import { makeStyles } from 'tss-react/mui';
@@ -11,6 +12,8 @@ import ProposalBookingTree from 'components/proposalBooking/ProposalBookingTree'
 import useInstrumentCalls from 'hooks/call/useInstrumentCalls';
 import { useQuery } from 'hooks/common/useQuery';
 import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentProposalBookings';
+import { getArrayOfIdsFromQuery } from 'utils/common';
+import { TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
 
 export type DraggingEventType = {
   proposalBookingId: number;
@@ -62,10 +65,12 @@ export default function CalendarTodoBox({
   const { classes, cx } = useStyles({ isTabletOrMobile });
   const query = useQuery();
   const history = useHistory();
-  const { calls, loading } = useInstrumentCalls();
-
   const queryInstrument = query.get('instrument');
   const callId = query.get('call');
+
+  const { calls, loading } = useInstrumentCalls(
+    getArrayOfIdsFromQuery(queryInstrument)
+  );
 
   if (!queryInstrument) {
     return (
@@ -104,8 +109,20 @@ export default function CalendarTodoBox({
         onChange={(_, call) => {
           if (call) {
             query.set('call', `${call?.id}`);
+            query.set(
+              'callStartCycle',
+              moment(call.startCycle).format(TZ_LESS_DATE_TIME_FORMAT)
+            );
+            query.set(
+              'callEndCycle',
+              moment(call.endCycle).format(TZ_LESS_DATE_TIME_FORMAT)
+            );
           } else {
             query.delete('call');
+            query.delete('callStartCycle');
+            query.delete('callEndCycle');
+            query.get('viewPeriod') === 'cycle' &&
+              query.set('viewPeriod', 'week');
           }
           history.push(`?${query}`);
         }}

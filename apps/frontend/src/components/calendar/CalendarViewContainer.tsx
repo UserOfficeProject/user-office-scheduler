@@ -78,10 +78,10 @@ export enum SchedulerViews {
   TIMELINE = 'Timeline',
 }
 
-const schedulerViewPeriods = [Views.DAY, Views.WEEK, Views.MONTH];
+export const schedulerViewPeriods = [Views.DAY, Views.WEEK, Views.MONTH];
 export type SchedulerViewPeriod = (typeof schedulerViewPeriods)[number];
 export const isSchedulerViewPeriod = (
-  arg: View
+  arg: View | 'cycle'
 ): arg is SchedulerViewPeriod => {
   return schedulerViewPeriods.some((element) => element === arg);
 };
@@ -215,6 +215,7 @@ export default function CalendarViewContainer() {
   const queryStartsAt = query.get('startsAt');
   const queryLocalContact = query.get('localContact');
   const queryCall = getNumberFromQuery(query.get('call'));
+  const queryCallEndCycle = query.get('callEndCycle');
 
   const [schedulerActiveView, setSchedulerActiveView] = useState(
     (querySchedulerView as SchedulerViews) || SchedulerViews.CALENDAR
@@ -236,7 +237,8 @@ export default function CalendarViewContainer() {
       getArrayOfIdsFromQuery(queryLocalContact),
       startsAt,
       view,
-      queryCall
+      Number(queryCall),
+      moment(queryCallEndCycle)
     )
   );
   const [selectedProposalBooking, setSelectedProposalBooking] = useState<{
@@ -326,7 +328,8 @@ export default function CalendarViewContainer() {
         getArrayOfIdsFromQuery(queryLocalContact),
         newStartDate,
         newView,
-        queryCall
+        queryCall,
+        moment(queryCallEndCycle)
       )
     );
     setView(newView);
@@ -337,6 +340,7 @@ export default function CalendarViewContainer() {
     view,
     getStartDate,
     queryView,
+    queryCallEndCycle,
   ]);
 
   const equipmentEventsTransformed: GetScheduledEventsQuery['scheduledEvents'] =

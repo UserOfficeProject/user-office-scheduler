@@ -17,6 +17,7 @@ import InstrumentAndEquipmentFilter from './InstrumentAndEquipmentFilter';
 import {
   isSchedulerViewPeriod,
   SchedulerViewPeriod,
+  schedulerViewPeriods,
 } from '../CalendarViewContainer';
 
 const calendarNavigationToolbarButtonsText = {
@@ -27,14 +28,9 @@ const calendarNavigationToolbarButtonsText = {
     day: 'Day',
     week: 'Week',
     month: 'Month',
+    cycle: 'Cycle',
   },
 };
-
-const calendarNavigationToolbarViewOptions = [
-  Views.DAY,
-  Views.WEEK,
-  Views.MONTH,
-];
 
 export const getLabelText = (
   queryView: SchedulerViewPeriod,
@@ -78,6 +74,14 @@ const Toolbar = ({
   const queryView = (query.get('viewPeriod') ||
     Views.WEEK) as SchedulerViewPeriod;
 
+  let calendarNavigationToolbarViewOptions: string[];
+
+  if (query.get('call')) {
+    calendarNavigationToolbarViewOptions = [...schedulerViewPeriods, 'cycle'];
+  } else {
+    calendarNavigationToolbarViewOptions = schedulerViewPeriods;
+  }
+
   return (
     <>
       <InstrumentAndEquipmentFilter multipleInstruments={multipleInstruments} />
@@ -113,7 +117,7 @@ const Toolbar = ({
             query.set('startsAt', newStartsAt.format(TZ_LESS_DATE_TIME_FORMAT));
             history.push(`?${query}`);
           }}
-          onView={(view: View) => {
+          onView={(view: View | 'cycle') => {
             if (isSchedulerViewPeriod(view)) {
               let newStartsAt = moment(startsAt).startOf(view);
 
@@ -132,8 +136,17 @@ const Toolbar = ({
               );
 
               query.set('viewPeriod', view);
-              history.push(`?${query}`);
+            } else if (view === 'cycle') {
+              const newStartsAt = moment(query.get('callStartCycle'));
+
+              query.set(
+                'startsAt',
+                newStartsAt.format(TZ_LESS_DATE_TIME_FORMAT)
+              );
+
+              query.set('viewPeriod', view);
             }
+            history.push(`?${query}`);
           }}
         />
       )}

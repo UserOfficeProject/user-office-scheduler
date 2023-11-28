@@ -2,11 +2,11 @@ import { Add as AddIcon, Info as InfoIcon } from '@mui/icons-material';
 import Autocomplete from '@mui/material/Autocomplete';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
-import makeStyles from '@mui/styles/makeStyles';
-import clsx from 'clsx';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import moment from 'moment';
 import React, { Dispatch, SetStateAction } from 'react';
 import { useHistory } from 'react-router';
+import { makeStyles } from 'tss-react/mui';
 
 import ProposalBookingTree from 'components/proposalBooking/ProposalBookingTree';
 import useInstrumentCalls from 'hooks/call/useInstrumentCalls';
@@ -28,31 +28,31 @@ type CalendarTodoBoxProps = {
   proposalBookings: InstrumentProposalBooking[];
 };
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
-    height: '100%',
-    flexDirection: 'column',
-    paddingTop: theme.spacing(2),
-    paddingLeft: theme.spacing(2),
-    [theme.breakpoints.down('lg')]: {
-      padding: theme.spacing(2),
+const useStyles = makeStyles<{ isTabletOrMobile: boolean }>()(
+  (theme, { isTabletOrMobile }) => ({
+    root: {
+      display: 'flex',
+      height: '100%',
+      flexDirection: 'column',
+      paddingTop: theme.spacing(2),
+      paddingLeft: theme.spacing(2),
+      paddingRight: isTabletOrMobile ? theme.spacing(2) : 0,
     },
-  },
-  centered: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  textCenter: {
-    textAlign: 'center',
-  },
-  bottomSpacing: {
-    marginBottom: theme.spacing(2),
-  },
-  gray: {
-    color: theme.palette.grey[500],
-  },
-}));
+    centered: {
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    textCenter: {
+      textAlign: 'center',
+    },
+    bottomSpacing: {
+      marginBottom: theme.spacing(2),
+    },
+    gray: {
+      color: theme.palette.grey[500],
+    },
+  })
+);
 
 export default function CalendarTodoBox({
   onNewSimpleEvent,
@@ -60,7 +60,9 @@ export default function CalendarTodoBox({
   setDraggedEvent,
   proposalBookings,
 }: CalendarTodoBoxProps) {
-  const classes = useStyles();
+  const isTabletOrMobile = useMediaQuery('(max-width: 1224px)');
+
+  const { classes, cx } = useStyles({ isTabletOrMobile });
   const query = useQuery();
   const history = useHistory();
   const queryInstrument = query.get('instrument');
@@ -73,7 +75,7 @@ export default function CalendarTodoBox({
   if (!queryInstrument) {
     return (
       <div
-        className={clsx(
+        className={cx(
           classes.root,
           classes.centered,
           classes.textCenter,
@@ -129,8 +131,9 @@ export default function CalendarTodoBox({
         options={calls}
         value={calls.find((v) => v.id.toString() === callId) || null}
         data-cy="call-filter"
+        componentsProps={{ popupIndicator: { sx: { margin: 0 } } }}
         renderInput={(params) => (
-          <TextField {...params} variant="standard" label="Call" />
+          <TextField {...params} variant="standard" label="Call" fullWidth />
         )}
         sx={{ marginBottom: 1 }}
       />

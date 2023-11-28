@@ -7,9 +7,9 @@ import {
   TextField,
   Autocomplete,
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import React, { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
+import { makeStyles } from 'tss-react/mui';
 
 import { InstrumentAndEquipmentContext } from 'context/InstrumentAndEquipmentContext';
 import { BasicUserDetailsFragment, Equipment } from 'generated/sdk';
@@ -18,7 +18,7 @@ import { PartialInstrument } from 'hooks/instrument/useUserInstruments';
 import { getArrayOfIdsFromQuery } from 'utils/common';
 import { getFullUserName } from 'utils/user';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   root: {
     marginBottom: theme.spacing(1),
 
@@ -33,7 +33,7 @@ export default function InstrumentAndEquipmentFilter({
 }: {
   multipleInstruments?: boolean;
 }) {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const history = useHistory();
   const query = useQuery();
 

@@ -12,39 +12,24 @@ export default function generateScheduledEventFilter(
   callId?: number | null,
   callEndCycle?: moment.Moment
 ): ScheduledEventFilter {
+  const newStartsAt = moment(startsAt);
+  let newEndsAt = moment(startsAt);
+
   switch (activeView) {
     case 'day': {
-      const newStartsAt = moment(startsAt);
+      newEndsAt = newEndsAt.add(1, 'day');
 
-      return {
-        instrumentIds,
-        localContactIds,
-        startsAt: toTzLessDateTime(newStartsAt),
-        endsAt: toTzLessDateTime(newStartsAt.add(1, 'day')),
-        callId,
-      };
+      break;
     }
     case 'week': {
-      const newStartsAt = moment(startsAt);
+      newEndsAt = newEndsAt.add(1, 'week');
 
-      return {
-        instrumentIds,
-        localContactIds,
-        startsAt: toTzLessDateTime(newStartsAt),
-        endsAt: toTzLessDateTime(newStartsAt.add(1, 'week')),
-        callId,
-      };
+      break;
     }
     case 'month': {
-      const newStartsAt = moment(startsAt);
+      newEndsAt = newEndsAt.add(1, 'month');
 
-      return {
-        instrumentIds,
-        localContactIds,
-        startsAt: toTzLessDateTime(newStartsAt),
-        endsAt: toTzLessDateTime(newStartsAt.add(1, 'month')),
-        callId,
-      };
+      break;
     }
     case 'cycle': {
       console.log(callEndCycle, callEndCycle?.isValid());
@@ -71,14 +56,16 @@ export default function generateScheduledEventFilter(
     }
     default:
       console.warn('activeView not implemented:', activeView);
-      const newStartsAt = moment(startsAt);
+      newEndsAt = newEndsAt.add(1, 'week');
 
-      return {
-        startsAt: toTzLessDateTime(newStartsAt),
-        endsAt: toTzLessDateTime(newStartsAt.add(1, 'week')),
-        instrumentIds,
-        localContactIds,
-        callId,
-      };
+      break;
   }
+
+  return {
+    startsAt: toTzLessDateTime(newStartsAt),
+    endsAt: toTzLessDateTime(newEndsAt),
+    instrumentIds,
+    localContactIds,
+    callId,
+  };
 }

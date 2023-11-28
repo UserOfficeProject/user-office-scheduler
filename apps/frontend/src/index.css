@@ -41,6 +41,17 @@ code {
   background-color: rgba(0, 0, 0, 0.3);
 }
 
+ul.MuiMultiSectionDigitalClock-root::-webkit-scrollbar {
+  -webkit-appearance: none;
+  max-height: 10px;
+  max-width: 10px;
+}
+ul.MuiMultiSectionDigitalClock-root::-webkit-scrollbar-thumb {
+  border: 2px solid white;
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
 h1,
 h2,
 h3,

@@ -251,7 +251,7 @@ context('Scheduled events table tests', () => {
       cy.get('[data-value="Table"]').click();
 
       cy.get(
-        '[data-cy="scheduled-events-table"] [data-cy="select-all-table-rows"]'
+        '[data-cy="scheduled-events-table"] [aria-label="Select All Rows"]'
       ).click();
 
       cy.contains('3 row(s) selected');

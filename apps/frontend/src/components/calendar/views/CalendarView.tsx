@@ -1,4 +1,3 @@
-import makeStyles from '@mui/styles/makeStyles';
 import moment from 'moment';
 import React, { ComponentType, useContext, useEffect, useState } from 'react';
 import {
@@ -13,6 +12,7 @@ import {
 } from 'react-big-calendar';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import { useHistory } from 'react-router';
+import { makeStyles } from 'tss-react/mui';
 
 import { BackgroundEvent } from 'components/scheduledEvent/ScheduledEventDialog';
 import { AppContext } from 'context/AppContext';
@@ -73,7 +73,7 @@ const DragAndDropCalendar = withDragAndDrop(
   >
 );
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   calendar: {
     // NOTE: This calculation in height is mainly because of toolbar height
     height: 'calc(100% - 70px) !important',
@@ -112,7 +112,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   onEventResize,
   onSelectTimeSlot,
 }) => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const query = useQuery();
   const history = useHistory();
   const { showAlert } = useContext(AppContext);
@@ -134,8 +134,15 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
   const onNavigate = (newDate: Date, newView: View) => {
     if (isSchedulerViewPeriod(newView)) {
-      const newStartDate = moment(newDate).startOf(newView);
-      setView(newView);
+      const queryLatestView = query.get('viewPeriod');
+      let newStartDate = moment(newDate);
+
+      if (queryLatestView === Views.DAY && queryLatestView !== newView) {
+        setView(queryLatestView);
+      } else {
+        newStartDate = newStartDate.startOf(newView);
+        setView(newView);
+      }
 
       query.set('startsAt', newStartDate.format(TZ_LESS_DATE_TIME_FORMAT));
       history.push(`?${query}`);

@@ -1,9 +1,8 @@
 import { CircularProgress, Grid, Container, Paper } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-import clsx from 'clsx';
 import React from 'react';
+import { makeStyles } from 'tss-react/mui';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   root: {
     position: 'absolute',
     top: 0,
@@ -41,7 +40,7 @@ function LoaderContainer({
   children?: React.ReactNode;
   container?: boolean;
 }) {
-  const classes = useStyles();
+  const { classes, cx } = useStyles();
 
   if (!container) {
     return <>{children}</>;
@@ -53,7 +52,7 @@ function LoaderContainer({
         <Grid item xs={12} className={classes.fullHeight}>
           <Paper
             sx={{ margin: [0, 1] }}
-            className={clsx(classes.fullHeight, classes.relative)}
+            className={cx(classes.fullHeight, classes.relative)}
           >
             {children}
           </Paper>
@@ -76,12 +75,12 @@ export default function Loader({
   relative,
   spaced,
 }: LoaderProps) {
-  const classes = useStyles();
+  const { classes, cx } = useStyles();
 
   return (
     <LoaderContainer container={container}>
       <div
-        className={clsx(classes.root, {
+        className={cx(classes.root, {
           [classes.relative]: relative,
           [classes.spaced]: spaced,
         })}

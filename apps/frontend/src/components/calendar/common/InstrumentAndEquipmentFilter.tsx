@@ -6,6 +6,7 @@ import {
   Grid,
   TextField,
   Autocomplete,
+  Checkbox,
 } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
@@ -21,10 +22,6 @@ import { getFullUserName } from 'utils/user';
 const useStyles = makeStyles()((theme) => ({
   root: {
     marginBottom: theme.spacing(1),
-
-    '& .MuiAutocomplete-tag': {
-      width: 'calc(100% - 65px)',
-    },
   },
 }));
 
@@ -195,6 +192,36 @@ export default function InstrumentAndEquipmentFilter({
     history.push(`?${query}`);
   };
 
+  const sortEquipments = (
+    equipments: Equipment[],
+    selectedInstrument: PartialInstrument | PartialInstrument[] | null
+  ) => {
+    if (!selectedInstrument) {
+      return equipments;
+    }
+    const selectedInstruments = new Set(
+      (selectedInstrument as PartialInstrument[]).map(
+        (inst: PartialInstrument) => inst.name
+      )
+    );
+
+    const sortedEquipments = [...equipments].sort((a, b) => {
+      const aContains = a.equipmentInstruments?.some(
+        (inst: PartialInstrument) => selectedInstruments.has(inst.name)
+      );
+      const bContains = b.equipmentInstruments?.some(
+        (inst: PartialInstrument) => selectedInstruments.has(inst.name)
+      );
+
+      if (aContains === bContains) return 0;
+      if (aContains) return -1;
+
+      return 1;
+    });
+
+    return sortedEquipments;
+  };
+
   // NOTE: Limited tags rendering to save some space and it looks a bit ugly when too many items are selected on the autocomplete.
   const renderLimitedTags = ({
     value,
@@ -241,7 +268,7 @@ export default function InstrumentAndEquipmentFilter({
         <Autocomplete
           multiple={multipleInstruments}
           renderTags={(value, getTagProps) =>
-            renderLimitedTags({ value, getTagProps, limitTags: 1 })
+            renderLimitedTags({ value, getTagProps, limitTags: 4 })
           }
           loading={loadingInstruments}
           disabled={loadingInstruments}
@@ -251,8 +278,15 @@ export default function InstrumentAndEquipmentFilter({
           handleHomeEndKeys
           options={instruments}
           getOptionLabel={(instrument) => instrument.name}
+          disableCloseOnSelect
           data-cy="input-instrument-select"
           id="input-instrument-select"
+          renderOption={(props, option, { selected }) => (
+            <li {...props} style={{ height: 34 }}>
+              <Checkbox style={{ marginRight: 8 }} checked={selected} />
+              {option.name}
+            </li>
+          )}
           renderInput={(params) => (
             <TextField
               {...params}
@@ -282,7 +316,7 @@ export default function InstrumentAndEquipmentFilter({
         <Autocomplete
           multiple
           renderTags={(value, getTagProps) =>
-            renderLimitedTags({ value, getTagProps, limitTags: 1 })
+            renderLimitedTags({ value, getTagProps, limitTags: 4 })
           }
           loading={loadingEquipments}
           disabled={loadingEquipments}
@@ -290,10 +324,40 @@ export default function InstrumentAndEquipmentFilter({
           clearOnBlur
           fullWidth
           handleHomeEndKeys
-          options={equipments}
+          options={sortEquipments(
+            equipments as Equipment[],
+            selectedInstrument
+          )}
           getOptionLabel={(equipment) => equipment.name}
+          disableCloseOnSelect
           data-cy="input-equipment-select"
           id="input-equipment-select"
+          renderOption={(props, option, { selected }) => {
+            const relatedInstruments = (
+              option as Equipment
+            ).equipmentInstruments?.map((instrument) => instrument.name);
+
+            return (
+              <>
+                <li {...props}>
+                  <Checkbox style={{ marginRight: 8 }} checked={selected} />
+                  <div>
+                    <div>{option.name}</div>
+                    {relatedInstruments && relatedInstruments?.length > 0 && (
+                      <div
+                        style={{
+                          fontSize: '12px',
+                        }}
+                      >
+                        Instrument: {relatedInstruments?.join(',')}
+                      </div>
+                    )}
+                    {}
+                  </div>
+                </li>
+              </>
+            );
+          }}
           renderInput={(params) => (
             <TextField
               {...params}
@@ -329,7 +393,7 @@ export default function InstrumentAndEquipmentFilter({
                 name: getFullUserName(item),
               })),
               getTagProps,
-              limitTags: 1,
+              limitTags: 2,
             })
           }
           loading={loadingLocalContacts}
@@ -342,8 +406,15 @@ export default function InstrumentAndEquipmentFilter({
           getOptionLabel={(localContact) =>
             `${localContact.firstname} ${localContact.lastname}`
           }
+          disableCloseOnSelect
           data-cy="input-local-contact-select"
           id="input-local-contact-select"
+          renderOption={(props, option, { selected }) => (
+            <li {...props} style={{ height: 34 }}>
+              <Checkbox style={{ marginRight: 8 }} checked={selected} />
+              {`${option.firstname} ${option.lastname}`}
+            </li>
+          )}
           renderInput={(params) => (
             <TextField
               {...params}

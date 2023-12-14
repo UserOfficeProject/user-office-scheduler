@@ -338,24 +338,22 @@ export default function InstrumentAndEquipmentFilter({
             ).equipmentInstruments?.map((instrument) => instrument.name);
 
             return (
-              <>
-                <li {...props}>
-                  <Checkbox style={{ marginRight: 8 }} checked={selected} />
-                  <div>
-                    <div>{option.name}</div>
-                    {relatedInstruments && relatedInstruments?.length > 0 && (
-                      <div
-                        style={{
-                          fontSize: '12px',
-                        }}
-                      >
-                        Instrument: {relatedInstruments?.join(',')}
-                      </div>
-                    )}
-                    {}
-                  </div>
-                </li>
-              </>
+              <li {...props}>
+                <Checkbox style={{ marginRight: 8 }} checked={selected} />
+                <div>
+                  <div>{option.name}</div>
+                  {relatedInstruments && relatedInstruments?.length > 0 && (
+                    <div
+                      style={{
+                        fontSize: '12px',
+                      }}
+                    >
+                      Instrument: {relatedInstruments?.join(',')}
+                    </div>
+                  )}
+                  {}
+                </div>
+              </li>
             );
           }}
           renderInput={(params) => (

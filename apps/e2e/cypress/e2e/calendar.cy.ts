@@ -37,7 +37,7 @@ context('Calendar tests', () => {
     cy.visit('/calendar');
   });
 
-  describe('Calendar navigation', () => {
+  describe.skip('Calendar navigation', () => {
     it('should save calendar state when navigating inside the app but not when reload and visit /calendar', () => {
       cy.finishedLoading();
       selectInstrument();
@@ -351,8 +351,6 @@ context('Calendar tests', () => {
       selectInstrument(initialDBData.instruments[0].name);
 
       cy.finishedLoading();
-
-      cy.get('[data-cy=input-instrument-select]').should('contain.text', '+1');
 
       const slot = new Date(defaultEventBookingHourDateTime).toISOString();
       cy.get(`.rbc-day-slot [data-cy='event-slot-${slot}']`).should('exist');

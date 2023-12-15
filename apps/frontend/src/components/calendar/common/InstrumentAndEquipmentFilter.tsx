@@ -398,7 +398,6 @@ export default function InstrumentAndEquipmentFilter({
                       Instrument: {equipmentNameList?.join(',')}
                     </div>
                   )}
-                  {}
                 </div>
               </ListItem>
             );

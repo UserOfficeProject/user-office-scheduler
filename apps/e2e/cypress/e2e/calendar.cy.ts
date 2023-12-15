@@ -37,7 +37,7 @@ context('Calendar tests', () => {
     cy.visit('/calendar');
   });
 
-  describe.skip('Calendar navigation', () => {
+  describe('Calendar navigation', () => {
     it('should save calendar state when navigating inside the app but not when reload and visit /calendar', () => {
       cy.finishedLoading();
       selectInstrument();

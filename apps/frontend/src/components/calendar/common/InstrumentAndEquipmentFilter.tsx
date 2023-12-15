@@ -200,9 +200,7 @@ export default function InstrumentAndEquipmentFilter({
       return equipments;
     }
     const selectedInstruments = new Set(
-      (selectedInstrument as PartialInstrument[]).map(
-        (inst: PartialInstrument) => inst.name
-      )
+      (selectedInstrument as PartialInstrument[]).map((inst) => inst.name)
     );
 
     const sortedEquipments = [...equipments].sort((a, b) => {
@@ -220,6 +218,37 @@ export default function InstrumentAndEquipmentFilter({
     });
 
     return sortedEquipments;
+  };
+
+  const sortLocalContacts = (
+    localContacts: BasicUserDetailsFragment[],
+    selectedInstrument: PartialInstrument | PartialInstrument[] | null
+  ) => {
+    if (!selectedInstrument) {
+      return localContacts;
+    }
+    const selectedInstruments = (selectedInstrument as PartialInstrument[]).map(
+      (inst) => {
+        return inst.scientists?.map(
+          (scientist: { id: number }) => scientist.id
+        );
+      }
+    );
+    const sortedlocalContacts = localContacts?.sort((a, b) => {
+      const aContains = selectedInstruments.some((item) =>
+        item?.includes(a.id)
+      );
+      const bContains = selectedInstruments.some((item) =>
+        item?.includes(b.id)
+      );
+
+      if (aContains === bContains) return 0;
+      if (aContains) return -1;
+
+      return 1;
+    });
+
+    return sortedlocalContacts;
   };
 
   // NOTE: Limited tags rendering to save some space and it looks a bit ugly when too many items are selected on the autocomplete.
@@ -400,7 +429,7 @@ export default function InstrumentAndEquipmentFilter({
           clearOnBlur
           fullWidth
           handleHomeEndKeys
-          options={localContacts}
+          options={sortLocalContacts(localContacts, selectedInstrument)}
           getOptionLabel={(localContact) =>
             `${localContact.firstname} ${localContact.lastname}`
           }

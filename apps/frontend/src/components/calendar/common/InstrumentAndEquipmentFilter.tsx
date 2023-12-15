@@ -7,6 +7,7 @@ import {
   TextField,
   Autocomplete,
   Checkbox,
+  ListItem,
 } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
@@ -22,6 +23,9 @@ import { getFullUserName } from 'utils/user';
 const useStyles = makeStyles()((theme) => ({
   root: {
     marginBottom: theme.spacing(1),
+  },
+  highlight: {
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
   },
 }));
 
@@ -311,10 +315,10 @@ export default function InstrumentAndEquipmentFilter({
           data-cy="input-instrument-select"
           id="input-instrument-select"
           renderOption={(props, option, { selected }) => (
-            <li {...props} style={{ height: 34 }}>
+            <ListItem {...props} style={{ height: 34 }}>
               <Checkbox style={{ marginRight: 8 }} checked={selected} />
               {option.name}
-            </li>
+            </ListItem>
           )}
           renderInput={(params) => (
             <TextField
@@ -362,27 +366,41 @@ export default function InstrumentAndEquipmentFilter({
           data-cy="input-equipment-select"
           id="input-equipment-select"
           renderOption={(props, option, { selected }) => {
-            const relatedInstruments = (
+            const equipmentNameList = (
               option as Equipment
             ).equipmentInstruments?.map((instrument) => instrument.name);
 
+            const equipmentIdList = (
+              option as Equipment
+            ).equipmentInstruments?.map((instrument) => instrument.id);
+
+            const hasEquipmentSelectedInstrument = (
+              selectedInstrument as Array<PartialInstrument>
+            )?.some((instrument) => equipmentIdList?.includes(instrument.id));
+
+            const highlightStyle =
+              hasEquipmentSelectedInstrument ||
+              (selectedInstrument as Array<PartialInstrument>).length < 1
+                ? {}
+                : { opacity: '0.6' };
+
             return (
-              <li {...props}>
+              <ListItem {...props} style={highlightStyle}>
                 <Checkbox style={{ marginRight: 8 }} checked={selected} />
                 <div>
                   <div>{option.name}</div>
-                  {relatedInstruments && relatedInstruments?.length > 0 && (
+                  {equipmentNameList && equipmentNameList?.length > 0 && (
                     <div
                       style={{
                         fontSize: '12px',
                       }}
                     >
-                      Instrument: {relatedInstruments?.join(',')}
+                      Instrument: {equipmentNameList?.join(',')}
                     </div>
                   )}
                   {}
                 </div>
-              </li>
+              </ListItem>
             );
           }}
           renderInput={(params) => (
@@ -436,12 +454,29 @@ export default function InstrumentAndEquipmentFilter({
           disableCloseOnSelect
           data-cy="input-local-contact-select"
           id="input-local-contact-select"
-          renderOption={(props, option, { selected }) => (
-            <li {...props} style={{ height: 34 }}>
-              <Checkbox style={{ marginRight: 8 }} checked={selected} />
-              {`${option.firstname} ${option.lastname}`}
-            </li>
-          )}
+          renderOption={(props, option, { selected }) => {
+            const localContactId = option.id;
+            const hasEquipmentSelectedInstrument = (
+              selectedInstrument as Array<PartialInstrument>
+            ).some((targetInstrument) =>
+              targetInstrument.scientists?.some(
+                (scientist) => scientist.id === localContactId
+              )
+            );
+
+            const highlightStyle =
+              hasEquipmentSelectedInstrument ||
+              (selectedInstrument as Array<PartialInstrument>).length < 1
+                ? {}
+                : { opacity: '0.6' };
+
+            return (
+              <li {...props} style={{ ...highlightStyle, height: 34 }}>
+                <Checkbox style={{ marginRight: 8 }} checked={selected} />
+                {`${option.firstname} ${option.lastname}`}
+              </li>
+            );
+          }}
           renderInput={(params) => (
             <TextField
               {...params}

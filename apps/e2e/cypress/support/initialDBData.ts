@@ -58,11 +58,15 @@ export default {
       id: 100,
       email: 'instr.sci1@local.host',
       password: 'Test1234!',
+      firstname: 'Instrument',
+      lastname: 'Scientist1',
     },
     instrumentScientist2: {
       id: 101,
       email: 'instr.sci2@local.host',
       password: 'Test1234!',
+      firstname: 'Instrument',
+      lastname: 'Scientist2',
     },
   },
 };

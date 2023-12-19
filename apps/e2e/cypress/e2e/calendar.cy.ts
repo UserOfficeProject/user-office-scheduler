@@ -1,3 +1,4 @@
+import { faker } from '@faker-js/faker';
 import { ScheduledEventBookingType } from '@user-office-software-libs/shared-types';
 import moment from 'moment';
 
@@ -12,6 +13,14 @@ import {
   TZ_LESS_DATE_TIME_LOW_PREC_FORMAT,
   getHourDateTimeAfterWithoutSpaces,
 } from '../utils';
+
+const newEquipment = {
+  name: faker.random.words(2),
+  description: '',
+  autoAccept: false,
+  ownerUserId: 1,
+  instrumentIds: [1],
+};
 
 function clickOnEventSlot(slot: string) {
   cy.get(`.rbc-day-slot [data-cy='event-slot-${slot}']`).then(($el) => {
@@ -352,8 +361,6 @@ context('Calendar tests', () => {
 
       cy.finishedLoading();
 
-      cy.get('[data-cy=input-instrument-select]').should('contain.text', '+1');
-
       const slot = new Date(defaultEventBookingHourDateTime).toISOString();
       cy.get(`.rbc-day-slot [data-cy='event-slot-${slot}']`).should('exist');
       const slot1 = new Date(getHourDateTimeAfter(2)).toISOString();
@@ -484,6 +491,41 @@ context('Calendar tests', () => {
       cy.get(
         `.rbc-day-slot .rbc-background-event [data-cy='event-${slot}']`
       ).should('not.exist');
+    });
+  });
+  describe('Calendar dropdown list sorting', () => {
+    const instrumentScientistUserName = `${initialDBData.users.instrumentScientist1.firstname} ${initialDBData.users.instrumentScientist1.lastname}`;
+
+    it('should be able to sort Equipment and Local contact list based on selected instruments', () => {
+      cy.createEquipment({ newEquipmentInput: newEquipment });
+
+      cy.login('officer');
+      cy.visit('/calendar');
+      cy.finishedLoading();
+
+      selectInstrument(initialDBData.instruments[0].name);
+
+      cy.get('[data-cy=input-equipment-select]').click();
+
+      cy.get('[aria-labelledby=input-equipment-select-label] [role=option]')
+        .first()
+        .should('contain', newEquipment.name);
+
+      cy.get(
+        '[aria-labelledby=input-equipment-select-label] [role=option]'
+      ).each((element, index) => {
+        if (index < 5) {
+          cy.wrap(element).click();
+        }
+      });
+      cy.get('[data-cy=input-equipment-select]').should('contain.text', '+1');
+
+      cy.get('[data-cy=input-local-contact-select]').click();
+
+      cy.get('[aria-labelledby=input-local-contact-select-label] [role=option]')
+        .first()
+        .should('contain', instrumentScientistUserName)
+        .click();
     });
   });
 });

@@ -24,6 +24,5 @@ RUN echo $BUILD_VERSION > /usr/share/nginx/html/scheduler/build-version.txt
 
 RUN mkdir -p /etc/nginx/templates
 COPY ./default.conf.template /etc/nginx/templates
-COPY ./nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 8080

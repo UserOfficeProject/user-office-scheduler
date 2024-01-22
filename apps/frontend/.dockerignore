@@ -6,4 +6,3 @@
 !package*
 !tsconfig.json
 !default.conf.template
-!nginx.conf

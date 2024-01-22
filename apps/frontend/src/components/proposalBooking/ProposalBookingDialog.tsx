@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogTitle } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import React, { Dispatch, SetStateAction } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 import CloseDialogButton from 'components/common/CloseDialogButton';
 import Loader from 'components/common/Loader';
@@ -10,7 +10,7 @@ import useProposalBooking, {
 
 import ProposalDetailsAndBookingEvents from './ProposalDetailsAndBookingEvents';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   fullHeight: {
     height: '100%',
   },
@@ -33,7 +33,7 @@ export default function ProposalBookingDialog({
   scheduledEventId,
   closeDialog,
 }: ProposalBookingDialogProps) {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const { loading, proposalBooking, setProposalBooking } = useProposalBooking(
     activeProposalBookingId

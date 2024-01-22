@@ -1,4 +1,3 @@
-import makeStyles from '@mui/styles/makeStyles';
 import moment from 'moment';
 import React, { ComponentType, useContext, useEffect, useState } from 'react';
 import {
@@ -13,6 +12,7 @@ import {
 } from 'react-big-calendar';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import { useHistory } from 'react-router';
+import { makeStyles } from 'tss-react/mui';
 
 import { BackgroundEvent } from 'components/scheduledEvent/ScheduledEventDialog';
 import { AppContext } from 'context/AppContext';
@@ -22,7 +22,11 @@ import {
   ScheduledEventFilter,
 } from 'generated/sdk';
 import { useQuery } from 'hooks/common/useQuery';
-import { TZ_LESS_DATE_TIME_FORMAT } from 'utils/date';
+import {
+  getMiddleOfTheMonth,
+  isStartDateInCurrentMonth,
+  TZ_LESS_DATE_TIME_FORMAT,
+} from 'utils/date';
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import 'styles/react-big-calendar.css';
@@ -69,7 +73,7 @@ const DragAndDropCalendar = withDragAndDrop(
   >
 );
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   calendar: {
     // NOTE: This calculation in height is mainly because of toolbar height
     height: 'calc(100% - 70px) !important',
@@ -108,7 +112,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   onEventResize,
   onSelectTimeSlot,
 }) => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const query = useQuery();
   const history = useHistory();
   const { showAlert } = useContext(AppContext);
@@ -130,8 +134,15 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
   const onNavigate = (newDate: Date, newView: View) => {
     if (isSchedulerViewPeriod(newView)) {
-      const newStartDate = moment(newDate).startOf(newView);
-      setView(newView);
+      const queryLatestView = query.get('viewPeriod');
+      let newStartDate = moment(newDate);
+
+      if (queryLatestView === Views.DAY && queryLatestView !== newView) {
+        setView(queryLatestView);
+      } else {
+        newStartDate = newStartDate.startOf(newView);
+        setView(newView);
+      }
 
       query.set('startsAt', newStartDate.format(TZ_LESS_DATE_TIME_FORMAT));
       history.push(`?${query}`);
@@ -141,10 +152,18 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   const onViewChange = (newView: View) => {
     if (isSchedulerViewPeriod(newView)) {
       query.set('viewPeriod', newView);
-      query.set(
-        'startsAt',
-        moment(startsAt).startOf(newView).format(TZ_LESS_DATE_TIME_FORMAT)
-      );
+      let newStartsAt = moment(startsAt).startOf(newView);
+
+      // NOTE: If startsAt is in the current month then navigate to todays date view, else navigate to the middle of the month view.
+      if (newView !== Views.MONTH) {
+        if (isStartDateInCurrentMonth(startsAt)) {
+          newStartsAt = moment().startOf(newView);
+        } else {
+          newStartsAt = getMiddleOfTheMonth(startsAt).startOf(newView);
+        }
+      }
+
+      query.set('startsAt', newStartsAt.format(TZ_LESS_DATE_TIME_FORMAT));
       history.push(`?${query}`);
 
       setView(newView);

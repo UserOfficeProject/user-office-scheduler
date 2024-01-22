@@ -7,7 +7,7 @@ import {
   ApolloServerPluginInlineTraceDisabled,
   ApolloServerPluginLandingPageDisabled,
 } from '@apollo/server/plugin/disabled';
-import { ApolloServerPluginLandingPageGraphQLPlayground } from '@apollo/server-plugin-landing-page-graphql-playground';
+import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { logger } from '@user-office-software/duo-logger';
 import { json } from 'body-parser';
 import cors from 'cors';
@@ -109,8 +109,9 @@ const apolloServer = async (app: Express) => {
     // Explicitly disable playground in prod
     process.env.NODE_ENV === 'production'
       ? ApolloServerPluginLandingPageDisabled()
-      : ApolloServerPluginLandingPageGraphQLPlayground({
-          settings: { 'schema.polling.enable': false },
+      : ApolloServerPluginLandingPageLocalDefault({
+          footer: false,
+          embed: { initialState: { pollForSchemaUpdates: false } },
         }),
   ];
 

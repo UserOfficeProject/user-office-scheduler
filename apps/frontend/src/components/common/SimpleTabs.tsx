@@ -3,8 +3,8 @@ import { Button, CircularProgress, Paper, useMediaQuery } from '@mui/material';
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
-import makeStyles from '@mui/styles/makeStyles';
 import React, { useEffect, useState } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -46,7 +46,7 @@ type SimpleTabsProps = {
   noItemsText?: string;
 };
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   root: {
     flexGrow: 1,
     backgroundColor: theme.palette.background.paper,
@@ -92,7 +92,7 @@ const SimpleTabs: React.FC<SimpleTabsProps> = ({
   noItemsText,
 }) => {
   const isMobile = useMediaQuery('(max-width: 500px)');
-  const classes = useStyles();
+  const { classes } = useStyles();
   const [value, setValue] = useState(tab || 0);
   const [isAddingNewItem, setIsAddingNewItem] = useState(false);
   const noItems = children.length === 0;

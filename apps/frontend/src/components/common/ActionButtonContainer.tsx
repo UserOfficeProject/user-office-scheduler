@@ -1,24 +1,15 @@
-import makeStyles from '@mui/styles/makeStyles';
+import Stack from '@mui/material/Stack';
 import React, { PropsWithChildren } from 'react';
 
-import { ButtonContainer } from 'styles/StyledComponents';
-
-export function ActionButtonContainer(
+export const ActionButtonContainer = (
   props: PropsWithChildren<Record<string, unknown>>
-) {
-  const classes = makeStyles((theme) => ({
-    buttonContainer: {
-      justifyItems: 'flex-end',
-      marginTop: theme.spacing(3),
-      '& > :not(:first-child)': {
-        marginLeft: theme.spacing(2),
-      },
-    },
-  }))();
-
-  return (
-    <ButtonContainer className={classes.buttonContainer}>
-      {props.children}
-    </ButtonContainer>
-  );
-}
+) => (
+  <Stack
+    marginTop={3}
+    spacing={2}
+    justifyContent="flex-end"
+    direction={{ xs: 'column', sm: 'row' }}
+  >
+    {props.children}
+  </Stack>
+);

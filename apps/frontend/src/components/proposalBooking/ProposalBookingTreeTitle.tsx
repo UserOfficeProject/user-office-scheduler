@@ -1,6 +1,6 @@
-import makeStyles from '@mui/styles/makeStyles';
 import humanizeDuration from 'humanize-duration';
 import React from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 import { ScheduledEventStatusMap } from 'components/scheduledEvent/ScheduledEventForm';
 import { ProposalBookingStatusCore } from 'generated/sdk';
@@ -8,7 +8,7 @@ import { InstrumentProposalBooking } from 'hooks/proposalBooking/useInstrumentPr
 import { parseTzLessDateTime } from 'utils/date';
 import { getFullUserName } from 'utils/user';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   heading1: {
     fontSize: '17px',
     fontWeight: 'normal',
@@ -59,7 +59,7 @@ export function getAllocatedTime(
 function ProposalBookingTreeTitle({
   proposalBooking,
 }: ProposalBookingTreeTitleProps) {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const allocated = getAllocatedTime(proposalBooking.scheduledEvents);
 

@@ -47,6 +47,12 @@ export const getHourDateTimeAfter = (
   return toTzLessDateTime(defaultEventBookingHourDateTimePlusHours);
 };
 
+export const getHourDateTimeAfterWithoutSpaces = (
+  amount: number,
+  unit: DurationInputArg2 = 'hour',
+  date = defaultEventBookingHourDateTime
+) => getHourDateTimeAfter(amount, unit, date).replace(/\s/g, '');
+
 export const getFormattedDateAfter = (
   format = 'DD',
   amount = 0,
@@ -84,7 +90,11 @@ export const getFormattedEndOfSelectedWeek = (selectedWeek = 0) => {
 export const selectInstrument = (instrument?: string) => {
   cy.get('[data-cy=input-instrument-select] input').should('not.be.disabled');
 
-  cy.get('[data-cy=input-instrument-select] [aria-label="Open"]').click();
+  cy.get('[data-cy=input-instrument-select]').then((body) => {
+    if (body.find('[aria-label="Open"]').length > 0) {
+      cy.get('[data-cy=input-instrument-select] [aria-label="Open"]').click();
+    }
+  });
 
   if (instrument) {
     cy.get('[aria-labelledby=input-instrument-select-label] [role=option]')

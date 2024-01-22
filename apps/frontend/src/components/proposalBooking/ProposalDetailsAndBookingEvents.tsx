@@ -22,12 +22,10 @@ import {
   Typography,
   alpha,
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import {
   getTranslation,
   ResourceId,
 } from '@user-office-software/duo-localisation';
-import clsx from 'clsx';
 import humanizeDuration from 'humanize-duration';
 import moment from 'moment';
 import { useSnackbar } from 'notistack';
@@ -38,6 +36,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 import IdentifierIcon from 'components/common/icons/IdentifierIcon';
 import ScienceIcon from 'components/common/icons/ScienceIcon';
@@ -64,7 +63,7 @@ const formatDuration = (durSec: number) =>
     largest: 3,
   });
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   list: {
     width: '100%',
     backgroundColor: theme.palette.background.paper,
@@ -155,7 +154,7 @@ export default function ProposalDetailsAndBookingEvents({
     instrument,
   } = proposalBooking;
 
-  const classes = useStyles();
+  const { classes, cx } = useStyles();
   const theme = useTheme();
 
   const { scheduledEvents } = proposalBooking;
@@ -447,7 +446,7 @@ export default function ProposalDetailsAndBookingEvents({
                   secondary={
                     <>
                       <span
-                        className={clsx({
+                        className={cx({
                           [classes.allocatablePositive]: allocatable > 0,
                           [classes.allocatableNegative]: allocatable < 0,
                         })}

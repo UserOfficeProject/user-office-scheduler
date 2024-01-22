@@ -17,7 +17,8 @@ import Search from '@mui/icons-material/Search';
 import ViewColumn from '@mui/icons-material/ViewColumn';
 import React, { forwardRef } from 'react';
 
-export const tableIcons: Icons = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const tableIcons: Icons<any> = {
   Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
   Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
   Clear: forwardRef((props, ref) => <Clear {...props} ref={ref} />),

@@ -11,6 +11,7 @@ import {
 } from 'react-router-dom';
 import Theme from 'theme';
 import { QueryParamProvider } from 'use-query-params';
+import { ReactRouter5Adapter } from 'use-query-params/adapters/react-router-5';
 
 import { AppContextProvider } from 'context/AppContext';
 import { SettingsContextProvider } from 'context/SettingsContextProvider';
@@ -91,7 +92,7 @@ class App extends React.Component {
                 <UserContextProvider>
                   <AppContextProvider>
                     <Router basename={process.env.PUBLIC_URL}>
-                      <QueryParamProvider ReactRouterRoute={Route}>
+                      <QueryParamProvider adapter={ReactRouter5Adapter}>
                         <div className="App">
                           <Switch>
                             <Route

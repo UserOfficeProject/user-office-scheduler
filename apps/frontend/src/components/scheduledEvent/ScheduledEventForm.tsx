@@ -1,9 +1,9 @@
-import AdapterMoment from '@mui/lab/AdapterMoment';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import { MenuItem, TextField as MuiTextField } from '@mui/material';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { Field } from 'formik';
 import { TextField } from 'formik-mui';
-import { DateTimePicker } from 'formik-mui-lab';
+import { DateTimePicker } from 'formik-mui-x-date-pickers';
 import React from 'react';
 
 import {
@@ -11,10 +11,7 @@ import {
   ScheduledEventBookingType,
 } from 'generated/sdk';
 import useUserInstruments from 'hooks/instrument/useUserInstruments';
-import {
-  TZ_LESS_DATE_TIME_LOW_PREC_FORMAT,
-  TZ_LESS_DATE_TIME_LOW_PREC_MASK,
-} from 'utils/date';
+import { TZ_LESS_DATE_TIME_LOW_PREC_FORMAT } from 'utils/date';
 
 export type BookingTypes = typeof ScheduledEventBookingType;
 
@@ -44,7 +41,13 @@ export const ScheduledEventStatusMap: Record<
   COMPLETED: 'Completed',
 };
 
-export default function ScheduledEventForm() {
+type ScheduledEventFormProps = {
+  minEndDate: moment.Moment;
+};
+
+export default function ScheduledEventForm({
+  minEndDate,
+}: ScheduledEventFormProps) {
   const { instruments, loading } = useUserInstruments();
 
   /**
@@ -94,35 +97,38 @@ export default function ScheduledEventForm() {
           component={DateTimePicker}
           required
           name="startsAt"
-          textField={{
-            variant: 'standard',
-            margin: 'normal',
-            fullWidth: true,
-            'data-cy': 'startsAt',
+          views={['year', 'month', 'day', 'hours']}
+          slotProps={{
+            textField: {
+              variant: 'standard',
+              margin: 'normal',
+              label: 'Starts at',
+              fullWidth: true,
+              required: true,
+              'data-cy': 'startsAt',
+            },
           }}
-          label="Starts at"
-          mask={TZ_LESS_DATE_TIME_LOW_PREC_MASK}
-          inputFormat={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
+          format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
           ampm={false}
-          minutesStep={60}
-          fullWidth
         />
         <Field
           component={DateTimePicker}
           required
           name="endsAt"
-          textField={{
-            variant: 'standard',
-            margin: 'normal',
-            fullWidth: true,
-            'data-cy': 'endsAt',
+          views={['year', 'month', 'day', 'hours']}
+          slotProps={{
+            textField: {
+              variant: 'standard',
+              margin: 'normal',
+              label: 'Ends at',
+              fullWidth: true,
+              required: true,
+              'data-cy': 'endsAt',
+            },
           }}
-          label="Ends at"
-          mask={TZ_LESS_DATE_TIME_LOW_PREC_MASK}
-          inputFormat={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
+          format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
           ampm={false}
-          minutesStep={60}
-          fullWidth
+          minDateTime={minEndDate}
         />
       </LocalizationProvider>
       <Field

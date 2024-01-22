@@ -1,6 +1,5 @@
 import { Delete as DeleteIcon } from '@mui/icons-material';
 import { Alert, AlertTitle, Button } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import {
   getTranslation,
   ResourceId,
@@ -9,6 +8,7 @@ import moment from 'moment';
 import { useSnackbar } from 'notistack';
 import React, { Dispatch, SetStateAction, useContext, useState } from 'react';
 import { stringOrDate } from 'react-big-calendar';
+import { makeStyles } from 'tss-react/mui';
 
 import { ActionButtonContainer } from 'components/common/ActionButtonContainer';
 import Loader from 'components/common/Loader';
@@ -37,7 +37,7 @@ import TimeSlotDetails from './TimeSlotDetails';
 import TimeSlotEquipmentBookingTable from './TimeSlotEquipmentBookingTable';
 import TimeSlotLostTimeTable from './TimeSlotLostTimeTable';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   fullHeight: {
     height: '100%',
   },
@@ -93,7 +93,7 @@ export default function TimeSlotBooking({
   activeScheduledEvent,
   onDelete,
 }: TimeSlotBookingProps) {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const api = useDataApi();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -494,7 +494,7 @@ export default function TimeSlotBooking({
       <ActionButtonContainer>
         <Button
           variant="outlined"
-          color="primary"
+          color="error"
           startIcon={<DeleteIcon />}
           onClick={handleDelete}
           data-cy="delete-experiment-time"

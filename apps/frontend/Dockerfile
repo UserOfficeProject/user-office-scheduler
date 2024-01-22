@@ -16,7 +16,7 @@ COPY ./ ./
 RUN npm run build
 
 # Stage 1, based on Nginx, to have only the compiled app, ready for production with Nginx
-FROM nginx:1.22.0-alpine
+FROM nginxinc/nginx-unprivileged:1.25-alpine
 COPY --from=build-stage --chown=nginx:nginx /app/build /usr/share/nginx/html/scheduler
 
 ARG BUILD_VERSION=<unknown>

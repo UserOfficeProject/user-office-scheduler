@@ -25,21 +25,23 @@ export default class PostgresProposalBookingDataSource
   }): Promise<void> {
     if (event.instruments.length) {
       await Promise.all(
-        event.instruments.map((instrument) =>
-          database<CreateFields>(this.tableName)
-            .insert({
-              proposal_pk: event.proposalPk,
-              call_id: event.callId,
-              status: ProposalBookingStatusCore.DRAFT,
-              allocated_time: instrument.allocatedTime,
-              instrument_id: instrument.id,
-            })
-            .onConflict(['proposal_pk', 'call_id', 'instrument_id'])
-            .merge({
-              allocated_time: instrument.allocatedTime,
-              instrument_id: instrument.id,
-            })
-            .returning<ProposalBookingRecord>(['*'])
+        event.instruments.map(
+          (instrument) =>
+            instrument.allocatedTime &&
+            database<CreateFields>(this.tableName)
+              .insert({
+                proposal_pk: event.proposalPk,
+                call_id: event.callId,
+                status: ProposalBookingStatusCore.DRAFT,
+                allocated_time: instrument.allocatedTime,
+                instrument_id: instrument.id,
+              })
+              .onConflict(['proposal_pk', 'call_id', 'instrument_id'])
+              .merge({
+                allocated_time: instrument.allocatedTime,
+                instrument_id: instrument.id,
+              })
+              .returning<ProposalBookingRecord>(['*'])
         )
       );
     }

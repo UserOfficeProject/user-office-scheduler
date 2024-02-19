@@ -11,8 +11,10 @@ import { ApplicationEvent } from '../events/applicationEvents';
 import { Event, Instrument } from '../generated/sdk';
 import { ScheduledEvent } from '../models/ScheduledEvent';
 import { TZ_LESS_DATE_TIME } from '../resolvers/CustomScalars';
-import { ProposalMessageData } from '../types/shared';
-import { hasTriggerStatus } from '../utils/helperFunctions';
+import {
+  hasTriggerStatus,
+  validateProposalMessage,
+} from '../utils/helperFunctions';
 
 const PROPOSAL_SCHEDULING_QUEUE = process.env
   .PROPOSAL_SCHEDULING_QUEUE_NAME as Queue;
@@ -92,13 +94,15 @@ export async function createListenToRabbitMQHandler({
           }
         );
 
+        const validProposalMessage = validateProposalMessage(message);
+
         const hasTriggeringStatus = hasTriggerStatus(
-          message as ProposalMessageData,
+          validProposalMessage,
           upsertTriggerStatuses
         );
 
         if (hasTriggeringStatus) {
-          await proposalBookingDataSource.upsert(message);
+          await proposalBookingDataSource.upsert(validProposalMessage);
         }
 
         return;

@@ -6,6 +6,7 @@ import {
   ProposalBookingFinalizeAction,
 } from '../../models/ProposalBooking';
 import { ProposalProposalBookingFilter } from '../../resolvers/types/Proposal';
+import { ProposalMessageData } from '../../types/shared';
 import { ProposalBookingDataSource } from '../ProposalBookingDataSource';
 
 type CreateFields = Pick<
@@ -18,20 +19,16 @@ export default class PostgresProposalBookingDataSource
 {
   readonly tableName = 'proposal_bookings';
 
-  async upsert(event: {
-    proposalPk: number;
-    callId: number;
-    instruments: { id: number; shortCode: string; allocatedTime: number }[];
-  }): Promise<void> {
-    if (event.instruments.length) {
+  async upsert(message: ProposalMessageData): Promise<void> {
+    if (message.instruments?.length) {
       await Promise.all(
-        event.instruments.map(
+        message.instruments.map(
           (instrument) =>
             instrument.allocatedTime &&
             database<CreateFields>(this.tableName)
               .insert({
-                proposal_pk: event.proposalPk,
-                call_id: event.callId,
+                proposal_pk: message.proposalPk,
+                call_id: message.callId,
                 status: ProposalBookingStatusCore.DRAFT,
                 allocated_time: instrument.allocatedTime,
                 instrument_id: instrument.id,

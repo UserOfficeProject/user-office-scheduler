@@ -22,7 +22,7 @@ function PeopleModal(props: {
         id: rowData.id,
         firstname: rowData.firstname,
         lastname: rowData.lastname,
-        organisation: rowData.organisation,
+        institution: rowData.institution,
         position: rowData.position,
         placeholder: rowData.placeholder,
       },

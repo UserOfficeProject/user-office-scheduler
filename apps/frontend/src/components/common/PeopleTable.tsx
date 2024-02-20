@@ -44,7 +44,7 @@ async function sendUserRequest(
           id: user.id,
           firstname: user.firstname,
           lastname: user.lastname,
-          organisation: user.organisation,
+          institution: user.institution,
           position: user.position,
           placeholder: user.placeholder,
           tableData: { checked: selectedParticipants.includes(user.id) },
@@ -90,7 +90,7 @@ const useStyles = makeStyles()({
 const tableColumns = [
   { title: 'Name', field: 'firstname' },
   { title: 'Surname', field: 'lastname' },
-  { title: 'Organisation', field: 'organisation' },
+  { title: 'Institution', field: 'institution' },
 ];
 
 const PeopleTable: React.FC<PeopleTableProps> = ({
@@ -210,7 +210,7 @@ const PeopleTable: React.FC<PeopleTableProps> = ({
                   id: selectedItem.id,
                   firstname: selectedItem.firstname,
                   lastname: selectedItem.lastname,
-                  organisation: selectedItem.organisation,
+                  institution: selectedItem.institution,
                 })) as BasicUserDetailsFragment[]),
               ]);
             }
@@ -226,7 +226,7 @@ const PeopleTable: React.FC<PeopleTableProps> = ({
                     id: selectedItem.id,
                     firstname: selectedItem.firstname,
                     lastname: selectedItem.lastname,
-                    organisation: selectedItem.organisation,
+                    institution: selectedItem.institution,
                   },
                 ] as BasicUserDetailsFragment[])
               : selectedParticipants.filter(({ id }) => id !== selectedItem.id)

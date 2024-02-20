@@ -2,7 +2,7 @@ fragment basicUserDetails on BasicUserDetails {
   id
   firstname
   lastname
-  organisation
+  institution
   position
   placeholder
 }

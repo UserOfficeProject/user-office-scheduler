@@ -7,6 +7,7 @@ import express from 'express';
 import './env-loader.js';
 import './events';
 
+import { configureGraylogLogger } from './config/configureGrayLogLogger';
 import exceptionHandler from './middlewares/exceptionHandler';
 import apolloServer, { PATH } from './middlewares/graphql';
 import healthCheck from './middlewares/healthCheck';
@@ -29,6 +30,8 @@ async function bootstrap() {
       {}
     );
   });
+
+  configureGraylogLogger();
 }
 
 bootstrap();

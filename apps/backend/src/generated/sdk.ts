@@ -407,6 +407,7 @@ export type EmailStatusActionRecipient = {
 
 export enum EmailStatusActionRecipients {
   CO_PROPOSERS = 'CO_PROPOSERS',
+  FAP_CHAIR_AND_SECRETARY = 'FAP_CHAIR_AND_SECRETARY',
   FAP_REVIEWERS = 'FAP_REVIEWERS',
   INSTRUMENT_SCIENTISTS = 'INSTRUMENT_SCIENTISTS',
   OTHER = 'OTHER',
@@ -607,8 +608,8 @@ export type Fap = {
   description: Scalars['String']['output'];
   fapChair: Maybe<BasicUserDetails>;
   fapChairProposalCount: Maybe<Scalars['Int']['output']>;
-  fapSecretary: Maybe<BasicUserDetails>;
-  fapSecretaryProposalCount: Maybe<Scalars['Int']['output']>;
+  fapSecretaries: Array<BasicUserDetails>;
+  fapSecretariesProposalCounts: Array<FapProposalCount>;
   gradeGuide: Maybe<Scalars['String']['output']>;
   id: Scalars['Int']['output'];
   numberRatingsRequired: Scalars['Float']['output'];
@@ -649,9 +650,15 @@ export type FapProposal = {
   proposalPk: Scalars['Int']['output'];
 };
 
+export type FapProposalCount = {
+  count: Scalars['Int']['output'];
+  userId: Scalars['Int']['output'];
+};
+
 export type FapReviewer = {
   fapId: Scalars['Int']['output'];
   proposalsCount: Scalars['Int']['output'];
+  proposalsCountByCall: Scalars['Int']['output'];
   role: Maybe<Role>;
   user: BasicUserDetails;
   userId: Scalars['Int']['output'];
@@ -689,6 +696,7 @@ export enum FeatureId {
   STFC_IDLE_TIMER = 'STFC_IDLE_TIMER',
   TECHNICAL_REVIEW = 'TECHNICAL_REVIEW',
   USER_MANAGEMENT = 'USER_MANAGEMENT',
+  USER_SEARCH_FILTER = 'USER_SEARCH_FILTER',
   VISIT_MANAGEMENT = 'VISIT_MANAGEMENT'
 }
 
@@ -765,6 +773,7 @@ export type FileMetadata = {
 export type FileUploadConfig = {
   file_type: Array<Scalars['String']['output']>;
   max_files: Scalars['Int']['output'];
+  omitFromPdf: Scalars['Boolean']['output'];
   pdf_page_limit: Scalars['Int']['output'];
   required: Scalars['Boolean']['output'];
   small_label: Scalars['String']['output'];
@@ -820,11 +829,10 @@ export type Institution = {
   country: Maybe<Entry>;
   id: Scalars['Int']['output'];
   name: Scalars['String']['output'];
-  verified: Scalars['Boolean']['output'];
+  rorId: Maybe<Scalars['String']['output']>;
 };
 
 export type InstitutionsFilter = {
-  isVerified?: InputMaybe<Scalars['Boolean']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -976,7 +984,6 @@ export type Mutation = {
   createFeedback: Feedback;
   createGenericTemplate: GenericTemplate;
   createGenericTemplateWithCopiedAnswers: Array<GenericTemplate>;
-  createInstitution: Institution;
   createInstrument: Instrument;
   createInternalReview: InternalReview;
   createPdfTemplate: PdfTemplate;
@@ -1314,13 +1321,6 @@ export type MutationCreateGenericTemplateWithCopiedAnswersArgs = {
   proposalPk: Scalars['Int']['input'];
   questionId: Scalars['String']['input'];
   templateId: Scalars['Int']['input'];
-};
-
-
-export type MutationCreateInstitutionArgs = {
-  country: Scalars['Int']['input'];
-  name: Scalars['String']['input'];
-  verified: Scalars['Boolean']['input'];
 };
 
 
@@ -1880,7 +1880,7 @@ export type MutationUpdateInstitutionArgs = {
   country: Scalars['Int']['input'];
   id: Scalars['Int']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
-  verified?: InputMaybe<Scalars['Boolean']['input']>;
+  rorId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -3398,7 +3398,7 @@ export type Shipment = {
   questionary: Questionary;
   questionaryId: Scalars['Int']['output'];
   samples: Array<Sample>;
-  scheduledEventId: Scalars['Int']['output'];
+  scheduledEventId: Maybe<Scalars['Int']['output']>;
   status: ShipmentStatus;
   title: Scalars['String']['output'];
 };

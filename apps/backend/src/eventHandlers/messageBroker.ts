@@ -212,6 +212,7 @@ export async function createPostToRabbitMQHandler({
           status: scheduledevent.status,
           proposalPk: proposalBooking?.proposal.primaryKey,
           localContactId: scheduledevent.localContact?.id ?? null,
+          instrumentId: scheduledevent.instrument.id,
         };
 
         const jsonMessage = JSON.stringify(message);
@@ -267,6 +268,7 @@ export async function createPostToRabbitMQHandler({
               status: scheduledEvent.status,
               proposalPk: proposalBooking?.proposal.primaryKey,
               localContactId: scheduledEvent.localContact?.id ?? null,
+              instrumentId: scheduledEvent.instrument.id,
             })),
           };
 

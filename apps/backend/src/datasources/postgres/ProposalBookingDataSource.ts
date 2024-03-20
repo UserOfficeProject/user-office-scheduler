@@ -6,6 +6,7 @@ import {
   ProposalBookingFinalizeAction,
 } from '../../models/ProposalBooking';
 import { ProposalProposalBookingFilter } from '../../resolvers/types/Proposal';
+import { ProposalMessageData } from '../../types/shared';
 import { ProposalBookingDataSource } from '../ProposalBookingDataSource';
 
 type CreateFields = Pick<
@@ -18,26 +19,29 @@ export default class PostgresProposalBookingDataSource
 {
   readonly tableName = 'proposal_bookings';
 
-  async upsert(event: {
-    proposalPk: number;
-    callId: number;
-    allocatedTime: number;
-    instrumentId: number;
-  }): Promise<void> {
-    await database<CreateFields>(this.tableName)
-      .insert({
-        proposal_pk: event.proposalPk,
-        call_id: event.callId,
-        status: ProposalBookingStatusCore.DRAFT,
-        allocated_time: event.allocatedTime,
-        instrument_id: event.instrumentId,
-      })
-      .onConflict(['proposal_pk', 'call_id'])
-      .merge({
-        allocated_time: event.allocatedTime,
-        instrument_id: event.instrumentId,
-      })
-      .returning<ProposalBookingRecord>(['*']);
+  async upsert(message: ProposalMessageData): Promise<void> {
+    if (message.instruments?.length) {
+      await Promise.all(
+        message.instruments.map(
+          (instrument) =>
+            instrument.allocatedTime &&
+            database<CreateFields>(this.tableName)
+              .insert({
+                proposal_pk: message.proposalPk,
+                call_id: message.callId,
+                status: ProposalBookingStatusCore.DRAFT,
+                allocated_time: instrument.allocatedTime,
+                instrument_id: instrument.id,
+              })
+              .onConflict(['proposal_pk', 'call_id', 'instrument_id'])
+              .merge({
+                allocated_time: instrument.allocatedTime,
+                instrument_id: instrument.id,
+              })
+              .returning<ProposalBookingRecord>(['*'])
+        )
+      );
+    }
   }
 
   async get(id: number): Promise<ProposalBooking | null> {

@@ -3,10 +3,11 @@ import {
   ProposalBookingFinalizeAction,
 } from '../models/ProposalBooking';
 import { ProposalProposalBookingFilter } from '../resolvers/types/Proposal';
+import { ProposalMessageData } from '../types/shared';
 
 export interface ProposalBookingDataSource {
   // TODO(asztalos): validate input
-  upsert(event: any): Promise<void>;
+  upsert(message: ProposalMessageData): Promise<void>;
   get(id: number): Promise<ProposalBooking | null>;
   delete(id: number): Promise<ProposalBooking | null>;
   getByProposalPk(

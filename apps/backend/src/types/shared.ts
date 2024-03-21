@@ -1,4 +1,4 @@
-import { Institution, Instrument } from '../generated/sdk';
+import { Institution } from '../generated/sdk';
 
 export enum Roles {
   USER = 'user',
@@ -44,13 +44,12 @@ export type ProposalMessageData = {
   abstract: string;
   allocatedTime: number;
   callId: number;
-  instrument?: Pick<Instrument, 'id' | 'shortCode'>;
+  instruments?: { id: number; shortCode: string; allocatedTime: number }[];
   members: Member[];
   newStatus?: string;
   proposalPk: number;
   proposer?: Member;
   shortCode: string;
   title: string;
-  instrumentId?: number; // instrumentId is here for backwards compatibility.
   submitted: boolean;
 };

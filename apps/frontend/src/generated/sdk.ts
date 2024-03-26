@@ -839,9 +839,9 @@ export type InstitutionsFilter = {
 };
 
 export type Instrument = {
-  beamlineManager: Maybe<BasicUserDetails>;
   description: Scalars['String']['output'];
   id: Scalars['Int']['output'];
+  instrumentContact: Maybe<BasicUserDetails>;
   managerUserId: Scalars['Int']['output'];
   name: Scalars['String']['output'];
   scientists: Array<BasicUserDetails>;
@@ -869,11 +869,11 @@ export type InstrumentPickerConfig = {
 
 export type InstrumentWithAvailabilityTime = {
   availabilityTime: Maybe<Scalars['Int']['output']>;
-  beamlineManager: Maybe<BasicUserDetails>;
   description: Scalars['String']['output'];
   fap: Maybe<Fap>;
   fapId: Maybe<Scalars['Int']['output']>;
   id: Scalars['Int']['output'];
+  instrumentContact: Maybe<BasicUserDetails>;
   managerUserId: Scalars['Int']['output'];
   name: Scalars['String']['output'];
   scientists: Array<BasicUserDetails>;
@@ -882,9 +882,9 @@ export type InstrumentWithAvailabilityTime = {
 };
 
 export type InstrumentWithManagementTime = {
-  beamlineManager: Maybe<BasicUserDetails>;
   description: Scalars['String']['output'];
   id: Scalars['Int']['output'];
+  instrumentContact: Maybe<BasicUserDetails>;
   managementTimeAllocation: Maybe<Scalars['Int']['output']>;
   managerUserId: Scalars['Int']['output'];
   name: Scalars['String']['output'];
@@ -2197,7 +2197,7 @@ export type Proposal = {
   notified: Scalars['Boolean']['output'];
   primaryKey: Scalars['Int']['output'];
   proposalBooking: Maybe<ProposalBooking>;
-  proposalBookingCore: Maybe<ProposalBookingCore>;
+  proposalBookingsCore: Maybe<ProposalBookingsCore>;
   proposalId: Scalars['String']['output'];
   proposer: Maybe<BasicUserDetails>;
   proposerId: Scalars['Int']['output'];
@@ -2222,7 +2222,7 @@ export type ProposalProposalBookingArgs = {
 };
 
 
-export type ProposalProposalBookingCoreArgs = {
+export type ProposalProposalBookingsCoreArgs = {
   filter?: InputMaybe<ProposalBookingFilter>;
 };
 
@@ -2245,16 +2245,6 @@ export type ProposalBooking = {
 
 export type ProposalBookingScheduledEventsArgs = {
   filter: ProposalBookingScheduledEventFilter;
-};
-
-export type ProposalBookingCore = {
-  id: Scalars['Int']['output'];
-  scheduledEvents: Array<ScheduledEventCore>;
-};
-
-
-export type ProposalBookingCoreScheduledEventsArgs = {
-  filter: ProposalBookingScheduledEventFilterCore;
 };
 
 export type ProposalBookingFilter = {
@@ -2289,6 +2279,16 @@ export enum ProposalBookingStatusCore {
   COMPLETED = 'COMPLETED',
   DRAFT = 'DRAFT'
 }
+
+export type ProposalBookingsCore = {
+  ids: Array<Scalars['Int']['output']>;
+  scheduledEvents: Array<ScheduledEventCore>;
+};
+
+
+export type ProposalBookingsCoreScheduledEventsArgs = {
+  filter: ProposalBookingScheduledEventFilterCore;
+};
 
 export enum ProposalEndStatus {
   ACCEPTED = 'ACCEPTED',
@@ -3311,8 +3311,8 @@ export type ScheduledEventCore = {
   feedback: Maybe<Feedback>;
   feedbackRequests: Array<FeedbackRequest>;
   id: Scalars['Int']['output'];
-  instrument: Instrument;
-  instrumentId: Scalars['Int']['output'];
+  instrument: Maybe<Instrument>;
+  instrumentId: Maybe<Scalars['Int']['output']>;
   localContact: Maybe<BasicUserDetails>;
   localContactId: Maybe<Scalars['Int']['output']>;
   proposal: Proposal;
@@ -3962,7 +3962,7 @@ export type GetCallsQuery = { calls: Array<{ id: number, shortCode: string }> | 
 export type GetUserInstrumentsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetUserInstrumentsQuery = { userInstruments: { totalCount: number, instruments: Array<{ id: number, name: string, beamlineManager: { id: number } | null, scientists: Array<{ id: number }> }> } | null };
+export type GetUserInstrumentsQuery = { userInstruments: { totalCount: number, instruments: Array<{ id: number, name: string, instrumentContact: { id: number } | null, scientists: Array<{ id: number }> }> } | null };
 
 export type AddLostTimeMutationVariables = Exact<{
   input: AddLostTimeInput;
@@ -4042,7 +4042,7 @@ export type GetProposalBookingQueryVariables = Exact<{
 }>;
 
 
-export type GetProposalBookingQuery = { proposalBooking: { id: number, createdAt: any, updatedAt: any, status: ProposalBookingStatusCore, allocatedTime: number, call: { id: number, shortCode: string, startCycle: any, endCycle: any, cycleComment: string } | null, proposal: { primaryKey: number, title: string, proposalId: string, proposer: { id: number, firstname: string, lastname: string, institution: string, position: string, placeholder: boolean | null } | null } | null, scheduledEvents: Array<{ id: number, startsAt: string, endsAt: string, bookingType: ScheduledEventBookingType, status: ProposalBookingStatusCore, description: string | null, scheduledBy: { id: number, firstname: string, lastname: string, institution: string, position: string, placeholder: boolean | null } | null, localContact: { id: number, firstname: string, lastname: string, institution: string, position: string, placeholder: boolean | null } | null }>, instrument: { id: number, name: string, beamlineManager: { id: number, firstname: string, lastname: string, institution: string, position: string, placeholder: boolean | null } | null, scientists: Array<{ id: number, firstname: string, lastname: string, institution: string, position: string, placeholder: boolean | null }> } | null } | null };
+export type GetProposalBookingQuery = { proposalBooking: { id: number, createdAt: any, updatedAt: any, status: ProposalBookingStatusCore, allocatedTime: number, call: { id: number, shortCode: string, startCycle: any, endCycle: any, cycleComment: string } | null, proposal: { primaryKey: number, title: string, proposalId: string, proposer: { id: number, firstname: string, lastname: string, institution: string, position: string, placeholder: boolean | null } | null } | null, scheduledEvents: Array<{ id: number, startsAt: string, endsAt: string, bookingType: ScheduledEventBookingType, status: ProposalBookingStatusCore, description: string | null, scheduledBy: { id: number, firstname: string, lastname: string, institution: string, position: string, placeholder: boolean | null } | null, localContact: { id: number, firstname: string, lastname: string, institution: string, position: string, placeholder: boolean | null } | null }>, instrument: { id: number, name: string, instrumentContact: { id: number, firstname: string, lastname: string, institution: string, position: string, placeholder: boolean | null } | null, scientists: Array<{ id: number, firstname: string, lastname: string, institution: string, position: string, placeholder: boolean | null }> } | null } | null };
 
 export type ReopenProposalBookingMutationVariables = Exact<{
   id: Scalars['Int']['input'];
@@ -4384,7 +4384,7 @@ export const GetUserInstrumentsDocument = gql`
     instruments {
       id
       name
-      beamlineManager {
+      instrumentContact {
         id
       }
       scientists {
@@ -4552,7 +4552,7 @@ export const GetProposalBookingDocument = gql`
     instrument {
       id
       name
-      beamlineManager {
+      instrumentContact {
         ...basicUserDetails
       }
       scientists {

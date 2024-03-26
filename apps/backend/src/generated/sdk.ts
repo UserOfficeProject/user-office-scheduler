@@ -839,9 +839,9 @@ export type InstitutionsFilter = {
 };
 
 export type Instrument = {
-  beamlineManager: Maybe<BasicUserDetails>;
   description: Scalars['String']['output'];
   id: Scalars['Int']['output'];
+  instrumentContact: Maybe<BasicUserDetails>;
   managerUserId: Scalars['Int']['output'];
   name: Scalars['String']['output'];
   scientists: Array<BasicUserDetails>;
@@ -869,11 +869,11 @@ export type InstrumentPickerConfig = {
 
 export type InstrumentWithAvailabilityTime = {
   availabilityTime: Maybe<Scalars['Int']['output']>;
-  beamlineManager: Maybe<BasicUserDetails>;
   description: Scalars['String']['output'];
   fap: Maybe<Fap>;
   fapId: Maybe<Scalars['Int']['output']>;
   id: Scalars['Int']['output'];
+  instrumentContact: Maybe<BasicUserDetails>;
   managerUserId: Scalars['Int']['output'];
   name: Scalars['String']['output'];
   scientists: Array<BasicUserDetails>;
@@ -882,9 +882,9 @@ export type InstrumentWithAvailabilityTime = {
 };
 
 export type InstrumentWithManagementTime = {
-  beamlineManager: Maybe<BasicUserDetails>;
   description: Scalars['String']['output'];
   id: Scalars['Int']['output'];
+  instrumentContact: Maybe<BasicUserDetails>;
   managementTimeAllocation: Maybe<Scalars['Int']['output']>;
   managerUserId: Scalars['Int']['output'];
   name: Scalars['String']['output'];
@@ -2197,7 +2197,7 @@ export type Proposal = {
   notified: Scalars['Boolean']['output'];
   primaryKey: Scalars['Int']['output'];
   proposalBooking: Maybe<ProposalBooking>;
-  proposalBookingCore: Maybe<ProposalBookingCore>;
+  proposalBookingsCore: Maybe<ProposalBookingsCore>;
   proposalId: Scalars['String']['output'];
   proposer: Maybe<BasicUserDetails>;
   proposerId: Scalars['Int']['output'];
@@ -2222,7 +2222,7 @@ export type ProposalProposalBookingArgs = {
 };
 
 
-export type ProposalProposalBookingCoreArgs = {
+export type ProposalProposalBookingsCoreArgs = {
   filter?: InputMaybe<ProposalBookingFilter>;
 };
 
@@ -2245,16 +2245,6 @@ export type ProposalBooking = {
 
 export type ProposalBookingScheduledEventsArgs = {
   filter: ProposalBookingScheduledEventFilter;
-};
-
-export type ProposalBookingCore = {
-  id: Scalars['Int']['output'];
-  scheduledEvents: Array<ScheduledEventCore>;
-};
-
-
-export type ProposalBookingCoreScheduledEventsArgs = {
-  filter: ProposalBookingScheduledEventFilterCore;
 };
 
 export type ProposalBookingFilter = {
@@ -2289,6 +2279,16 @@ export enum ProposalBookingStatusCore {
   COMPLETED = 'COMPLETED',
   DRAFT = 'DRAFT'
 }
+
+export type ProposalBookingsCore = {
+  ids: Array<Scalars['Int']['output']>;
+  scheduledEvents: Array<ScheduledEventCore>;
+};
+
+
+export type ProposalBookingsCoreScheduledEventsArgs = {
+  filter: ProposalBookingScheduledEventFilterCore;
+};
 
 export enum ProposalEndStatus {
   ACCEPTED = 'ACCEPTED',
@@ -3311,8 +3311,8 @@ export type ScheduledEventCore = {
   feedback: Maybe<Feedback>;
   feedbackRequests: Array<FeedbackRequest>;
   id: Scalars['Int']['output'];
-  instrument: Instrument;
-  instrumentId: Scalars['Int']['output'];
+  instrument: Maybe<Instrument>;
+  instrumentId: Maybe<Scalars['Int']['output']>;
   localContact: Maybe<BasicUserDetails>;
   localContactId: Maybe<Scalars['Int']['output']>;
   proposal: Proposal;

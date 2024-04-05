@@ -111,6 +111,9 @@ services:
       UO_FEATURE_DISABLE_EAM: 1
       USER_OFFICE_FACTORY_ENDPOINT: http://factory:4500/generate
       RABBITMQ_HOSTNAME: rabbitmq
+      RABBITMQ_CORE_EXCHANGE_NAME: user_office_backend.fanout
+      RABBITMQ_SCHEDULER_EXCHANGE_NAME: user_office_scheduler_backend.fanout
+      RABBITMQ_EVENT_SCHEDULING_QUEUE_NAME: user-office-scheduler-backend.event_scheduling.queue
       AUTH_DISCOVERY_URL: http://host.docker.internal:5001/.well-known/openid-configuration
       AUTH_CLIENT_ID: useroffice
       AUTH_CLIENT_SECRET: useroffice
@@ -118,9 +121,6 @@ services:
       TZ: Europe/Stockholm
       DATE_FORMAT: dd-MM-yyyy
       DATE_TIME_FORMAT: dd-MM-yyyy HH:mm
-      CORE_EXCHANGE_NAME: user_office_backend.fanout
-      SCHEDULER_EXCHANGE_NAME: user_office_scheduler_backend.fanout
-      EVENT_SCHEDULING_QUEUE_NAME: user-office-scheduler-backend.event_scheduling.queue
       SCHEDULER_ENDPOINT: http://scheduler-backend:4200/graphql
     depends_on:
       - duo-development-authorization-server

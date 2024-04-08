@@ -17,10 +17,11 @@ import {
 } from '../utils/helperFunctions';
 
 const PROPOSAL_SCHEDULING_QUEUE = process.env
-  .PROPOSAL_SCHEDULING_QUEUE_NAME as Queue;
+  .RABBITMQ_PROPOSAL_SCHEDULING_QUEUE_NAME as Queue;
 
 const EXCHANGE_NAME =
-  process.env.SCHEDULER_EXCHANGE_NAME || 'user_office_scheduler_backend.fanout';
+  process.env.RABBITMQ_SCHEDULER_EXCHANGE_NAME ||
+  'user_office_scheduler_backend.fanout';
 
 const createRabbitMQMessageBroker = async () => {
   try {
@@ -65,7 +66,7 @@ export async function createListenToRabbitMQHandler({
     };
   }
 
-  const CORE_EXCHANGE_NAME = process.env.CORE_EXCHANGE_NAME;
+  const CORE_EXCHANGE_NAME = process.env.RABBITMQ_CORE_EXCHANGE_NAME;
   const upsertTriggerStatuses =
     process.env.UPSERT_PROPOSAL_BOOKING_TRIGGER_STATUSES?.split(', ');
 

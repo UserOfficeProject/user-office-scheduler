@@ -4,7 +4,7 @@ query getUserInstruments {
     instruments {
       id
       name
-      beamlineManager {
+      instrumentContact {
         id
       }
       scientists {

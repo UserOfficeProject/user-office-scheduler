@@ -103,14 +103,17 @@ services:
     image: 'ghcr.io/userofficeproject/user-office-backend:develop'
     environment:
       DATABASE_URL: postgres://duouser:duopassword@db:5432/duo
-      secret: qMyLZALzs229ybdQXNyzYRdju7X784TH
-      tokenLife: 7d
-      baseURL: core.localhost:3000
+      JWT_SECRET: qMyLZALzs229ybdQXNyzYRdju7X784TH
+      JWT_TOKEN_LIFE: 7d
+      BASE_URL: core.localhost:3000
       SPARKPOST_TOKEN: dummytoken
       NODE_ENV: development
       UO_FEATURE_DISABLE_EAM: 1
       USER_OFFICE_FACTORY_ENDPOINT: http://factory:4500/generate
       RABBITMQ_HOSTNAME: rabbitmq
+      RABBITMQ_CORE_EXCHANGE_NAME: user_office_backend.fanout
+      RABBITMQ_SCHEDULER_EXCHANGE_NAME: user_office_scheduler_backend.fanout
+      RABBITMQ_EVENT_SCHEDULING_QUEUE_NAME: user-office-scheduler-backend.event_scheduling.queue
       AUTH_DISCOVERY_URL: http://host.docker.internal:5001/.well-known/openid-configuration
       AUTH_CLIENT_ID: useroffice
       AUTH_CLIENT_SECRET: useroffice
@@ -118,9 +121,6 @@ services:
       TZ: Europe/Stockholm
       DATE_FORMAT: dd-MM-yyyy
       DATE_TIME_FORMAT: dd-MM-yyyy HH:mm
-      CORE_EXCHANGE_NAME: user_office_backend.fanout
-      SCHEDULER_EXCHANGE_NAME: user_office_scheduler_backend.fanout
-      EVENT_SCHEDULING_QUEUE_NAME: user-office-scheduler-backend.event_scheduling.queue
       SCHEDULER_ENDPOINT: http://scheduler-backend:4200/graphql
     depends_on:
       - duo-development-authorization-server
@@ -140,10 +140,10 @@ services:
       DATABASE_PASSWORD: schedulerPassword
       DATABASE_DATABASE: scheduler
       RABBITMQ_HOSTNAME: rabbitmq
+      RABBITMQ_PROPOSAL_SCHEDULING_QUEUE_NAME: user-office-backend.proposal_scheduling.queue
+      RABBITMQ_SCHEDULER_EXCHANGE_NAME: user_office_scheduler_backend.fanout
+      RABBITMQ_CORE_EXCHANGE_NAME: user_office_backend.fanout
       USER_OFFICE_ENDPOINT: http://backend:4000/graphql
-      PROPOSAL_SCHEDULING_QUEUE_NAME: user-office-backend.proposal_scheduling.queue
-      SCHEDULER_EXCHANGE_NAME: user_office_scheduler_backend.fanout
-      CORE_EXCHANGE_NAME: user_office_backend.fanout
       UPSERT_PROPOSAL_BOOKING_TRIGGER_STATUSES: SCHEDULING
     depends_on:
       - duo-development-authorization-server

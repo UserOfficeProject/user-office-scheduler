@@ -3,9 +3,8 @@ import {
   ExpandMore as ExpandMoreIcon,
   PriorityHigh as PriorityHighIcon,
 } from '@mui/icons-material';
-import { TreeView, TreeItem } from '@mui/lab';
-import makeStyles from '@mui/styles/makeStyles';
-import clsx from 'clsx';
+import { TreeItem } from '@mui/x-tree-view/TreeItem';
+import { TreeView } from '@mui/x-tree-view/TreeView';
 import { chain } from 'lodash';
 import React, {
   Dispatch,
@@ -15,6 +14,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 import { DraggingEventType } from 'components/calendar/common/CalendarTodoBox';
 import { ProposalBookingStatusCore } from 'generated/sdk';
@@ -36,7 +36,7 @@ type RenderTree = {
   onClick?: React.MouseEventHandler;
 };
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   root: {
     display: 'flex',
     height: '100%',
@@ -73,7 +73,7 @@ export default function ProposalBookingTree({
   proposalBookings,
   setDraggedEvent,
 }: ProposalBookingTreeProps) {
-  const classes = useStyles();
+  const { classes, cx } = useStyles();
 
   const [selectedProposalBooking, setSelectedProposalBooking] =
     useState<InstrumentProposalBooking | null>(null);
@@ -86,7 +86,7 @@ export default function ProposalBookingTree({
           id: `call-${id}`, // avoid numerical ID collision
           title: `Call: ${proposalBookings[0].call?.shortCode}`,
           children: proposalBookings.map((proposalBooking) => ({
-            id: `proposal-${proposalBooking.proposal?.primaryKey}`, // avoid numerical ID collision
+            id: `proposal-${proposalBooking.proposal?.primaryKey}-${proposalBooking.instrument?.id}`, // avoid numerical ID collision
             proposalBookingId: proposalBooking.id,
             completed:
               proposalBooking.status === ProposalBookingStatusCore.COMPLETED,
@@ -104,10 +104,11 @@ export default function ProposalBookingTree({
     [proposalBookings]
   );
 
-  const ref = useCallback((el: Element) => {
+  const ref = useCallback((el: HTMLLIElement | null) => {
     el?.addEventListener('focusin', (e) => {
       // Disable Treeview focus system which make draggable on TreeItem unusable
       // see https://github.com/mui-org/material-ui/issues/29518
+      // and https://github.com/mui/mui-x/issues/9686
       e.stopImmediatePropagation();
     });
   }, []);
@@ -159,7 +160,7 @@ export default function ProposalBookingTree({
 
   if (groupedByCall.length === 0) {
     return (
-      <div className={clsx(classes.root, classes.centered, classes.gray)}>
+      <div className={cx(classes.root, classes.centered, classes.gray)}>
         <PriorityHighIcon className={classes.bottomSpacing} fontSize="large" />
         Instrument has no calls
       </div>
@@ -167,7 +168,7 @@ export default function ProposalBookingTree({
   }
 
   return (
-    <div className={clsx(classes.root, classes.autoOverflowY)}>
+    <div className={cx(classes.root, classes.autoOverflowY)}>
       {
         // unmount the component when the dialog is closed
         // so next time we start from scratch

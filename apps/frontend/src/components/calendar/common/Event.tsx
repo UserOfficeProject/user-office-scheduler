@@ -1,6 +1,6 @@
-import makeStyles from '@mui/styles/makeStyles';
 import React, { CSSProperties } from 'react';
 import { EventProps } from 'react-big-calendar';
+import { makeStyles } from 'tss-react/mui';
 
 import EquipmentBookingInfo from 'components/equipment/EquipmentBookingInfo';
 import ProposalBookingInfo from 'components/proposalBooking/ProposalBookingInfo';
@@ -42,7 +42,7 @@ export type CalendarScheduledEvent = Pick<
   scheduledBy: GetScheduledEventsQuery['scheduledEvents'][number]['scheduledBy'];
 };
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   eventDescription: {
     marginTop: 5,
   },
@@ -119,7 +119,7 @@ export default function Event({
   },
   title,
 }: EventProps<CalendarScheduledEvent>) {
-  const classes = useStyles();
+  const { classes } = useStyles();
   switch (bookingType) {
     case ScheduledEventBookingType.USER_OPERATIONS:
       return (

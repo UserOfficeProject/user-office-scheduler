@@ -1,5 +1,5 @@
-import makeStyles from '@mui/styles/makeStyles';
 import React from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 import { Settings, SettingsId } from 'generated/sdk';
 import { useSettings } from 'hooks/common/useSettings';
@@ -8,7 +8,7 @@ interface SettingsContextData {
   readonly settings: Map<SettingsId, Settings>;
 }
 
-const useStyles = makeStyles({
+const useStyles = makeStyles()({
   loader: {
     display: 'flex',
     width: '100vw',
@@ -28,7 +28,7 @@ export const SettingsContext =
 
 export const SettingsContextProvider: React.FC = (props) => {
   const { settings, loadingSettings } = useSettings();
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   if (loadingSettings) {
     return (

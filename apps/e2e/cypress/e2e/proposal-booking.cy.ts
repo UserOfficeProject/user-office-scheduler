@@ -9,6 +9,7 @@ import {
   defaultEventBookingHourDateTime,
   getCurrentHourDateTime,
   getHourDateTimeAfter,
+  getHourDateTimeAfterWithoutSpaces,
   openProposalBookingFromRightToolbar,
   selectInstrument,
 } from '../utils';
@@ -52,6 +53,40 @@ context('Proposal booking tests', () => {
 
       cy.get('[data-cy=btn-new-event]').should('exist');
       cy.should('not.contain', /instrument has no calls/i);
+
+      cy.contains(/call: call 1/i);
+    });
+
+    it('should be able to filter proposal bookings and events by call', () => {
+      cy.login('instrumentScientist1');
+
+      cy.visit('/calendar');
+
+      cy.finishedLoading();
+
+      selectInstrument();
+
+      cy.get('[data-cy=btn-new-event]').should('exist');
+      cy.should('not.contain', /instrument has no calls/i);
+
+      // NOTE: This way we intercept multiple requests done on the /gateway endpoint and assign aliases by graphql operationName variable.
+      cy.intercept('POST', '/gateway', (req) => {
+        req.alias = req.body.operationName;
+      });
+
+      cy.get('[data-cy="call-filter"]').click();
+
+      cy.get('[role="presentation"] #call-select-listbox [role="option"]')
+        .first()
+        .click();
+
+      cy.wait('@getInstrumentProposalBookings')
+        .its('request.body.variables.callId')
+        .should('eq', 1);
+
+      cy.wait('@getScheduledEvents')
+        .its('request.body.variables.filter.callId')
+        .should('eq', 1);
 
       cy.contains(/call: call 1/i);
     });
@@ -124,16 +159,14 @@ context('Proposal booking tests', () => {
         cy.finishedLoading();
 
         cy.get('[data-cy="startsAtInfo"]').click();
-        cy.get('[data-cy="start-experiment-time-range"] input').clear();
 
-        cy.get('[data-cy="start-experiment-time-range"] input').type(
-          getHourDateTimeAfter(2, 'days')
-        );
+        cy.get('[data-cy="startsAt"]')
+          .clear()
+          .type(getHourDateTimeAfterWithoutSpaces(2, 'days'));
 
-        cy.get('[data-cy="end-experiment-time-range"] input').clear();
-        cy.get('[data-cy="end-experiment-time-range"] input').type(
-          getHourDateTimeAfter(3, 'days')
-        );
+        cy.get('[data-cy="endsAt"]')
+          .clear()
+          .type(getHourDateTimeAfterWithoutSpaces(3, 'days'));
 
         cy.get('[data-cy=btn-save-experiment-range-change]').click();
 
@@ -158,19 +191,17 @@ context('Proposal booking tests', () => {
         cy.contains(getHourDateTimeAfter(3, 'days'));
 
         cy.get('[data-cy="startsAtInfo"]').click();
-        cy.get('[data-cy="start-experiment-time-range"] input').clear();
 
-        cy.get('[data-cy="start-experiment-time-range"] input').type(
-          getHourDateTimeAfter(24)
-        );
+        cy.get('[data-cy="startsAt"]')
+          .clear()
+          .type(getHourDateTimeAfterWithoutSpaces(24));
 
         cy.get('[data-cy=btn-reset-experiment-range-change]').click();
 
         cy.get('[data-cy="endsAtInfo"]').click();
-        cy.get('[data-cy="end-experiment-time-range"] input').clear();
-        cy.get('[data-cy="end-experiment-time-range"] input').type(
-          getHourDateTimeAfter(25)
-        );
+        cy.get('[data-cy="endsAt"]')
+          .clear()
+          .type(getHourDateTimeAfterWithoutSpaces(25));
 
         cy.get('[data-cy=btn-reset-experiment-range-change]').click();
 
@@ -323,16 +354,14 @@ context('Proposal booking tests', () => {
         ).should('not.exist');
 
         cy.get('[data-cy="startsAtInfo"]').click();
-        cy.get('[data-cy="start-experiment-time-range"] input').clear();
 
-        cy.get('[data-cy="start-experiment-time-range"] input').type(
-          getHourDateTimeAfter(2)
-        );
+        cy.get('[data-cy="startsAt"]')
+          .clear()
+          .type(getHourDateTimeAfterWithoutSpaces(2));
 
-        cy.get('[data-cy="end-experiment-time-range"] input').clear();
-        cy.get('[data-cy="end-experiment-time-range"] input').type(
-          getHourDateTimeAfter(50, 'days')
-        );
+        cy.get('[data-cy="endsAt"]')
+          .clear()
+          .type(getHourDateTimeAfterWithoutSpaces(50, 'days'));
 
         cy.get('[data-cy=btn-save-experiment-range-change]').click();
 
@@ -530,9 +559,9 @@ context('Proposal booking tests', () => {
         cy.finishedLoading();
 
         cy.get('[data-cy="startsAtInfo"]').click();
-        cy.get('[data-cy="start-experiment-time-range"] input')
+        cy.get('[data-cy="startsAt"]')
           .clear()
-          .type(getHourDateTimeAfter(24));
+          .type(getHourDateTimeAfterWithoutSpaces(24));
 
         cy.get('[data-cy=btn-save-experiment-range-change]').click();
 
@@ -540,13 +569,13 @@ context('Proposal booking tests', () => {
         cy.contains(/the starting date needs to be before the ending date/i);
         cy.get('[data-cy="btn-back"]').click();
 
-        cy.get('[data-cy="start-experiment-time-range"] input')
+        cy.get('[data-cy="startsAt"]')
           .clear()
-          .type(getHourDateTimeAfter(23));
+          .type(getHourDateTimeAfterWithoutSpaces(23));
 
-        cy.get('[data-cy="end-experiment-time-range"] input')
+        cy.get('[data-cy="endsAt"]')
           .clear()
-          .type(getHourDateTimeAfter(20));
+          .type(getHourDateTimeAfterWithoutSpaces(20));
 
         cy.get('[data-cy=btn-save-experiment-range-change]').click();
 
@@ -564,13 +593,13 @@ context('Proposal booking tests', () => {
         cy.finishedLoading();
 
         cy.get('[data-cy="startsAtInfo"]').click();
-        cy.get('[data-cy="start-experiment-time-range"] input')
+        cy.get('[data-cy="startsAt"]')
           .clear()
           .type(defaultEventBookingHourDateTime);
 
-        cy.get('[data-cy="end-experiment-time-range"] input')
+        cy.get('[data-cy="endsAt"]')
           .clear()
-          .type(getHourDateTimeAfter(1));
+          .type(getHourDateTimeAfterWithoutSpaces(1));
 
         cy.get('[data-cy=btn-save-experiment-range-change]').click();
 
@@ -1089,8 +1118,8 @@ context('Proposal booking tests', () => {
           .first()
           .click();
 
-        cy.get('[data-cy="startsAt"] input').clear();
-        cy.get('[data-cy="endsAt"] input').clear();
+        cy.get('[data-cy="startsAt"]').clear();
+        cy.get('[data-cy="endsAt"]').clear();
 
         cy.get(
           '[data-cy="time-slot-lost-times-table"] tbody tr [aria-label="Save"]'
@@ -1098,8 +1127,14 @@ context('Proposal booking tests', () => {
           .first()
           .click();
 
-        cy.chooseDatePicker('[data-cy="startsAt"]', getHourDateTimeAfter(24));
-        cy.chooseDatePicker('[data-cy="endsAt"]', getHourDateTimeAfter(25));
+        cy.chooseDatePicker(
+          '[data-cy="startsAt"]',
+          getHourDateTimeAfterWithoutSpaces(24)
+        );
+        cy.chooseDatePicker(
+          '[data-cy="endsAt"]',
+          getHourDateTimeAfterWithoutSpaces(25)
+        );
 
         cy.get(
           '[data-cy="time-slot-lost-times-table"] tbody tr [aria-label="Save"]'
@@ -1116,8 +1151,14 @@ context('Proposal booking tests', () => {
           .first()
           .click();
 
-        cy.chooseDatePicker('[data-cy="startsAt"]', getHourDateTimeAfter(48));
-        cy.chooseDatePicker('[data-cy="endsAt"]', getHourDateTimeAfter(49));
+        cy.chooseDatePicker(
+          '[data-cy="startsAt"]',
+          getHourDateTimeAfterWithoutSpaces(48)
+        );
+        cy.chooseDatePicker(
+          '[data-cy="endsAt"]',
+          getHourDateTimeAfterWithoutSpaces(49)
+        );
 
         cy.get(
           '[data-cy="time-slot-lost-times-table"] tbody tr [aria-label="Cancel"]'
@@ -1164,17 +1205,23 @@ context('Proposal booking tests', () => {
           .first()
           .click();
 
-        cy.chooseDatePicker('[data-cy="startsAt"]', getHourDateTimeAfter(48));
-        cy.chooseDatePicker('[data-cy="endsAt"]', getHourDateTimeAfter(24));
+        cy.chooseDatePicker(
+          '[data-cy="startsAt"]',
+          getHourDateTimeAfterWithoutSpaces(48)
+        );
+        cy.chooseDatePicker(
+          '[data-cy="endsAt"]',
+          getHourDateTimeAfterWithoutSpaces(24)
+        );
 
         cy.get(
           '[data-cy="time-slot-lost-times-table"] tbody tr span[aria-label="Save"] button'
         ).should('be.disabled');
 
-        cy.get('[data-cy="endsAt"] p.Mui-error').should(
-          'include.text',
-          'End date should be after start date'
-        );
+        cy.get('[data-cy="endsAt"]')
+          .closest('.MuiTextField-root')
+          .find('p.Mui-error')
+          .should('include.text', 'End date should be after start date');
       });
 
       it('should show confirmation when there are overlapping lost time events', () => {
@@ -1192,10 +1239,13 @@ context('Proposal booking tests', () => {
           .last()
           .click();
 
-        cy.chooseDatePicker('[data-cy="startsAt"]', getCurrentHourDateTime());
+        cy.chooseDatePicker(
+          '[data-cy="startsAt"]',
+          getCurrentHourDateTime().replace(' ', '')
+        );
         cy.chooseDatePicker(
           '[data-cy="endsAt"]',
-          getHourDateTimeAfter(1, 'hour', getCurrentHourDateTime())
+          getHourDateTimeAfterWithoutSpaces(1, 'hour', getCurrentHourDateTime())
         );
 
         cy.get(

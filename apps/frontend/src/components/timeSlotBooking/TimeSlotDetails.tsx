@@ -8,9 +8,6 @@ import {
   PersonAdd as PersonAddIcon,
   Edit,
 } from '@mui/icons-material';
-import AdapterMoment from '@mui/lab/AdapterMoment';
-import DateRangePicker, { DateRange } from '@mui/lab/DateRangePicker';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import {
   Alert,
   AlertTitle,
@@ -23,13 +20,13 @@ import {
   ListItemAvatar,
   ListItemText,
   Typography,
-  useTheme,
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
+import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import moment, { Moment } from 'moment';
 import React, { useEffect, useState } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
-import DateTimeRangePickerRenderInput from 'components/common/DateTimeRangePickerRenderInput';
 import PeopleModal from 'components/common/PeopleModal';
 import {
   BasicUserDetailsFragment,
@@ -40,10 +37,13 @@ import {
   DetailedProposalBooking,
   DetailedProposalBookingScheduledEvent,
 } from 'hooks/proposalBooking/useProposalBooking';
-import { toTzLessDateTime } from 'utils/date';
+import {
+  TZ_LESS_DATE_TIME_LOW_PREC_FORMAT,
+  toTzLessDateTime,
+} from 'utils/date';
 import { getFullUserName } from 'utils/user';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   list: {
     width: '100%',
     backgroundColor: theme.palette.background.paper,
@@ -106,6 +106,8 @@ type TimeSlotDetailsProps = {
   handleSetDirty: (isDirty: boolean) => void;
 };
 
+type StartAndEndsAt = [moment.Moment | null, moment.Moment | null];
+
 export default function TimeSlotDetails({
   scheduledEvent,
   onEventDateChange,
@@ -114,15 +116,14 @@ export default function TimeSlotDetails({
   isDirty,
   handleSetDirty,
 }: TimeSlotDetailsProps) {
-  const theme = useTheme();
-  const classes = useStyles();
+  const { classes } = useStyles();
   const [editingDate, setEditingDate] = useState(false);
-  const [shouldOpenRangePicker, setShouldOpenRangePicker] =
-    useState<boolean>(false);
   const [showPeopleModal, setShowPeopleModal] = useState(false);
-  const [[startsAt, endsAt], setStartAndEndValues] = React.useState<
-    DateRange<Moment>
-  >([moment(scheduledEvent.startsAt), moment(scheduledEvent.endsAt)]);
+  const [[startsAt, endsAt], setStartAndEndValues] =
+    React.useState<StartAndEndsAt>([
+      moment(scheduledEvent.startsAt),
+      moment(scheduledEvent.endsAt),
+    ]);
 
   const [isOutsideCallCycleInterval, setIsOutsideCallCycleInterval] = useState(
     checkIfOutsideCallCycleInterval(
@@ -132,17 +133,6 @@ export default function TimeSlotDetails({
       proposalBooking.call.endCycle
     )
   );
-
-  useEffect(() => {
-    if (editingDate) {
-      // NOTE: This timeout is needed to open the range picker at the right position. Otherwise it is opened on the top left corner of the browser window.
-      setTimeout(() => {
-        setShouldOpenRangePicker(true);
-      });
-    } else {
-      setShouldOpenRangePicker(false);
-    }
-  }, [editingDate]);
 
   useEffect(() => {
     if (scheduledEvent) {
@@ -187,11 +177,11 @@ export default function TimeSlotDetails({
     ? [...proposalBooking.instrument.scientists]
     : [];
 
-  if (proposalBooking.instrument?.beamlineManager) {
-    localContactOptions.push(proposalBooking.instrument.beamlineManager);
+  if (proposalBooking.instrument?.instrumentContact) {
+    localContactOptions.push(proposalBooking.instrument.instrumentContact);
   }
 
-  const onChangeHandler = ([newStartValue, newEndValue]: DateRange<Moment>) => {
+  const onChangeHandler = ([newStartValue, newEndValue]: StartAndEndsAt) => {
     if (newStartValue && newStartValue.hour() === 0) {
       newStartValue.set({ hour: 9 });
     }
@@ -289,28 +279,49 @@ export default function TimeSlotDetails({
                 )}
                 {editingDate && (
                   <>
-                    <DateRangePicker
-                      label="Experiment time start and end"
-                      // NOTE: Using this desktopModeMediaQuery because of cypress issue: https://github.com/cypress-io/cypress/issues/970#issuecomment-969971419
-                      desktopModeMediaQuery={theme.breakpoints.up('sm')}
-                      value={[startsAt, endsAt]}
-                      open={shouldOpenRangePicker}
-                      onOpen={() => setShouldOpenRangePicker(true)}
-                      onClose={() => setShouldOpenRangePicker(false)}
-                      disableCloseOnSelect={true}
-                      renderInput={(startProps, endProps) =>
-                        DateTimeRangePickerRenderInput({
-                          startProps,
-                          endProps,
-                          value: [startsAt, endsAt],
-                          betweenDatesText: '-',
-                          startText: 'Starts at',
-                          endText: 'Ends at',
-                          onChange: onChangeHandler,
-                          'data-cy': 'experiment-time-range',
-                        })
-                      }
-                      onChange={onChangeHandler}
+                    <DateTimePicker
+                      label="Starts at"
+                      slotProps={{
+                        textField: {
+                          variant: 'standard',
+                          fullWidth: true,
+                          inputProps: {
+                            'data-cy': 'startsAt',
+                          },
+                          required: true,
+                          error: !startsAt || !startsAt.isValid(),
+                        },
+                      }}
+                      format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
+                      ampm={false}
+                      value={startsAt}
+                      onChange={(newStartsAt) => {
+                        onChangeHandler([newStartsAt, endsAt]);
+                      }}
+                      sx={{ marginBottom: '5px' }}
+                    />
+                    <Divider sx={{ paddingX: 3 }}>-</Divider>
+                    <DateTimePicker
+                      label="Ends at"
+                      slotProps={{
+                        textField: {
+                          variant: 'standard',
+                          fullWidth: true,
+                          inputProps: {
+                            'data-cy': 'endsAt',
+                          },
+                          required: true,
+                          error: !endsAt || !endsAt.isValid(),
+                        },
+                      }}
+                      format={TZ_LESS_DATE_TIME_LOW_PREC_FORMAT}
+                      ampm={false}
+                      value={endsAt}
+                      onChange={(newEndsAt) => {
+                        onChangeHandler([startsAt, newEndsAt]);
+                      }}
+                      minDateTime={startsAt}
+                      sx={{ marginBottom: '5px' }}
                     />
                     <IconButton
                       sx={{ ml: 2 }}

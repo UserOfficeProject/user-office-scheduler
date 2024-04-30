@@ -1,12 +1,12 @@
 import CloseIcon from '@mui/icons-material/Close';
 import { Dialog, DialogContent, DialogTitle } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
-import makeStyles from '@mui/styles/makeStyles';
 import React from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 import ViewEquipment from './ViewEquipment';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   fullHeight: {
     height: '100%',
   },
@@ -23,7 +23,7 @@ export default function ProposalBookingDialog({
   isDialogOpen,
   closeDialog,
 }: EquipmentBookingDialogProps) {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const handleCloseDialog = () => {
     closeDialog(true);

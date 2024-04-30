@@ -3,9 +3,13 @@ import { useState, useEffect } from 'react';
 import { GetUserInstrumentsQuery } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
 
-export type PartialInstrument = NonNullable<
-  GetUserInstrumentsQuery['userInstruments']
->['instruments'][0];
+export type PartialInstrument = Pick<
+  NonNullable<GetUserInstrumentsQuery['userInstruments']>['instruments'][0],
+  'id' | 'name'
+> & {
+  instrumentContact?: { id: number } | null;
+  scientists?: Array<{ id: number }> | [] | null;
+};
 
 export default function useUserInstruments() {
   const [loading, setLoading] = useState(true);

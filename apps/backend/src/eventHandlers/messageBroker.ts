@@ -11,14 +11,17 @@ import { ApplicationEvent } from '../events/applicationEvents';
 import { Event, Instrument } from '../generated/sdk';
 import { ScheduledEvent } from '../models/ScheduledEvent';
 import { TZ_LESS_DATE_TIME } from '../resolvers/CustomScalars';
-import { ProposalMessageData } from '../types/shared';
-import { hasTriggerStatus } from '../utils/helperFunctions';
+import {
+  hasTriggerStatus,
+  validateProposalMessage,
+} from '../utils/helperFunctions';
 
 const PROPOSAL_SCHEDULING_QUEUE = process.env
-  .PROPOSAL_SCHEDULING_QUEUE_NAME as Queue;
+  .RABBITMQ_PROPOSAL_SCHEDULING_QUEUE_NAME as Queue;
 
 const EXCHANGE_NAME =
-  process.env.SCHEDULER_EXCHANGE_NAME || 'user_office_scheduler_backend.fanout';
+  process.env.RABBITMQ_SCHEDULER_EXCHANGE_NAME ||
+  'user_office_scheduler_backend.fanout';
 
 const createRabbitMQMessageBroker = async () => {
   try {
@@ -63,7 +66,7 @@ export async function createListenToRabbitMQHandler({
     };
   }
 
-  const CORE_EXCHANGE_NAME = process.env.CORE_EXCHANGE_NAME;
+  const CORE_EXCHANGE_NAME = process.env.RABBITMQ_CORE_EXCHANGE_NAME;
   const upsertTriggerStatuses =
     process.env.UPSERT_PROPOSAL_BOOKING_TRIGGER_STATUSES?.split(', ');
 
@@ -92,13 +95,15 @@ export async function createListenToRabbitMQHandler({
           }
         );
 
+        const validProposalMessage = validateProposalMessage(message);
+
         const hasTriggeringStatus = hasTriggerStatus(
-          message as ProposalMessageData,
+          validProposalMessage,
           upsertTriggerStatuses
         );
 
         if (hasTriggeringStatus) {
-          await proposalBookingDataSource.upsert(message);
+          await proposalBookingDataSource.upsert(validProposalMessage);
         }
 
         return;
@@ -208,6 +213,7 @@ export async function createPostToRabbitMQHandler({
           status: scheduledevent.status,
           proposalPk: proposalBooking?.proposal.primaryKey,
           localContactId: scheduledevent.localContact?.id ?? null,
+          instrumentId: scheduledevent.instrument.id,
         };
 
         const jsonMessage = JSON.stringify(message);
@@ -263,6 +269,7 @@ export async function createPostToRabbitMQHandler({
               status: scheduledEvent.status,
               proposalPk: proposalBooking?.proposal.primaryKey,
               localContactId: scheduledEvent.localContact?.id ?? null,
+              instrumentId: scheduledEvent.instrument.id,
             })),
           };
 

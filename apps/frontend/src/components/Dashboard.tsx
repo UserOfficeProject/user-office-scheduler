@@ -7,10 +7,9 @@ import {
   List,
   useMediaQuery,
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-import clsx from 'clsx';
 import React, { useEffect } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
+import { makeStyles } from 'tss-react/mui';
 
 import AppToolbar, { drawerWidth } from './appToolbar/AppToolbar';
 import CalendarViewContainer from './calendar/CalendarViewContainer';
@@ -29,7 +28,7 @@ import {
 } from './paths';
 import ViewRequests from './requests/ViewRequests';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   root: { display: 'flex' },
   content: {
     flexGrow: 1,
@@ -47,7 +46,10 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     justifyContent: 'flex-end',
     padding: '0 8px',
-    ...theme.mixins.toolbar,
+    minHeight: '64px',
+    [theme.breakpoints.down('md')]: {
+      minHeight: '56px',
+    },
   },
   drawerOpen: {
     width: drawerWidth,
@@ -73,20 +75,12 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Dashboard() {
   const isTabletOrMobile = useMediaQuery('(max-width: 1224px)');
-  const classes = useStyles();
+  const { classes, cx } = useStyles();
   const [open, setOpen] = React.useState(
     localStorage.drawerOpen
       ? localStorage.drawerOpen === '1'
       : !isTabletOrMobile
   );
-
-  useEffect(() => {
-    if (isTabletOrMobile) {
-      setOpen(false);
-    } else if (localStorage.getItem('drawerOpen') === '1') {
-      setOpen(true);
-    }
-  }, [isTabletOrMobile]);
 
   const handleDrawerOpen = () => {
     localStorage.setItem('drawerOpen', '1');
@@ -98,6 +92,14 @@ export default function Dashboard() {
     setOpen(false);
   };
 
+  useEffect(() => {
+    if (isTabletOrMobile) {
+      setOpen(false);
+    } else if (localStorage.getItem('drawerOpen') === '1') {
+      setOpen(true);
+    }
+  }, [isTabletOrMobile]);
+
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -107,13 +109,13 @@ export default function Dashboard() {
         ModalProps={{
           keepMounted: true, // Better open performance on mobile.
         }}
-        className={clsx(classes.drawer, {
+        className={cx(classes.drawer, {
           [classes.drawerOpen]: open,
           [classes.drawerClose]: !open,
         })}
         classes={{
           paper: !isTabletOrMobile
-            ? clsx({
+            ? cx({
                 [classes.drawerOpen]: open,
                 [classes.drawerClose]: !open,
               })

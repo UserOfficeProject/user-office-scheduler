@@ -4,6 +4,12 @@ query getUserInstruments {
     instruments {
       id
       name
+      instrumentContact {
+        id
+      }
+      scientists {
+        id
+      }
     }
   }
 }

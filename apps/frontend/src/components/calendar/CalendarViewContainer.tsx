@@ -11,8 +11,8 @@ import {
   Select,
   MenuItem,
   SelectChangeEvent,
+  Theme,
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import {
   getTranslation,
   ResourceId,
@@ -58,7 +58,7 @@ import useInstrumentProposalBookings from 'hooks/proposalBooking/useInstrumentPr
 import useEquipmentScheduledEvents from 'hooks/scheduledEvent/useEquipmentScheduledEvents';
 import useScheduledEvents from 'hooks/scheduledEvent/useScheduledEvents';
 import { StyledContainer, StyledPaper } from 'styles/StyledComponents';
-import { getArrayOfIdsFromQuery } from 'utils/common';
+import { getArrayOfIdsFromQuery, getNumberFromQuery } from 'utils/common';
 import {
   parseTzLessDateTime,
   toTzLessDateTime,
@@ -120,7 +120,7 @@ const transformEvent = (
     localContact: scheduledEvent.localContact,
   }));
 
-const useStyles = makeStyles((theme) => ({
+const useCustomStyles = (theme: Theme) => ({
   fullHeight: {
     height: '100%',
     position: 'relative',
@@ -193,15 +193,15 @@ const useStyles = makeStyles((theme) => ({
   schedulerViewSelectMobile: {
     padding: theme.spacing(2),
   },
-}));
+});
 
 export default function CalendarViewContainer() {
   const isTabletOrMobile = useMediaQuery('(max-width: 1224px)');
   const isTabletOrLarger = useMediaQuery('(min-width: 648px)');
   const isTablet = useMediaQuery('(min-width: 648px) and (max-width: 1224px)');
   const [showTodoBox, setShowTodoBox] = useState<boolean>(false);
-  const classes = useStyles();
   const theme = useTheme();
+  const newStyles = useCustomStyles(theme);
   const history = useHistory();
   const query = useQuery();
   const { enqueueSnackbar } = useSnackbar();
@@ -214,6 +214,7 @@ export default function CalendarViewContainer() {
   const queryView = query.get('viewPeriod') as SchedulerViewPeriod;
   const queryStartsAt = query.get('startsAt');
   const queryLocalContact = query.get('localContact');
+  const queryCall = getNumberFromQuery(query.get('call'));
 
   const [schedulerActiveView, setSchedulerActiveView] = useState(
     (querySchedulerView as SchedulerViews) || SchedulerViews.CALENDAR
@@ -234,7 +235,8 @@ export default function CalendarViewContainer() {
       getArrayOfIdsFromQuery(queryInstrument),
       getArrayOfIdsFromQuery(queryLocalContact),
       startsAt,
-      view
+      view,
+      queryCall
     )
   );
   const [selectedProposalBooking, setSelectedProposalBooking] = useState<{
@@ -270,7 +272,10 @@ export default function CalendarViewContainer() {
     loading: loadingBookings,
     refresh: refreshBookings,
     setProposalBookings,
-  } = useInstrumentProposalBookings(getArrayOfIdsFromQuery(queryInstrument));
+  } = useInstrumentProposalBookings(
+    getArrayOfIdsFromQuery(queryInstrument),
+    queryCall
+  );
 
   const {
     scheduledEvents,
@@ -313,16 +318,26 @@ export default function CalendarViewContainer() {
 
   useEffect(() => {
     const newStartDate = getStartDate();
+    const newView = queryView || view;
+
     setFilter(
       generateScheduledEventFilter(
         getArrayOfIdsFromQuery(queryInstrument),
         getArrayOfIdsFromQuery(queryLocalContact),
         newStartDate,
-        queryView || view
+        newView,
+        queryCall
       )
     );
-    setView(queryView || view);
-  }, [queryInstrument, queryLocalContact, view, getStartDate, queryView]);
+    setView(newView);
+  }, [
+    queryInstrument,
+    queryLocalContact,
+    queryCall,
+    view,
+    getStartDate,
+    queryView,
+  ]);
 
   const equipmentEventsTransformed: GetScheduledEventsQuery['scheduledEvents'] =
     eqEvents
@@ -676,15 +691,15 @@ export default function CalendarViewContainer() {
   return (
     <StyledContainer
       maxWidth={false}
-      className={
-        schedulerActiveView !== SchedulerViews.TABLE && isTabletOrLarger
-          ? classes.fullHeight
-          : ''
-      }
+      sx={{
+        ...(schedulerActiveView !== SchedulerViews.TABLE &&
+          isTabletOrLarger &&
+          newStyles.fullHeight),
+      }}
     >
-      <Grid container className={classes.fullHeight}>
-        <Grid item xs={12} className={classes.fullHeight}>
-          <StyledPaper margin={[0, 1]} className={classes.fullHeight}>
+      <Grid container sx={{ ...newStyles.fullHeight }}>
+        <Grid item xs={12} sx={{ ...newStyles.fullHeight }}>
+          <StyledPaper margin={[0, 1]} sx={{ ...newStyles.fullHeight }}>
             {queryInstrument && (
               <ScheduledEventDialog
                 selectedEvent={selectedEvent}
@@ -711,16 +726,16 @@ export default function CalendarViewContainer() {
                 closeDialog={handleCloseDialog}
               />
             )}
-            <Grid container className={classes.fullHeight}>
+            <Grid container sx={{ ...newStyles.fullHeight }}>
               {!showTodoBox && (
                 <Tooltip title="Open event toolbar">
                   <IconButton
                     onClick={() => setShowTodoBox(true)}
                     aria-label="Open event toolbar"
-                    className={
+                    sx={
                       isTabletOrLarger
-                        ? classes.eventToolbarOpenButton
-                        : classes.eventToolbarOpenButtonMobile
+                        ? { ...newStyles.eventToolbarOpenButton }
+                        : { ...newStyles.eventToolbarOpenButtonMobile }
                     }
                     size="small"
                     data-cy="open-event-toolbar"
@@ -732,7 +747,8 @@ export default function CalendarViewContainer() {
               <Grid
                 item
                 xs={isTabletOrMobile ? 12 : showTodoBox ? 10 : 12}
-                className={`${classes.fullHeight}`}
+                // className={`${classes.fullHeight}`}
+                sx={{ ...newStyles.fullHeight }}
                 style={{
                   transition: theme.transitions.create('all', {
                     easing: theme.transitions.easing.sharp,
@@ -747,10 +763,13 @@ export default function CalendarViewContainer() {
               <Grid
                 item
                 xs
-                className={`tinyScroll ${classes.collapsibleGrid} ${
-                  isTabletOrMobile && classes.collapsibleGridMobile
-                }  ${isTablet && classes.collapsibleGridTablet}
-                ${!showTodoBox && classes.collapsibleGridNoWidth}`}
+                className="tinyScroll"
+                sx={{
+                  ...newStyles.collapsibleGrid,
+                  ...(isTabletOrMobile && newStyles.collapsibleGridMobile),
+                  ...(isTablet && newStyles.collapsibleGridTablet),
+                  ...(!showTodoBox && newStyles.collapsibleGridNoWidth),
+                }}
               >
                 <Collapse in={showTodoBox} data-cy="collapsible-event-toolbar">
                   {showTodoBox && (
@@ -758,13 +777,11 @@ export default function CalendarViewContainer() {
                       <IconButton
                         onClick={() => setShowTodoBox(false)}
                         aria-label="Close event toolbar"
-                        className={`
-                          ${classes.eventToolbarCloseButton}
-                          ${
-                            isTabletOrMobile &&
-                            classes.eventToolbarCloseButtonMobile
-                          }
-                        `}
+                        sx={{
+                          ...newStyles.eventToolbarCloseButton,
+                          ...(isTabletOrMobile &&
+                            newStyles.eventToolbarCloseButtonMobile),
+                        }}
                         size="small"
                         data-cy="close-event-toolbar"
                       >
@@ -775,15 +792,15 @@ export default function CalendarViewContainer() {
                   <FormControl
                     fullWidth
                     margin="dense"
-                    className={`${classes.schedulerViewSelect} ${
-                      isTabletOrMobile && classes.schedulerViewSelectMobile
-                    }`}
+                    sx={{
+                      ...newStyles.schedulerViewSelect,
+                      ...(isTabletOrMobile &&
+                        newStyles.schedulerViewSelectMobile),
+                    }}
                   >
                     <InputLabel
                       id="scheduler-view-label"
-                      className={`${classes.schedulerViewSelect} ${
-                        isTabletOrMobile && classes.schedulerViewSelectMobile
-                      }`}
+                      sx={{ paddingTop: isTabletOrMobile ? 3 : 0 }}
                     >
                       Scheduler view
                     </InputLabel>

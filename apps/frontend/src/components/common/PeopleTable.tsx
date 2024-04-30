@@ -1,7 +1,7 @@
 import MaterialTable, { Query, Options, Column } from '@material-table/core';
 import Button from '@mui/material/Button';
-import makeStyles from '@mui/styles/makeStyles';
 import React, { useState, useEffect } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 import { ActionButtonContainer } from 'components/common/ActionButtonContainer';
 import { tableIcons } from 'components/common/TableIcons';
@@ -44,7 +44,7 @@ async function sendUserRequest(
           id: user.id,
           firstname: user.firstname,
           lastname: user.lastname,
-          organisation: user.organisation,
+          institution: user.institution,
           position: user.position,
           placeholder: user.placeholder,
           tableData: { checked: selectedParticipants.includes(user.id) },
@@ -75,7 +75,7 @@ type PeopleTableProps<
   userRole?: UserRole;
 };
 
-const useStyles = makeStyles({
+const useStyles = makeStyles()({
   tableWrapper: {
     '& .MuiToolbar-gutters': {
       paddingLeft: '0',
@@ -90,7 +90,7 @@ const useStyles = makeStyles({
 const tableColumns = [
   { title: 'Name', field: 'firstname' },
   { title: 'Surname', field: 'lastname' },
-  { title: 'Organisation', field: 'organisation' },
+  { title: 'Institution', field: 'institution' },
 ];
 
 const PeopleTable: React.FC<PeopleTableProps> = ({
@@ -117,7 +117,7 @@ const PeopleTable: React.FC<PeopleTableProps> = ({
   const [searchText, setSearchText] = useState('');
   const [currentPageIds, setCurrentPageIds] = useState<number[]>([]);
 
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   useEffect(() => {
     if (isLoading !== undefined) {
@@ -210,7 +210,7 @@ const PeopleTable: React.FC<PeopleTableProps> = ({
                   id: selectedItem.id,
                   firstname: selectedItem.firstname,
                   lastname: selectedItem.lastname,
-                  organisation: selectedItem.organisation,
+                  institution: selectedItem.institution,
                 })) as BasicUserDetailsFragment[]),
               ]);
             }
@@ -226,7 +226,7 @@ const PeopleTable: React.FC<PeopleTableProps> = ({
                     id: selectedItem.id,
                     firstname: selectedItem.firstname,
                     lastname: selectedItem.lastname,
-                    organisation: selectedItem.organisation,
+                    institution: selectedItem.institution,
                   },
                 ] as BasicUserDetailsFragment[])
               : selectedParticipants.filter(({ id }) => id !== selectedItem.id)

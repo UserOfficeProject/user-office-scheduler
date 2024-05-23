@@ -64,7 +64,8 @@ export type AddTechnicalReviewInput = {
 
 export enum AllocationTimeUnits {
   DAY = 'Day',
-  HOUR = 'Hour'
+  HOUR = 'Hour',
+  WEEK = 'Week'
 }
 
 export type Answer = {
@@ -124,6 +125,7 @@ export type AuthJwtPayload = {
 };
 
 export type BasicUserDetails = {
+  country: Maybe<Scalars['String']['output']>;
   created: Maybe<Scalars['DateTime']['output']>;
   email: Maybe<Scalars['String']['output']>;
   firstname: Scalars['String']['output'];
@@ -411,10 +413,12 @@ export enum EmailStatusActionRecipients {
   FAP_REVIEWERS = 'FAP_REVIEWERS',
   INSTRUMENT_SCIENTISTS = 'INSTRUMENT_SCIENTISTS',
   OTHER = 'OTHER',
-  PI = 'PI'
+  PI = 'PI',
+  USER_OFFICE = 'USER_OFFICE'
 }
 
 export type EmailStatusActionRecipientsWithTemplate = {
+  combineEmails: Maybe<Scalars['Boolean']['output']>;
   emailTemplate: EmailStatusActionEmailTemplate;
   otherRecipientEmails: Maybe<Array<Scalars['String']['output']>>;
   recipient: EmailStatusActionRecipient;
@@ -606,8 +610,8 @@ export type Fap = {
   code: Scalars['String']['output'];
   customGradeGuide: Maybe<Scalars['Boolean']['output']>;
   description: Scalars['String']['output'];
-  fapChair: Maybe<BasicUserDetails>;
-  fapChairProposalCount: Maybe<Scalars['Int']['output']>;
+  fapChairs: Array<BasicUserDetails>;
+  fapChairsProposalCounts: Array<FapProposalCount>;
   fapSecretaries: Array<BasicUserDetails>;
   fapSecretariesProposalCounts: Array<FapProposalCount>;
   gradeGuide: Maybe<Scalars['String']['output']>;
@@ -1041,6 +1045,7 @@ export type Mutation = {
   importTemplate: Template;
   importUnits: Array<Unit>;
   logout: Scalars['String']['output'];
+  massAssignFapReviews: Fap;
   mergeInstitutions: Institution;
   moveProposalWorkflowStatus: ProposalWorkflowConnection;
   notifyProposal: Proposal;
@@ -1174,11 +1179,10 @@ export type MutationAddUserRoleArgs = {
 export type MutationAdministrationProposalArgs = {
   commentForManagement?: InputMaybe<Scalars['String']['input']>;
   commentForUser?: InputMaybe<Scalars['String']['input']>;
-  finalStatus?: InputMaybe<ProposalEndStatus>;
+  finalStatus: ProposalEndStatus;
   managementDecisionSubmitted?: InputMaybe<Scalars['Boolean']['input']>;
   managementTimeAllocations: Array<ManagementTimeAllocationsInput>;
   proposalPk: Scalars['Int']['input'];
-  statusId?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -1647,6 +1651,11 @@ export type MutationImportUnitsArgs = {
 
 export type MutationLogoutArgs = {
   token: Scalars['String']['input'];
+};
+
+
+export type MutationMassAssignFapReviewsArgs = {
+  fapId: Scalars['Int']['input'];
 };
 
 
@@ -3378,6 +3387,7 @@ export enum SettingsId {
   DATE_TIME_FORMAT = 'DATE_TIME_FORMAT',
   DEFAULT_INST_SCI_REVIEWER_FILTER = 'DEFAULT_INST_SCI_REVIEWER_FILTER',
   DEFAULT_INST_SCI_STATUS_FILTER = 'DEFAULT_INST_SCI_STATUS_FILTER',
+  DEFAULT_NUM_FAP_REVIEWS_REQUIRED = 'DEFAULT_NUM_FAP_REVIEWS_REQUIRED',
   EXTERNAL_AUTH_LOGIN_URL = 'EXTERNAL_AUTH_LOGIN_URL',
   EXTERNAL_AUTH_LOGOUT_URL = 'EXTERNAL_AUTH_LOGOUT_URL',
   FEEDBACK_EXHAUST_DAYS = 'FEEDBACK_EXHAUST_DAYS',
@@ -3400,7 +3410,8 @@ export enum SettingsId {
   PALETTE_SUCCESS_MAIN = 'PALETTE_SUCCESS_MAIN',
   PALETTE_WARNING_MAIN = 'PALETTE_WARNING_MAIN',
   PROFILE_PAGE_LINK = 'PROFILE_PAGE_LINK',
-  TIMEZONE = 'TIMEZONE'
+  TIMEZONE = 'TIMEZONE',
+  USER_OFFICE_EMAIL = 'USER_OFFICE_EMAIL'
 }
 
 export type Shipment = {

@@ -17,14 +17,22 @@ export type Scalars = {
   Float: { input: number; output: number; }
   DateTime: { input: any; output: any; }
   IntStringDateBoolArray: { input: any; output: any; }
-  _Any: { input: any; output: any; }
-  _FieldSet: { input: any; output: any; }
+  TzLessDateTime: { input: any; output: any; }
+};
+
+export type ActivateScheduledEventsInput = {
+  ids: Array<Scalars['Int']['input']>;
 };
 
 export type AddConnectionStatusActionsInput = {
   actions: Array<ConnectionHasActionsInput>;
   connectionId: Scalars['Int']['input'];
   workflowId: Scalars['Int']['input'];
+};
+
+export type AddLostTimeInput = {
+  lostTime: SimpleLostTimeInput;
+  proposalBookingId: Scalars['Int']['input'];
 };
 
 export type AddProposalWorkflowStatusInput = {
@@ -93,6 +101,12 @@ export type AssignChairOrSecretaryToFapInput = {
   fapId: Scalars['Int']['input'];
   roleId: UserRole;
   userId: Scalars['Int']['input'];
+};
+
+export type AssignEquipmentsToScheduledEventInput = {
+  equipmentIds: Array<Scalars['Int']['input']>;
+  proposalBookingId: Scalars['Int']['input'];
+  scheduledEventId: Scalars['Int']['input'];
 };
 
 export type AssignInstrumentsToCallInput = {
@@ -176,17 +190,24 @@ export type CallsFilter = {
   isFapReviewEnded?: InputMaybe<Scalars['Boolean']['input']>;
   isReviewEnded?: InputMaybe<Scalars['Boolean']['input']>;
   pdfTemplateIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  shortCode?: InputMaybe<Scalars['String']['input']>;
   templateIds?: InputMaybe<Array<Scalars['Int']['input']>>;
 };
 
 export type ChangeProposalsStatusInput = {
-  proposals: Array<ProposalSelectionInput>;
+  proposalPks: Array<Scalars['Int']['input']>;
   statusId: Scalars['Int']['input'];
 };
 
 export type CloneProposalsInput = {
   callId: Scalars['Int']['input'];
   proposalsToClonePk: Array<Scalars['Int']['input']>;
+};
+
+export type ConfirmEquipmentAssignmentInput = {
+  equipmentId: Scalars['Int']['input'];
+  newStatus: EquipmentAssignmentStatus;
+  scheduledEventId: Scalars['Int']['input'];
 };
 
 export type ConflictResolution = {
@@ -311,13 +332,28 @@ export type DateConfig = {
   tooltip: Scalars['String']['output'];
 };
 
+export type DbStat = {
+  state: Maybe<Scalars['String']['output']>;
+  total: Scalars['Float']['output'];
+};
+
 export type DeleteApiAccessTokenInput = {
   accessTokenId: Scalars['String']['input'];
+};
+
+export type DeleteEquipmentAssignmentInput = {
+  equipmentId: Scalars['Int']['input'];
+  proposalBookingId: Scalars['Int']['input'];
+  scheduledEventId: Scalars['Int']['input'];
 };
 
 export type DeleteInternalReviewInput = {
   id: Scalars['Int']['input'];
   technicalReviewId: Scalars['Int']['input'];
+};
+
+export type DeleteLostTimeInput = {
+  id: Scalars['Int']['input'];
 };
 
 export type DeletePredefinedMessageInput = {
@@ -328,6 +364,12 @@ export type DeleteProposalWorkflowStatusInput = {
   proposalStatusId: Scalars['Int']['input'];
   proposalWorkflowId: Scalars['Int']['input'];
   sortOrder: Scalars['Int']['input'];
+};
+
+export type DeleteScheduledEventsInput = {
+  ids: Array<Scalars['Int']['input']>;
+  instrumentId: Scalars['Int']['input'];
+  proposalBookingId?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export enum DependenciesLogicOperator {
@@ -394,6 +436,74 @@ export type Entry = {
   value: Scalars['String']['output'];
 };
 
+export type Equipment = {
+  autoAccept: Scalars['Boolean']['output'];
+  color: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  description: Maybe<Scalars['String']['output']>;
+  equipmentInstruments: Maybe<Array<Instrument>>;
+  equipmentResponsible: Maybe<Array<BasicUserDetails>>;
+  events: Maybe<Array<ScheduledEvent>>;
+  id: Scalars['Int']['output'];
+  maintenanceEndsAt: Maybe<Scalars['TzLessDateTime']['output']>;
+  maintenanceStartsAt: Maybe<Scalars['TzLessDateTime']['output']>;
+  name: Scalars['String']['output'];
+  owner: Maybe<BasicUserDetails>;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+
+export type EquipmentEventsArgs = {
+  endsAt: Scalars['TzLessDateTime']['input'];
+  startsAt: Scalars['TzLessDateTime']['input'];
+};
+
+export enum EquipmentAssignmentStatus {
+  ACCEPTED = 'ACCEPTED',
+  PENDING = 'PENDING',
+  REJECTED = 'REJECTED'
+}
+
+export type EquipmentInput = {
+  autoAccept: Scalars['Boolean']['input'];
+  color?: InputMaybe<Scalars['String']['input']>;
+  description: Scalars['String']['input'];
+  equipmentResponsible?: InputMaybe<Array<Scalars['Int']['input']>>;
+  instrumentIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  maintenanceEndsAt?: InputMaybe<Scalars['TzLessDateTime']['input']>;
+  maintenanceStartsAt?: InputMaybe<Scalars['TzLessDateTime']['input']>;
+  name: Scalars['String']['input'];
+  ownerUserId: Scalars['Int']['input'];
+};
+
+export type EquipmentResponseWrap = {
+  equipment: Maybe<Equipment>;
+  error: Maybe<Scalars['String']['output']>;
+};
+
+export type EquipmentWithAssignmentStatus = {
+  autoAccept: Scalars['Boolean']['output'];
+  color: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  description: Maybe<Scalars['String']['output']>;
+  equipmentInstruments: Maybe<Array<Instrument>>;
+  equipmentResponsible: Maybe<Array<BasicUserDetails>>;
+  events: Maybe<Array<ScheduledEvent>>;
+  id: Scalars['Int']['output'];
+  maintenanceEndsAt: Maybe<Scalars['TzLessDateTime']['output']>;
+  maintenanceStartsAt: Maybe<Scalars['TzLessDateTime']['output']>;
+  name: Scalars['String']['output'];
+  owner: Maybe<BasicUserDetails>;
+  status: EquipmentAssignmentStatus;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+
+export type EquipmentWithAssignmentStatusEventsArgs = {
+  endsAt: Scalars['TzLessDateTime']['input'];
+  startsAt: Scalars['TzLessDateTime']['input'];
+};
+
 export enum EvaluatorOperator {
   EQ = 'eq',
   NEQ = 'neq'
@@ -411,9 +521,10 @@ export enum Event {
   FAP_MEMBER_ASSIGNED_TO_PROPOSAL = 'FAP_MEMBER_ASSIGNED_TO_PROPOSAL',
   FAP_MEMBER_REMOVED = 'FAP_MEMBER_REMOVED',
   FAP_MEMBER_REMOVED_FROM_PROPOSAL = 'FAP_MEMBER_REMOVED_FROM_PROPOSAL',
-  FAP_PROPOSAL_REMOVED = 'FAP_PROPOSAL_REMOVED',
   FAP_REVIEWER_NOTIFIED = 'FAP_REVIEWER_NOTIFIED',
   FAP_UPDATED = 'FAP_UPDATED',
+  INSTRUMENTS_ASSIGNED_TO_TECHNIQUE = 'INSTRUMENTS_ASSIGNED_TO_TECHNIQUE',
+  INSTRUMENTS_REMOVED_FROM_TECHNIQUE = 'INSTRUMENTS_REMOVED_FROM_TECHNIQUE',
   INSTRUMENT_ASSIGNED_TO_SCIENTIST = 'INSTRUMENT_ASSIGNED_TO_SCIENTIST',
   INSTRUMENT_CREATED = 'INSTRUMENT_CREATED',
   INSTRUMENT_DELETED = 'INSTRUMENT_DELETED',
@@ -438,14 +549,16 @@ export enum Event {
   PROPOSAL_CLONED = 'PROPOSAL_CLONED',
   PROPOSAL_CREATED = 'PROPOSAL_CREATED',
   PROPOSAL_DELETED = 'PROPOSAL_DELETED',
+  PROPOSAL_FAPS_REMOVED = 'PROPOSAL_FAPS_REMOVED',
+  PROPOSAL_FAPS_SELECTED = 'PROPOSAL_FAPS_SELECTED',
   PROPOSAL_FAP_MEETING_INSTRUMENT_SUBMITTED = 'PROPOSAL_FAP_MEETING_INSTRUMENT_SUBMITTED',
+  PROPOSAL_FAP_MEETING_INSTRUMENT_UNSUBMITTED = 'PROPOSAL_FAP_MEETING_INSTRUMENT_UNSUBMITTED',
   PROPOSAL_FAP_MEETING_RANKING_OVERWRITTEN = 'PROPOSAL_FAP_MEETING_RANKING_OVERWRITTEN',
   PROPOSAL_FAP_MEETING_REORDER = 'PROPOSAL_FAP_MEETING_REORDER',
   PROPOSAL_FAP_MEETING_SAVED = 'PROPOSAL_FAP_MEETING_SAVED',
   PROPOSAL_FAP_MEETING_SUBMITTED = 'PROPOSAL_FAP_MEETING_SUBMITTED',
   PROPOSAL_FAP_REVIEW_SUBMITTED = 'PROPOSAL_FAP_REVIEW_SUBMITTED',
   PROPOSAL_FAP_REVIEW_UPDATED = 'PROPOSAL_FAP_REVIEW_UPDATED',
-  PROPOSAL_FAP_SELECTED = 'PROPOSAL_FAP_SELECTED',
   PROPOSAL_FEASIBILITY_REVIEW_FEASIBLE = 'PROPOSAL_FEASIBILITY_REVIEW_FEASIBLE',
   PROPOSAL_FEASIBILITY_REVIEW_SUBMITTED = 'PROPOSAL_FEASIBILITY_REVIEW_SUBMITTED',
   PROPOSAL_FEASIBILITY_REVIEW_UNFEASIBLE = 'PROPOSAL_FEASIBILITY_REVIEW_UNFEASIBLE',
@@ -463,6 +576,9 @@ export enum Event {
   PROPOSAL_STATUS_CHANGED_BY_WORKFLOW = 'PROPOSAL_STATUS_CHANGED_BY_WORKFLOW',
   PROPOSAL_SUBMITTED = 'PROPOSAL_SUBMITTED',
   PROPOSAL_UPDATED = 'PROPOSAL_UPDATED',
+  TECHNIQUE_CREATED = 'TECHNIQUE_CREATED',
+  TECHNIQUE_DELETED = 'TECHNIQUE_DELETED',
+  TECHNIQUE_UPDATED = 'TECHNIQUE_UPDATED',
   TOPIC_ANSWERED = 'TOPIC_ANSWERED',
   USER_DELETED = 'USER_DELETED',
   USER_PASSWORD_RESET_EMAIL = 'USER_PASSWORD_RESET_EMAIL',
@@ -526,9 +642,21 @@ export type FapAssignment = {
   user: Maybe<BasicUserDetails>;
 };
 
+export type FapInstrument = {
+  fapId: Maybe<Scalars['Int']['output']>;
+  instrumentId: Maybe<Scalars['Int']['output']>;
+};
+
+export type FapInstrumentInput = {
+  fapId?: InputMaybe<Scalars['Int']['input']>;
+  instrumentId?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export type FapMeetingDecision = {
   commentForManagement: Maybe<Scalars['String']['output']>;
   commentForUser: Maybe<Scalars['String']['output']>;
+  fapId: Scalars['Int']['output'];
+  instrumentId: Scalars['Int']['output'];
   proposalPk: Scalars['Int']['output'];
   rankOrder: Maybe<Scalars['Int']['output']>;
   recommendation: Maybe<ProposalEndStatus>;
@@ -550,6 +678,11 @@ export type FapProposal = {
 export type FapProposalCount = {
   count: Scalars['Int']['output'];
   userId: Scalars['Int']['output'];
+};
+
+export type FapReviewAssignmentInput = {
+  memberId: Scalars['Int']['input'];
+  proposalPk: Scalars['Int']['input'];
 };
 
 export type FapReviewer = {
@@ -681,6 +814,11 @@ export type FilesMetadataFilter = {
   fileIds: Array<Scalars['String']['input']>;
 };
 
+export type FinalizeScheduledEventInput = {
+  action: ProposalBookingFinalizeAction;
+  id: Scalars['Int']['input'];
+};
+
 export type GenericTemplate = {
   created: Scalars['DateTime']['output'];
   creatorId: Scalars['Int']['output'];
@@ -705,6 +843,11 @@ export type GenericTemplatesFilter = {
   questionId?: InputMaybe<Scalars['String']['input']>;
   questionaryIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   title?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type HealthStats = {
+  dbStats: Array<DbStat>;
+  message: Scalars['String']['output'];
 };
 
 export type IndexWithGroupId = {
@@ -738,6 +881,12 @@ export type InstrumentFapMappingInput = {
   instrumentId: Scalars['Int']['input'];
 };
 
+export type InstrumentFilterInput = {
+  instrumentId?: InputMaybe<Scalars['Int']['input']>;
+  showAllProposals: Scalars['Boolean']['input'];
+  showMultiInstrumentProposals: Scalars['Boolean']['input'];
+};
+
 export type InstrumentOption = {
   id: Scalars['Float']['output'];
   name: Scalars['String']['output'];
@@ -746,6 +895,7 @@ export type InstrumentOption = {
 export type InstrumentPickerConfig = {
   instruments: Array<InstrumentOption>;
   isMultipleSelect: Scalars['Boolean']['output'];
+  requestTime: Scalars['Boolean']['output'];
   required: Scalars['Boolean']['output'];
   small_label: Scalars['String']['output'];
   tooltip: Scalars['String']['output'];
@@ -807,6 +957,21 @@ export type IntervalConfig = {
   units: Array<Unit>;
 };
 
+export type LostTime = {
+  createdAt: Scalars['DateTime']['output'];
+  endsAt: Scalars['TzLessDateTime']['output'];
+  id: Scalars['Int']['output'];
+  proposalBookingId: Scalars['Int']['output'];
+  scheduledEventId: Scalars['Int']['output'];
+  startsAt: Scalars['TzLessDateTime']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type LostTimeResponseWrap = {
+  error: Maybe<Scalars['String']['output']>;
+  lostTime: Maybe<LostTime>;
+};
+
 export type ManagementTimeAllocationsInput = {
   instrumentId: Scalars['Int']['input'];
   value: Scalars['Int']['input'];
@@ -819,8 +984,11 @@ export type MoveProposalWorkflowStatusInput = {
 };
 
 export type Mutation = {
+  activateProposalBooking: ProposalBookingResponseWrap;
+  activateScheduledEvents: ScheduledEventsResponseWrap;
   addClientLog: Scalars['Boolean']['output'];
   addConnectionStatusActions: Maybe<Array<ConnectionStatusAction>>;
+  addLostTime: LostTimeResponseWrap;
   addProposalWorkflowStatus: ProposalWorkflowConnection;
   addSamplesToShipment: Shipment;
   addStatusChangingEventsToConnection: Array<StatusChangingEvent>;
@@ -831,20 +999,24 @@ export type Mutation = {
   answerTopic: QuestionaryStep;
   applyPatches: Array<Scalars['String']['output']>;
   assignChairOrSecretary: Fap;
-  assignFapReviewersToProposal: Fap;
+  assignFapReviewersToProposals: Fap;
   assignInstrumentsToCall: Call;
-  assignProposalsToFap: Scalars['Boolean']['output'];
+  assignInstrumentsToTechnique: Scalars['Boolean']['output'];
+  assignProposalsToFaps: Scalars['Boolean']['output'];
   assignProposalsToInstruments: Scalars['Boolean']['output'];
   assignReviewersToFap: Fap;
   assignScientistsToInstrument: Scalars['Boolean']['output'];
+  assignToScheduledEvents: Scalars['Boolean']['output'];
   changeProposalsStatus: Scalars['Boolean']['output'];
   cloneGenericTemplate: GenericTemplate;
   cloneProposals: Array<Proposal>;
   cloneSample: Sample;
   cloneSampleEsi: SampleExperimentSafetyInput;
   cloneTemplate: Template;
+  confirmEquipmentAssignment: SchedulerSuccessResponseWrap;
   createApiAccessToken: PermissionsWithAccessToken;
   createCall: Call;
+  createEquipment: EquipmentResponseWrap;
   createEsi: ExperimentSafetyInput;
   createFap: Fap;
   createFeedback: Feedback;
@@ -862,7 +1034,9 @@ export type Mutation = {
   createQuestionary: Questionary;
   createSample: Sample;
   createSampleEsi: SampleExperimentSafetyInput;
+  createScheduledEvent: ScheduledEventResponseWrap;
   createShipment: Shipment;
+  createTechnique: Technique;
   createTemplate: Template;
   createTopic: Template;
   createUnit: Unit;
@@ -871,12 +1045,14 @@ export type Mutation = {
   createVisitRegistration: VisitRegistration;
   deleteApiAccessToken: Scalars['Boolean']['output'];
   deleteCall: Call;
+  deleteEquipmentAssignment: Scalars['Boolean']['output'];
   deleteFap: Fap;
   deleteFeedback: Feedback;
   deleteGenericTemplate: GenericTemplate;
   deleteInstitution: Institution;
   deleteInstrument: Instrument;
   deleteInternalReview: InternalReview;
+  deleteLostTime: LostTimeResponseWrap;
   deletePdfTemplate: PdfTemplate;
   deletePredefinedMessage: PredefinedMessage;
   deleteProposal: Proposal;
@@ -887,33 +1063,40 @@ export type Mutation = {
   deleteQuestionTemplateRelation: Template;
   deleteSample: Sample;
   deleteSampleEsi: SampleExperimentSafetyInput;
+  deleteScheduledEvents: ScheduledEventsResponseWrap;
   deleteShipment: Shipment;
+  deleteTechnique: Technique;
   deleteTemplate: Template;
   deleteTopic: Template;
   deleteUnit: Unit;
   deleteUser: User;
   deleteVisit: Visit;
   externalTokenLogin: Scalars['String']['output'];
+  finalizeProposalBooking: ProposalBookingResponseWrap;
+  finalizeScheduledEvent: ScheduledEventResponseWrap;
   getTokenForUser: Scalars['String']['output'];
   importProposal: Proposal;
   importTemplate: Template;
   importUnits: Array<Unit>;
   logout: Scalars['String']['output'];
-  massAssignFapReviews: Fap;
   mergeInstitutions: Institution;
   moveProposalWorkflowStatus: ProposalWorkflowConnection;
   notifyProposal: Proposal;
   prepareDB: Array<Scalars['String']['output']>;
   redeemCode: RedeemCode;
   removeAssignedInstrumentFromCall: Call;
+  removeInstrumentsFromTechnique: Scalars['Boolean']['output'];
   removeMemberFromFap: Fap;
   removeMemberFromFapProposal: Fap;
-  removeProposalsFromFap: Fap;
+  removeProposalsFromFaps: Array<FapProposal>;
   removeProposalsFromInstrument: Scalars['Boolean']['output'];
   removeScientistFromInstrument: Scalars['Boolean']['output'];
   removeUserForReview: Review;
+  reopenProposalBooking: ProposalBookingResponseWrap;
+  reopenScheduledEvent: ScheduledEventResponseWrap;
   reorderFapMeetingDecisionProposals: FapMeetingDecision;
   requestFeedback: FeedbackRequest;
+  resetSchedulerDb: Scalars['String']['output'];
   saveFapMeetingDecision: FapMeetingDecision;
   saveReviewerRank: Scalars['Boolean']['output'];
   selectRole: Scalars['String']['output'];
@@ -921,15 +1104,18 @@ export type Mutation = {
   setInstrumentAvailabilityTime: Scalars['Boolean']['output'];
   setPageContent: Page;
   setUserNotPlaceholder: User;
-  submitInstrument: Scalars['Boolean']['output'];
+  submitFapMeetingDecisions: Array<FapProposal>;
+  submitInstrumentInFap: Scalars['Boolean']['output'];
   submitProposal: Proposal;
   submitProposalsReview: Scalars['Boolean']['output'];
   submitShipment: Shipment;
   submitTechnicalReviews: Scalars['Boolean']['output'];
   token: Scalars['String']['output'];
+  unsubmitInstrumentInFap: Scalars['Boolean']['output'];
   updateAnswer: Scalars['String']['output'];
   updateApiAccessToken: PermissionsWithAccessToken;
   updateCall: Call;
+  updateEquipment: EquipmentResponseWrap;
   updateEsi: ExperimentSafetyInput;
   updateFap: Fap;
   updateFapTimeAllocation: FapProposal;
@@ -940,6 +1126,7 @@ export type Mutation = {
   updateInstitution: Institution;
   updateInstrument: Instrument;
   updateInternalReview: InternalReview;
+  updateLostTime: LostTimeResponseWrap;
   updatePdfTemplate: PdfTemplate;
   updatePredefinedMessage: PredefinedMessage;
   updateProposal: Proposal;
@@ -951,9 +1138,11 @@ export type Mutation = {
   updateReview: Review;
   updateSample: Sample;
   updateSampleEsi: SampleExperimentSafetyInput;
+  updateScheduledEvent: ScheduledEventResponseWrap;
   updateSettings: Settings;
   updateShipment: Shipment;
   updateTechnicalReviewAssignee: Array<TechnicalReview>;
+  updateTechnique: Technique;
   updateTemplate: Template;
   updateTopic: Template;
   updateUser: User;
@@ -965,6 +1154,16 @@ export type Mutation = {
 };
 
 
+export type MutationActivateProposalBookingArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type MutationActivateScheduledEventsArgs = {
+  activateScheduledEvents: ActivateScheduledEventsInput;
+};
+
+
 export type MutationAddClientLogArgs = {
   error: Scalars['String']['input'];
 };
@@ -972,6 +1171,11 @@ export type MutationAddClientLogArgs = {
 
 export type MutationAddConnectionStatusActionsArgs = {
   newConnectionStatusActionsInput: AddConnectionStatusActionsInput;
+};
+
+
+export type MutationAddLostTimeArgs = {
+  addLostTimeInput: AddLostTimeInput;
 };
 
 
@@ -1032,10 +1236,9 @@ export type MutationAssignChairOrSecretaryArgs = {
 };
 
 
-export type MutationAssignFapReviewersToProposalArgs = {
+export type MutationAssignFapReviewersToProposalsArgs = {
+  assignments: Array<FapReviewAssignmentInput>;
   fapId: Scalars['Int']['input'];
-  memberIds: Array<Scalars['Int']['input']>;
-  proposalPk: Scalars['Int']['input'];
 };
 
 
@@ -1044,10 +1247,15 @@ export type MutationAssignInstrumentsToCallArgs = {
 };
 
 
-export type MutationAssignProposalsToFapArgs = {
-  fapId: Scalars['Int']['input'];
-  fapInstrumentId: Scalars['Int']['input'];
-  proposals: Array<ProposalSelectionInput>;
+export type MutationAssignInstrumentsToTechniqueArgs = {
+  instrumentIds: Array<Scalars['Int']['input']>;
+  techniqueId: Scalars['Int']['input'];
+};
+
+
+export type MutationAssignProposalsToFapsArgs = {
+  fapInstruments: Array<FapInstrumentInput>;
+  proposalPks: Array<Scalars['Int']['input']>;
 };
 
 
@@ -1066,6 +1274,11 @@ export type MutationAssignReviewersToFapArgs = {
 export type MutationAssignScientistsToInstrumentArgs = {
   instrumentId: Scalars['Int']['input'];
   scientistIds: Array<Scalars['Int']['input']>;
+};
+
+
+export type MutationAssignToScheduledEventsArgs = {
+  assignEquipmentsToScheduledEventInput: AssignEquipmentsToScheduledEventInput;
 };
 
 
@@ -1104,6 +1317,11 @@ export type MutationCloneTemplateArgs = {
 };
 
 
+export type MutationConfirmEquipmentAssignmentArgs = {
+  confirmEquipmentAssignmentInput: ConfirmEquipmentAssignmentInput;
+};
+
+
 export type MutationCreateApiAccessTokenArgs = {
   createApiAccessTokenInput: CreateApiAccessTokenInput;
 };
@@ -1111,6 +1329,11 @@ export type MutationCreateApiAccessTokenArgs = {
 
 export type MutationCreateCallArgs = {
   createCallInput: CreateCallInput;
+};
+
+
+export type MutationCreateEquipmentArgs = {
+  newEquipmentInput: EquipmentInput;
 };
 
 
@@ -1227,10 +1450,22 @@ export type MutationCreateSampleEsiArgs = {
 };
 
 
+export type MutationCreateScheduledEventArgs = {
+  newScheduledEvent: NewScheduledEventInput;
+};
+
+
 export type MutationCreateShipmentArgs = {
   proposalPk: Scalars['Int']['input'];
   scheduledEventId: Scalars['Int']['input'];
   title: Scalars['String']['input'];
+};
+
+
+export type MutationCreateTechniqueArgs = {
+  description: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  shortCode: Scalars['String']['input'];
 };
 
 
@@ -1287,6 +1522,11 @@ export type MutationDeleteCallArgs = {
 };
 
 
+export type MutationDeleteEquipmentAssignmentArgs = {
+  deleteEquipmentAssignmentInput: DeleteEquipmentAssignmentInput;
+};
+
+
 export type MutationDeleteFapArgs = {
   id: Scalars['Int']['input'];
 };
@@ -1314,6 +1554,11 @@ export type MutationDeleteInstrumentArgs = {
 
 export type MutationDeleteInternalReviewArgs = {
   deleteInternalReviewInput: DeleteInternalReviewInput;
+};
+
+
+export type MutationDeleteLostTimeArgs = {
+  deleteLostTimeInput: DeleteLostTimeInput;
 };
 
 
@@ -1369,8 +1614,18 @@ export type MutationDeleteSampleEsiArgs = {
 };
 
 
+export type MutationDeleteScheduledEventsArgs = {
+  deleteScheduledEventsInput: DeleteScheduledEventsInput;
+};
+
+
 export type MutationDeleteShipmentArgs = {
   shipmentId: Scalars['Int']['input'];
+};
+
+
+export type MutationDeleteTechniqueArgs = {
+  id: Scalars['Int']['input'];
 };
 
 
@@ -1403,6 +1658,17 @@ export type MutationExternalTokenLoginArgs = {
   externalToken: Scalars['String']['input'];
   iss?: InputMaybe<Scalars['String']['input']>;
   redirectUri: Scalars['String']['input'];
+};
+
+
+export type MutationFinalizeProposalBookingArgs = {
+  action: ProposalBookingFinalizeAction;
+  id: Scalars['Int']['input'];
+};
+
+
+export type MutationFinalizeScheduledEventArgs = {
+  finalizeScheduledEvent: FinalizeScheduledEventInput;
 };
 
 
@@ -1441,11 +1707,6 @@ export type MutationLogoutArgs = {
 };
 
 
-export type MutationMassAssignFapReviewsArgs = {
-  fapId: Scalars['Int']['input'];
-};
-
-
 export type MutationMergeInstitutionsArgs = {
   institutionIdFrom: Scalars['Int']['input'];
   institutionIdInto: Scalars['Int']['input'];
@@ -1478,6 +1739,12 @@ export type MutationRemoveAssignedInstrumentFromCallArgs = {
 };
 
 
+export type MutationRemoveInstrumentsFromTechniqueArgs = {
+  instrumentIds: Array<Scalars['Int']['input']>;
+  techniqueId: Scalars['Int']['input'];
+};
+
+
 export type MutationRemoveMemberFromFapArgs = {
   fapId: Scalars['Int']['input'];
   memberId: Scalars['Int']['input'];
@@ -1492,8 +1759,8 @@ export type MutationRemoveMemberFromFapProposalArgs = {
 };
 
 
-export type MutationRemoveProposalsFromFapArgs = {
-  fapId: Scalars['Int']['input'];
+export type MutationRemoveProposalsFromFapsArgs = {
+  fapIds: Array<Scalars['Int']['input']>;
   proposalPks: Array<Scalars['Int']['input']>;
 };
 
@@ -1515,6 +1782,16 @@ export type MutationRemoveUserForReviewArgs = {
 };
 
 
+export type MutationReopenProposalBookingArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type MutationReopenScheduledEventArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
 export type MutationReorderFapMeetingDecisionProposalsArgs = {
   reorderFapMeetingDecisionProposalsInput: ReorderFapMeetingDecisionProposalsInput;
 };
@@ -1522,6 +1799,11 @@ export type MutationReorderFapMeetingDecisionProposalsArgs = {
 
 export type MutationRequestFeedbackArgs = {
   scheduledEventId: Scalars['Int']['input'];
+};
+
+
+export type MutationResetSchedulerDbArgs = {
+  includeSeeds?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -1567,7 +1849,12 @@ export type MutationSetUserNotPlaceholderArgs = {
 };
 
 
-export type MutationSubmitInstrumentArgs = {
+export type MutationSubmitFapMeetingDecisionsArgs = {
+  SubmitFapMeetingDecisionsInput: SubmitFapMeetingDecisionsInput;
+};
+
+
+export type MutationSubmitInstrumentInFapArgs = {
   callId: Scalars['Int']['input'];
   fapId: Scalars['Int']['input'];
   instrumentId: Scalars['Int']['input'];
@@ -1599,6 +1886,13 @@ export type MutationTokenArgs = {
 };
 
 
+export type MutationUnsubmitInstrumentInFapArgs = {
+  callId: Scalars['Int']['input'];
+  fapId: Scalars['Int']['input'];
+  instrumentId: Scalars['Int']['input'];
+};
+
+
 export type MutationUpdateAnswerArgs = {
   answer: AnswerInput;
   questionaryId: Scalars['Int']['input'];
@@ -1612,6 +1906,12 @@ export type MutationUpdateApiAccessTokenArgs = {
 
 export type MutationUpdateCallArgs = {
   updateCallInput: UpdateCallInput;
+};
+
+
+export type MutationUpdateEquipmentArgs = {
+  id: Scalars['Int']['input'];
+  updateEquipmentInput: EquipmentInput;
 };
 
 
@@ -1682,6 +1982,11 @@ export type MutationUpdateInstrumentArgs = {
 
 export type MutationUpdateInternalReviewArgs = {
   updateInternalReviewInput: UpdateInternalReviewInput;
+};
+
+
+export type MutationUpdateLostTimeArgs = {
+  updateLostTimeInput: UpdateLostTimeInput;
 };
 
 
@@ -1770,6 +2075,11 @@ export type MutationUpdateSampleEsiArgs = {
 };
 
 
+export type MutationUpdateScheduledEventArgs = {
+  updateScheduledEvent: UpdateScheduledEventInput;
+};
+
+
 export type MutationUpdateSettingsArgs = {
   updatedSettingsInput: UpdateSettingsInput;
 };
@@ -1788,6 +2098,14 @@ export type MutationUpdateTechnicalReviewAssigneeArgs = {
   instrumentId: Scalars['Int']['input'];
   proposalPks: Array<Scalars['Int']['input']>;
   userId: Scalars['Int']['input'];
+};
+
+
+export type MutationUpdateTechniqueArgs = {
+  description: Scalars['String']['input'];
+  id: Scalars['Int']['input'];
+  name: Scalars['String']['input'];
+  shortCode: Scalars['String']['input'];
 };
 
 
@@ -1860,6 +2178,15 @@ export type MutationValidateTemplateImportArgs = {
 
 export type MutationValidateUnitsImportArgs = {
   unitsAsJson: Scalars['String']['input'];
+};
+
+export type NewScheduledEventInput = {
+  bookingType: ScheduledEventBookingType;
+  description?: InputMaybe<Scalars['String']['input']>;
+  endsAt: Scalars['TzLessDateTime']['input'];
+  instrumentId: Scalars['Int']['input'];
+  proposalBookingId?: InputMaybe<Scalars['Int']['input']>;
+  startsAt: Scalars['TzLessDateTime']['input'];
 };
 
 export type NumberInputConfig = {
@@ -1944,14 +2271,15 @@ export type Proposal = {
   commentForManagement: Maybe<Scalars['String']['output']>;
   commentForUser: Maybe<Scalars['String']['output']>;
   created: Scalars['DateTime']['output'];
-  fap: Maybe<Fap>;
-  fapMeetingDecision: Maybe<FapMeetingDecision>;
+  fapMeetingDecisions: Maybe<Array<FapMeetingDecision>>;
+  faps: Maybe<Array<Fap>>;
   finalStatus: Maybe<ProposalEndStatus>;
   genericTemplates: Maybe<Array<GenericTemplate>>;
   instruments: Maybe<Array<Maybe<InstrumentWithManagementTime>>>;
   managementDecisionSubmitted: Scalars['Boolean']['output'];
   notified: Scalars['Boolean']['output'];
   primaryKey: Scalars['Int']['output'];
+  proposalBooking: Maybe<ProposalBooking>;
   proposalBookingsCore: Maybe<ProposalBookingsCore>;
   proposalId: Scalars['String']['output'];
   proposer: Maybe<BasicUserDetails>;
@@ -1972,16 +2300,64 @@ export type Proposal = {
 };
 
 
+export type ProposalFapMeetingDecisionsArgs = {
+  fapId?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type ProposalProposalBookingArgs = {
+  filter?: InputMaybe<ProposalProposalBookingFilter>;
+};
+
+
 export type ProposalProposalBookingsCoreArgs = {
   filter?: InputMaybe<ProposalBookingFilter>;
+};
+
+
+export type ProposalReviewsArgs = {
+  fapId?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type ProposalBasisConfig = {
   tooltip: Scalars['String']['output'];
 };
 
+export type ProposalBooking = {
+  allocatedTime: Scalars['Int']['output'];
+  call: Maybe<Call>;
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['Int']['output'];
+  instrument: Maybe<Instrument>;
+  proposal: Maybe<Proposal>;
+  scheduledEvents: Array<ScheduledEvent>;
+  status: ProposalBookingStatusCore;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+
+export type ProposalBookingScheduledEventsArgs = {
+  filter: ProposalBookingScheduledEventFilter;
+};
+
 export type ProposalBookingFilter = {
   status?: InputMaybe<Array<ProposalBookingStatusCore>>;
+};
+
+export enum ProposalBookingFinalizeAction {
+  COMPLETE = 'COMPLETE',
+  RESTART = 'RESTART'
+}
+
+export type ProposalBookingResponseWrap = {
+  error: Maybe<Scalars['String']['output']>;
+  proposalBooking: Maybe<ProposalBooking>;
+};
+
+export type ProposalBookingScheduledEventFilter = {
+  bookingType?: InputMaybe<ScheduledEventBookingType>;
+  endsAfter?: InputMaybe<Scalars['TzLessDateTime']['input']>;
+  endsBefore?: InputMaybe<Scalars['TzLessDateTime']['input']>;
 };
 
 export type ProposalBookingScheduledEventFilterCore = {
@@ -2024,6 +2400,8 @@ export type ProposalEvent = {
 };
 
 export type ProposalPkWithRankOrder = {
+  fapId: Scalars['Int']['input'];
+  instrumentId: Scalars['Int']['input'];
   proposalPk: Scalars['Int']['input'];
   rankOrder: Scalars['Int']['input'];
 };
@@ -2031,6 +2409,10 @@ export type ProposalPkWithRankOrder = {
 export type ProposalPkWithReviewId = {
   proposalPk: Scalars['Int']['input'];
   reviewId: Scalars['Int']['input'];
+};
+
+export type ProposalProposalBookingFilter = {
+  status?: InputMaybe<Array<ProposalBookingStatusCore>>;
 };
 
 export enum ProposalPublicStatus {
@@ -2041,12 +2423,6 @@ export enum ProposalPublicStatus {
   SUBMITTED = 'submitted',
   UNKNOWN = 'unknown'
 }
-
-export type ProposalSelectionInput = {
-  callId: Scalars['Int']['input'];
-  primaryKey: Scalars['Int']['input'];
-  workflowId?: InputMaybe<Scalars['Int']['input']>;
-};
 
 export type ProposalStatus = {
   description: Scalars['String']['output'];
@@ -2098,32 +2474,48 @@ export type ProposalView = {
   allocationTimeUnit: AllocationTimeUnits;
   callId: Scalars['Int']['output'];
   callShortCode: Maybe<Scalars['String']['output']>;
-  fapCode: Maybe<Scalars['String']['output']>;
-  fapId: Maybe<Scalars['Int']['output']>;
-  fapInstrumentId: Maybe<Scalars['Int']['output']>;
+  fapInstruments: Maybe<Array<FapInstrument>>;
+  faps: Maybe<Array<ProposalViewFap>>;
   finalStatus: Maybe<ProposalEndStatus>;
-  instrumentIds: Maybe<Array<Maybe<Scalars['Int']['output']>>>;
-  instrumentNames: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  managementTimeAllocations: Maybe<Array<Maybe<Scalars['Int']['output']>>>;
+  instruments: Maybe<Array<ProposalViewInstrument>>;
   notified: Scalars['Boolean']['output'];
   primaryKey: Scalars['Int']['output'];
   principalInvestigator: Maybe<User>;
   principalInvestigatorId: Scalars['Int']['output'];
   proposalId: Scalars['String']['output'];
-  rankOrder: Maybe<Scalars['Int']['output']>;
-  reviewAverage: Maybe<Scalars['Float']['output']>;
-  reviewDeviation: Maybe<Scalars['Float']['output']>;
   statusDescription: Scalars['String']['output'];
   statusId: Scalars['Int']['output'];
   statusName: Scalars['String']['output'];
   submitted: Scalars['Boolean']['output'];
-  technicalReviewAssigneeIds: Maybe<Array<Maybe<Scalars['Int']['output']>>>;
-  technicalReviewAssigneeNames: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  technicalReviewsSubmitted: Maybe<Array<Maybe<Scalars['Int']['output']>>>;
-  technicalStatuses: Maybe<Array<Maybe<TechnicalReviewStatus>>>;
-  technicalTimeAllocations: Maybe<Array<Maybe<Scalars['Int']['output']>>>;
+  technicalReviews: Maybe<Array<ProposalViewTechnicalReview>>;
   title: Scalars['String']['output'];
   workflowId: Scalars['Int']['output'];
+};
+
+export type ProposalViewFap = {
+  code: Scalars['String']['output'];
+  id: Scalars['Int']['output'];
+};
+
+export type ProposalViewInstrument = {
+  id: Scalars['Int']['output'];
+  managementTimeAllocation: Maybe<Scalars['Int']['output']>;
+  managerUserId: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+};
+
+export type ProposalViewTechnicalReview = {
+  id: Scalars['Int']['output'];
+  status: Maybe<TechnicalReviewStatus>;
+  submitted: Scalars['Boolean']['output'];
+  technicalReviewAssignee: Maybe<ProposalViewTechnicalReviewAssignee>;
+  timeAllocation: Maybe<Scalars['Int']['output']>;
+};
+
+export type ProposalViewTechnicalReviewAssignee = {
+  firstname: Scalars['String']['output'];
+  id: Scalars['Int']['output'];
+  lastname: Scalars['String']['output'];
 };
 
 export type ProposalWorkflow = {
@@ -2154,7 +2546,7 @@ export type ProposalWorkflowConnectionGroup = {
 
 export type ProposalsFilter = {
   callId?: InputMaybe<Scalars['Int']['input']>;
-  instrumentId?: InputMaybe<Scalars['Int']['input']>;
+  instrumentFilter?: InputMaybe<InstrumentFilterInput>;
   proposalStatusId?: InputMaybe<Scalars['Int']['input']>;
   questionFilter?: InputMaybe<QuestionFilterInput>;
   questionaryIds?: InputMaybe<Array<Scalars['Int']['input']>>;
@@ -2184,6 +2576,11 @@ export type Quantity = {
   id: Scalars['String']['output'];
 };
 
+export type QueriesAndMutations = {
+  mutations: Array<Scalars['String']['output']>;
+  queries: Array<Scalars['String']['output']>;
+};
+
 export type QueriesMutationsAndServices = {
   mutations: Array<QueryMutationAndServicesGroup>;
   queries: Array<QueryMutationAndServicesGroup>;
@@ -2191,23 +2588,25 @@ export type QueriesMutationsAndServices = {
 };
 
 export type Query = {
-  _entities: Array<Maybe<_Entity>>;
-  _service: _Service;
   accessTokenAndPermissions: Maybe<PermissionsWithAccessToken>;
   activeTemplateId: Maybe<Scalars['Int']['output']>;
   allAccessTokensAndPermissions: Maybe<Array<PermissionsWithAccessToken>>;
+  availableEquipments: Array<Equipment>;
   basicUserDetails: Maybe<BasicUserDetails>;
   basicUserDetailsByEmail: Maybe<BasicUserDetails>;
   blankQuestionary: Questionary;
   blankQuestionarySteps: Maybe<Array<QuestionaryStep>>;
   blankQuestionaryStepsByCallId: Maybe<Array<QuestionaryStep>>;
   call: Maybe<Call>;
+  callByQuestionId: Maybe<Call>;
   calls: Maybe<Array<Call>>;
   callsByInstrumentScientist: Maybe<Array<Call>>;
   checkEmailExist: Maybe<Scalars['Boolean']['output']>;
   checkExternalToken: ExternalTokenResult;
   checkToken: TokenResult;
   countries: Maybe<Array<Entry>>;
+  equipment: Maybe<Equipment>;
+  equipments: Array<Equipment>;
   esi: Maybe<ExperimentSafetyInput>;
   eventLogs: Maybe<Array<EventLog>>;
   factoryVersion: Scalars['String']['output'];
@@ -2226,8 +2625,10 @@ export type Query = {
   genericTemplate: Maybe<GenericTemplate>;
   genericTemplates: Maybe<Array<GenericTemplate>>;
   getDynamicMultipleChoiceOptions: Maybe<Array<Scalars['String']['output']>>;
+  healthCheck: HealthStats;
   institutions: Maybe<Array<Institution>>;
   instrument: Maybe<Instrument>;
+  instrumentProposalBookings: Array<ProposalBooking>;
   instrumentScientistHasAccess: Maybe<Scalars['Boolean']['output']>;
   instrumentScientistHasInstrument: Maybe<Scalars['Boolean']['output']>;
   instrumentScientistProposals: Maybe<ProposalsViewResult>;
@@ -2248,6 +2649,10 @@ export type Query = {
   predefinedMessages: Array<PredefinedMessage>;
   previousCollaborators: Maybe<UserQueryResult>;
   proposal: Maybe<Proposal>;
+  proposalBooking: Maybe<ProposalBooking>;
+  proposalBookingLostTimes: Array<LostTime>;
+  proposalBookingScheduledEvent: Maybe<ScheduledEvent>;
+  proposalBookingScheduledEvents: Array<ScheduledEvent>;
   proposalById: Maybe<Proposal>;
   proposalEvents: Maybe<Array<ProposalEvent>>;
   proposalReviews: Maybe<Array<Review>>;
@@ -2269,12 +2674,18 @@ export type Query = {
   sampleEsi: Maybe<SampleExperimentSafetyInput>;
   samples: Maybe<Array<Sample>>;
   samplesByCallId: Maybe<Array<Sample>>;
+  scheduledEvent: Maybe<ScheduledEvent>;
   scheduledEventCore: Maybe<ScheduledEventCore>;
+  scheduledEvents: Array<ScheduledEvent>;
   scheduledEventsCore: Array<ScheduledEventCore>;
+  schedulerQueriesAndMutations: Maybe<QueriesAndMutations>;
+  schedulerVersion: Scalars['String']['output'];
   settings: Array<Settings>;
   shipment: Maybe<Shipment>;
   shipments: Maybe<Array<Shipment>>;
   statusActions: Maybe<Array<ProposalStatusAction>>;
+  technique: Maybe<Technique>;
+  techniques: Maybe<TechniquesQueryResult>;
   template: Maybe<Template>;
   templateCategories: Maybe<Array<TemplateCategory>>;
   templates: Maybe<Array<Template>>;
@@ -2292,11 +2703,6 @@ export type Query = {
 };
 
 
-export type Query_EntitiesArgs = {
-  representations: Array<Scalars['_Any']['input']>;
-};
-
-
 export type QueryAccessTokenAndPermissionsArgs = {
   accessTokenId: Scalars['String']['input'];
 };
@@ -2304,6 +2710,11 @@ export type QueryAccessTokenAndPermissionsArgs = {
 
 export type QueryActiveTemplateIdArgs = {
   templateGroupId: TemplateGroupId;
+};
+
+
+export type QueryAvailableEquipmentsArgs = {
+  scheduledEventId: Scalars['Int']['input'];
 };
 
 
@@ -2338,6 +2749,11 @@ export type QueryCallArgs = {
 };
 
 
+export type QueryCallByQuestionIdArgs = {
+  questionId: Scalars['String']['input'];
+};
+
+
 export type QueryCallsArgs = {
   filter?: InputMaybe<CallsFilter>;
 };
@@ -2360,6 +2776,16 @@ export type QueryCheckExternalTokenArgs = {
 
 export type QueryCheckTokenArgs = {
   token: Scalars['String']['input'];
+};
+
+
+export type QueryEquipmentArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type QueryEquipmentsArgs = {
+  equipmentIds?: InputMaybe<Array<Scalars['Int']['input']>>;
 };
 
 
@@ -2458,6 +2884,12 @@ export type QueryInstrumentArgs = {
 };
 
 
+export type QueryInstrumentProposalBookingsArgs = {
+  callId?: InputMaybe<Scalars['Int']['input']>;
+  instrumentIds: Array<Scalars['Int']['input']>;
+};
+
+
 export type QueryInstrumentScientistHasAccessArgs = {
   instrumentId: Scalars['Int']['input'];
   proposalPk: Scalars['Int']['input'];
@@ -2549,12 +2981,35 @@ export type QueryProposalArgs = {
 };
 
 
+export type QueryProposalBookingArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type QueryProposalBookingLostTimesArgs = {
+  proposalBookingId: Scalars['Int']['input'];
+  scheduledEventId?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryProposalBookingScheduledEventArgs = {
+  proposalBookingId: Scalars['Int']['input'];
+  scheduledEventId: Scalars['Int']['input'];
+};
+
+
+export type QueryProposalBookingScheduledEventsArgs = {
+  proposalBookingId: Scalars['Int']['input'];
+};
+
+
 export type QueryProposalByIdArgs = {
   proposalId: Scalars['String']['input'];
 };
 
 
 export type QueryProposalReviewsArgs = {
+  fapId?: InputMaybe<Scalars['Int']['input']>;
   proposalPk: Scalars['Int']['input'];
 };
 
@@ -2632,8 +3087,18 @@ export type QuerySamplesByCallIdArgs = {
 };
 
 
+export type QueryScheduledEventArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
 export type QueryScheduledEventCoreArgs = {
   scheduledEventId: Scalars['Int']['input'];
+};
+
+
+export type QueryScheduledEventsArgs = {
+  filter: ScheduledEventFilter;
 };
 
 
@@ -2651,6 +3116,11 @@ export type QueryShipmentArgs = {
 
 export type QueryShipmentsArgs = {
   filter?: InputMaybe<ShipmentsFilter>;
+};
+
+
+export type QueryTechniqueArgs = {
+  techniqueId: Scalars['Int']['input'];
 };
 
 
@@ -2809,6 +3279,10 @@ export type RedeemCode = {
   placeholderUserId: Scalars['Int']['output'];
 };
 
+export type Rejection = {
+  reason: Scalars['String']['output'];
+};
+
 export type RemoveAssignedInstrumentFromCallInput = {
   callId: Scalars['Int']['input'];
   instrumentId: Scalars['Int']['input'];
@@ -2916,10 +3390,32 @@ export type SamplesFilter = {
 export type SaveFapMeetingDecisionInput = {
   commentForManagement?: InputMaybe<Scalars['String']['input']>;
   commentForUser?: InputMaybe<Scalars['String']['input']>;
+  fapId: Scalars['Int']['input'];
+  instrumentId: Scalars['Int']['input'];
   proposalPk: Scalars['Int']['input'];
   rankOrder?: InputMaybe<Scalars['Int']['input']>;
   recommendation?: InputMaybe<ProposalEndStatus>;
   submitted?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type ScheduledEvent = {
+  bookingType: ScheduledEventBookingType;
+  color: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  description: Maybe<Scalars['String']['output']>;
+  endsAt: Scalars['TzLessDateTime']['output'];
+  equipmentAssignmentStatus: Maybe<EquipmentAssignmentStatus>;
+  equipmentId: Maybe<Scalars['Int']['output']>;
+  equipments: Array<EquipmentWithAssignmentStatus>;
+  id: Scalars['Int']['output'];
+  instrument: Maybe<Instrument>;
+  localContact: Maybe<BasicUserDetails>;
+  proposalBooking: Maybe<ProposalBooking>;
+  proposalBookingId: Maybe<Scalars['Int']['output']>;
+  scheduledBy: Maybe<BasicUserDetails>;
+  startsAt: Scalars['TzLessDateTime']['output'];
+  status: ProposalBookingStatusCore;
+  updatedAt: Scalars['DateTime']['output'];
 };
 
 export enum ScheduledEventBookingType {
@@ -2948,6 +3444,21 @@ export type ScheduledEventCore = {
   visit: Maybe<Visit>;
 };
 
+export type ScheduledEventFilter = {
+  callId?: InputMaybe<Scalars['Int']['input']>;
+  endsAt: Scalars['TzLessDateTime']['input'];
+  instrumentIds: Array<Scalars['Int']['input']>;
+  localContactIds: Array<Scalars['Int']['input']>;
+  startsAt: Scalars['TzLessDateTime']['input'];
+};
+
+export type ScheduledEventResponseWrap = {
+  error: Maybe<Scalars['String']['output']>;
+  scheduledEvent: Maybe<ScheduledEvent>;
+};
+
+export type ScheduledEventWithRejection = Rejection | ScheduledEvent;
+
 export type ScheduledEventsCoreFilter = {
   callId?: InputMaybe<Scalars['Int']['input']>;
   endsAfter?: InputMaybe<Scalars['DateTime']['input']>;
@@ -2956,6 +3467,16 @@ export type ScheduledEventsCoreFilter = {
   overlaps?: InputMaybe<TimeSpan>;
   startsAfter?: InputMaybe<Scalars['DateTime']['input']>;
   startsBefore?: InputMaybe<Scalars['DateTime']['input']>;
+};
+
+export type ScheduledEventsResponseWrap = {
+  error: Maybe<Scalars['String']['output']>;
+  scheduledEvents: Array<ScheduledEventWithRejection>;
+};
+
+export type SchedulerSuccessResponseWrap = {
+  error: Maybe<Scalars['String']['output']>;
+  isSuccess: Maybe<Scalars['Boolean']['output']>;
 };
 
 export type SelectionFromOptionsConfig = {
@@ -2978,7 +3499,6 @@ export enum SettingsId {
   DATE_TIME_FORMAT = 'DATE_TIME_FORMAT',
   DEFAULT_INST_SCI_REVIEWER_FILTER = 'DEFAULT_INST_SCI_REVIEWER_FILTER',
   DEFAULT_INST_SCI_STATUS_FILTER = 'DEFAULT_INST_SCI_STATUS_FILTER',
-  DEFAULT_NUM_FAP_REVIEWS_REQUIRED = 'DEFAULT_NUM_FAP_REVIEWS_REQUIRED',
   EXTERNAL_AUTH_LOGIN_URL = 'EXTERNAL_AUTH_LOGIN_URL',
   EXTERNAL_AUTH_LOGOUT_URL = 'EXTERNAL_AUTH_LOGOUT_URL',
   FEEDBACK_EXHAUST_DAYS = 'FEEDBACK_EXHAUST_DAYS',
@@ -3001,6 +3521,7 @@ export enum SettingsId {
   PALETTE_SUCCESS_MAIN = 'PALETTE_SUCCESS_MAIN',
   PALETTE_WARNING_MAIN = 'PALETTE_WARNING_MAIN',
   PROFILE_PAGE_LINK = 'PROFILE_PAGE_LINK',
+  SMTP_BCC_EMAIL = 'SMTP_BCC_EMAIL',
   TIMEZONE = 'TIMEZONE',
   USER_OFFICE_EMAIL = 'USER_OFFICE_EMAIL'
 }
@@ -3042,6 +3563,13 @@ export type ShipmentsFilter = {
   title?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type SimpleLostTimeInput = {
+  endsAt: Scalars['TzLessDateTime']['input'];
+  newlyCreated?: InputMaybe<Scalars['Boolean']['input']>;
+  scheduledEventId?: InputMaybe<Scalars['Int']['input']>;
+  startsAt: Scalars['TzLessDateTime']['input'];
+};
+
 export type StatusChangingEvent = {
   proposalWorkflowConnectionId: Scalars['Int']['output'];
   statusChangingEvent: Scalars['String']['output'];
@@ -3060,6 +3588,11 @@ export type SubTemplateConfig = {
   small_label: Scalars['String']['output'];
   templateCategory: Scalars['String']['output'];
   templateId: Maybe<Scalars['Int']['output']>;
+};
+
+export type SubmitFapMeetingDecisionsInput = {
+  callId: Scalars['Int']['input'];
+  fapId: Scalars['Int']['input'];
 };
 
 export type SubmitProposalsReviewInput = {
@@ -3104,6 +3637,19 @@ export enum TechnicalReviewStatus {
   PARTIALLY_FEASIBLE = 'PARTIALLY_FEASIBLE',
   UNFEASIBLE = 'UNFEASIBLE'
 }
+
+export type Technique = {
+  description: Scalars['String']['output'];
+  id: Scalars['Int']['output'];
+  instruments: Array<Instrument>;
+  name: Scalars['String']['output'];
+  shortCode: Scalars['String']['output'];
+};
+
+export type TechniquesQueryResult = {
+  techniques: Array<Technique>;
+  totalCount: Scalars['Int']['output'];
+};
 
 export type Template = {
   complementaryQuestions: Array<Question>;
@@ -3300,6 +3846,12 @@ export type UpdateInternalReviewInput = {
   title: Scalars['String']['input'];
 };
 
+export type UpdateLostTimeInput = {
+  endsAt: Scalars['TzLessDateTime']['input'];
+  id: Scalars['Int']['input'];
+  startsAt: Scalars['TzLessDateTime']['input'];
+};
+
 export type UpdatePredefinedMessageInput = {
   id: Scalars['Int']['input'];
   key: Scalars['String']['input'];
@@ -3319,6 +3871,16 @@ export type UpdateProposalWorkflowInput = {
   description: Scalars['String']['input'];
   id: Scalars['Int']['input'];
   name: Scalars['String']['input'];
+};
+
+export type UpdateScheduledEventInput = {
+  bookingType?: InputMaybe<ScheduledEventBookingType>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  endsAt: Scalars['TzLessDateTime']['input'];
+  instrumentId?: InputMaybe<Scalars['Int']['input']>;
+  localContact?: InputMaybe<Scalars['Int']['input']>;
+  scheduledEventId: Scalars['Int']['input'];
+  startsAt: Scalars['TzLessDateTime']['input'];
 };
 
 export type UpdateSettingsInput = {
@@ -3446,12 +4008,6 @@ export type VisitsFilter = {
   creatorId?: InputMaybe<Scalars['Int']['input']>;
   proposalPk?: InputMaybe<Scalars['Int']['input']>;
   scheduledEventId?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export type _Entity = BasicUserDetails | Call | Instrument | Proposal | User;
-
-export type _Service = {
-  sdl: Maybe<Scalars['String']['output']>;
 };
 
 export type GetAccessTokenAndPermissionsQueryVariables = Exact<{

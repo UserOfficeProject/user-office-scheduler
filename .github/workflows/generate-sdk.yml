@@ -36,6 +36,7 @@ jobs:
         while : ; do
           if [[ "$(docker compose -f docker-compose.sdk.yml ps --services --filter "status=running" | wc -l)" == "$(docker compose -f docker-compose.sdk.yml config --services | wc -l)" ]]; then
             echo "All containers are up!"
+            docker ps
             break
           fi
           echo "Not all containers are up. Waiting..."
@@ -58,10 +59,14 @@ jobs:
 
     - name: Generate SDK for frontend
       working-directory: apps/frontend
+      env:
+        SCHEMA_URL: http://0.0.0.0:4100/graphql
       run: npm run generate:local
 
     - name: Generate SDK for backend
       working-directory: apps/backend
+      env:
+        SCHEMA_URL: http://0.0.0.0:4100/graphql
       run: npm run generate:local
 
     - name: Create new branch

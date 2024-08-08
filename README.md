@@ -17,11 +17,11 @@ To be able to start both backend and frontend locally you will need to:
 If .env file is not preset during startup of the project, it will be created using example.env file template
 The `example.env` and `.env` files are located in `apps/backend` and `apps/frontend` accordingly.
 
-## Running with docker-compose
+## Running with docker compose
 
-If you want to get something running for testing purposes only, you can run the docker-compose file located at the root of the repository. Use the following steps:
+If you want to get something running for testing purposes only, you can run the docker compose file located at the root of the repository. Use the following steps:
 
-1. docker-compose up
+1. docker compose up
 2. For core visit **localhost:3000**
 3. For scheduler visit **localhost:33000**
 4. Use the default users for login, Aaron_Harris49@gmail.com (User Officer) or Javon4@hotmail.com (User) with password "Test1234!"

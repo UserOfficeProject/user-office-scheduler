@@ -1,0 +1,98 @@
+name: Generate SDK
+
+on:
+  repository_dispatch:
+    types: [generate-sdk]
+
+jobs:
+  generate-sdk:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        ref: develop
+
+    - name: Checkout tools repo
+      uses: actions/checkout@v4
+      with:
+        repository: UserOfficeProject/user-office-core
+        path: user-office-core
+        ref: develop
+
+    - name: Set up environment
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Start applications
+      run: docker compose -f docker-compose.sdk.yml up -d
+
+    - name: Wait for containers to be up
+      run: |
+        echo "Waiting for containers to be up..."
+        while : ; do
+          if [[ "$(docker compose -f docker-compose.sdk.yml ps --services --filter "status=running" | wc -l)" == "$(docker compose -f docker-compose.sdk.yml config --services | wc -l)" ]]; then
+            echo "All containers are up!"
+            break
+          fi
+          echo "Not all containers are up. Waiting..."
+          sleep 10
+        done
+
+    - name: Wait for backend to start
+      run: docker exec user-office-scheduler-gateway-1 wget -qO- --server-response http://backend:4000/health 2>&1 | awk '/^  HTTP/{print $2}'
+
+    - name: Wait for scheduler-backend to start
+      run: docker exec user-office-scheduler-gateway-1 wget -qO- --server-response http://scheduler-backend:4200/health-check 2>&1 | awk '/^  HTTP/{print $2}'
+
+    - name: Install frontend dependencies
+      working-directory: apps/frontend
+      run: npm ci
+
+    - name: Install backend dependencies
+      working-directory: apps/backend
+      run: npm ci
+
+    - name: Generate SDK for frontend
+      working-directory: apps/frontend
+      run: npm run generate:local
+
+    - name: Generate SDK for backend
+      working-directory: apps/backend
+      run: npm run generate:local
+
+    - name: Create new branch
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        branch_name="sdk-update-$(date +'%Y-%m-%d-%H%M%S')"
+        git checkout -b $branch_name
+        echo "branch=$branch_name" >> $GITHUB_ENV
+
+    - name: Commit changes
+      run: |
+        git add apps/backend/src/generated/sdk.ts
+        git add apps/frontend/src/generated/sdk.ts
+        git commit -m "chore(sdk): update generated sdk after core changes"
+
+    - name: Push changes
+      run: git push origin HEAD
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v6
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        base: develop
+        title: 'chore(sdk): update generated sdk after core changes'
+        body: 'Automatically generated SDK update'
+        branch: ${{ env.branch }}
+
+    - name: Auto-merge if checks pass
+      uses: pascalgn/automerge-action@v0.16.3
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        MERGE_METHOD: "squash"
+        MERGE_COMMIT_MESSAGE: "chore(sdk): update generated sdk after core changes"

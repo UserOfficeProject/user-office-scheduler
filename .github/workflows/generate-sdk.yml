@@ -60,13 +60,13 @@ jobs:
     - name: Generate SDK for frontend
       working-directory: apps/frontend
       env:
-        SCHEMA_URL: http://0.0.0.0:4100/graphql
+        SCHEMA_URL: http://127.0.0.1:4100/graphql
       run: npm run generate:local
 
     - name: Generate SDK for backend
       working-directory: apps/backend
       env:
-        SCHEMA_URL: http://0.0.0.0:4100/graphql
+        SCHEMA_URL: http://127.0.0.1:4100/graphql
       run: npm run generate:local
 
     - name: Create new branch

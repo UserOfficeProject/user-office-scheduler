@@ -47,6 +47,9 @@ jobs:
     - name: Wait for the scheduler database to start
       run: until pg_isready -h 0.0.0.0 -p 5433; do echo "Waiting for scheduler database to start..."; sleep 5; done
 
+    - name: Setup upterm session
+      uses: lhotari/action-upterm@v1
+    
     - name: Wait for backend to start
       run: docker exec user-office-scheduler-gateway-1 sh -c 'until wget -qO- --server-response http://backend:4000/health 2>&1 | awk "/^  HTTP/{print \$2}" | grep -q 200; do echo "Waiting for 200 response..."; sleep 5; done'
 

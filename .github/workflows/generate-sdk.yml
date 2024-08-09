@@ -44,10 +44,10 @@ jobs:
         done
 
     - name: Wait for backend to start
-      run: docker exec user-office-scheduler-gateway-1 wget -qO- --server-response http://backend:4000/health 2>&1 | awk '/^  HTTP/{print $2}'
+      run: docker exec user-office-scheduler-gateway-1 sh -c 'until wget -qO- --server-response http://backend:4000/health 2>&1 | awk "/^  HTTP/{print \$2}" | grep -q 200; do echo "Waiting for 200 response..."; sleep 5; done'
 
     - name: Wait for scheduler-backend to start
-      run: docker exec user-office-scheduler-gateway-1 wget -qO- --server-response http://scheduler-backend:4200/health-check 2>&1 | awk '/^  HTTP/{print $2}'
+      run: docker exec user-office-scheduler-gateway-1 sh -c 'until wget -qO- --server-response http://scheduler-backend:4200/health-check 2>&1 | awk "/^  HTTP/{print \$2}" | grep -q 200; do echo "Waiting for 200 response..."; sleep 5; done'
 
     - name: Install frontend dependencies
       working-directory: apps/frontend
@@ -60,13 +60,13 @@ jobs:
     - name: Generate SDK for frontend
       working-directory: apps/frontend
       env:
-        SCHEMA_URL: http://127.0.0.1:4100/graphql
+        SCHEMA_URL: http://0.0.0.0:4100/graphql
       run: npm run generate:local
 
     - name: Generate SDK for backend
       working-directory: apps/backend
       env:
-        SCHEMA_URL: http://127.0.0.1:4100/graphql
+        SCHEMA_URL: http://0.0.0.0:4100/graphql
       run: npm run generate:local
 
     - name: Create new branch

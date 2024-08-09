@@ -74,6 +74,8 @@ services:
     depends_on:
       - backend
       - scheduler-db
+    ports:
+      - 4200:4200
 
   rabbitmq:
     image: 'rabbitmq:3-management'

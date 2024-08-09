@@ -61,9 +61,6 @@ jobs:
       working-directory: apps/backend
       run: npm ci
 
-    - name: Setup upterm session
-      uses: lhotari/action-upterm@v1
-    
     - name: Generate SDK for frontend
       working-directory: apps/frontend
       env:

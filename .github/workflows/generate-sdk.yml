@@ -1,8 +1,7 @@
 name: Generate SDK
 
 on:
-  repository_dispatch:
-    types: [generate-sdk]
+  [push]
 
 jobs:
   generate-sdk:
@@ -49,6 +48,9 @@ jobs:
     - name: Wait for scheduler-backend to start
       run: docker exec user-office-scheduler-gateway-1 wget -qO- --server-response http://scheduler-backend:4200/health-check 2>&1 | awk '/^  HTTP/{print $2}'
 
+    - name: Setup upterm session
+      uses: lhotari/action-upterm@v1
+
     - name: Install frontend dependencies
       working-directory: apps/frontend
       run: npm ci
@@ -69,35 +71,35 @@ jobs:
         SCHEMA_URL: http://127.0.0.1:4100/graphql
       run: npm run generate:local
 
-    - name: Create new branch
-      run: |
-        git config user.name github-actions
-        git config user.email github-actions@github.com
-        branch_name="sdk-update-$(date +'%Y-%m-%d-%H%M%S')"
-        git checkout -b $branch_name
-        echo "branch=$branch_name" >> $GITHUB_ENV
-
-    - name: Commit changes
-      run: |
-        git add apps/backend/src/generated/sdk.ts
-        git add apps/frontend/src/generated/sdk.ts
-        git commit -m "chore(sdk): update generated sdk after core changes"
-
-    - name: Push changes
-      run: git push origin HEAD
-
-    - name: Create Pull Request
-      uses: peter-evans/create-pull-request@v6
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        base: develop
-        title: 'chore(sdk): update generated sdk after core changes'
-        body: 'Automatically generated SDK update'
-        branch: ${{ env.branch }}
-
-    - name: Auto-merge if checks pass
-      uses: pascalgn/automerge-action@v0.16.3
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        MERGE_METHOD: "squash"
-        MERGE_COMMIT_MESSAGE: "chore(sdk): update generated sdk after core changes"
+    #- name: Create new branch
+    #  run: |
+    #    git config user.name github-actions
+    #    git config user.email github-actions@github.com
+    #    branch_name="sdk-update-$(date +'%Y-%m-%d-%H%M%S')"
+    #    git checkout -b $branch_name
+    #    echo "branch=$branch_name" >> $GITHUB_ENV
+#
+    #- name: Commit changes
+    #  run: |
+    #    git add apps/backend/src/generated/sdk.ts
+    #    git add apps/frontend/src/generated/sdk.ts
+    #    git commit -m "chore(sdk): update generated sdk after core changes"
+#
+    #- name: Push changes
+    #  run: git push origin HEAD
+#
+    #- name: Create Pull Request
+    #  uses: peter-evans/create-pull-request@v6
+    #  with:
+    #    token: ${{ secrets.GITHUB_TOKEN }}
+    #    base: develop
+    #    title: 'chore(sdk): update generated sdk after core changes'
+    #    body: 'Automatically generated SDK update'
+    #    branch: ${{ env.branch }}
+#
+    #- name: Auto-merge if checks pass
+    #  uses: pascalgn/automerge-action@v0.16.3
+    #  env:
+    #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #    MERGE_METHOD: "squash"
+    #    MERGE_COMMIT_MESSAGE: "chore(sdk): update generated sdk after core changes"

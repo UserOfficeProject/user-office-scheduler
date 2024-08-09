@@ -79,17 +79,17 @@ jobs:
     - name: Remove user-office-core repo
       run: rm -rf user-office-core
 
-    - name: Create Pull Request
-      uses: peter-evans/create-pull-request@v6
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        base: develop
-        title: 'chore(sdk): update generated sdk after core changes'
-        body: 'Automatically generated SDK update'
-
-    - name: Auto-merge if checks pass
-      uses: pascalgn/automerge-action@v0.16.3
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        MERGE_METHOD: "squash"
-        MERGE_COMMIT_MESSAGE: "chore(sdk): update generated sdk after core changes"
+    #- name: Create Pull Request
+    #  uses: peter-evans/create-pull-request@v6
+    #  with:
+    #    token: ${{ secrets.GITHUB_TOKEN }}
+    #    base: develop
+    #    title: 'chore(sdk): update generated sdk after core changes'
+    #    body: 'Automatically generated SDK update'
+#
+    #- name: Auto-merge if checks pass
+    #  uses: pascalgn/automerge-action@v0.16.3
+    #  env:
+    #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #    MERGE_METHOD: "squash"
+    #    MERGE_COMMIT_MESSAGE: "chore(sdk): update generated sdk after core changes"

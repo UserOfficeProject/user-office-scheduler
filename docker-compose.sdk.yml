@@ -10,6 +10,8 @@ services:
       - ./user-office-core/apps/backend/db_patches/:/docker-entrypoint-initdb.d/
     ports:
       - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -p 5432"]
 
   scheduler-db:
     image: postgres:16-alpine
@@ -22,6 +24,8 @@ services:
       - './apps/backend/db_patches/:/docker-entrypoint-initdb.d/'
     ports:
       - 5433:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -p 5432"]
 
   gateway:
     image: 'ghcr.io/userofficeproject/user-office-gateway:develop'
@@ -54,9 +58,14 @@ services:
       SCHEDULER_ENDPOINT: http://scheduler-backend:4200/graphql
       RABBITMQ_HOSTNAME: rabbitmq
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+        restart: true
+      rabbitmq:
+        condition: service_started
     ports:
       - 4000:4000
+    restart: always
 
   scheduler-backend:
     image: 'ghcr.io/userofficeproject/user-office-scheduler-backend:develop'
@@ -72,10 +81,14 @@ services:
       USER_OFFICE_ENDPOINT: http://backend:4000/graphql
       UPSERT_PROPOSAL_BOOKING_TRIGGER_STATUSES: SCHEDULING
     depends_on:
-      - backend
-      - scheduler-db
+      scheduler-db:
+        condition: service_healthy
+        restart: true
+      backend:
+        condition: service_started
     ports:
       - 4200:4200
+    restart: always
 
   rabbitmq:
     image: 'rabbitmq:3-management'

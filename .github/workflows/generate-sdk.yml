@@ -69,22 +69,8 @@ jobs:
         SCHEMA_URL: http://0.0.0.0:4100/graphql
       run: npm run generate:local
 
-    - name: Create new branch
-      run: |
-        git config user.name github-actions
-        git config user.email github-actions@github.com
-        branch_name="sdk-update-$(date +'%Y-%m-%d-%H%M%S')"
-        git checkout -b $branch_name
-        echo "branch=$branch_name" >> $GITHUB_ENV
-
-    - name: Commit changes
-      run: |
-        git add apps/backend/src/generated/sdk.ts
-        git add apps/frontend/src/generated/sdk.ts
-        git commit -m "chore(sdk): update generated sdk after core changes"
-
-    - name: Push changes
-      run: git push origin HEAD
+    - name: Remove user-office-core repo
+      run: rm -rf user-office-core
 
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v6
@@ -93,7 +79,6 @@ jobs:
         base: develop
         title: 'chore(sdk): update generated sdk after core changes'
         body: 'Automatically generated SDK update'
-        branch: ${{ env.branch }}
 
     - name: Auto-merge if checks pass
       uses: pascalgn/automerge-action@v0.16.3

@@ -1,8 +1,6 @@
 name: Generate SDK
 
-on:
-  repository_dispatch:
-    types: [generate-sdk]
+on: [push]
 
 jobs:
   generate-sdk:

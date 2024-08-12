@@ -7,7 +7,10 @@ on:
 jobs:
   generate-sdk:
     runs-on: ubuntu-latest
-
+    
+    permissions:
+      pull-requests: write
+    
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -85,6 +88,7 @@ jobs:
         private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
     - name: Create Pull Request
+      id: cpr
       uses: peter-evans/create-pull-request@v6
       with:
         token: ${{ steps.app-token.outputs.token }}
@@ -92,9 +96,20 @@ jobs:
         title: 'chore(sdk): update generated sdk after core changes'
         body: 'Automatically generated SDK update'
 
-    - name: Auto-merge if checks pass
-      uses: pascalgn/automerge-action@v0.16.3
+    - name: Check outputs
+      if: ${{ steps.cpr.outputs.pull-request-number }}
+      run: |
+        echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
+        echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"
+
+    - name: Auto approve PR
+      if: ${{ steps.cpr.outputs.pull-request-number }}
+      uses: hmarr/auto-approve-action@v4
+      with:
+        pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
+
+    - name: Auto merge PR
+      if: ${{ steps.cpr.outputs.pull-request-number }}
+      run: gh pr merge --auto --merge --squash ${{ steps.cpr.outputs.pull-request-url }}
       env:
-        GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-        MERGE_METHOD: "squash"
-        MERGE_COMMIT_MESSAGE: "chore(sdk): update generated sdk after core changes"
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

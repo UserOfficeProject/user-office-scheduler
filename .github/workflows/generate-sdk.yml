@@ -110,6 +110,6 @@ jobs:
 
     - name: Auto merge PR
       if: ${{ steps.cpr.outputs.pull-request-number }}
-      run: gh pr merge --auto --merge --squash ${{ steps.cpr.outputs.pull-request-url }}
+      run: gh pr merge --auto --merge ${{ steps.cpr.outputs.pull-request-url }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

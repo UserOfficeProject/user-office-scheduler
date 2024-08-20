@@ -516,6 +516,7 @@ export enum Event {
   CALL_FAP_REVIEW_ENDED = 'CALL_FAP_REVIEW_ENDED',
   CALL_REVIEW_ENDED = 'CALL_REVIEW_ENDED',
   EMAIL_INVITE = 'EMAIL_INVITE',
+  FAP_ALL_MEETINGS_SUBMITTED = 'FAP_ALL_MEETINGS_SUBMITTED',
   FAP_CREATED = 'FAP_CREATED',
   FAP_MEMBERS_ASSIGNED = 'FAP_MEMBERS_ASSIGNED',
   FAP_MEMBER_ASSIGNED_TO_PROPOSAL = 'FAP_MEMBER_ASSIGNED_TO_PROPOSAL',
@@ -536,10 +537,13 @@ export enum Event {
   PREDEFINED_MESSAGE_DELETED = 'PREDEFINED_MESSAGE_DELETED',
   PREDEFINED_MESSAGE_UPDATED = 'PREDEFINED_MESSAGE_UPDATED',
   PROPOSAL_ACCEPTED = 'PROPOSAL_ACCEPTED',
+  PROPOSAL_ALL_FAP_MEETINGS_SUBMITTED = 'PROPOSAL_ALL_FAP_MEETINGS_SUBMITTED',
+  PROPOSAL_ALL_FAP_MEETING_INSTRUMENT_SUBMITTED = 'PROPOSAL_ALL_FAP_MEETING_INSTRUMENT_SUBMITTED',
   PROPOSAL_ALL_FAP_REVIEWERS_SELECTED = 'PROPOSAL_ALL_FAP_REVIEWERS_SELECTED',
   PROPOSAL_ALL_FAP_REVIEWS_SUBMITTED = 'PROPOSAL_ALL_FAP_REVIEWS_SUBMITTED',
   PROPOSAL_ALL_FEASIBILITY_REVIEWS_FEASIBLE = 'PROPOSAL_ALL_FEASIBILITY_REVIEWS_FEASIBLE',
   PROPOSAL_ALL_FEASIBILITY_REVIEWS_SUBMITTED = 'PROPOSAL_ALL_FEASIBILITY_REVIEWS_SUBMITTED',
+  PROPOSAL_ALL_REVIEWS_SUBMITTED_FOR_ALL_FAPS = 'PROPOSAL_ALL_REVIEWS_SUBMITTED_FOR_ALL_FAPS',
   PROPOSAL_BOOKING_TIME_ACTIVATED = 'PROPOSAL_BOOKING_TIME_ACTIVATED',
   PROPOSAL_BOOKING_TIME_COMPLETED = 'PROPOSAL_BOOKING_TIME_COMPLETED',
   PROPOSAL_BOOKING_TIME_REOPENED = 'PROPOSAL_BOOKING_TIME_REOPENED',
@@ -621,10 +625,12 @@ export type Fap = {
   fapChairsProposalCounts: Array<FapProposalCount>;
   fapSecretaries: Array<BasicUserDetails>;
   fapSecretariesProposalCounts: Array<FapProposalCount>;
+  files: Maybe<Scalars['String']['output']>;
   gradeGuide: Maybe<Scalars['String']['output']>;
   id: Scalars['Int']['output'];
   numberRatingsRequired: Scalars['Float']['output'];
   proposalCount: Scalars['Int']['output'];
+  proposalCurrentCount: Scalars['Int']['output'];
 };
 
 export type FapAssignment = {
@@ -714,6 +720,7 @@ export type Feature = {
 };
 
 export enum FeatureId {
+  CONFLICT_OF_INTEREST_WARNING = 'CONFLICT_OF_INTEREST_WARNING',
   EMAIL_INVITE = 'EMAIL_INVITE',
   EMAIL_SEARCH = 'EMAIL_SEARCH',
   FAP_REVIEW = 'FAP_REVIEW',
@@ -1006,6 +1013,7 @@ export type Mutation = {
   assignProposalsToInstruments: Scalars['Boolean']['output'];
   assignReviewersToFap: Fap;
   assignScientistsToInstrument: Scalars['Boolean']['output'];
+  assignScientistsToTechnique: Scalars['Boolean']['output'];
   assignToScheduledEvents: Scalars['Boolean']['output'];
   changeProposalsStatus: Scalars['Boolean']['output'];
   cloneGenericTemplate: GenericTemplate;
@@ -1091,6 +1099,7 @@ export type Mutation = {
   removeProposalsFromFaps: Array<FapProposal>;
   removeProposalsFromInstrument: Scalars['Boolean']['output'];
   removeScientistFromInstrument: Scalars['Boolean']['output'];
+  removeScientistFromTechnique: Scalars['Boolean']['output'];
   removeUserForReview: Review;
   reopenProposalBooking: ProposalBookingResponseWrap;
   reopenScheduledEvent: ScheduledEventResponseWrap;
@@ -1274,6 +1283,12 @@ export type MutationAssignReviewersToFapArgs = {
 export type MutationAssignScientistsToInstrumentArgs = {
   instrumentId: Scalars['Int']['input'];
   scientistIds: Array<Scalars['Int']['input']>;
+};
+
+
+export type MutationAssignScientistsToTechniqueArgs = {
+  scientistIds: Array<Scalars['Int']['input']>;
+  techniqueId: Scalars['Int']['input'];
 };
 
 
@@ -1776,6 +1791,12 @@ export type MutationRemoveScientistFromInstrumentArgs = {
 };
 
 
+export type MutationRemoveScientistFromTechniqueArgs = {
+  scientistId: Scalars['Int']['input'];
+  techniqueId: Scalars['Int']['input'];
+};
+
+
 export type MutationRemoveUserForReviewArgs = {
   fapId: Scalars['Int']['input'];
   reviewId: Scalars['Int']['input'];
@@ -1926,6 +1947,7 @@ export type MutationUpdateFapArgs = {
   code: Scalars['String']['input'];
   customGradeGuide?: InputMaybe<Scalars['Boolean']['input']>;
   description: Scalars['String']['input'];
+  files?: InputMaybe<Scalars['String']['input']>;
   gradeGuide?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['Int']['input'];
   numberRatingsRequired?: Scalars['Int']['input'];
@@ -3522,6 +3544,7 @@ export enum SettingsId {
   PALETTE_WARNING_MAIN = 'PALETTE_WARNING_MAIN',
   PROFILE_PAGE_LINK = 'PROFILE_PAGE_LINK',
   SMTP_BCC_EMAIL = 'SMTP_BCC_EMAIL',
+  TECH_REVIEW_OPTIONAL_WORKFLOW_STATUS = 'TECH_REVIEW_OPTIONAL_WORKFLOW_STATUS',
   TIMEZONE = 'TIMEZONE',
   USER_OFFICE_EMAIL = 'USER_OFFICE_EMAIL'
 }
@@ -3643,6 +3666,7 @@ export type Technique = {
   id: Scalars['Int']['output'];
   instruments: Array<Instrument>;
   name: Scalars['String']['output'];
+  scientists: Array<BasicUserDetails>;
   shortCode: Scalars['String']['output'];
 };
 
@@ -3796,8 +3820,8 @@ export type UpdateCallInput = {
   allocationTimeUnit?: InputMaybe<AllocationTimeUnits>;
   callEnded?: InputMaybe<Scalars['Boolean']['input']>;
   callEndedInternal?: InputMaybe<Scalars['Boolean']['input']>;
-  callFapReviewEnded?: InputMaybe<Scalars['Int']['input']>;
-  callReviewEnded?: InputMaybe<Scalars['Int']['input']>;
+  callFapReviewEnded?: InputMaybe<Scalars['Boolean']['input']>;
+  callReviewEnded?: InputMaybe<Scalars['Boolean']['input']>;
   cycleComment?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   endCall?: InputMaybe<Scalars['DateTime']['input']>;

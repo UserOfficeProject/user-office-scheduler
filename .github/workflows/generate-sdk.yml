@@ -7,7 +7,11 @@ on:
 jobs:
   generate-sdk:
     runs-on: ubuntu-latest
-
+    
+    permissions:
+      pull-requests: write
+      contents: write
+      
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -36,17 +40,24 @@ jobs:
         while : ; do
           if [[ "$(docker compose -f docker-compose.sdk.yml ps --services --filter "status=running" | wc -l)" == "$(docker compose -f docker-compose.sdk.yml config --services | wc -l)" ]]; then
             echo "All containers are up!"
+            docker ps
             break
           fi
           echo "Not all containers are up. Waiting..."
           sleep 10
         done
 
+    - name: Wait for the core database to start
+      run: until pg_isready -h 0.0.0.0 -p 5432; do echo "Waiting for core database to start..."; sleep 5; done
+
+    - name: Wait for the scheduler database to start
+      run: until pg_isready -h 0.0.0.0 -p 5433; do echo "Waiting for scheduler database to start..."; sleep 5; done
+
     - name: Wait for backend to start
-      run: docker exec user-office-scheduler-gateway-1 wget -qO- --server-response http://backend:4000/health 2>&1 | awk '/^  HTTP/{print $2}'
+      run: docker exec user-office-scheduler-gateway-1 sh -c 'until wget -qO- --server-response http://backend:4000/health 2>&1 | awk "/^  HTTP/{print \$2}" | grep -q 200; do echo "Waiting for 200 response..."; sleep 5; done'
 
     - name: Wait for scheduler-backend to start
-      run: docker exec user-office-scheduler-gateway-1 wget -qO- --server-response http://scheduler-backend:4200/health-check 2>&1 | awk '/^  HTTP/{print $2}'
+      run: docker exec user-office-scheduler-gateway-1 sh -c 'until wget -qO- --server-response http://scheduler-backend:4200/health-check 2>&1 | awk "/^  HTTP/{print \$2}" | grep -q 200; do echo "Waiting for 200 response..."; sleep 5; done'
 
     - name: Install frontend dependencies
       working-directory: apps/frontend
@@ -58,41 +69,48 @@ jobs:
 
     - name: Generate SDK for frontend
       working-directory: apps/frontend
+      env:
+        SCHEMA_URL: http://0.0.0.0:4100/graphql
       run: npm run generate:local
 
     - name: Generate SDK for backend
       working-directory: apps/backend
+      env:
+        SCHEMA_URL: http://0.0.0.0:4100/graphql
       run: npm run generate:local
 
-    - name: Create new branch
-      run: |
-        git config user.name github-actions
-        git config user.email github-actions@github.com
-        branch_name="sdk-update-$(date +'%Y-%m-%d-%H%M%S')"
-        git checkout -b $branch_name
-        echo "branch=$branch_name" >> $GITHUB_ENV
+    - name: Remove user-office-core repo
+      run: rm -rf user-office-core
 
-    - name: Commit changes
-      run: |
-        git add apps/backend/src/generated/sdk.ts
-        git add apps/frontend/src/generated/sdk.ts
-        git commit -m "chore(sdk): update generated sdk after core changes"
-
-    - name: Push changes
-      run: git push origin HEAD
+    - uses: actions/create-github-app-token@v1
+      id: app-token
+      with:
+        app-id: ${{ secrets.APP_ID }}
+        private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
     - name: Create Pull Request
+      id: cpr
       uses: peter-evans/create-pull-request@v6
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ steps.app-token.outputs.token }}
         base: develop
         title: 'chore(sdk): update generated sdk after core changes'
         body: 'Automatically generated SDK update'
-        branch: ${{ env.branch }}
 
-    - name: Auto-merge if checks pass
-      uses: pascalgn/automerge-action@v0.16.3
+    - name: Check outputs
+      if: ${{ steps.cpr.outputs.pull-request-number }}
+      run: |
+        echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
+        echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"
+
+    - name: Auto approve PR
+      if: ${{ steps.cpr.outputs.pull-request-number }}
+      uses: hmarr/auto-approve-action@v4
+      with:
+        pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
+
+    - name: Auto merge PR
+      if: ${{ steps.cpr.outputs.pull-request-number }}
+      run: gh pr merge --auto --squash ${{ steps.cpr.outputs.pull-request-url }}
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        MERGE_METHOD: "squash"
-        MERGE_COMMIT_MESSAGE: "chore(sdk): update generated sdk after core changes"
+        GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}

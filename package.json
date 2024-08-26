@@ -48,7 +48,7 @@
     "wait-on": "^7.2.0"
   },
   "devDependencies": {
-    "husky": "^9.1.4",
+    "husky": "^9.1.5",
     "lint-staged": "^15.2.9"
   }
 }

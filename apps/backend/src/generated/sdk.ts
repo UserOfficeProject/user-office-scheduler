@@ -318,6 +318,7 @@ export enum DataType {
   SAMPLE_ESI_BASIS = 'SAMPLE_ESI_BASIS',
   SELECTION_FROM_OPTIONS = 'SELECTION_FROM_OPTIONS',
   SHIPMENT_BASIS = 'SHIPMENT_BASIS',
+  TECHNIQUE_PICKER = 'TECHNIQUE_PICKER',
   TEXT_INPUT = 'TEXT_INPUT',
   VISIT_BASIS = 'VISIT_BASIS'
 }
@@ -544,6 +545,7 @@ export enum Event {
   PROPOSAL_ALL_FEASIBILITY_REVIEWS_FEASIBLE = 'PROPOSAL_ALL_FEASIBILITY_REVIEWS_FEASIBLE',
   PROPOSAL_ALL_FEASIBILITY_REVIEWS_SUBMITTED = 'PROPOSAL_ALL_FEASIBILITY_REVIEWS_SUBMITTED',
   PROPOSAL_ALL_REVIEWS_SUBMITTED_FOR_ALL_FAPS = 'PROPOSAL_ALL_REVIEWS_SUBMITTED_FOR_ALL_FAPS',
+  PROPOSAL_ASSIGNED_TO_TECHNIQUES = 'PROPOSAL_ASSIGNED_TO_TECHNIQUES',
   PROPOSAL_BOOKING_TIME_ACTIVATED = 'PROPOSAL_BOOKING_TIME_ACTIVATED',
   PROPOSAL_BOOKING_TIME_COMPLETED = 'PROPOSAL_BOOKING_TIME_COMPLETED',
   PROPOSAL_BOOKING_TIME_REOPENED = 'PROPOSAL_BOOKING_TIME_REOPENED',
@@ -622,9 +624,9 @@ export type Fap = {
   customGradeGuide: Maybe<Scalars['Boolean']['output']>;
   description: Scalars['String']['output'];
   fapChairs: Array<BasicUserDetails>;
-  fapChairsProposalCounts: Array<FapProposalCount>;
+  fapChairsCurrentProposalCounts: Array<FapProposalCount>;
   fapSecretaries: Array<BasicUserDetails>;
-  fapSecretariesProposalCounts: Array<FapProposalCount>;
+  fapSecretariesCurrentProposalCounts: Array<FapProposalCount>;
   files: Maybe<Scalars['String']['output']>;
   gradeGuide: Maybe<Scalars['String']['output']>;
   id: Scalars['Int']['output'];
@@ -785,7 +787,7 @@ export type FieldConditionInput = {
   params: Scalars['String']['input'];
 };
 
-export type FieldConfig = BooleanConfig | DateConfig | DynamicMultipleChoiceConfig | EmbellishmentConfig | FeedbackBasisConfig | FileUploadConfig | GenericTemplateBasisConfig | InstrumentPickerConfig | IntervalConfig | NumberInputConfig | ProposalBasisConfig | ProposalEsiBasisConfig | RichTextInputConfig | SampleBasisConfig | SampleDeclarationConfig | SampleEsiBasisConfig | SelectionFromOptionsConfig | ShipmentBasisConfig | SubTemplateConfig | TextInputConfig | VisitBasisConfig;
+export type FieldConfig = BooleanConfig | DateConfig | DynamicMultipleChoiceConfig | EmbellishmentConfig | FeedbackBasisConfig | FileUploadConfig | GenericTemplateBasisConfig | InstrumentPickerConfig | IntervalConfig | NumberInputConfig | ProposalBasisConfig | ProposalEsiBasisConfig | RichTextInputConfig | SampleBasisConfig | SampleDeclarationConfig | SampleEsiBasisConfig | SelectionFromOptionsConfig | ShipmentBasisConfig | SubTemplateConfig | TechniquePickerConfig | TextInputConfig | VisitBasisConfig;
 
 export type FieldDependency = {
   condition: FieldCondition;
@@ -2568,7 +2570,9 @@ export type ProposalWorkflowConnectionGroup = {
 
 export type ProposalsFilter = {
   callId?: InputMaybe<Scalars['Int']['input']>;
+  excludeProposalStatusIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   instrumentFilter?: InputMaybe<InstrumentFilterInput>;
+  instrumentId?: InputMaybe<Scalars['Int']['input']>;
   proposalStatusId?: InputMaybe<Scalars['Int']['input']>;
   questionFilter?: InputMaybe<QuestionFilterInput>;
   questionaryIds?: InputMaybe<Array<Scalars['Int']['input']>>;
@@ -2708,6 +2712,7 @@ export type Query = {
   statusActions: Maybe<Array<ProposalStatusAction>>;
   technique: Maybe<Technique>;
   techniques: Maybe<TechniquesQueryResult>;
+  techniquesByIds: Maybe<Array<Technique>>;
   template: Maybe<Template>;
   templateCategories: Maybe<Array<TemplateCategory>>;
   templates: Maybe<Array<Template>>;
@@ -3146,6 +3151,11 @@ export type QueryTechniqueArgs = {
 };
 
 
+export type QueryTechniquesByIdsArgs = {
+  techniqueIds: Array<Scalars['Int']['input']>;
+};
+
+
 export type QueryTemplateArgs = {
   templateId: Scalars['Int']['input'];
 };
@@ -3336,6 +3346,7 @@ export enum ReviewerFilter {
 }
 
 export type RichTextInputConfig = {
+  allowImages: Scalars['Boolean']['output'];
   max: Maybe<Scalars['Int']['output']>;
   required: Scalars['Boolean']['output'];
   small_label: Scalars['String']['output'];
@@ -3668,6 +3679,20 @@ export type Technique = {
   name: Scalars['String']['output'];
   scientists: Array<BasicUserDetails>;
   shortCode: Scalars['String']['output'];
+};
+
+export type TechniqueOption = {
+  id: Scalars['Float']['output'];
+  name: Scalars['String']['output'];
+};
+
+export type TechniquePickerConfig = {
+  isMultipleSelect: Scalars['Boolean']['output'];
+  required: Scalars['Boolean']['output'];
+  small_label: Scalars['String']['output'];
+  techniques: Array<TechniqueOption>;
+  tooltip: Scalars['String']['output'];
+  variant: Scalars['String']['output'];
 };
 
 export type TechniquesQueryResult = {

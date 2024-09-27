@@ -159,6 +159,7 @@ function ExternalAuth() {
     urlQueryParams.code,
     urlQueryParams.error_description,
     urlQueryParams.token,
+    urlQueryParams.iss,
   ]);
 
   return View;

@@ -155,6 +155,7 @@ export type Call = {
   endNotify: Scalars['DateTime']['output'];
   endReview: Scalars['DateTime']['output'];
   esiTemplateId: Maybe<Scalars['Int']['output']>;
+  fapReviewTemplateId: Maybe<Scalars['Int']['output']>;
   faps: Maybe<Array<Fap>>;
   id: Scalars['Int']['output'];
   instruments: Array<InstrumentWithAvailabilityTime>;
@@ -181,6 +182,7 @@ export type Call = {
 
 export type CallsFilter = {
   fapIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  fapReviewTemplateIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   instrumentIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   isActiveInternal?: InputMaybe<Scalars['Boolean']['input']>;
@@ -256,6 +258,7 @@ export type CreateCallInput = {
   endNotify: Scalars['DateTime']['input'];
   endReview: Scalars['DateTime']['input'];
   esiTemplateId?: InputMaybe<Scalars['Int']['input']>;
+  fapReviewTemplateId?: InputMaybe<Scalars['Int']['input']>;
   faps?: InputMaybe<Array<Scalars['Int']['input']>>;
   pdfTemplateId?: InputMaybe<Scalars['Int']['input']>;
   proposalSequence?: InputMaybe<Scalars['Int']['input']>;
@@ -303,6 +306,7 @@ export enum DataType {
   DATE = 'DATE',
   DYNAMIC_MULTIPLE_CHOICE = 'DYNAMIC_MULTIPLE_CHOICE',
   EMBELLISHMENT = 'EMBELLISHMENT',
+  FAP_REVIEW_BASIS = 'FAP_REVIEW_BASIS',
   FEEDBACK_BASIS = 'FEEDBACK_BASIS',
   FILE_UPLOAD = 'FILE_UPLOAD',
   GENERIC_TEMPLATE = 'GENERIC_TEMPLATE',
@@ -693,6 +697,33 @@ export type FapReviewAssignmentInput = {
   proposalPk: Scalars['Int']['input'];
 };
 
+export type FapReviewBasisConfig = {
+  required: Scalars['Boolean']['output'];
+  small_label: Scalars['String']['output'];
+  tooltip: Scalars['String']['output'];
+};
+
+export type FapReviewTemplate = {
+  callCount: Scalars['Int']['output'];
+  complementaryQuestions: Array<Question>;
+  description: Maybe<Scalars['String']['output']>;
+  group: TemplateGroup;
+  groupId: TemplateGroupId;
+  isArchived: Scalars['Boolean']['output'];
+  json: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  pdfCallCount: Maybe<Scalars['Int']['output']>;
+  pdfTemplate: Maybe<PdfTemplate>;
+  questionaryCount: Scalars['Int']['output'];
+  steps: Array<TemplateStep>;
+  templateId: Scalars['Int']['output'];
+};
+
+export type FapReviewTemplatesFilter = {
+  isArchived?: InputMaybe<Scalars['Boolean']['input']>;
+  templateIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+};
+
 export type FapReviewer = {
   fapId: Scalars['Int']['output'];
   proposalsCount: Scalars['Int']['output'];
@@ -787,7 +818,7 @@ export type FieldConditionInput = {
   params: Scalars['String']['input'];
 };
 
-export type FieldConfig = BooleanConfig | DateConfig | DynamicMultipleChoiceConfig | EmbellishmentConfig | FeedbackBasisConfig | FileUploadConfig | GenericTemplateBasisConfig | InstrumentPickerConfig | IntervalConfig | NumberInputConfig | ProposalBasisConfig | ProposalEsiBasisConfig | RichTextInputConfig | SampleBasisConfig | SampleDeclarationConfig | SampleEsiBasisConfig | SelectionFromOptionsConfig | ShipmentBasisConfig | SubTemplateConfig | TechniquePickerConfig | TextInputConfig | VisitBasisConfig;
+export type FieldConfig = BooleanConfig | DateConfig | DynamicMultipleChoiceConfig | EmbellishmentConfig | FapReviewBasisConfig | FeedbackBasisConfig | FileUploadConfig | GenericTemplateBasisConfig | InstrumentPickerConfig | IntervalConfig | NumberInputConfig | ProposalBasisConfig | ProposalEsiBasisConfig | RichTextInputConfig | SampleBasisConfig | SampleDeclarationConfig | SampleEsiBasisConfig | SelectionFromOptionsConfig | ShipmentBasisConfig | SubTemplateConfig | TechniquePickerConfig | TextInputConfig | VisitBasisConfig;
 
 export type FieldDependency = {
   condition: FieldCondition;
@@ -2079,6 +2110,7 @@ export type MutationUpdateReviewArgs = {
   comment: Scalars['String']['input'];
   fapID: Scalars['Int']['input'];
   grade: Scalars['Float']['input'];
+  questionaryID: Scalars['Int']['input'];
   reviewID: Scalars['Int']['input'];
   status: ReviewStatus;
 };
@@ -2641,6 +2673,7 @@ export type Query = {
   fapProposal: Maybe<FapProposal>;
   fapProposals: Maybe<Array<FapProposal>>;
   fapProposalsByInstrument: Maybe<Array<FapProposal>>;
+  fapReviewTemplates: Maybe<Array<FapReviewTemplate>>;
   fapReviewers: Maybe<Array<FapReviewer>>;
   faps: Maybe<FapsQueryResult>;
   features: Array<Feature>;
@@ -2695,6 +2728,7 @@ export type Query = {
   questionary: Maybe<Questionary>;
   questions: Array<QuestionWithUsage>;
   review: Maybe<Review>;
+  reviews: Maybe<ReviewsQueryResult>;
   roles: Maybe<Array<Role>>;
   sample: Maybe<Sample>;
   sampleEsi: Maybe<SampleExperimentSafetyInput>;
@@ -2853,6 +2887,11 @@ export type QueryFapProposalsByInstrumentArgs = {
   callId: Scalars['Int']['input'];
   fapId: Scalars['Int']['input'];
   instrumentId: Scalars['Int']['input'];
+};
+
+
+export type QueryFapReviewTemplatesArgs = {
+  filter?: InputMaybe<FapReviewTemplatesFilter>;
 };
 
 
@@ -3093,6 +3132,13 @@ export type QueryReviewArgs = {
 };
 
 
+export type QueryReviewsArgs = {
+  filter?: InputMaybe<ReviewsFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
 export type QuerySampleArgs = {
   sampleId: Scalars['Int']['input'];
 };
@@ -3330,6 +3376,8 @@ export type Review = {
   grade: Maybe<Scalars['Float']['output']>;
   id: Scalars['Int']['output'];
   proposal: Maybe<Proposal>;
+  questionary: Questionary;
+  questionaryID: Scalars['Int']['output'];
   reviewer: Maybe<BasicUserDetails>;
   status: ReviewStatus;
   userID: Scalars['Int']['output'];
@@ -3344,6 +3392,20 @@ export enum ReviewerFilter {
   ALL = 'ALL',
   ME = 'ME'
 }
+
+export type ReviewsFilter = {
+  callId?: InputMaybe<Scalars['Int']['input']>;
+  questionaryIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  reviewer?: InputMaybe<ReviewerFilter>;
+  shortCodes?: InputMaybe<Array<Scalars['String']['input']>>;
+  templateIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  text?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ReviewsQueryResult = {
+  reviews: Array<Review>;
+  totalCount: Scalars['Int']['output'];
+};
 
 export type RichTextInputConfig = {
   allowImages: Scalars['Boolean']['output'];
@@ -3721,6 +3783,7 @@ export type TemplateCategory = {
 };
 
 export enum TemplateCategoryId {
+  FAP_REVIEW = 'FAP_REVIEW',
   FEEDBACK = 'FEEDBACK',
   GENERIC_TEMPLATE = 'GENERIC_TEMPLATE',
   PDF = 'PDF',
@@ -3736,6 +3799,7 @@ export type TemplateGroup = {
 };
 
 export enum TemplateGroupId {
+  FAP_REVIEW = 'FAP_REVIEW',
   FEEDBACK = 'FEEDBACK',
   GENERIC_TEMPLATE = 'GENERIC_TEMPLATE',
   PDF_TEMPLATE = 'PDF_TEMPLATE',
@@ -3856,6 +3920,7 @@ export type UpdateCallInput = {
   endNotify?: InputMaybe<Scalars['DateTime']['input']>;
   endReview?: InputMaybe<Scalars['DateTime']['input']>;
   esiTemplateId?: InputMaybe<Scalars['Int']['input']>;
+  fapReviewTemplateId?: InputMaybe<Scalars['Int']['input']>;
   faps?: InputMaybe<Array<Scalars['Int']['input']>>;
   id: Scalars['Int']['input'];
   isActive?: InputMaybe<Scalars['Boolean']['input']>;

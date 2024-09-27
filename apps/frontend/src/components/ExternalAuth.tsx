@@ -16,6 +16,7 @@ const ExternalAuthQueryParams = {
   token: StringParam,
   code: StringParam,
   error_description: StringParam,
+  iss: StringParam,
 };
 
 function ExternalAuth() {
@@ -101,6 +102,7 @@ function ExternalAuth() {
     const handleAuthorizationCode = (authorizationCode: string) => {
       const { protocol, host, pathname } = window.location;
       const currentUrlWithoutParams = [protocol, '//', host, pathname].join('');
+      const iss = urlQueryParams.iss;
 
       setView(<ContactingAuthorizationServerMessage />);
 
@@ -108,6 +110,7 @@ function ExternalAuth() {
         .externalTokenLogin({
           externalToken: authorizationCode,
           redirectUri: currentUrlWithoutParams,
+          iss,
         })
         .then(({ externalTokenLogin }) => {
           handleLogin(externalTokenLogin);

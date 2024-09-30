@@ -4407,6 +4407,7 @@ export type BasicUserDetailsFragment = { id: number, firstname: string, lastname
 export type ExternalTokenLoginMutationVariables = Exact<{
   externalToken: Scalars['String']['input'];
   redirectUri: Scalars['String']['input'];
+  iss?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -5073,8 +5074,12 @@ export const UpdateScheduledEventDocument = gql`
 }
     ${BasicUserDetailsFragmentDoc}`;
 export const ExternalTokenLoginDocument = gql`
-    mutation externalTokenLogin($externalToken: String!, $redirectUri: String!) {
-  externalTokenLogin(externalToken: $externalToken, redirectUri: $redirectUri)
+    mutation externalTokenLogin($externalToken: String!, $redirectUri: String!, $iss: String) {
+  externalTokenLogin(
+    externalToken: $externalToken
+    redirectUri: $redirectUri
+    iss: $iss
+  )
 }
     `;
 export const GetMyRolesDocument = gql`

@@ -1144,6 +1144,7 @@ export type Mutation = {
   reopenProposalBooking: ProposalBookingResponseWrap;
   reopenScheduledEvent: ScheduledEventResponseWrap;
   reorderFapMeetingDecisionProposals: FapMeetingDecision;
+  replayStatusActionsLog: Scalars['Boolean']['output'];
   requestFeedback: FeedbackRequest;
   resetSchedulerDb: Scalars['String']['output'];
   saveFapMeetingDecision: FapMeetingDecision;
@@ -1861,6 +1862,11 @@ export type MutationReopenScheduledEventArgs = {
 
 export type MutationReorderFapMeetingDecisionProposalsArgs = {
   reorderFapMeetingDecisionProposalsInput: ReorderFapMeetingDecisionProposalsInput;
+};
+
+
+export type MutationReplayStatusActionsLogArgs = {
+  statusActionsLogId: Scalars['Int']['input'];
 };
 
 
@@ -2770,6 +2776,7 @@ export type Query = {
   shipment: Maybe<Shipment>;
   shipments: Maybe<Array<Shipment>>;
   statusActions: Maybe<Array<ProposalStatusAction>>;
+  statusActionsLogs: Maybe<StatusActionsLogQueryResult>;
   technique: Maybe<Technique>;
   techniqueScientistProposals: Maybe<ProposalsViewResult>;
   techniques: Maybe<TechniquesQueryResult>;
@@ -3216,6 +3223,16 @@ export type QueryShipmentArgs = {
 
 export type QueryShipmentsArgs = {
   filter?: InputMaybe<ShipmentsFilter>;
+};
+
+
+export type QueryStatusActionsLogsArgs = {
+  filter?: InputMaybe<StatusActionsLogsFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  searchText?: InputMaybe<Scalars['String']['input']>;
+  sortDirection?: InputMaybe<Scalars['String']['input']>;
+  sortField?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -3702,6 +3719,31 @@ export type SimpleLostTimeInput = {
   newlyCreated?: InputMaybe<Scalars['Boolean']['input']>;
   scheduledEventId?: InputMaybe<Scalars['Int']['input']>;
   startsAt: Scalars['TzLessDateTime']['input'];
+};
+
+export type StatusActionsLog = {
+  connectionStatusAction: Maybe<ConnectionStatusAction>;
+  emailStatusActionRecipient: EmailStatusActionRecipients;
+  proposals: Array<Proposal>;
+  statusActionsLogId: Scalars['Int']['output'];
+  statusActionsMessage: Scalars['String']['output'];
+  statusActionsSuccessful: Scalars['Boolean']['output'];
+  statusActionsTstamp: Scalars['DateTime']['output'];
+};
+
+export type StatusActionsLogQueryResult = {
+  statusActionsLogs: Array<StatusActionsLog>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type StatusActionsLogsFilter = {
+  callIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  connectionIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  emailStatusActionRecipient?: InputMaybe<Array<EmailStatusActionRecipients>>;
+  statusActionIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  statusActionsLogIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  statusActionsMessage?: InputMaybe<Scalars['String']['input']>;
+  statusActionsSuccessful?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type StatusChangingEvent = {

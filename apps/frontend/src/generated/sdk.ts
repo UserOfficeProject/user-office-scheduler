@@ -192,6 +192,7 @@ export type CallsFilter = {
   isFapReviewEnded?: InputMaybe<Scalars['Boolean']['input']>;
   isReviewEnded?: InputMaybe<Scalars['Boolean']['input']>;
   pdfTemplateIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  proposalStatusShortCode?: InputMaybe<Scalars['String']['input']>;
   shortCode?: InputMaybe<Scalars['String']['input']>;
   templateIds?: InputMaybe<Array<Scalars['Int']['input']>>;
 };

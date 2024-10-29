@@ -181,6 +181,7 @@ export type Call = {
 };
 
 export type CallsFilter = {
+  esiTemplateIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   fapIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   fapReviewTemplateIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   instrumentIds?: InputMaybe<Array<Scalars['Int']['input']>>;
@@ -720,6 +721,7 @@ export type FapReviewTemplate = {
   name: Scalars['String']['output'];
   pdfCallCount: Maybe<Scalars['Int']['output']>;
   pdfTemplate: Maybe<PdfTemplate>;
+  proposalESICallCount: Maybe<Scalars['Int']['output']>;
   questionaryCount: Scalars['Int']['output'];
   steps: Array<TemplateStep>;
   templateId: Scalars['Int']['output'];
@@ -2538,6 +2540,7 @@ export type ProposalTemplate = {
   name: Scalars['String']['output'];
   pdfCallCount: Maybe<Scalars['Int']['output']>;
   pdfTemplate: Maybe<PdfTemplate>;
+  proposalESICallCount: Maybe<Scalars['Int']['output']>;
   questionaryCount: Scalars['Int']['output'];
   steps: Array<TemplateStep>;
   templateId: Scalars['Int']['output'];
@@ -3859,6 +3862,7 @@ export type Template = {
   name: Scalars['String']['output'];
   pdfCallCount: Maybe<Scalars['Int']['output']>;
   pdfTemplate: Maybe<PdfTemplate>;
+  proposalESICallCount: Maybe<Scalars['Int']['output']>;
   questionaryCount: Scalars['Int']['output'];
   steps: Array<TemplateStep>;
   templateId: Scalars['Int']['output'];

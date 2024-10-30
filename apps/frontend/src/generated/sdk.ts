@@ -1161,6 +1161,7 @@ export type Mutation = {
   submitInstrumentInFap: Scalars['Boolean']['output'];
   submitProposal: Proposal;
   submitProposalsReview: Scalars['Boolean']['output'];
+  submitSampleReview: Sample;
   submitShipment: Shipment;
   submitTechnicalReviews: Scalars['Boolean']['output'];
   token: Scalars['String']['output'];
@@ -1947,6 +1948,13 @@ export type MutationSubmitProposalsReviewArgs = {
 };
 
 
+export type MutationSubmitSampleReviewArgs = {
+  safetyComment?: InputMaybe<Scalars['String']['input']>;
+  safetyStatus: SampleStatus;
+  sampleId: Scalars['Int']['input'];
+};
+
+
 export type MutationSubmitShipmentArgs = {
   shipmentId: Scalars['Int']['input'];
 };
@@ -2139,8 +2147,6 @@ export type MutationUpdateReviewArgs = {
 
 
 export type MutationUpdateSampleArgs = {
-  safetyComment?: InputMaybe<Scalars['String']['input']>;
-  safetyStatus?: InputMaybe<SampleStatus>;
   sampleId: Scalars['Int']['input'];
   title?: InputMaybe<Scalars['String']['input']>;
 };

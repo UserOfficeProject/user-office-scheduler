@@ -1058,6 +1058,7 @@ export type Mutation = {
   assignScientistsToInstrument: Scalars['Boolean']['output'];
   assignScientistsToTechnique: Scalars['Boolean']['output'];
   assignToScheduledEvents: Scalars['Boolean']['output'];
+  assignXpressProposalsToInstruments: Scalars['Boolean']['output'];
   changeProposalsStatus: Scalars['Boolean']['output'];
   cloneGenericTemplate: GenericTemplate;
   cloneProposals: Array<Proposal>;
@@ -1345,6 +1346,12 @@ export type MutationAssignScientistsToTechniqueArgs = {
 
 export type MutationAssignToScheduledEventsArgs = {
   assignEquipmentsToScheduledEventInput: AssignEquipmentsToScheduledEventInput;
+};
+
+
+export type MutationAssignXpressProposalsToInstrumentsArgs = {
+  instrumentIds: Array<Scalars['Int']['input']>;
+  proposalPks: Array<Scalars['Int']['input']>;
 };
 
 

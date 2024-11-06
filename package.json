@@ -45,10 +45,10 @@
   ],
   "dependencies": {
     "concurrently": "^9.0.0",
-    "wait-on": "^8.0.0"
+    "wait-on": "^8.0.1"
   },
   "devDependencies": {
-    "husky": "^9.1.5",
+    "husky": "^9.1.6",
     "lint-staged": "^15.2.10"
   }
 }

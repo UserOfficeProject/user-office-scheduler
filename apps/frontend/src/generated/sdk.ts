@@ -1060,6 +1060,7 @@ export type Mutation = {
   assignToScheduledEvents: Scalars['Boolean']['output'];
   assignXpressProposalsToInstruments: Scalars['Boolean']['output'];
   changeProposalsStatus: Scalars['Boolean']['output'];
+  changeXpressProposalsStatus: Scalars['Boolean']['output'];
   cloneGenericTemplate: GenericTemplate;
   cloneProposals: Array<Proposal>;
   cloneSample: Sample;
@@ -1356,6 +1357,11 @@ export type MutationAssignXpressProposalsToInstrumentsArgs = {
 
 
 export type MutationChangeProposalsStatusArgs = {
+  changeProposalsStatusInput: ChangeProposalsStatusInput;
+};
+
+
+export type MutationChangeXpressProposalsStatusArgs = {
   changeProposalsStatusInput: ChangeProposalsStatusInput;
 };
 

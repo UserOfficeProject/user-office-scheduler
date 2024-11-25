@@ -2711,7 +2711,6 @@ export type Query = {
   blankQuestionarySteps: Maybe<Array<QuestionaryStep>>;
   blankQuestionaryStepsByCallId: Maybe<Array<QuestionaryStep>>;
   call: Maybe<Call>;
-  callByQuestionId: Maybe<Call>;
   calls: Maybe<Array<Call>>;
   callsByInstrumentScientist: Maybe<Array<Call>>;
   checkEmailExist: Maybe<Scalars['Boolean']['output']>;
@@ -2738,6 +2737,7 @@ export type Query = {
   filesMetadata: Array<FileMetadata>;
   genericTemplate: Maybe<GenericTemplate>;
   genericTemplates: Maybe<Array<GenericTemplate>>;
+  getCallByAnswerId: Maybe<Call>;
   getDynamicMultipleChoiceOptions: Maybe<Array<Scalars['String']['output']>>;
   healthCheck: HealthStats;
   institutions: Maybe<Array<Institution>>;
@@ -2867,11 +2867,6 @@ export type QueryCallArgs = {
 };
 
 
-export type QueryCallByQuestionIdArgs = {
-  questionId: Scalars['String']['input'];
-};
-
-
 export type QueryCallsArgs = {
   filter?: InputMaybe<CallsFilter>;
 };
@@ -2989,6 +2984,11 @@ export type QueryGenericTemplateArgs = {
 
 export type QueryGenericTemplatesArgs = {
   filter?: InputMaybe<GenericTemplatesFilter>;
+};
+
+
+export type QueryGetCallByAnswerIdArgs = {
+  answerId: Scalars['Int']['input'];
 };
 
 

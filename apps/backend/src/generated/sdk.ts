@@ -2805,6 +2805,7 @@ export type Query = {
   techniqueScientistProposals: Maybe<ProposalsViewResult>;
   techniques: Maybe<TechniquesQueryResult>;
   techniquesByIds: Maybe<Array<Technique>>;
+  techniquesByScientist: Maybe<Array<Technique>>;
   template: Maybe<Template>;
   templateCategories: Maybe<Array<TemplateCategory>>;
   templates: Maybe<Array<Template>>;
@@ -3277,6 +3278,11 @@ export type QueryTechniqueScientistProposalsArgs = {
 
 export type QueryTechniquesByIdsArgs = {
   techniqueIds: Array<Scalars['Int']['input']>;
+};
+
+
+export type QueryTechniquesByScientistArgs = {
+  userNumber: Scalars['Int']['input'];
 };
 
 

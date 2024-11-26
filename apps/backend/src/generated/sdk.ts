@@ -1760,9 +1760,12 @@ export type MutationImportProposalArgs = {
   abstract?: InputMaybe<Scalars['String']['input']>;
   callId: Scalars['Int']['input'];
   created?: InputMaybe<Scalars['DateTime']['input']>;
+  instrumentId?: InputMaybe<Scalars['Int']['input']>;
   proposerId?: InputMaybe<Scalars['Int']['input']>;
   referenceNumber: Scalars['Int']['input'];
+  submittedDate: Scalars['DateTime']['input'];
   submitterId: Scalars['Int']['input'];
+  techniqueIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   title?: InputMaybe<Scalars['String']['input']>;
   users?: InputMaybe<Array<Scalars['Int']['input']>>;
 };

@@ -1760,9 +1760,12 @@ export type MutationImportProposalArgs = {
   abstract?: InputMaybe<Scalars['String']['input']>;
   callId: Scalars['Int']['input'];
   created?: InputMaybe<Scalars['DateTime']['input']>;
+  instrumentId?: InputMaybe<Scalars['Int']['input']>;
   proposerId?: InputMaybe<Scalars['Int']['input']>;
   referenceNumber: Scalars['Int']['input'];
+  submittedDate: Scalars['DateTime']['input'];
   submitterId: Scalars['Int']['input'];
+  techniqueIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   title?: InputMaybe<Scalars['String']['input']>;
   users?: InputMaybe<Array<Scalars['Int']['input']>>;
 };
@@ -2315,7 +2318,8 @@ export enum PageName {
   HOMEPAGE = 'HOMEPAGE',
   LOGINHELPPAGE = 'LOGINHELPPAGE',
   PRIVACYPAGE = 'PRIVACYPAGE',
-  REVIEWPAGE = 'REVIEWPAGE'
+  REVIEWPAGE = 'REVIEWPAGE',
+  XPRESSMANAGEMENTPAGE = 'XPRESSMANAGEMENTPAGE'
 }
 
 export type PdfTemplate = {
@@ -2711,7 +2715,6 @@ export type Query = {
   blankQuestionarySteps: Maybe<Array<QuestionaryStep>>;
   blankQuestionaryStepsByCallId: Maybe<Array<QuestionaryStep>>;
   call: Maybe<Call>;
-  callByQuestionId: Maybe<Call>;
   calls: Maybe<Array<Call>>;
   callsByInstrumentScientist: Maybe<Array<Call>>;
   checkEmailExist: Maybe<Scalars['Boolean']['output']>;
@@ -2738,6 +2741,7 @@ export type Query = {
   filesMetadata: Array<FileMetadata>;
   genericTemplate: Maybe<GenericTemplate>;
   genericTemplates: Maybe<Array<GenericTemplate>>;
+  getCallByAnswerId: Maybe<Call>;
   getDynamicMultipleChoiceOptions: Maybe<Array<Scalars['String']['output']>>;
   healthCheck: HealthStats;
   institutions: Maybe<Array<Institution>>;
@@ -2804,6 +2808,7 @@ export type Query = {
   techniqueScientistProposals: Maybe<ProposalsViewResult>;
   techniques: Maybe<TechniquesQueryResult>;
   techniquesByIds: Maybe<Array<Technique>>;
+  techniquesByScientist: Maybe<Array<Technique>>;
   template: Maybe<Template>;
   templateCategories: Maybe<Array<TemplateCategory>>;
   templates: Maybe<Array<Template>>;
@@ -2864,11 +2869,6 @@ export type QueryBlankQuestionaryStepsByCallIdArgs = {
 
 export type QueryCallArgs = {
   callId: Scalars['Int']['input'];
-};
-
-
-export type QueryCallByQuestionIdArgs = {
-  questionId: Scalars['String']['input'];
 };
 
 
@@ -2989,6 +2989,11 @@ export type QueryGenericTemplateArgs = {
 
 export type QueryGenericTemplatesArgs = {
   filter?: InputMaybe<GenericTemplatesFilter>;
+};
+
+
+export type QueryGetCallByAnswerIdArgs = {
+  answerId: Scalars['Int']['input'];
 };
 
 
@@ -3276,6 +3281,11 @@ export type QueryTechniqueScientistProposalsArgs = {
 
 export type QueryTechniquesByIdsArgs = {
   techniqueIds: Array<Scalars['Int']['input']>;
+};
+
+
+export type QueryTechniquesByScientistArgs = {
+  userNumber: Scalars['Int']['input'];
 };
 
 

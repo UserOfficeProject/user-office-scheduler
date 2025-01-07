@@ -203,6 +203,10 @@ export type ChangeProposalsStatusInput = {
   statusId: Scalars['Int']['input'];
 };
 
+export type ClaimsInput = {
+  roleIds: Array<Scalars['Int']['input']>;
+};
+
 export type CloneProposalsInput = {
   callId: Scalars['Int']['input'];
   proposalsToClonePk: Array<Scalars['Int']['input']>;
@@ -284,6 +288,12 @@ export type CreateInternalReviewInput = {
   reviewerId?: InputMaybe<Scalars['Int']['input']>;
   technicalReviewId: Scalars['Int']['input'];
   title: Scalars['String']['input'];
+};
+
+export type CreateInviteInput = {
+  claims: ClaimsInput;
+  email: Scalars['String']['input'];
+  note: Scalars['String']['input'];
 };
 
 export type CreatePredefinedMessageInput = {
@@ -1006,6 +1016,17 @@ export type IntervalConfig = {
   units: Array<Unit>;
 };
 
+export type InviteCode = {
+  claimedAt: Maybe<Scalars['DateTime']['output']>;
+  claimedByUserId: Maybe<Scalars['Int']['output']>;
+  code: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  createdByUserId: Scalars['Int']['output'];
+  email: Scalars['String']['output'];
+  id: Scalars['Int']['output'];
+  note: Scalars['String']['output'];
+};
+
 export type LostTime = {
   createdAt: Scalars['DateTime']['output'];
   endsAt: Scalars['TzLessDateTime']['output'];
@@ -1033,6 +1054,7 @@ export type MoveProposalWorkflowStatusInput = {
 };
 
 export type Mutation = {
+  acceptInvite: Scalars['Boolean']['output'];
   activateProposalBooking: ProposalBookingResponseWrap;
   activateScheduledEvents: ScheduledEventsResponseWrap;
   addClientLog: Scalars['Boolean']['output'];
@@ -1045,7 +1067,7 @@ export type Mutation = {
   addUserForReview: Review;
   addUserRole: Scalars['Boolean']['output'];
   administrationProposal: Proposal;
-  answerTopic: QuestionaryStep;
+  answerTopic: Array<AnswerBasic>;
   applyPatches: Array<Scalars['String']['output']>;
   assignChairOrSecretary: Fap;
   assignFapReviewersToProposals: Fap;
@@ -1077,9 +1099,11 @@ export type Mutation = {
   createGenericTemplateWithCopiedAnswers: Array<GenericTemplate>;
   createInstrument: Instrument;
   createInternalReview: InternalReview;
+  createInvite: InviteCode;
   createPdfTemplate: PdfTemplate;
   createPredefinedMessage: PredefinedMessage;
   createProposal: Proposal;
+  createProposalScientistComment: ProposalScientistComment;
   createProposalStatus: ProposalStatus;
   createProposalWorkflow: ProposalWorkflow;
   createQuestion: Question;
@@ -1109,6 +1133,7 @@ export type Mutation = {
   deletePdfTemplate: PdfTemplate;
   deletePredefinedMessage: PredefinedMessage;
   deleteProposal: Proposal;
+  deleteProposalScientistComment: ProposalScientistComment;
   deleteProposalStatus: ProposalStatus;
   deleteProposalWorkflow: ProposalWorkflow;
   deleteProposalWorkflowStatus: Scalars['Boolean']['output'];
@@ -1182,10 +1207,12 @@ export type Mutation = {
   updateInstitution: Institution;
   updateInstrument: Instrument;
   updateInternalReview: InternalReview;
+  updateInvite: InviteCode;
   updateLostTime: LostTimeResponseWrap;
   updatePdfTemplate: PdfTemplate;
   updatePredefinedMessage: PredefinedMessage;
   updateProposal: Proposal;
+  updateProposalScientistComment: ProposalScientistComment;
   updateProposalStatus: ProposalStatus;
   updateProposalWorkflow: ProposalWorkflow;
   updateQuestion: Question;
@@ -1207,6 +1234,11 @@ export type Mutation = {
   updateVisitRegistration: VisitRegistration;
   validateTemplateImport: TemplateValidation;
   validateUnitsImport: UnitsImportWithValidation;
+};
+
+
+export type MutationAcceptInviteArgs = {
+  code: Scalars['String']['input'];
 };
 
 
@@ -1465,6 +1497,11 @@ export type MutationCreateInternalReviewArgs = {
 };
 
 
+export type MutationCreateInviteArgs = {
+  input: CreateInviteInput;
+};
+
+
 export type MutationCreatePdfTemplateArgs = {
   dummyData: Scalars['String']['input'];
   templateData: Scalars['String']['input'];
@@ -1482,6 +1519,12 @@ export type MutationCreatePredefinedMessageArgs = {
 
 export type MutationCreateProposalArgs = {
   callId: Scalars['Int']['input'];
+};
+
+
+export type MutationCreateProposalScientistCommentArgs = {
+  comment: Scalars['String']['input'];
+  proposalPk: Scalars['Int']['input'];
 };
 
 
@@ -1653,6 +1696,11 @@ export type MutationDeletePredefinedMessageArgs = {
 
 export type MutationDeleteProposalArgs = {
   proposalPk: Scalars['Int']['input'];
+};
+
+
+export type MutationDeleteProposalScientistCommentArgs = {
+  commentId: Scalars['Int']['input'];
 };
 
 
@@ -2086,6 +2134,11 @@ export type MutationUpdateInternalReviewArgs = {
 };
 
 
+export type MutationUpdateInviteArgs = {
+  input: UpdateInviteInput;
+};
+
+
 export type MutationUpdateLostTimeArgs = {
   updateLostTimeInput: UpdateLostTimeInput;
 };
@@ -2113,6 +2166,12 @@ export type MutationUpdateProposalArgs = {
   proposerId?: InputMaybe<Scalars['Int']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   users?: InputMaybe<Array<Scalars['Int']['input']>>;
+};
+
+
+export type MutationUpdateProposalScientistCommentArgs = {
+  comment: Scalars['String']['input'];
+  commentId: Scalars['Int']['input'];
 };
 
 
@@ -2527,6 +2586,12 @@ export enum ProposalPublicStatus {
   UNKNOWN = 'unknown'
 }
 
+export type ProposalScientistComment = {
+  comment: Scalars['String']['output'];
+  commentId: Scalars['Int']['output'];
+  proposalPk: Scalars['Int']['output'];
+};
+
 export type ProposalStatus = {
   description: Scalars['String']['output'];
   id: Scalars['Int']['output'];
@@ -2774,6 +2839,7 @@ export type Query = {
   proposalById: Maybe<Proposal>;
   proposalEvents: Maybe<Array<ProposalEvent>>;
   proposalReviews: Maybe<Array<Review>>;
+  proposalScientistComment: Maybe<ProposalScientistComment>;
   proposalStatus: Maybe<ProposalStatus>;
   proposalStatuses: Maybe<Array<ProposalStatus>>;
   proposalTemplates: Maybe<Array<ProposalTemplate>>;
@@ -3138,6 +3204,11 @@ export type QueryProposalByIdArgs = {
 
 export type QueryProposalReviewsArgs = {
   fapId?: InputMaybe<Scalars['Int']['input']>;
+  proposalPk: Scalars['Int']['input'];
+};
+
+
+export type QueryProposalScientistCommentArgs = {
   proposalPk: Scalars['Int']['input'];
 };
 
@@ -4080,6 +4151,14 @@ export type UpdateInternalReviewInput = {
   reviewerId?: InputMaybe<Scalars['Int']['input']>;
   technicalReviewId: Scalars['Int']['input'];
   title: Scalars['String']['input'];
+};
+
+export type UpdateInviteInput = {
+  claims?: InputMaybe<ClaimsInput>;
+  code?: InputMaybe<Scalars['String']['input']>;
+  email?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['Int']['input'];
+  note?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateLostTimeInput = {

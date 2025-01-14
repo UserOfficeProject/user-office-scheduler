@@ -2806,6 +2806,7 @@ export type Query = {
   filesMetadata: Array<FileMetadata>;
   genericTemplate: Maybe<GenericTemplate>;
   genericTemplates: Maybe<Array<GenericTemplate>>;
+  genericTemplatesOnCopy: Maybe<Array<GenericTemplate>>;
   getCallByAnswerId: Maybe<Call>;
   getDynamicMultipleChoiceOptions: Maybe<Array<Scalars['String']['output']>>;
   healthCheck: HealthStats;

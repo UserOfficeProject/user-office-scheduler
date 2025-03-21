@@ -312,7 +312,6 @@ jobs:
         
         run: |
           REPO_DIR_NAME=$(basename $GITHUB_WORKSPACE)
-          cd apps/e2e/backend
           docker compose -f docker-compose.core.yml logs --follow
 
       - name: Upload cypres screenshots

@@ -177,8 +177,8 @@ export default function TimeSlotDetails({
     ? [...proposalBooking.instrument.scientists]
     : [];
 
-  if (proposalBooking.instrument?.beamlineManager) {
-    localContactOptions.push(proposalBooking.instrument.beamlineManager);
+  if (proposalBooking.instrument?.instrumentContact) {
+    localContactOptions.push(proposalBooking.instrument.instrumentContact);
   }
 
   const onChangeHandler = ([newStartValue, newEndValue]: StartAndEndsAt) => {

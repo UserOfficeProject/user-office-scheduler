@@ -7,7 +7,7 @@ export type PartialInstrument = Pick<
   NonNullable<GetUserInstrumentsQuery['userInstruments']>['instruments'][0],
   'id' | 'name'
 > & {
-  beamlineManager?: { id: number } | null;
+  instrumentContact?: { id: number } | null;
   scientists?: Array<{ id: number }> | [] | null;
 };
 

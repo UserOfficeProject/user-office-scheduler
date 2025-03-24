@@ -1,0 +1,97 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: duopassword
+      POSTGRES_USER: duouser
+      POSTGRES_DB: duo
+    volumes:
+      - ./user-office-core/apps/backend/db_patches/:/docker-entrypoint-initdb.d/
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -p 5432"]
+
+  scheduler-db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: scheduler
+      POSTGRES_USER: schedulerUser
+      POSTGRES_PASSWORD: schedulerPassword
+    volumes:
+      - './apps/backend/db_patches/:/docker-entrypoint-initdb.d/'
+    ports:
+      - 5433:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -p 5432"]
+
+  gateway:
+    image: 'ghcr.io/userofficeproject/user-office-gateway:develop'
+    environment:
+      USER_OFFICE_BACKEND: http://backend:4000/graphql
+      USER_OFFICE_SCHEDULER_BACKEND: http://scheduler-backend:4200/graphql
+      NODE_ENV: development
+      ENABLE_SERVICE_POLLING: 1 # see gateway
+      KEEP_RETRYING: 1 # see gateway
+    ports:
+      - 4100:4100
+    depends_on:
+      - backend
+      - scheduler-backend
+    
+  backend:
+    image: 'ghcr.io/userofficeproject/user-office-backend:develop'
+    environment:
+      DATABASE_URL: postgres://duouser:duopassword@db:5432/duo
+      JWT_SECRET: qMyLZALzs229ybdQXNyzYRdju7X784TH
+      JWT_TOKEN_LIFE: 7d
+      BASE_URL: localhost:3000
+      SPARKPOST_TOKEN: dummytoken
+      NODE_ENV: development
+      UO_FEATURE_DISABLE_EAM: 1
+      AUTH_DISCOVERY_URL: "foo"
+      AUTH_CLIENT_ID: useroffice
+      AUTH_CLIENT_SECRET: useroffice
+      DEPENDENCY_CONFIG: ess
+      SCHEDULER_ENDPOINT: http://scheduler-backend:4200/graphql
+      RABBITMQ_HOSTNAME: rabbitmq
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+      rabbitmq:
+        condition: service_started
+    ports:
+      - 4000:4000
+    restart: always
+
+  scheduler-backend:
+    image: 'ghcr.io/userofficeproject/user-office-scheduler-backend:develop'
+    environment:
+      NODE_ENV: development
+      PORT: 4200
+      DATABASE_HOSTNAME: scheduler-db
+      DATABASE_PORT: 5432
+      DATABASE_USER: schedulerUser
+      DATABASE_PASSWORD: schedulerPassword
+      DATABASE_DATABASE: scheduler
+      RABBITMQ_HOSTNAME: rabbitmq
+      USER_OFFICE_ENDPOINT: http://backend:4000/graphql
+      UPSERT_PROPOSAL_BOOKING_TRIGGER_STATUSES: SCHEDULING
+    depends_on:
+      scheduler-db:
+        condition: service_healthy
+        restart: true
+      backend:
+        condition: service_started
+    ports:
+      - 4200:4200
+    restart: always
+
+  rabbitmq:
+    image: 'rabbitmq:3-management'
+    ports:
+      - '15672:15672'
+      - '5672:5672'

@@ -123,16 +123,16 @@ jobs:
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Cache node_modules
         id: cached-node-modules-root
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: node_modules
           key: node-modules-root-${{ hashFiles('package-lock.json') }}-${{ env.NODE_VERSION }}
@@ -145,7 +145,7 @@ jobs:
 
       - name: Cache backend node_modules
         id: cached-node-modules-backend
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: apps/backend/node_modules
           key: node-modules-backend-${{ hashFiles('apps/backend/package-lock.json') }}-${{ env.NODE_VERSION }}
@@ -156,7 +156,7 @@ jobs:
 
       - name: Cache frontend node_modules
         id: cached-node-modules-frontend
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: apps/frontend/node_modules
           key: node-modules-frontend-${{ hashFiles('apps/frontend/package-lock.json') }}-${{ env.NODE_VERSION }}
@@ -171,30 +171,30 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Restore node_modules
         id: cached-node-modules-root
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: node_modules
           key: node-modules-root-${{ hashFiles('package-lock.json') }}-${{ env.NODE_VERSION }}
 
       - name: Restore backend node_modules
         id: cached-node-modules-backend
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: apps/backend/node_modules
           key: node-modules-backend-${{ hashFiles('apps/backend/package-lock.json') }}-${{ env.NODE_VERSION }}
 
       - name: Restore frontend node_modules
         id: cached-node-modules-frontend
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: apps/frontend/node_modules
           key: node-modules-frontend-${{ hashFiles('apps/frontend/package-lock.json') }}-${{ env.NODE_VERSION }}
@@ -209,16 +209,16 @@ jobs:
     needs: [resolve_dep, install-and-cache]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Restore backend node_modules
         id: cached-node-modules-backend
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: apps/backend/node_modules
           key: node-modules-backend-${{ hashFiles('apps/backend/package-lock.json') }}-${{ env.NODE_VERSION }}
@@ -254,27 +254,27 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Restore node_modules
         id: cached-node-modules-root
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: node_modules
           key: node-modules-root-${{ hashFiles('package-lock.json') }}-${{ env.NODE_VERSION }}
 
       - name: Restore backend node_modules
         id: cached-node-modules-backend
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: apps/backend/node_modules
           key: node-modules-backend-${{ hashFiles('apps/backend/package-lock.json') }}-${{ env.NODE_VERSION }}
 
       - name: Restore frontend node_modules
         id: cached-node-modules-frontend
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: apps/frontend/node_modules
           key: node-modules-frontend-${{ hashFiles('apps/frontend/package-lock.json') }}-${{ env.NODE_VERSION }}
@@ -285,13 +285,7 @@ jobs:
         if: steps.cached-node-modules-e2e.outputs.cache-hit != 'true'
         run: npm run install:e2e
 
-      - name: Download required repositories
-        run: |
-          cd "$GITHUB_WORKSPACE/.."
-          git clone --depth 1 --branch "${{ needs.resolve_dep.outputs.FACTORY_TAG }}" https://github.com/UserOfficeProject/user-office-factory.git
-          git clone --depth 1 --branch "${{ needs.resolve_dep.outputs.CORE_TAG }}" https://github.com/UserOfficeProject/user-office-core.git
-          git clone --depth 1 --branch "${{ needs.resolve_dep.outputs.GATEWAY_TAG }}" https://github.com/UserOfficeProject/user-office-gateway.git
-      
+
       - name: Run e2e tests
         env:
           SVC_ACC_TOKEN: ${{ secrets.SVC_ACC_TOKEN }}
@@ -317,57 +311,7 @@ jobs:
 
       - name: Upload cypres screenshots
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: cypress-screenshots
           path: apps/e2e/cypress/screenshots
-
-  push:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-    # Don't build and push image if dependabot is creating the PR
-    if: github.actor != 'dependabot[bot]'
-    needs: [install-and-cache, e2e]
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # TODO: Maybe it is a good idea to use some caching mechanism here for building docker images.
-      - uses: actions/checkout@v3
-
-      # For debugging capture the selected branch
-      - name: Branch
-        run: echo "Branch ${{ github.head_ref }}"
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Login to GitHub Container Registry
-        # Don't login if dependabot is creating the PR
-        if: ${{ !startsWith(github.head_ref, 'dependabot') }}
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push backend
-        uses: docker/build-push-action@v4
-        with:
-          context: ./apps/backend
-          file: ./apps/backend/Dockerfile
-          platforms: linux/amd64,linux/arm64
-          # Build but don't push if dependabot is creating the PR
-          push: ${{ !startsWith(github.head_ref, 'dependabot') }}
-          tags: ghcr.io/userofficeproject/user-office-scheduler-backend:${{ github.head_ref }}
-
-      - name: Build and push frontend
-        uses: docker/build-push-action@v4
-        with:
-          context: ./apps/frontend
-          file: ./apps/frontend/Dockerfile
-          platforms: linux/amd64,linux/arm64
-          # Build but don't push if dependabot is creating the PR
-          push: ${{ !startsWith(github.head_ref, 'dependabot') }}
-          tags: ghcr.io/userofficeproject/user-office-scheduler-frontend:${{ github.head_ref }}

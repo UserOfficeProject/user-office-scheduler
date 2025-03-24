@@ -285,13 +285,7 @@ jobs:
         if: steps.cached-node-modules-e2e.outputs.cache-hit != 'true'
         run: npm run install:e2e
 
-      - name: Download required repositories
-        run: |
-          cd "$GITHUB_WORKSPACE/.."
-          git clone --depth 1 --branch "${{ needs.resolve_dep.outputs.FACTORY_TAG }}" https://github.com/UserOfficeProject/user-office-factory.git
-          git clone --depth 1 --branch "${{ needs.resolve_dep.outputs.CORE_TAG }}" https://github.com/UserOfficeProject/user-office-core.git
-          git clone --depth 1 --branch "${{ needs.resolve_dep.outputs.GATEWAY_TAG }}" https://github.com/UserOfficeProject/user-office-gateway.git
-      
+
       - name: Run e2e tests
         env:
           SVC_ACC_TOKEN: ${{ secrets.SVC_ACC_TOKEN }}

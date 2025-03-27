@@ -227,11 +227,6 @@ export type ChangeProposalsStatusInput = {
   statusId: Scalars['Int']['input'];
 };
 
-export type ClaimsInput = {
-  coProposerProposalPk?: InputMaybe<Scalars['Int']['input']>;
-  roleIds?: InputMaybe<Array<Scalars['Int']['input']>>;
-};
-
 export type CloneProposalsInput = {
   callId: Scalars['Int']['input'];
   proposalsToClonePk: Array<Scalars['Int']['input']>;
@@ -314,12 +309,6 @@ export type CreateInternalReviewInput = {
   reviewerId?: InputMaybe<Scalars['Int']['input']>;
   technicalReviewId: Scalars['Int']['input'];
   title: Scalars['String']['input'];
-};
-
-export type CreateInviteInput = {
-  claims: ClaimsInput;
-  email: Scalars['String']['input'];
-  note?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type CreatePredefinedMessageInput = {
@@ -569,6 +558,8 @@ export enum Event {
   CALL_FAP_REVIEW_ENDED = 'CALL_FAP_REVIEW_ENDED',
   CALL_REVIEW_ENDED = 'CALL_REVIEW_ENDED',
   EMAIL_INVITE = 'EMAIL_INVITE',
+  EMAIL_INVITES = 'EMAIL_INVITES',
+  EMAIL_INVITE_LEGACY = 'EMAIL_INVITE_LEGACY',
   EXPERIMENT_ESF_APPROVED_BY_ESR = 'EXPERIMENT_ESF_APPROVED_BY_ESR',
   EXPERIMENT_ESF_APPROVED_BY_IS = 'EXPERIMENT_ESF_APPROVED_BY_IS',
   EXPERIMENT_ESF_REJECTED_BY_ESR = 'EXPERIMENT_ESF_REJECTED_BY_ESR',
@@ -591,6 +582,7 @@ export enum Event {
   INTERNAL_REVIEW_CREATED = 'INTERNAL_REVIEW_CREATED',
   INTERNAL_REVIEW_DELETED = 'INTERNAL_REVIEW_DELETED',
   INTERNAL_REVIEW_UPDATED = 'INTERNAL_REVIEW_UPDATED',
+  INVITE_ACCEPTED = 'INVITE_ACCEPTED',
   PREDEFINED_MESSAGE_CREATED = 'PREDEFINED_MESSAGE_CREATED',
   PREDEFINED_MESSAGE_DELETED = 'PREDEFINED_MESSAGE_DELETED',
   PREDEFINED_MESSAGE_UPDATED = 'PREDEFINED_MESSAGE_UPDATED',
@@ -812,6 +804,7 @@ export type Feature = {
 export enum FeatureId {
   CONFLICT_OF_INTEREST_WARNING = 'CONFLICT_OF_INTEREST_WARNING',
   EMAIL_INVITE = 'EMAIL_INVITE',
+  EMAIL_INVITE_LEGACY = 'EMAIL_INVITE_LEGACY',
   EMAIL_SEARCH = 'EMAIL_SEARCH',
   EXPERIMENT_SAFETY_REVIEW = 'EXPERIMENT_SAFETY_REVIEW',
   FAP_REVIEW = 'FAP_REVIEW',
@@ -1058,12 +1051,13 @@ export type IntervalConfig = {
 export type Invite = {
   claimedAt: Maybe<Scalars['DateTime']['output']>;
   claimedByUserId: Maybe<Scalars['Int']['output']>;
-  code: Scalars['String']['output'];
+  code: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   createdByUserId: Scalars['Int']['output'];
   email: Scalars['String']['output'];
+  expiresAt: Maybe<Scalars['DateTime']['output']>;
   id: Scalars['Int']['output'];
-  note: Scalars['String']['output'];
+  isEmailSent: Scalars['Boolean']['output'];
 };
 
 export type LostTime = {
@@ -1093,7 +1087,7 @@ export type MoveWorkflowStatusInput = {
 };
 
 export type Mutation = {
-  acceptInvite: Scalars['Boolean']['output'];
+  acceptInvite: Invite;
   activateProposalBooking: ProposalBookingResponseWrap;
   activateScheduledEvents: ScheduledEventsResponseWrap;
   addClientLog: Scalars['Boolean']['output'];
@@ -1140,7 +1134,6 @@ export type Mutation = {
   createGenericTemplateWithCopiedAnswers: Array<GenericTemplate>;
   createInstrument: Instrument;
   createInternalReview: InternalReview;
-  createInvite: Invite;
   createPdfTemplate: PdfTemplate;
   createPredefinedMessage: PredefinedMessage;
   createProposal: Proposal;
@@ -1222,6 +1215,7 @@ export type Mutation = {
   saveReviewerRank: Scalars['Boolean']['output'];
   selectRole: Scalars['String']['output'];
   setActiveTemplate: Scalars['Boolean']['output'];
+  setCoProposerInvites: Array<Invite>;
   setInstrumentAvailabilityTime: Scalars['Boolean']['output'];
   setPageContent: Page;
   setUserNotPlaceholder: User;
@@ -1249,7 +1243,6 @@ export type Mutation = {
   updateInstitution: Institution;
   updateInstrument: Instrument;
   updateInternalReview: InternalReview;
-  updateInvite: Invite;
   updateLostTime: LostTimeResponseWrap;
   updatePdfTemplate: PdfTemplate;
   updatePredefinedMessage: PredefinedMessage;
@@ -1546,11 +1539,6 @@ export type MutationCreateInstrumentArgs = {
 
 export type MutationCreateInternalReviewArgs = {
   createInternalReviewInput: CreateInternalReviewInput;
-};
-
-
-export type MutationCreateInviteArgs = {
-  input: CreateInviteInput;
 };
 
 
@@ -2025,6 +2013,11 @@ export type MutationSetActiveTemplateArgs = {
 };
 
 
+export type MutationSetCoProposerInvitesArgs = {
+  input: SetCoProposerInvitesInput;
+};
+
+
 export type MutationSetInstrumentAvailabilityTimeArgs = {
   availabilityTime: Scalars['Int']['input'];
   callId: Scalars['Int']['input'];
@@ -2190,11 +2183,6 @@ export type MutationUpdateInstrumentArgs = {
 
 export type MutationUpdateInternalReviewArgs = {
   updateInternalReviewInput: UpdateInternalReviewInput;
-};
-
-
-export type MutationUpdateInviteArgs = {
-  input: UpdateInviteInput;
 };
 
 
@@ -3796,6 +3784,11 @@ export type SelectionFromOptionsConfig = {
   variant: Scalars['String']['output'];
 };
 
+export type SetCoProposerInvitesInput = {
+  emails: Array<Scalars['String']['input']>;
+  proposalPk: Scalars['Int']['input'];
+};
+
 export type Settings = {
   description: Maybe<Scalars['String']['output']>;
   id: SettingsId;
@@ -3819,6 +3812,7 @@ export enum SettingsId {
   GRADE_PRECISION = 'GRADE_PRECISION',
   HEADER_LOGO_FILENAME = 'HEADER_LOGO_FILENAME',
   IDLE_TIMEOUT = 'IDLE_TIMEOUT',
+  INVITE_VALIDITY_PERIOD_DAYS = 'INVITE_VALIDITY_PERIOD_DAYS',
   PALETTE_ERROR_MAIN = 'PALETTE_ERROR_MAIN',
   PALETTE_INFO_MAIN = 'PALETTE_INFO_MAIN',
   PALETTE_PRIMARY_ACCENT = 'PALETTE_PRIMARY_ACCENT',
@@ -4275,14 +4269,6 @@ export type UpdateInternalReviewInput = {
   reviewerId?: InputMaybe<Scalars['Int']['input']>;
   technicalReviewId: Scalars['Int']['input'];
   title: Scalars['String']['input'];
-};
-
-export type UpdateInviteInput = {
-  claims?: InputMaybe<ClaimsInput>;
-  code?: InputMaybe<Scalars['String']['input']>;
-  email?: InputMaybe<Scalars['String']['input']>;
-  id: Scalars['Int']['input'];
-  note?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateLostTimeInput = {

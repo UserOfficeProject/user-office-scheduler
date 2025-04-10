@@ -2528,6 +2528,7 @@ export type Proposal = {
   attachments: Maybe<ProposalAttachments>;
   call: Maybe<Call>;
   callId: Scalars['Int']['output'];
+  coProposerInvites: Array<Invite>;
   commentForManagement: Maybe<Scalars['String']['output']>;
   commentForUser: Maybe<Scalars['String']['output']>;
   created: Scalars['DateTime']['output'];
@@ -3645,6 +3646,7 @@ export type RichTextInputConfig = {
 };
 
 export type Role = {
+  description: Scalars['String']['output'];
   id: Scalars['Int']['output'];
   shortCode: Scalars['String']['output'];
   title: Scalars['String']['output'];
@@ -3803,6 +3805,7 @@ export enum SettingsId {
   HEADER_LOGO_FILENAME = 'HEADER_LOGO_FILENAME',
   IDLE_TIMEOUT = 'IDLE_TIMEOUT',
   INVITE_VALIDITY_PERIOD_DAYS = 'INVITE_VALIDITY_PERIOD_DAYS',
+  ORGANISATION_NAME = 'ORGANISATION_NAME',
   PALETTE_ERROR_MAIN = 'PALETTE_ERROR_MAIN',
   PALETTE_INFO_MAIN = 'PALETTE_INFO_MAIN',
   PALETTE_PRIMARY_ACCENT = 'PALETTE_PRIMARY_ACCENT',

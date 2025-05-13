@@ -868,8 +868,8 @@ export enum FeatureId {
   SCHEDULER = 'SCHEDULER',
   SHIPPING = 'SHIPPING',
   STFC_IDLE_TIMER = 'STFC_IDLE_TIMER',
-  STFC_XPRESS_MANAGEMENT = 'STFC_XPRESS_MANAGEMENT',
   TECHNICAL_REVIEW = 'TECHNICAL_REVIEW',
+  TECHNIQUE_PROPOSALS = 'TECHNIQUE_PROPOSALS',
   USER_MANAGEMENT = 'USER_MANAGEMENT',
   USER_SEARCH_FILTER = 'USER_SEARCH_FILTER',
   VISIT_MANAGEMENT = 'VISIT_MANAGEMENT'
@@ -1168,11 +1168,11 @@ export type Mutation = {
   assignReviewersToFap: Fap;
   assignScientistsToInstrument: Scalars['Boolean']['output'];
   assignScientistsToTechnique: Scalars['Boolean']['output'];
+  assignTechniqueProposalsToInstruments: Scalars['Boolean']['output'];
   assignToScheduledEvents: Scalars['Boolean']['output'];
-  assignXpressProposalsToInstruments: Scalars['Boolean']['output'];
   cancelVisitRegistration: VisitRegistration;
   changeProposalsStatus: Scalars['Boolean']['output'];
-  changeXpressProposalsStatus: Scalars['Boolean']['output'];
+  changeTechniqueProposalsStatus: Scalars['Boolean']['output'];
   cloneExperimentSample: ExperimentHasSample;
   cloneGenericTemplate: GenericTemplate;
   cloneProposals: Array<Proposal>;
@@ -1264,6 +1264,7 @@ export type Mutation = {
   reorderFapMeetingDecisionProposals: FapMeetingDecision;
   replayStatusActionsLog: Scalars['Boolean']['output'];
   requestFeedback: FeedbackRequest;
+  requestVisitRegistrationChanges: VisitRegistration;
   resetSchedulerDb: Scalars['String']['output'];
   saveFapMeetingDecision: FapMeetingDecision;
   saveReviewerRank: Scalars['Boolean']['output'];
@@ -1477,14 +1478,14 @@ export type MutationAssignScientistsToTechniqueArgs = {
 };
 
 
-export type MutationAssignToScheduledEventsArgs = {
-  assignEquipmentsToScheduledEventInput: AssignEquipmentsToScheduledEventInput;
+export type MutationAssignTechniqueProposalsToInstrumentsArgs = {
+  instrumentIds: Array<Scalars['Int']['input']>;
+  proposalPks: Array<Scalars['Int']['input']>;
 };
 
 
-export type MutationAssignXpressProposalsToInstrumentsArgs = {
-  instrumentIds: Array<Scalars['Int']['input']>;
-  proposalPks: Array<Scalars['Int']['input']>;
+export type MutationAssignToScheduledEventsArgs = {
+  assignEquipmentsToScheduledEventInput: AssignEquipmentsToScheduledEventInput;
 };
 
 
@@ -1498,7 +1499,7 @@ export type MutationChangeProposalsStatusArgs = {
 };
 
 
-export type MutationChangeXpressProposalsStatusArgs = {
+export type MutationChangeTechniqueProposalsStatusArgs = {
   changeProposalsStatusInput: ChangeProposalsStatusInput;
 };
 
@@ -2038,6 +2039,11 @@ export type MutationRequestFeedbackArgs = {
 };
 
 
+export type MutationRequestVisitRegistrationChangesArgs = {
+  visitRegistration: RequestVisitRegistrationChangesInput;
+};
+
+
 export type MutationResetSchedulerDbArgs = {
   includeSeeds?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -2049,7 +2055,7 @@ export type MutationSaveFapMeetingDecisionArgs = {
 
 
 export type MutationSaveReviewerRankArgs = {
-  proposalPk: Scalars['Int']['input'];
+  fapReviewId: Scalars['Int']['input'];
   rank: Scalars['Int']['input'];
   reviewerId: Scalars['Int']['input'];
 };
@@ -2239,6 +2245,7 @@ export type MutationUpdateInstrumentArgs = {
   managerUserId: Scalars['Int']['input'];
   name: Scalars['String']['input'];
   shortCode: Scalars['String']['input'];
+  updateTechReview: Scalars['Boolean']['input'];
 };
 
 
@@ -2477,7 +2484,7 @@ export enum PageName {
   LOGINHELPPAGE = 'LOGINHELPPAGE',
   PRIVACYPAGE = 'PRIVACYPAGE',
   REVIEWPAGE = 'REVIEWPAGE',
-  XPRESSMANAGEMENTPAGE = 'XPRESSMANAGEMENTPAGE'
+  TECHNIQUEPROPOSALMANAGEMENTPAGE = 'TECHNIQUEPROPOSALMANAGEMENTPAGE'
 }
 
 export type PdfTemplate = {
@@ -2528,6 +2535,7 @@ export type Proposal = {
   attachments: Maybe<ProposalAttachments>;
   call: Maybe<Call>;
   callId: Scalars['Int']['output'];
+  coProposerInvites: Array<Invite>;
   commentForManagement: Maybe<Scalars['String']['output']>;
   commentForUser: Maybe<Scalars['String']['output']>;
   created: Scalars['DateTime']['output'];
@@ -2725,6 +2733,7 @@ export type ProposalViewInstrument = {
 
 export type ProposalViewTechnicalReview = {
   id: Scalars['Int']['output'];
+  instrumentId: Maybe<Scalars['Int']['output']>;
   status: Maybe<TechnicalReviewStatus>;
   submitted: Scalars['Boolean']['output'];
   technicalReviewAssignee: Maybe<ProposalViewTechnicalReviewAssignee>;
@@ -3599,14 +3608,24 @@ export type ReorderFapMeetingDecisionProposalsInput = {
   proposals: Array<ProposalPkWithRankOrder>;
 };
 
+export type RequestVisitRegistrationChangesInput = {
+  userId: Scalars['Int']['input'];
+  visitId: Scalars['Int']['input'];
+};
+
 export type Review = {
   comment: Maybe<Scalars['String']['output']>;
+  dateAssigned: Scalars['DateTime']['output'];
+  dateReassigned: Maybe<Scalars['DateTime']['output']>;
+  emailSent: Scalars['Boolean']['output'];
   fapID: Scalars['Int']['output'];
   grade: Maybe<Scalars['Float']['output']>;
   id: Scalars['Int']['output'];
   proposal: Maybe<Proposal>;
   questionary: Questionary;
   questionaryID: Scalars['Int']['output'];
+  rank: Maybe<Scalars['Int']['output']>;
+  reassigned: Scalars['Boolean']['output'];
   reviewer: Maybe<BasicUserDetails>;
   status: ReviewStatus;
   userID: Scalars['Int']['output'];
@@ -3645,6 +3664,7 @@ export type RichTextInputConfig = {
 };
 
 export type Role = {
+  description: Scalars['String']['output'];
   id: Scalars['Int']['output'];
   shortCode: Scalars['String']['output'];
   title: Scalars['String']['output'];
@@ -3803,6 +3823,7 @@ export enum SettingsId {
   HEADER_LOGO_FILENAME = 'HEADER_LOGO_FILENAME',
   IDLE_TIMEOUT = 'IDLE_TIMEOUT',
   INVITE_VALIDITY_PERIOD_DAYS = 'INVITE_VALIDITY_PERIOD_DAYS',
+  ORGANISATION_NAME = 'ORGANISATION_NAME',
   PALETTE_ERROR_MAIN = 'PALETTE_ERROR_MAIN',
   PALETTE_INFO_MAIN = 'PALETTE_INFO_MAIN',
   PALETTE_PRIMARY_ACCENT = 'PALETTE_PRIMARY_ACCENT',

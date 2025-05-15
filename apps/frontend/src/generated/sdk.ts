@@ -1018,6 +1018,7 @@ export type Instrument = {
   managerUserId: Scalars['Int']['output'];
   name: Scalars['String']['output'];
   scientists: Array<BasicUserDetails>;
+  selectable: Maybe<Scalars['Boolean']['output']>;
   shortCode: Scalars['String']['output'];
 };
 
@@ -1057,6 +1058,7 @@ export type InstrumentWithAvailabilityTime = {
   managerUserId: Scalars['Int']['output'];
   name: Scalars['String']['output'];
   scientists: Array<BasicUserDetails>;
+  selectable: Maybe<Scalars['Boolean']['output']>;
   shortCode: Scalars['String']['output'];
   submitted: Maybe<Scalars['Boolean']['output']>;
 };
@@ -1069,6 +1071,7 @@ export type InstrumentWithManagementTime = {
   managerUserId: Scalars['Int']['output'];
   name: Scalars['String']['output'];
   scientists: Array<BasicUserDetails>;
+  selectable: Maybe<Scalars['Boolean']['output']>;
   shortCode: Scalars['String']['output'];
 };
 
@@ -1594,6 +1597,7 @@ export type MutationCreateInstrumentArgs = {
   description: Scalars['String']['input'];
   managerUserId: Scalars['Int']['input'];
   name: Scalars['String']['input'];
+  selectable?: InputMaybe<Scalars['Boolean']['input']>;
   shortCode: Scalars['String']['input'];
 };
 
@@ -2244,6 +2248,7 @@ export type MutationUpdateInstrumentArgs = {
   id: Scalars['Int']['input'];
   managerUserId: Scalars['Int']['input'];
   name: Scalars['String']['input'];
+  selectable?: InputMaybe<Scalars['Boolean']['input']>;
   shortCode: Scalars['String']['input'];
   updateTechReview: Scalars['Boolean']['input'];
 };

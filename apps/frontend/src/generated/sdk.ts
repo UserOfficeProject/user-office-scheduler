@@ -2402,14 +2402,11 @@ export type MutationUpdateUserArgs = {
   id: Scalars['Int']['input'];
   institutionId?: InputMaybe<Scalars['Int']['input']>;
   lastname?: InputMaybe<Scalars['String']['input']>;
-  middlename?: InputMaybe<Scalars['String']['input']>;
-  nationality?: InputMaybe<Scalars['Int']['input']>;
   placeholder?: InputMaybe<Scalars['String']['input']>;
   position?: InputMaybe<Scalars['String']['input']>;
   preferredname?: InputMaybe<Scalars['String']['input']>;
   roles?: InputMaybe<Array<Scalars['Int']['input']>>;
   telephone?: InputMaybe<Scalars['String']['input']>;
-  telephone_alt?: InputMaybe<Scalars['String']['input']>;
   user_title?: InputMaybe<Scalars['String']['input']>;
   username?: InputMaybe<Scalars['String']['input']>;
 };
@@ -2866,7 +2863,6 @@ export type Query = {
   me: Maybe<User>;
   myShipments: Maybe<Array<Shipment>>;
   myVisits: Array<Visit>;
-  nationalities: Maybe<Array<Entry>>;
   pageContent: Maybe<Scalars['String']['output']>;
   pdfTemplate: Maybe<PdfTemplate>;
   pdfTemplates: Maybe<Array<PdfTemplate>>;
@@ -4344,8 +4340,6 @@ export type User = {
   institutionId: Scalars['Int']['output'];
   instruments: Array<Instrument>;
   lastname: Scalars['String']['output'];
-  middlename: Maybe<Scalars['String']['output']>;
-  nationality: Maybe<Scalars['Int']['output']>;
   oauthRefreshToken: Maybe<Scalars['String']['output']>;
   oidcSub: Maybe<Scalars['String']['output']>;
   placeholder: Scalars['Boolean']['output'];
@@ -4355,7 +4349,6 @@ export type User = {
   reviews: Array<Review>;
   roles: Array<Role>;
   telephone: Scalars['String']['output'];
-  telephone_alt: Maybe<Scalars['String']['output']>;
   updated: Scalars['String']['output'];
   user_title: Scalars['String']['output'];
   username: Scalars['String']['output'];

@@ -44,11 +44,15 @@
     "monorepo"
   ],
   "dependencies": {
-    "concurrently": "^9.1.0",
+    "concurrently": "^9.1.2",
     "wait-on": "^8.0.1"
   },
   "devDependencies": {
     "husky": "^9.1.7",
     "lint-staged": "^15.2.11"
+  },
+  "engines": {
+    "npm": ">=10.9.2",
+    "node": ">=22.0.0"
   }
 }

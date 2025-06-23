@@ -1323,6 +1323,7 @@ export type Mutation = {
   updateTemplate: Template;
   updateTopic: Template;
   updateUser: User;
+  updateUserByOidcSub: User;
   updateUserRoles: User;
   updateVisit: Visit;
   updateVisitRegistration: VisitRegistration;
@@ -2404,6 +2405,25 @@ export type MutationUpdateUserArgs = {
   id: Scalars['Int']['input'];
   institutionId?: InputMaybe<Scalars['Int']['input']>;
   lastname?: InputMaybe<Scalars['String']['input']>;
+  placeholder?: InputMaybe<Scalars['String']['input']>;
+  position?: InputMaybe<Scalars['String']['input']>;
+  preferredname?: InputMaybe<Scalars['String']['input']>;
+  roles?: InputMaybe<Array<Scalars['Int']['input']>>;
+  telephone?: InputMaybe<Scalars['String']['input']>;
+  user_title?: InputMaybe<Scalars['String']['input']>;
+  username?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationUpdateUserByOidcSubArgs = {
+  birthdate?: InputMaybe<Scalars['DateTime']['input']>;
+  department?: InputMaybe<Scalars['String']['input']>;
+  email?: InputMaybe<Scalars['String']['input']>;
+  firstname?: InputMaybe<Scalars['String']['input']>;
+  gender?: InputMaybe<Scalars['String']['input']>;
+  institutionId?: InputMaybe<Scalars['Int']['input']>;
+  lastname?: InputMaybe<Scalars['String']['input']>;
+  oidcSub: Scalars['String']['input'];
   placeholder?: InputMaybe<Scalars['String']['input']>;
   position?: InputMaybe<Scalars['String']['input']>;
   preferredname?: InputMaybe<Scalars['String']['input']>;

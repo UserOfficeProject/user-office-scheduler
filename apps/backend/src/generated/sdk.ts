@@ -1268,6 +1268,7 @@ export type Mutation = {
   reopenScheduledEvent: ScheduledEventResponseWrap;
   reorderFapMeetingDecisionProposals: FapMeetingDecision;
   replayStatusActionsLog: Scalars['Boolean']['output'];
+  replayStatusActionsLogs: ReplayStatusActionsLogsResult;
   requestFeedback: FeedbackRequest;
   requestVisitRegistrationChanges: VisitRegistration;
   resetSchedulerDb: Scalars['String']['output'];
@@ -2041,6 +2042,11 @@ export type MutationReplayStatusActionsLogArgs = {
 };
 
 
+export type MutationReplayStatusActionsLogsArgs = {
+  statusActionsLogIds: Array<Scalars['Int']['input']>;
+};
+
+
 export type MutationRequestFeedbackArgs = {
   experimentPk: Scalars['Int']['input'];
 };
@@ -2566,6 +2572,7 @@ export type Proposal = {
   experiments: Maybe<Array<Experiment>>;
   fapMeetingDecisions: Maybe<Array<FapMeetingDecision>>;
   faps: Maybe<Array<Fap>>;
+  fileId: Maybe<Scalars['String']['output']>;
   finalStatus: Maybe<ProposalEndStatus>;
   genericTemplates: Maybe<Array<GenericTemplate>>;
   instruments: Maybe<Array<Maybe<InstrumentWithManagementTime>>>;
@@ -3631,6 +3638,17 @@ export type ReorderFapMeetingDecisionProposalsInput = {
   proposals: Array<ProposalPkWithRankOrder>;
 };
 
+export type ReplayStatusActionsLogsResult = {
+  failed: Array<ReplayStatusLogFailure>;
+  successful: Array<Scalars['Int']['output']>;
+  totalRequested: Scalars['Int']['output'];
+};
+
+export type ReplayStatusLogFailure = {
+  error: Scalars['String']['output'];
+  logId: Scalars['Int']['output'];
+};
+
 export type RequestVisitRegistrationChangesInput = {
   userId: Scalars['Int']['input'];
   visitId: Scalars['Int']['input'];
@@ -3922,7 +3940,7 @@ export type Status = {
 };
 
 export type StatusAction = {
-  defaultConfig: StatusActionDefaultConfig;
+  defaultConfig: Maybe<StatusActionDefaultConfig>;
   description: Scalars['String']['output'];
   id: Scalars['Int']['output'];
   name: Scalars['String']['output'];
@@ -3935,12 +3953,13 @@ export type StatusActionDefaultConfig = EmailActionDefaultConfig | RabbitMqActio
 
 export enum StatusActionType {
   EMAIL = 'EMAIL',
+  PROPOSALDOWNLOAD = 'PROPOSALDOWNLOAD',
   RABBITMQ = 'RABBITMQ'
 }
 
 export type StatusActionsLog = {
   connectionStatusAction: Maybe<ConnectionStatusAction>;
-  emailStatusActionRecipient: EmailStatusActionRecipients;
+  emailStatusActionRecipient: Maybe<EmailStatusActionRecipients>;
   proposals: Array<Proposal>;
   statusActionsLogId: Scalars['Int']['output'];
   statusActionsMessage: Scalars['String']['output'];
@@ -3958,6 +3977,7 @@ export type StatusActionsLogsFilter = {
   connectionIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   emailStatusActionRecipient?: InputMaybe<Array<EmailStatusActionRecipients>>;
   statusActionIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  statusActionType?: InputMaybe<StatusActionType>;
   statusActionsLogIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   statusActionsMessage?: InputMaybe<Scalars['String']['input']>;
   statusActionsSuccessful?: InputMaybe<Scalars['Boolean']['input']>;

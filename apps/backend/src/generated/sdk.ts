@@ -191,6 +191,7 @@ export type Call = {
   startReview: Scalars['DateTime']['output'];
   submissionMessage: Maybe<Scalars['String']['output']>;
   surveyComment: Scalars['String']['output'];
+  tags: Tag;
   technicalReviewTemplateId: Maybe<Scalars['Int']['output']>;
   template: Template;
   templateId: Scalars['Int']['output'];
@@ -870,6 +871,7 @@ export enum FeatureId {
   SCHEDULER = 'SCHEDULER',
   SHIPPING = 'SHIPPING',
   STFC_IDLE_TIMER = 'STFC_IDLE_TIMER',
+  TAGS = 'TAGS',
   TECHNICAL_REVIEW = 'TECHNICAL_REVIEW',
   TECHNIQUE_PROPOSALS = 'TECHNIQUE_PROPOSALS',
   USER_MANAGEMENT = 'USER_MANAGEMENT',
@@ -1018,10 +1020,12 @@ export type Instrument = {
   id: Scalars['Int']['output'];
   instrumentContact: Maybe<BasicUserDetails>;
   managerUserId: Scalars['Int']['output'];
+  multipleTechReviewsEnabled: Maybe<Scalars['Boolean']['output']>;
   name: Scalars['String']['output'];
   scientists: Array<BasicUserDetails>;
   selectable: Maybe<Scalars['Boolean']['output']>;
   shortCode: Scalars['String']['output'];
+  tags: Maybe<Array<Tag>>;
 };
 
 export type InstrumentFapMappingInput = {
@@ -1058,11 +1062,13 @@ export type InstrumentWithAvailabilityTime = {
   id: Scalars['Int']['output'];
   instrumentContact: Maybe<BasicUserDetails>;
   managerUserId: Scalars['Int']['output'];
+  multipleTechReviewsEnabled: Maybe<Scalars['Boolean']['output']>;
   name: Scalars['String']['output'];
   scientists: Array<BasicUserDetails>;
   selectable: Maybe<Scalars['Boolean']['output']>;
   shortCode: Scalars['String']['output'];
   submitted: Maybe<Scalars['Boolean']['output']>;
+  tags: Maybe<Array<Tag>>;
 };
 
 export type InstrumentWithManagementTime = {
@@ -1071,10 +1077,12 @@ export type InstrumentWithManagementTime = {
   instrumentContact: Maybe<BasicUserDetails>;
   managementTimeAllocation: Maybe<Scalars['Int']['output']>;
   managerUserId: Scalars['Int']['output'];
+  multipleTechReviewsEnabled: Maybe<Scalars['Boolean']['output']>;
   name: Scalars['String']['output'];
   scientists: Array<BasicUserDetails>;
   selectable: Maybe<Scalars['Boolean']['output']>;
   shortCode: Scalars['String']['output'];
+  tags: Maybe<Array<Tag>>;
 };
 
 export type InstrumentsQueryResult = {
@@ -1163,9 +1171,11 @@ export type Mutation = {
   answerTopic: Array<AnswerBasic>;
   applyPatches: Array<Scalars['String']['output']>;
   approveVisitRegistration: VisitRegistration;
+  assignCallsToTag: Scalars['Boolean']['output'];
   assignChairOrSecretary: Fap;
   assignFapReviewersToProposals: Fap;
   assignInstrumentsToCall: Call;
+  assignInstrumentsToTag: Scalars['Boolean']['output'];
   assignInstrumentsToTechnique: Scalars['Boolean']['output'];
   assignProposalToTechniques: Scalars['Boolean']['output'];
   assignProposalsToFaps: Scalars['Boolean']['output'];
@@ -1205,6 +1215,7 @@ export type Mutation = {
   createScheduledEvent: ScheduledEventResponseWrap;
   createShipment: Shipment;
   createStatus: Status;
+  createTag: Tag;
   createTechnique: Technique;
   createTemplate: Template;
   createTopic: Template;
@@ -1255,6 +1266,8 @@ export type Mutation = {
   prepareDB: Array<Scalars['String']['output']>;
   redeemCode: RedeemCode;
   removeAssignedInstrumentFromCall: Call;
+  removeCallFromTag: Scalars['Boolean']['output'];
+  removeInstrumentFromTag: Scalars['Boolean']['output'];
   removeInstrumentsFromTechnique: Scalars['Boolean']['output'];
   removeMemberFromFap: Fap;
   removeMemberFromFapProposal: Fap;
@@ -1319,6 +1332,7 @@ export type Mutation = {
   updateSettings: Settings;
   updateShipment: Shipment;
   updateStatus: Status;
+  updateTag: Tag;
   updateTechnicalReviewAssignee: Array<TechnicalReview>;
   updateTechnique: Technique;
   updateTemplate: Template;
@@ -1427,6 +1441,12 @@ export type MutationApproveVisitRegistrationArgs = {
 };
 
 
+export type MutationAssignCallsToTagArgs = {
+  callIds: Array<Scalars['Int']['input']>;
+  tagId: Scalars['Int']['input'];
+};
+
+
 export type MutationAssignChairOrSecretaryArgs = {
   assignChairOrSecretaryToFapInput: AssignChairOrSecretaryToFapInput;
 };
@@ -1440,6 +1460,12 @@ export type MutationAssignFapReviewersToProposalsArgs = {
 
 export type MutationAssignInstrumentsToCallArgs = {
   assignInstrumentsToCallInput: AssignInstrumentsToCallInput;
+};
+
+
+export type MutationAssignInstrumentsToTagArgs = {
+  instrumentIds: Array<Scalars['Int']['input']>;
+  tagId: Scalars['Int']['input'];
 };
 
 
@@ -1600,6 +1626,7 @@ export type MutationCreateGenericTemplateWithCopiedAnswersArgs = {
 export type MutationCreateInstrumentArgs = {
   description: Scalars['String']['input'];
   managerUserId: Scalars['Int']['input'];
+  multipleTechReviewsEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
   selectable?: InputMaybe<Scalars['Boolean']['input']>;
   shortCode: Scalars['String']['input'];
@@ -1679,6 +1706,12 @@ export type MutationCreateShipmentArgs = {
 
 export type MutationCreateStatusArgs = {
   newStatusInput: CreateStatusInput;
+};
+
+
+export type MutationCreateTagArgs = {
+  name: Scalars['String']['input'];
+  shortCode: Scalars['String']['input'];
 };
 
 
@@ -1964,6 +1997,18 @@ export type MutationRedeemCodeArgs = {
 
 export type MutationRemoveAssignedInstrumentFromCallArgs = {
   removeAssignedInstrumentFromCallInput: RemoveAssignedInstrumentFromCallInput;
+};
+
+
+export type MutationRemoveCallFromTagArgs = {
+  callId: Scalars['Int']['input'];
+  tagId: Scalars['Int']['input'];
+};
+
+
+export type MutationRemoveInstrumentFromTagArgs = {
+  instrumentId: Scalars['Int']['input'];
+  tagId: Scalars['Int']['input'];
 };
 
 
@@ -2256,6 +2301,7 @@ export type MutationUpdateInstrumentArgs = {
   description: Scalars['String']['input'];
   id: Scalars['Int']['input'];
   managerUserId: Scalars['Int']['input'];
+  multipleTechReviewsEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
   selectable?: InputMaybe<Scalars['Boolean']['input']>;
   shortCode: Scalars['String']['input'];
@@ -2367,6 +2413,13 @@ export type MutationUpdateShipmentArgs = {
 
 export type MutationUpdateStatusArgs = {
   updatedStatusInput: UpdateStatusInput;
+};
+
+
+export type MutationUpdateTagArgs = {
+  id: Scalars['Int']['input'];
+  name: Scalars['String']['input'];
+  shortCode: Scalars['String']['input'];
 };
 
 
@@ -2759,6 +2812,7 @@ export type ProposalViewInstrument = {
   id: Scalars['Int']['output'];
   managementTimeAllocation: Maybe<Scalars['Int']['output']>;
   managerUserId: Scalars['Int']['output'];
+  multipleTechReviewsEnabled: Maybe<Scalars['Boolean']['output']>;
   name: Scalars['String']['output'];
 };
 
@@ -2931,6 +2985,8 @@ export type Query = {
   statusActions: Maybe<Array<StatusAction>>;
   statusActionsLogs: Maybe<StatusActionsLogQueryResult>;
   statuses: Maybe<Array<Status>>;
+  tag: Maybe<Tag>;
+  tags: Array<Tag>;
   technicalReview: Maybe<TechnicalReview>;
   technicalReviewTemplates: Maybe<Array<TechnicalReviewTemplate>>;
   technicalReviews: Maybe<TechnicalReviewsQueryResult>;
@@ -3414,6 +3470,11 @@ export type QueryStatusActionsLogsArgs = {
 
 export type QueryStatusesArgs = {
   entityType: WorkflowType;
+};
+
+
+export type QueryTagArgs = {
+  id: Scalars['Float']['input'];
 };
 
 
@@ -4027,6 +4088,14 @@ export type SubmitTechnicalReviewInput = {
 
 export type SubmitTechnicalReviewsInput = {
   technicalReviews: Array<SubmitTechnicalReviewInput>;
+};
+
+export type Tag = {
+  calls: Array<Call>;
+  id: Scalars['Int']['output'];
+  instruments: Array<Instrument>;
+  name: Scalars['String']['output'];
+  shortCode: Scalars['String']['output'];
 };
 
 export type TechnicalReview = {

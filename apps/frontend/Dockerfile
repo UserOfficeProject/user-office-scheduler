@@ -1,4 +1,4 @@
-FROM node:18.17.1-alpine AS build-stage
+FROM node:22.14.0-alpine AS build-stage
 
 # NOTE: This is needed for multi-platform builds
 RUN apk add --update python3 make g++ && rm -rf /var/cache/apk/*
@@ -16,7 +16,7 @@ COPY ./ ./
 RUN npm run build
 
 # Stage 1, based on Nginx, to have only the compiled app, ready for production with Nginx
-FROM nginx:1.22.0-alpine
+FROM nginxinc/nginx-unprivileged:1.25-alpine
 COPY --from=build-stage --chown=nginx:nginx /app/build /usr/share/nginx/html/scheduler
 
 ARG BUILD_VERSION=<unknown>
@@ -24,3 +24,5 @@ RUN echo $BUILD_VERSION > /usr/share/nginx/html/scheduler/build-version.txt
 
 RUN mkdir -p /etc/nginx/templates
 COPY ./default.conf.template /etc/nginx/templates
+
+EXPOSE 8080

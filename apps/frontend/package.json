@@ -86,7 +86,7 @@
   "devDependencies": {
     "@faker-js/faker": "^8.0.2",
     "@types/eslint": "^8.40.2",
-    "@types/node": "^20.2.3",
+    "@types/node": "^22.13.10",
     "@typescript-eslint/eslint-plugin": "^5.59.11",
     "@typescript-eslint/parser": "^5.28.0",
     "eslint": "^8.43.0",
@@ -99,7 +99,7 @@
     "prettier": "^2.8.8"
   },
   "engines": {
-    "npm": ">=9.0.0",
-    "node": ">=18.0.0"
+    "npm": ">=10.9.2",
+    "node": ">=22.0.0"
   }
 }

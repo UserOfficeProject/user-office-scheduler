@@ -29,7 +29,7 @@ jobs:
     - name: Set up environment
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '22'
 
     - name: Start applications
       run: docker compose -f docker-compose.sdk.yml up -d

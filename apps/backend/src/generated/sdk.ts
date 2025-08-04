@@ -156,6 +156,7 @@ export type BasicUserDetails = {
 };
 
 export type BooleanConfig = {
+  readPermissions: Array<Scalars['String']['output']>;
   required: Scalars['Boolean']['output'];
   small_label: Scalars['String']['output'];
   tooltip: Scalars['String']['output'];
@@ -363,6 +364,7 @@ export type DateConfig = {
   includeTime: Scalars['Boolean']['output'];
   maxDate: Maybe<Scalars['String']['output']>;
   minDate: Maybe<Scalars['String']['output']>;
+  readPermissions: Array<Scalars['String']['output']>;
   required: Scalars['Boolean']['output'];
   small_label: Scalars['String']['output'];
   tooltip: Scalars['String']['output'];
@@ -423,6 +425,7 @@ export type DynamicMultipleChoiceConfig = {
   externalApiCall: Scalars['Boolean']['output'];
   isMultipleSelect: Scalars['Boolean']['output'];
   jsonPath: Scalars['String']['output'];
+  readPermissions: Array<Scalars['String']['output']>;
   required: Scalars['Boolean']['output'];
   small_label: Scalars['String']['output'];
   tooltip: Scalars['String']['output'];
@@ -472,6 +475,7 @@ export type EmbellishmentConfig = {
   html: Scalars['String']['output'];
   omitFromPdf: Scalars['Boolean']['output'];
   plain: Scalars['String']['output'];
+  readPermissions: Array<Scalars['String']['output']>;
 };
 
 export type Entry = {
@@ -803,6 +807,7 @@ export type FapReviewAssignmentInput = {
 };
 
 export type FapReviewBasisConfig = {
+  readPermissions: Array<Scalars['String']['output']>;
   required: Scalars['Boolean']['output'];
   small_label: Scalars['String']['output'];
   tooltip: Scalars['String']['output'];
@@ -896,6 +901,7 @@ export type Feedback = {
 };
 
 export type FeedbackBasisConfig = {
+  readPermissions: Array<Scalars['String']['output']>;
   required: Scalars['Boolean']['output'];
   small_label: Scalars['String']['output'];
   tooltip: Scalars['String']['output'];
@@ -954,6 +960,7 @@ export type FileUploadConfig = {
   max_files: Scalars['Int']['output'];
   omitFromPdf: Scalars['Boolean']['output'];
   pdf_page_limit: Scalars['Int']['output'];
+  readPermissions: Array<Scalars['String']['output']>;
   required: Scalars['Boolean']['output'];
   small_label: Scalars['String']['output'];
   tooltip: Scalars['String']['output'];
@@ -982,6 +989,7 @@ export type GenericTemplate = {
 
 export type GenericTemplateBasisConfig = {
   questionLabel: Scalars['String']['output'];
+  readPermissions: Array<Scalars['String']['output']>;
   titlePlaceholder: Scalars['String']['output'];
 };
 
@@ -1047,6 +1055,7 @@ export type InstrumentOption = {
 export type InstrumentPickerConfig = {
   instruments: Array<InstrumentOption>;
   isMultipleSelect: Scalars['Boolean']['output'];
+  readPermissions: Array<Scalars['String']['output']>;
   requestTime: Scalars['Boolean']['output'];
   required: Scalars['Boolean']['output'];
   small_label: Scalars['String']['output'];
@@ -1109,6 +1118,7 @@ export type InternalReviewsFilter = {
 };
 
 export type IntervalConfig = {
+  readPermissions: Array<Scalars['String']['output']>;
   required: Scalars['Boolean']['output'];
   small_label: Scalars['String']['output'];
   tooltip: Scalars['String']['output'];
@@ -2539,6 +2549,7 @@ export type NewScheduledEventInput = {
 
 export type NumberInputConfig = {
   numberValueConstraint: Maybe<NumberValueConstraint>;
+  readPermissions: Array<Scalars['String']['output']>;
   required: Scalars['Boolean']['output'];
   small_label: Scalars['String']['output'];
   tooltip: Scalars['String']['output'];
@@ -2673,6 +2684,7 @@ export type ProposalAttachments = {
 };
 
 export type ProposalBasisConfig = {
+  readPermissions: Array<Scalars['String']['output']>;
   tooltip: Scalars['String']['output'];
 };
 
@@ -2723,6 +2735,7 @@ export enum ProposalEndStatus {
 }
 
 export type ProposalEsiBasisConfig = {
+  readPermissions: Array<Scalars['String']['output']>;
   tooltip: Scalars['String']['output'];
 };
 
@@ -3760,6 +3773,7 @@ export type ReviewsQueryResult = {
 export type RichTextInputConfig = {
   allowImages: Scalars['Boolean']['output'];
   max: Maybe<Scalars['Int']['output']>;
+  readPermissions: Array<Scalars['String']['output']>;
   required: Scalars['Boolean']['output'];
   small_label: Scalars['String']['output'];
   tooltip: Scalars['String']['output'];
@@ -3788,6 +3802,7 @@ export type Sample = {
 };
 
 export type SampleBasisConfig = {
+  readPermissions: Array<Scalars['String']['output']>;
   titlePlaceholder: Scalars['String']['output'];
 };
 
@@ -3796,6 +3811,7 @@ export type SampleDeclarationConfig = {
   esiTemplateId: Maybe<Scalars['Int']['output']>;
   maxEntries: Maybe<Scalars['Int']['output']>;
   minEntries: Maybe<Scalars['Int']['output']>;
+  readPermissions: Array<Scalars['String']['output']>;
   required: Scalars['Boolean']['output'];
   small_label: Scalars['String']['output'];
   templateCategory: Scalars['String']['output'];
@@ -3803,6 +3819,7 @@ export type SampleDeclarationConfig = {
 };
 
 export type SampleEsiBasisConfig = {
+  readPermissions: Array<Scalars['String']['output']>;
   tooltip: Scalars['String']['output'];
 };
 
@@ -3890,6 +3907,7 @@ export type SchedulerSuccessResponseWrap = {
 export type SelectionFromOptionsConfig = {
   isMultipleSelect: Scalars['Boolean']['output'];
   options: Array<Scalars['String']['output']>;
+  readPermissions: Array<Scalars['String']['output']>;
   required: Scalars['Boolean']['output'];
   small_label: Scalars['String']['output'];
   tooltip: Scalars['String']['output'];
@@ -3963,6 +3981,7 @@ export type Shipment = {
 };
 
 export type ShipmentBasisConfig = {
+  readPermissions: Array<Scalars['String']['output']>;
   required: Scalars['Boolean']['output'];
   small_label: Scalars['String']['output'];
   tooltip: Scalars['String']['output'];
@@ -4058,6 +4077,7 @@ export type SubTemplateConfig = {
   isMultipleCopySelect: Maybe<Scalars['Boolean']['output']>;
   maxEntries: Maybe<Scalars['Int']['output']>;
   minEntries: Maybe<Scalars['Int']['output']>;
+  readPermissions: Array<Scalars['String']['output']>;
   required: Scalars['Boolean']['output'];
   small_label: Scalars['String']['output'];
   templateCategory: Scalars['String']['output'];
@@ -4118,6 +4138,7 @@ export type TechnicalReview = {
 };
 
 export type TechnicalReviewBasisConfig = {
+  readPermissions: Array<Scalars['String']['output']>;
   required: Scalars['Boolean']['output'];
   small_label: Scalars['String']['output'];
   tooltip: Scalars['String']['output'];
@@ -4187,6 +4208,7 @@ export type TechniqueOption = {
 
 export type TechniquePickerConfig = {
   isMultipleSelect: Scalars['Boolean']['output'];
+  readPermissions: Array<Scalars['String']['output']>;
   required: Scalars['Boolean']['output'];
   small_label: Scalars['String']['output'];
   techniques: Array<TechniqueOption>;
@@ -4284,6 +4306,7 @@ export type TextInputConfig = {
   min: Maybe<Scalars['Int']['output']>;
   multiline: Scalars['Boolean']['output'];
   placeholder: Scalars['String']['output'];
+  readPermissions: Array<Scalars['String']['output']>;
   required: Scalars['Boolean']['output'];
   small_label: Scalars['String']['output'];
   tooltip: Scalars['String']['output'];
@@ -4537,6 +4560,7 @@ export type Visit = {
 };
 
 export type VisitBasisConfig = {
+  readPermissions: Array<Scalars['String']['output']>;
   required: Scalars['Boolean']['output'];
   small_label: Scalars['String']['output'];
   tooltip: Scalars['String']['output'];

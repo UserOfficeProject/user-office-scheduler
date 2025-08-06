@@ -865,6 +865,7 @@ export type Feature = {
 
 export enum FeatureId {
   CONFLICT_OF_INTEREST_WARNING = 'CONFLICT_OF_INTEREST_WARNING',
+  DATA_ACCESS_USERS = 'DATA_ACCESS_USERS',
   EMAIL_INVITE = 'EMAIL_INVITE',
   EMAIL_INVITE_LEGACY = 'EMAIL_INVITE_LEGACY',
   EMAIL_SEARCH = 'EMAIL_SEARCH',
@@ -2916,6 +2917,7 @@ export type Query = {
   checkExternalToken: ExternalTokenResult;
   checkToken: TokenResult;
   countries: Maybe<Array<Entry>>;
+  dataAccessUsers: Array<BasicUserDetails>;
   equipment: Maybe<Equipment>;
   equipments: Array<Equipment>;
   eventLogs: Maybe<Array<EventLog>>;
@@ -3105,6 +3107,11 @@ export type QueryCheckExternalTokenArgs = {
 
 export type QueryCheckTokenArgs = {
   token: Scalars['String']['input'];
+};
+
+
+export type QueryDataAccessUsersArgs = {
+  proposalPk: Scalars['Int']['input'];
 };
 
 

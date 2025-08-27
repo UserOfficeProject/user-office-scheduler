@@ -189,6 +189,7 @@ export type Call = {
   proposalWorkflowId: Maybe<Scalars['Int']['output']>;
   referenceNumberFormat: Maybe<Scalars['String']['output']>;
   shortCode: Scalars['String']['output'];
+  sort_order: Scalars['Int']['output'];
   startCall: Scalars['DateTime']['output'];
   startCycle: Scalars['DateTime']['output'];
   startFapReview: Maybe<Scalars['DateTime']['output']>;
@@ -203,6 +204,15 @@ export type Call = {
   title: Maybe<Scalars['String']['output']>;
 };
 
+export type CallOrderArray = {
+  callId: Scalars['Int']['input'];
+  sort_order: Scalars['Int']['input'];
+};
+
+export type CallOrderInput = {
+  data: Array<CallOrderArray>;
+};
+
 export type CallsFilter = {
   esiTemplateIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   experimentSafetyPdfTemplateIds?: InputMaybe<Array<Scalars['Int']['input']>>;
@@ -212,6 +222,7 @@ export type CallsFilter = {
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   isActiveInternal?: InputMaybe<Scalars['Boolean']['input']>;
   isCallEndedByEvent?: InputMaybe<Scalars['Boolean']['input']>;
+  isCallUpcoming?: InputMaybe<Scalars['Boolean']['input']>;
   isEnded?: InputMaybe<Scalars['Boolean']['input']>;
   isEndedInternal?: InputMaybe<Scalars['Boolean']['input']>;
   isFapReviewEnded?: InputMaybe<Scalars['Boolean']['input']>;
@@ -299,6 +310,7 @@ export type CreateCallInput = {
   proposalWorkflowId: Scalars['Int']['input'];
   referenceNumberFormat?: InputMaybe<Scalars['String']['input']>;
   shortCode: Scalars['String']['input'];
+  sort_order?: InputMaybe<Scalars['Int']['input']>;
   startCall: Scalars['DateTime']['input'];
   startCycle: Scalars['DateTime']['input'];
   startFapReview?: InputMaybe<Scalars['DateTime']['input']>;
@@ -1389,6 +1401,7 @@ export type Mutation = {
   updateAnswer: Scalars['String']['output'];
   updateApiAccessToken: PermissionsWithAccessToken;
   updateCall: Call;
+  updateCallOrder: Scalars['Boolean']['output'];
   updateEquipment: EquipmentResponseWrap;
   updateExperimentSafetyPdfTemplate: ExperimentSafetyPdfTemplate;
   updateExperimentSample: ExperimentHasSample;
@@ -2348,6 +2361,11 @@ export type MutationUpdateApiAccessTokenArgs = {
 
 export type MutationUpdateCallArgs = {
   updateCallInput: UpdateCallInput;
+};
+
+
+export type MutationUpdateCallOrderArgs = {
+  callOrderInput: CallOrderInput;
 };
 
 
@@ -4538,6 +4556,7 @@ export type UpdateCallInput = {
   proposalWorkflowId?: InputMaybe<Scalars['Int']['input']>;
   referenceNumberFormat?: InputMaybe<Scalars['String']['input']>;
   shortCode?: InputMaybe<Scalars['String']['input']>;
+  sort_order?: InputMaybe<Scalars['Int']['input']>;
   startCall?: InputMaybe<Scalars['DateTime']['input']>;
   startCycle?: InputMaybe<Scalars['DateTime']['input']>;
   startFapReview?: InputMaybe<Scalars['DateTime']['input']>;

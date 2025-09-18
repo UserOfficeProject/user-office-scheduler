@@ -3745,6 +3745,7 @@ export type QueryVisitsArgs = {
 
 
 export type QueryWorkflowArgs = {
+  entityType: WorkflowType;
   workflowId: Scalars['Int']['input'];
 };
 

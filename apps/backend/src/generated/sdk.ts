@@ -1401,6 +1401,7 @@ export type Mutation = {
   updateApiAccessToken: PermissionsWithAccessToken;
   updateCall: Call;
   updateCallOrder: Scalars['Boolean']['output'];
+  updateDataAccessUsers: Array<BasicUserDetails>;
   updateEquipment: EquipmentResponseWrap;
   updateExperimentSafetyPdfTemplate: ExperimentSafetyPdfTemplate;
   updateExperimentSample: ExperimentHasSample;
@@ -2365,6 +2366,12 @@ export type MutationUpdateCallArgs = {
 
 export type MutationUpdateCallOrderArgs = {
   callOrderInput: CallOrderInput;
+};
+
+
+export type MutationUpdateDataAccessUsersArgs = {
+  proposalPk: Scalars['Int']['input'];
+  userIds: Array<Scalars['Int']['input']>;
 };
 
 

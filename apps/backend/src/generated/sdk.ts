@@ -1196,6 +1196,7 @@ export type InternalReviewsFilter = {
 };
 
 export type IntervalConfig = {
+  numberValueConstraint: Maybe<NumberValueConstraint>;
   readPermissions: Array<Scalars['String']['output']>;
   required: Scalars['Boolean']['output'];
   small_label: Scalars['String']['output'];

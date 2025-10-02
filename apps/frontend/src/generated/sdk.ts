@@ -788,6 +788,7 @@ export type ExperimentsFilter = {
   experimentSafetyStatusId?: InputMaybe<Scalars['Int']['input']>;
   experimentStartDate?: InputMaybe<Scalars['DateTime']['input']>;
   instrumentId?: InputMaybe<Scalars['Int']['input']>;
+  instrumentScientistUserId?: InputMaybe<Scalars['Int']['input']>;
   overlaps?: InputMaybe<TimeSpan>;
 };
 
@@ -2085,6 +2086,7 @@ export type MutationMergeInstitutionsArgs = {
 
 
 export type MutationNotifyProposalArgs = {
+  ignoreNotifiedFlag: Scalars['Boolean']['input'];
   proposalPk: Scalars['Int']['input'];
 };
 

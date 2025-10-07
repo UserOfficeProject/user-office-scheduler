@@ -54,9 +54,10 @@ export type AddTechnicalReviewInput = {
 };
 
 export type AddWorkflowStatusInput = {
-  droppableGroupId: Scalars['String']['input'];
   nextStatusId?: InputMaybe<Scalars['Int']['input']>;
-  parentDroppableGroupId?: InputMaybe<Scalars['String']['input']>;
+  posX: Scalars['Int']['input'];
+  posY: Scalars['Int']['input'];
+  prevConnectionId?: InputMaybe<Scalars['Int']['input']>;
   prevStatusId?: InputMaybe<Scalars['Int']['input']>;
   sortOrder: Scalars['Int']['input'];
   statusId: Scalars['Int']['input'];
@@ -581,8 +582,7 @@ export enum Event {
   CALL_ENDED_INTERNAL = 'CALL_ENDED_INTERNAL',
   CALL_FAP_REVIEW_ENDED = 'CALL_FAP_REVIEW_ENDED',
   CALL_REVIEW_ENDED = 'CALL_REVIEW_ENDED',
-  EMAIL_INVITE = 'EMAIL_INVITE',
-  EMAIL_INVITES = 'EMAIL_INVITES',
+  DATA_ACCESS_USERS_UPDATED = 'DATA_ACCESS_USERS_UPDATED',
   EMAIL_INVITE_LEGACY = 'EMAIL_INVITE_LEGACY',
   EXPERIMENT_ESF_APPROVED_BY_ESR = 'EXPERIMENT_ESF_APPROVED_BY_ESR',
   EXPERIMENT_ESF_APPROVED_BY_IS = 'EXPERIMENT_ESF_APPROVED_BY_IS',
@@ -630,8 +630,9 @@ export enum Event {
   PROPOSAL_BOOKING_TIME_SLOT_ADDED = 'PROPOSAL_BOOKING_TIME_SLOT_ADDED',
   PROPOSAL_BOOKING_TIME_UPDATED = 'PROPOSAL_BOOKING_TIME_UPDATED',
   PROPOSAL_CLONED = 'PROPOSAL_CLONED',
-  PROPOSAL_CO_PROPOSER_CLAIM_ACCEPTED = 'PROPOSAL_CO_PROPOSER_CLAIM_ACCEPTED',
-  PROPOSAL_CO_PROPOSER_CLAIM_SENT = 'PROPOSAL_CO_PROPOSER_CLAIM_SENT',
+  PROPOSAL_CO_PROPOSER_INVITES_UPDATED = 'PROPOSAL_CO_PROPOSER_INVITES_UPDATED',
+  PROPOSAL_CO_PROPOSER_INVITE_ACCEPTED = 'PROPOSAL_CO_PROPOSER_INVITE_ACCEPTED',
+  PROPOSAL_CO_PROPOSER_INVITE_EMAIL_SENT = 'PROPOSAL_CO_PROPOSER_INVITE_EMAIL_SENT',
   PROPOSAL_CREATED = 'PROPOSAL_CREATED',
   PROPOSAL_DELETED = 'PROPOSAL_DELETED',
   PROPOSAL_FAPS_REMOVED = 'PROPOSAL_FAPS_REMOVED',
@@ -787,6 +788,7 @@ export type ExperimentsFilter = {
   experimentSafetyStatusId?: InputMaybe<Scalars['Int']['input']>;
   experimentStartDate?: InputMaybe<Scalars['DateTime']['input']>;
   instrumentId?: InputMaybe<Scalars['Int']['input']>;
+  instrumentScientistUserId?: InputMaybe<Scalars['Int']['input']>;
   overlaps?: InputMaybe<TimeSpan>;
 };
 
@@ -1080,11 +1082,6 @@ export type HealthStats = {
   message: Scalars['String']['output'];
 };
 
-export type IndexWithGroupId = {
-  droppableId: Scalars['String']['input'];
-  index: Scalars['Int']['input'];
-};
-
 export type Institution = {
   country: Maybe<Entry>;
   id: Scalars['Int']['output'];
@@ -1197,6 +1194,7 @@ export type InternalReviewsFilter = {
 };
 
 export type IntervalConfig = {
+  numberValueConstraint: Maybe<NumberValueConstraint>;
   readPermissions: Array<Scalars['String']['output']>;
   required: Scalars['Boolean']['output'];
   small_label: Scalars['String']['output'];
@@ -1234,12 +1232,6 @@ export type LostTimeResponseWrap = {
 export type ManagementTimeAllocationsInput = {
   instrumentId: Scalars['Int']['input'];
   value: Scalars['Int']['input'];
-};
-
-export type MoveWorkflowStatusInput = {
-  from: IndexWithGroupId;
-  to: IndexWithGroupId;
-  workflowId: Scalars['Int']['input'];
 };
 
 export type Mutation = {
@@ -1342,6 +1334,7 @@ export type Mutation = {
   deleteUser: User;
   deleteVisit: Visit;
   deleteWorkflow: Workflow;
+  deleteWorkflowConnection: Maybe<WorkflowConnection>;
   deleteWorkflowStatus: Scalars['Boolean']['output'];
   externalTokenLogin: Scalars['String']['output'];
   finalizeProposalBooking: ProposalBookingResponseWrap;
@@ -1352,7 +1345,6 @@ export type Mutation = {
   importUnits: Array<Unit>;
   logout: Scalars['String']['output'];
   mergeInstitutions: Institution;
-  moveWorkflowStatus: WorkflowConnection;
   notifyProposal: Proposal;
   prepareDB: Array<Scalars['String']['output']>;
   redeemCode: RedeemCode;
@@ -1402,6 +1394,7 @@ export type Mutation = {
   updateApiAccessToken: PermissionsWithAccessToken;
   updateCall: Call;
   updateCallOrder: Scalars['Boolean']['output'];
+  updateDataAccessUsers: Array<BasicUserDetails>;
   updateEquipment: EquipmentResponseWrap;
   updateExperimentSafetyPdfTemplate: ExperimentSafetyPdfTemplate;
   updateExperimentSample: ExperimentHasSample;
@@ -1439,6 +1432,7 @@ export type Mutation = {
   updateVisit: Visit;
   updateVisitRegistration: VisitRegistration;
   updateWorkflow: Workflow;
+  updateWorkflowStatus: WorkflowConnection;
   validateTemplateImport: TemplateValidation;
   validateUnitsImport: UnitsImportWithValidation;
 };
@@ -2018,6 +2012,11 @@ export type MutationDeleteWorkflowArgs = {
 };
 
 
+export type MutationDeleteWorkflowConnectionArgs = {
+  connectionId: Scalars['Int']['input'];
+};
+
+
 export type MutationDeleteWorkflowStatusArgs = {
   deleteWorkflowStatusInput: DeleteWorkflowStatusInput;
 };
@@ -2086,12 +2085,8 @@ export type MutationMergeInstitutionsArgs = {
 };
 
 
-export type MutationMoveWorkflowStatusArgs = {
-  moveWorkflowStatusInput: MoveWorkflowStatusInput;
-};
-
-
 export type MutationNotifyProposalArgs = {
+  ignoreNotifiedFlag: Scalars['Boolean']['input'];
   proposalPk: Scalars['Int']['input'];
 };
 
@@ -2366,6 +2361,12 @@ export type MutationUpdateCallArgs = {
 
 export type MutationUpdateCallOrderArgs = {
   callOrderInput: CallOrderInput;
+};
+
+
+export type MutationUpdateDataAccessUsersArgs = {
+  proposalPk: Scalars['Int']['input'];
+  userIds: Array<Scalars['Int']['input']>;
 };
 
 
@@ -2662,6 +2663,11 @@ export type MutationUpdateVisitRegistrationArgs = {
 
 export type MutationUpdateWorkflowArgs = {
   updatedWorkflowInput: UpdateWorkflowInput;
+};
+
+
+export type MutationUpdateWorkflowStatusArgs = {
+  updateWorkflowStatusInput: UpdateWorkflowStatusInput;
 };
 
 
@@ -3746,6 +3752,7 @@ export type QueryVisitsArgs = {
 
 
 export type QueryWorkflowArgs = {
+  entityType: WorkflowType;
   workflowId: Scalars['Int']['input'];
 };
 
@@ -4619,17 +4626,27 @@ export type UpdateSettingsInput = {
 };
 
 export type UpdateStatusInput = {
-  description: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['Int']['input'];
   isDefault?: InputMaybe<Scalars['Boolean']['input']>;
-  name: Scalars['String']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
   shortCode?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateWorkflowInput = {
-  description: Scalars['String']['input'];
+  connectionLineType?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['Int']['input'];
-  name: Scalars['String']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateWorkflowStatusInput = {
+  id: Scalars['Int']['input'];
+  nextStatusId?: InputMaybe<Scalars['Int']['input']>;
+  posX?: InputMaybe<Scalars['Int']['input']>;
+  posY?: InputMaybe<Scalars['Int']['input']>;
+  prevConnectionId?: InputMaybe<Scalars['Int']['input']>;
+  prevStatusId?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type User = {
@@ -4764,17 +4781,20 @@ export type VisitsFilter = {
 };
 
 export type Workflow = {
+  connectionLineType: Scalars['String']['output'];
   description: Scalars['String']['output'];
   entityType: WorkflowType;
   id: Scalars['Int']['output'];
   name: Scalars['String']['output'];
-  workflowConnectionGroups: Array<WorkflowConnectionGroup>;
+  workflowConnections: Array<WorkflowConnection>;
 };
 
 export type WorkflowConnection = {
-  droppableGroupId: Scalars['String']['output'];
   id: Scalars['Int']['output'];
   nextStatusId: Maybe<Scalars['Int']['output']>;
+  posX: Scalars['Int']['output'];
+  posY: Scalars['Int']['output'];
+  prevConnectionId: Maybe<Scalars['Int']['output']>;
   prevStatusId: Maybe<Scalars['Int']['output']>;
   sortOrder: Scalars['Int']['output'];
   status: Status;
@@ -4782,12 +4802,6 @@ export type WorkflowConnection = {
   statusChangingEvents: Maybe<Array<StatusChangingEvent>>;
   statusId: Scalars['Int']['output'];
   workflowId: Scalars['Int']['output'];
-};
-
-export type WorkflowConnectionGroup = {
-  connections: Array<WorkflowConnection>;
-  groupId: Scalars['String']['output'];
-  parentGroupId: Maybe<Scalars['String']['output']>;
 };
 
 export type WorkflowEvent = {

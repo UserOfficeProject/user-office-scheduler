@@ -49,7 +49,7 @@
   },
   "devDependencies": {
     "husky": "^9.1.7",
-    "lint-staged": "^16.2.3"
+    "lint-staged": "^16.2.4"
   },
   "engines": {
     "npm": ">=10.9.2",

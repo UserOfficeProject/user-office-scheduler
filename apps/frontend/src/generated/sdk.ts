@@ -878,6 +878,7 @@ export type FapProposalCount = {
 export type FapReviewAssignmentInput = {
   memberId: Scalars['Int']['input'];
   proposalPk: Scalars['Int']['input'];
+  rank?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type FapReviewBasisConfig = {

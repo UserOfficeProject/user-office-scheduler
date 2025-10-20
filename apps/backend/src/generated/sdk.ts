@@ -3344,6 +3344,7 @@ export type QueryFapProposalsArgs = {
   callId?: InputMaybe<Scalars['Int']['input']>;
   fapId: Scalars['Int']['input'];
   instrumentId?: InputMaybe<Scalars['Int']['input']>;
+  legacy?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 

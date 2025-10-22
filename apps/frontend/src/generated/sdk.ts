@@ -882,6 +882,10 @@ export type FapReviewAssignmentInput = {
 };
 
 export type FapReviewBasisConfig = {
+  decimalPoints: Scalars['Int']['output'];
+  maxGrade: Scalars['Int']['output'];
+  minGrade: Scalars['Int']['output'];
+  nonNumericOptions: Array<Scalars['String']['output']>;
   readPermissions: Array<Scalars['String']['output']>;
   required: Scalars['Boolean']['output'];
   small_label: Scalars['String']['output'];
@@ -2531,7 +2535,7 @@ export type MutationUpdateQuestionTemplateRelationSettingsArgs = {
 export type MutationUpdateReviewArgs = {
   comment: Scalars['String']['input'];
   fapID: Scalars['Int']['input'];
-  grade: Scalars['Float']['input'];
+  grade: Scalars['String']['input'];
   questionaryID: Scalars['Int']['input'];
   reviewID: Scalars['Int']['input'];
   status: ReviewStatus;
@@ -3908,7 +3912,7 @@ export type Review = {
   dateReassigned: Maybe<Scalars['DateTime']['output']>;
   emailSent: Scalars['Boolean']['output'];
   fapID: Scalars['Int']['output'];
-  grade: Maybe<Scalars['Float']['output']>;
+  grade: Maybe<Scalars['String']['output']>;
   id: Scalars['Int']['output'];
   proposal: Maybe<Proposal>;
   questionary: Questionary;
@@ -4113,7 +4117,6 @@ export enum SettingsId {
   FEEDBACK_EXHAUST_DAYS = 'FEEDBACK_EXHAUST_DAYS',
   FEEDBACK_FREQUENCY_DAYS = 'FEEDBACK_FREQUENCY_DAYS',
   FEEDBACK_MAX_REQUESTS = 'FEEDBACK_MAX_REQUESTS',
-  GRADE_PRECISION = 'GRADE_PRECISION',
   HEADER_LOGO_FILENAME = 'HEADER_LOGO_FILENAME',
   IDLE_TIMEOUT = 'IDLE_TIMEOUT',
   INVITE_REMINDERS_SEND_DELAY_DAYS = 'INVITE_REMINDERS_SEND_DELAY_DAYS',

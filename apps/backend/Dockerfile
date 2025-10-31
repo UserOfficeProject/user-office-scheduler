@@ -12,7 +12,7 @@ WORKDIR /home/node/app
 
 COPY --chown=node:node package*.json ./
 
-RUN npm ci --loglevel error --no-fund
+RUN npm ci --verbose --no-fund
 
 COPY --chown=node:node . .
 
@@ -30,7 +30,7 @@ COPY --from=build-stage --chown=node:node /home/node/app/db_patches ./db_patches
 COPY --from=build-stage --chown=node:node /home/node/app/build ./build
 COPY --from=build-stage --chown=node:node /home/node/app/package*.json ./
 
-RUN npm ci --only=production --loglevel error --no-fund
+RUN npm ci --only=production --verbose --no-fund
 
 ARG BUILD_VERSION=<unknown>
 RUN echo $BUILD_VERSION > build-version.txt

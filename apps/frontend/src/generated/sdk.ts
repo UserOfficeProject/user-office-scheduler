@@ -151,6 +151,7 @@ export type BasicUserDetails = {
   institution: Scalars['String']['output'];
   institutionId: Scalars['Int']['output'];
   lastname: Scalars['String']['output'];
+  oidc_sub: Maybe<Scalars['String']['output']>;
   placeholder: Maybe<Scalars['Boolean']['output']>;
   position: Scalars['String']['output'];
   preferredname: Maybe<Scalars['String']['output']>;
@@ -1441,6 +1442,7 @@ export type Mutation = {
   updateVisitRegistration: VisitRegistration;
   updateWorkflow: Workflow;
   updateWorkflowStatus: WorkflowConnection;
+  upsertUserByOidcSub: User;
   validateTemplateImport: TemplateValidation;
   validateUnitsImport: UnitsImportWithValidation;
 };
@@ -2678,6 +2680,25 @@ export type MutationUpdateWorkflowArgs = {
 
 export type MutationUpdateWorkflowStatusArgs = {
   updateWorkflowStatusInput: UpdateWorkflowStatusInput;
+};
+
+
+export type MutationUpsertUserByOidcSubArgs = {
+  birthDate?: InputMaybe<Scalars['String']['input']>;
+  department?: InputMaybe<Scalars['String']['input']>;
+  email: Scalars['String']['input'];
+  firstName: Scalars['String']['input'];
+  gender?: InputMaybe<Scalars['String']['input']>;
+  institutionCountry: Scalars['String']['input'];
+  institutionName: Scalars['String']['input'];
+  institutionRoRId: Scalars['String']['input'];
+  lastName: Scalars['String']['input'];
+  oidcSub: Scalars['String']['input'];
+  position: Scalars['String']['input'];
+  preferredName?: InputMaybe<Scalars['String']['input']>;
+  telephone?: InputMaybe<Scalars['String']['input']>;
+  userTitle?: InputMaybe<Scalars['String']['input']>;
+  username?: InputMaybe<Scalars['String']['input']>;
 };
 
 

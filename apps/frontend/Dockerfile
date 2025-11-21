@@ -9,7 +9,7 @@ RUN echo "GENERATE_SOURCEMAP=false" >> .env
 
 COPY package*.json /app/
 
-RUN npm ci --loglevel error --no-fund
+RUN npm ci --verbose --no-fund
 
 COPY ./ ./
 

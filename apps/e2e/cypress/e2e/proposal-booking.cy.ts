@@ -440,6 +440,9 @@ context('Proposal booking tests', () => {
         });
         cy.finishedLoading();
 
+        selectInstrument();
+        cy.finishedLoading();
+
         cy.get('[data-cy="input-local-contact-select"] input').should(
           'not.be.disabled'
         );
@@ -449,7 +452,9 @@ context('Proposal booking tests', () => {
         cy.get(
           '[aria-labelledby=input-local-contact-select-label] [role=option]'
         )
-          .last()
+          .contains(
+            `${initialDBData.users.instrumentScientist1.firstname} ${initialDBData.users.instrumentScientist1.lastname}`
+          )
           .click();
 
         cy.finishedLoading();

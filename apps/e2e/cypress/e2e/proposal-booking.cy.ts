@@ -440,6 +440,9 @@ context('Proposal booking tests', () => {
         });
         cy.finishedLoading();
 
+        selectInstrument();
+        cy.finishedLoading();
+
         cy.get('[data-cy="input-local-contact-select"] input').should(
           'not.be.disabled'
         );

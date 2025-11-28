@@ -452,7 +452,9 @@ context('Proposal booking tests', () => {
         cy.get(
           '[aria-labelledby=input-local-contact-select-label] [role=option]'
         )
-          .last()
+          .contains(
+            `${initialDBData.users.instrumentScientist1.firstname} ${initialDBData.users.instrumentScientist1.lastname}`
+          )
           .click();
 
         cy.finishedLoading();

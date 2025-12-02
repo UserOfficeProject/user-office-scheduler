@@ -4719,6 +4719,7 @@ export type UserProposalsArgs = {
 
 
 export type UserReviewsArgs = {
+  active?: InputMaybe<Scalars['Boolean']['input']>;
   callId?: InputMaybe<Scalars['Int']['input']>;
   instrumentId?: InputMaybe<Scalars['Int']['input']>;
   reviewer?: InputMaybe<ReviewerFilter>;

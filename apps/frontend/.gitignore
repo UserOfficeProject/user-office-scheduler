@@ -29,3 +29,5 @@ yarn-error.log*
 
 .vscode/settings.json
 codegen_tmp.yml
+
+/src/generated

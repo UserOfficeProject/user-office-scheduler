@@ -1221,6 +1221,14 @@ export type Invite = {
   expiresAt: Maybe<Scalars['DateTime']['output']>;
   id: Scalars['Int']['output'];
   isEmailSent: Scalars['Boolean']['output'];
+  proposal: Maybe<InvitedProposal>;
+};
+
+export type InvitedProposal = {
+  abstract: Scalars['String']['output'];
+  proposalId: Scalars['String']['output'];
+  proposerName: Scalars['String']['output'];
+  title: Scalars['String']['output'];
 };
 
 export type LostTime = {
@@ -1244,7 +1252,8 @@ export type ManagementTimeAllocationsInput = {
 };
 
 export type Mutation = {
-  acceptInvite: Invite;
+  acceptCoProposerInvite: Invite;
+  acceptInviteWithCode: Invite;
   activateProposalBooking: ProposalBookingResponseWrap;
   activateScheduledEvents: ScheduledEventsResponseWrap;
   addClientLog: Scalars['Boolean']['output'];
@@ -1436,7 +1445,6 @@ export type Mutation = {
   updateTemplate: Template;
   updateTopic: Template;
   updateUser: User;
-  updateUserByOidcSub: User;
   updateUserRoles: User;
   updateVisit: Visit;
   updateVisitRegistration: VisitRegistration;
@@ -1448,7 +1456,12 @@ export type Mutation = {
 };
 
 
-export type MutationAcceptInviteArgs = {
+export type MutationAcceptCoProposerInviteArgs = {
+  proposalId: Scalars['String']['input'];
+};
+
+
+export type MutationAcceptInviteWithCodeArgs = {
   code: Scalars['String']['input'];
 };
 
@@ -2622,25 +2635,6 @@ export type MutationUpdateUserArgs = {
   id: Scalars['Int']['input'];
   institutionId?: InputMaybe<Scalars['Int']['input']>;
   lastname?: InputMaybe<Scalars['String']['input']>;
-  placeholder?: InputMaybe<Scalars['String']['input']>;
-  position?: InputMaybe<Scalars['String']['input']>;
-  preferredname?: InputMaybe<Scalars['String']['input']>;
-  roles?: InputMaybe<Array<Scalars['Int']['input']>>;
-  telephone?: InputMaybe<Scalars['String']['input']>;
-  user_title?: InputMaybe<Scalars['String']['input']>;
-  username?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type MutationUpdateUserByOidcSubArgs = {
-  birthdate?: InputMaybe<Scalars['DateTime']['input']>;
-  department?: InputMaybe<Scalars['String']['input']>;
-  email?: InputMaybe<Scalars['String']['input']>;
-  firstname?: InputMaybe<Scalars['String']['input']>;
-  gender?: InputMaybe<Scalars['String']['input']>;
-  institutionId?: InputMaybe<Scalars['Int']['input']>;
-  lastname?: InputMaybe<Scalars['String']['input']>;
-  oidcSub: Scalars['String']['input'];
   placeholder?: InputMaybe<Scalars['String']['input']>;
   position?: InputMaybe<Scalars['String']['input']>;
   preferredname?: InputMaybe<Scalars['String']['input']>;
@@ -4682,6 +4676,7 @@ export type UpdateWorkflowStatusInput = {
 
 export type User = {
   birthdate: Scalars['DateTime']['output'];
+  coProposerInvites: Array<Invite>;
   created: Scalars['String']['output'];
   department: Scalars['String']['output'];
   email: Scalars['String']['output'];
@@ -4719,6 +4714,7 @@ export type UserProposalsArgs = {
 
 
 export type UserReviewsArgs = {
+  active?: InputMaybe<Scalars['Boolean']['input']>;
   callId?: InputMaybe<Scalars['Int']['input']>;
   instrumentId?: InputMaybe<Scalars['Int']['input']>;
   reviewer?: InputMaybe<ReviewerFilter>;

@@ -24,11 +24,5 @@ jobs:
       - name: Install Node.js dependencies
         run: npm ci
 
-      - name: Set environment variables
-        run: cp apps/frontend/example.env apps/frontend/.env
-
-      - name: Generate SDK
-        run: npm run generate:sdk
-
       - name: Lint Action
         run: npm run lint

@@ -3,6 +3,4 @@ fragment basicUserDetails on BasicUserDetails {
   firstname
   lastname
   institution
-  position
-  placeholder
 }

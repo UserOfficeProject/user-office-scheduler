@@ -23,8 +23,6 @@ function PeopleModal(props: {
         firstname: rowData.firstname,
         lastname: rowData.lastname,
         institution: rowData.institution,
-        position: rowData.position,
-        placeholder: rowData.placeholder,
       },
     ]);
   };

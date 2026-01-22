@@ -1,12 +1,12 @@
 query getUsers(
-  $filter: String
+  $searchText: String
   $first: Int
   $offset: Int
   $userRole: UserRole
   $subtractUsers: [Int!]
 ) {
   users(
-    filter: $filter
+    searchText: $searchText
     first: $first
     offset: $offset
     userRole: $userRole

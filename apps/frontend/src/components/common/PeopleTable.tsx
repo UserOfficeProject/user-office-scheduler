@@ -45,8 +45,6 @@ async function sendUserRequest(
           firstname: user.firstname,
           lastname: user.lastname,
           institution: user.institution,
-          position: user.position,
-          placeholder: user.placeholder,
           tableData: { checked: selectedParticipants.includes(user.id) },
         };
       }) || [],

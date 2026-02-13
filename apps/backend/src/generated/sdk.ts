@@ -226,6 +226,7 @@ export type CallsFilter = {
   isEnded?: InputMaybe<Scalars['Boolean']['input']>;
   isEndedInternal?: InputMaybe<Scalars['Boolean']['input']>;
   isFapReviewEnded?: InputMaybe<Scalars['Boolean']['input']>;
+  isOrdered?: InputMaybe<Scalars['Boolean']['input']>;
   isReviewEnded?: InputMaybe<Scalars['Boolean']['input']>;
   proposalPdfTemplateIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   proposalStatusShortCode?: InputMaybe<Scalars['String']['input']>;

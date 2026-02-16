@@ -2751,6 +2751,7 @@ export type Proposal = {
   commentForManagement: Maybe<Scalars['String']['output']>;
   commentForUser: Maybe<Scalars['String']['output']>;
   created: Scalars['DateTime']['output'];
+  dataAccessUsers: Maybe<Array<BasicUserDetails>>;
   experimentSequence: Maybe<Scalars['Int']['output']>;
   experiments: Maybe<Array<Experiment>>;
   fapMeetingDecisions: Maybe<Array<FapMeetingDecision>>;

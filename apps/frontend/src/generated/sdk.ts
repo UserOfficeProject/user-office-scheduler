@@ -3491,7 +3491,6 @@ export type QueryPreviousCollaboratorsArgs = {
   sortDirection?: InputMaybe<PaginationSortDirection>;
   sortField?: InputMaybe<Scalars['String']['input']>;
   subtractUsers?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-  userId: Scalars['Int']['input'];
   userRole?: InputMaybe<UserRole>;
 };
 

@@ -2750,6 +2750,7 @@ export type Proposal = {
   commentForManagement: Maybe<Scalars['String']['output']>;
   commentForUser: Maybe<Scalars['String']['output']>;
   created: Scalars['DateTime']['output'];
+  dataAccessUsers: Maybe<Array<BasicUserDetails>>;
   experimentSequence: Maybe<Scalars['Int']['output']>;
   experiments: Maybe<Array<Experiment>>;
   fapMeetingDecisions: Maybe<Array<FapMeetingDecision>>;
@@ -3241,6 +3242,8 @@ export type QueryCallArgs = {
 
 export type QueryCallsArgs = {
   filter?: InputMaybe<CallsFilter>;
+  sortDirection?: InputMaybe<PaginationSortDirection>;
+  sortField?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -3489,7 +3492,6 @@ export type QueryPreviousCollaboratorsArgs = {
   sortDirection?: InputMaybe<PaginationSortDirection>;
   sortField?: InputMaybe<Scalars['String']['input']>;
   subtractUsers?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-  userId: Scalars['Int']['input'];
   userRole?: InputMaybe<UserRole>;
 };
 

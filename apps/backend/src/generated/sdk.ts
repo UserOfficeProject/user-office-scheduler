@@ -3057,6 +3057,7 @@ export type Query = {
   call: Maybe<Call>;
   calls: Maybe<Array<Call>>;
   callsByInstrumentScientist: Maybe<Array<Call>>;
+  callsOfReviewer: Maybe<Array<Call>>;
   checkEmailExist: Maybe<Scalars['Boolean']['output']>;
   checkExternalToken: ExternalTokenResult;
   checkToken: TokenResult;
@@ -3090,6 +3091,7 @@ export type Query = {
   genericTemplatesOnCopy: Maybe<Array<GenericTemplate>>;
   getCallByAnswerId: Maybe<Call>;
   getDynamicMultipleChoiceOptions: Maybe<Array<Scalars['String']['output']>>;
+  getInstrumentsOfReviewer: Maybe<Array<Instrument>>;
   healthCheck: HealthStats;
   institutions: Maybe<Array<Institution>>;
   instrument: Maybe<Instrument>;

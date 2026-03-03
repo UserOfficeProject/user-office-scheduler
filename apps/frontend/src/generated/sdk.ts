@@ -817,6 +817,7 @@ export type Fap = {
   numberRatingsRequired: Scalars['Float']['output'];
   proposalCount: Scalars['Int']['output'];
   proposalCurrentCount: Scalars['Int']['output'];
+  reviewVisibility: Scalars['Int']['output'];
 };
 
 export type FapAssignment = {
@@ -913,6 +914,12 @@ export type FapReviewTemplatesFilter = {
   isArchived?: InputMaybe<Scalars['Boolean']['input']>;
   templateIds?: InputMaybe<Array<Scalars['Int']['input']>>;
 };
+
+export enum FapReviewVisibility {
+  PROPOSAL_REVIEWS_COMPLETE = 'PROPOSAL_REVIEWS_COMPLETE',
+  REVIEWS_VISIBLE = 'REVIEWS_VISIBLE',
+  REVIEWS_VISIBLE_FAP_ENDED = 'REVIEWS_VISIBLE_FAP_ENDED'
+}
 
 export type FapReviewer = {
   fapId: Scalars['Int']['output'];
@@ -1716,6 +1723,7 @@ export type MutationCreateFapArgs = {
   description: Scalars['String']['input'];
   gradeGuide?: InputMaybe<Scalars['String']['input']>;
   numberRatingsRequired?: Scalars['Int']['input'];
+  reviewVisibility: Scalars['Int']['input'];
 };
 
 
@@ -2407,6 +2415,7 @@ export type MutationUpdateFapArgs = {
   gradeGuide?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['Int']['input'];
   numberRatingsRequired?: Scalars['Int']['input'];
+  reviewVisibility?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -3079,6 +3088,7 @@ export type Query = {
   fapProposals: Maybe<Array<FapProposal>>;
   fapProposalsByInstrument: Maybe<Array<FapProposal>>;
   fapReviewTemplates: Maybe<Array<FapReviewTemplate>>;
+  fapReviewVisibilityOptions: Maybe<Array<ReviewVisibility>>;
   fapReviewers: Maybe<Array<FapReviewer>>;
   faps: Maybe<FapsQueryResult>;
   features: Array<Feature>;
@@ -3912,6 +3922,12 @@ export enum ReviewStatus {
   DRAFT = 'DRAFT',
   SUBMITTED = 'SUBMITTED'
 }
+
+export type ReviewVisibility = {
+  description: Scalars['String']['output'];
+  reviewVisibilityId: Scalars['Int']['output'];
+  visibility: FapReviewVisibility;
+};
 
 export enum ReviewerFilter {
   ALL = 'ALL',

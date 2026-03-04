@@ -3006,6 +3006,7 @@ export type ProposalViewTechnique = {
 
 export type ProposalsFilter = {
   callId?: InputMaybe<Scalars['Int']['input']>;
+  callIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   dateFilter?: InputMaybe<DateFilterInput>;
   excludeProposalStatusIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   instrumentFilter?: InputMaybe<InstrumentFilterInput>;

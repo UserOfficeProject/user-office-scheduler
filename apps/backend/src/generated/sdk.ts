@@ -151,7 +151,7 @@ export type BasicUserDetails = {
   institution: Scalars['String']['output'];
   institutionId: Scalars['Int']['output'];
   lastname: Scalars['String']['output'];
-  oidc_sub: Maybe<Scalars['String']['output']>;
+  oidcSub: Maybe<Scalars['String']['output']>;
   preferredname: Maybe<Scalars['String']['output']>;
 };
 
@@ -2624,7 +2624,7 @@ export type MutationUpdateUserArgs = {
   lastname?: InputMaybe<Scalars['String']['input']>;
   preferredname?: InputMaybe<Scalars['String']['input']>;
   roles?: InputMaybe<Array<Scalars['Int']['input']>>;
-  user_title?: InputMaybe<Scalars['String']['input']>;
+  userTitle?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -4678,7 +4678,7 @@ export type User = {
   reviews: Array<Review>;
   roles: Array<Role>;
   updated: Scalars['String']['output'];
-  user_title: Scalars['String']['output'];
+  userTitle: Scalars['String']['output'];
 };
 
 

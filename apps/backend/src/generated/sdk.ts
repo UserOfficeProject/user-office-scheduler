@@ -196,7 +196,6 @@ export type Call = {
   startNotify: Scalars['DateTime']['output'];
   startReview: Scalars['DateTime']['output'];
   submissionMessage: Maybe<Scalars['String']['output']>;
-  surveyComment: Scalars['String']['output'];
   tags: Tag;
   technicalReviewTemplateId: Maybe<Scalars['Int']['output']>;
   template: Template;
@@ -317,7 +316,6 @@ export type CreateCallInput = {
   startNotify: Scalars['DateTime']['input'];
   startReview: Scalars['DateTime']['input'];
   submissionMessage?: InputMaybe<Scalars['String']['input']>;
-  surveyComment: Scalars['String']['input'];
   technicalReviewTemplateId?: InputMaybe<Scalars['Int']['input']>;
   templateId: Scalars['Int']['input'];
   title?: InputMaybe<Scalars['String']['input']>;
@@ -4581,7 +4579,6 @@ export type UpdateCallInput = {
   startNotify?: InputMaybe<Scalars['DateTime']['input']>;
   startReview?: InputMaybe<Scalars['DateTime']['input']>;
   submissionMessage?: InputMaybe<Scalars['String']['input']>;
-  surveyComment?: InputMaybe<Scalars['String']['input']>;
   technicalReviewTemplateId?: InputMaybe<Scalars['Int']['input']>;
   templateId?: InputMaybe<Scalars['Int']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;

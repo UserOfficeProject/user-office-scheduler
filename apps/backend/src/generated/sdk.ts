@@ -1099,6 +1099,16 @@ export type Institution = {
   rorId: Maybe<Scalars['String']['output']>;
 };
 
+export type InstitutionInput = {
+  institutionData?: InputMaybe<InstitutionManualInput>;
+  rorId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type InstitutionManualInput = {
+  country: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+};
+
 export type InstitutionsFilter = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
@@ -2449,7 +2459,7 @@ export type MutationUpdateGenericTemplateArgs = {
 
 
 export type MutationUpdateInstitutionArgs = {
-  country: Scalars['Int']['input'];
+  country?: InputMaybe<Scalars['Int']['input']>;
   id: Scalars['Int']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   rorId?: InputMaybe<Scalars['String']['input']>;
@@ -2661,9 +2671,7 @@ export type MutationUpdateWorkflowStatusArgs = {
 export type MutationUpsertUserByOidcSubArgs = {
   email: Scalars['String']['input'];
   firstName: Scalars['String']['input'];
-  institutionCountry: Scalars['String']['input'];
-  institutionName: Scalars['String']['input'];
-  institutionRoRId: Scalars['String']['input'];
+  institution: InstitutionInput;
   lastName: Scalars['String']['input'];
   oidcSub: Scalars['String']['input'];
   preferredName?: InputMaybe<Scalars['String']['input']>;
@@ -4665,6 +4673,7 @@ export type User = {
   faps: Array<Fap>;
   firstname: Scalars['String']['output'];
   id: Scalars['Int']['output'];
+  institution: Institution;
   institutionId: Scalars['Int']['output'];
   instruments: Array<Instrument>;
   lastname: Scalars['String']['output'];

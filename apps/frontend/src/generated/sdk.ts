@@ -321,6 +321,14 @@ export type CreateCallInput = {
   title?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type CreateEmailTemplateInput = {
+  body?: InputMaybe<Scalars['String']['input']>;
+  description: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  subject?: InputMaybe<Scalars['String']['input']>;
+  useTemplateFile: Scalars['Boolean']['input'];
+};
+
 export type CreateInternalReviewInput = {
   comment?: InputMaybe<Scalars['String']['input']>;
   files?: InputMaybe<Scalars['String']['input']>;
@@ -488,6 +496,28 @@ export type EmailStatusActionRecipientsWithTemplate = {
   recipient: EmailStatusActionRecipient;
 };
 
+export type EmailTemplate = {
+  body: Maybe<Scalars['String']['output']>;
+  createdByUserId: Scalars['Int']['output'];
+  description: Maybe<Scalars['String']['output']>;
+  id: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+  subject: Maybe<Scalars['String']['output']>;
+  useTemplateFile: Scalars['Boolean']['output'];
+};
+
+export type EmailTemplatesFilter = {
+  emailTemplateIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type EmailTemplatesQueryResult = {
+  emailTemplates: Array<EmailTemplate>;
+  totalCount: Scalars['Int']['output'];
+};
+
 export type EmbellishmentConfig = {
   html: Scalars['String']['output'];
   omitFromPdf: Scalars['Boolean']['output'];
@@ -580,6 +610,9 @@ export enum Event {
   CALL_FAP_REVIEW_ENDED = 'CALL_FAP_REVIEW_ENDED',
   CALL_REVIEW_ENDED = 'CALL_REVIEW_ENDED',
   DATA_ACCESS_USERS_UPDATED = 'DATA_ACCESS_USERS_UPDATED',
+  EMAIL_TEMPLATE_CREATED = 'EMAIL_TEMPLATE_CREATED',
+  EMAIL_TEMPLATE_DELETED = 'EMAIL_TEMPLATE_DELETED',
+  EMAIL_TEMPLATE_UPDATED = 'EMAIL_TEMPLATE_UPDATED',
   EXPERIMENT_ESF_APPROVED_BY_ESR = 'EXPERIMENT_ESF_APPROVED_BY_ESR',
   EXPERIMENT_ESF_APPROVED_BY_IS = 'EXPERIMENT_ESF_APPROVED_BY_IS',
   EXPERIMENT_ESF_REJECTED_BY_ESR = 'EXPERIMENT_ESF_REJECTED_BY_ESR',
@@ -1306,6 +1339,7 @@ export type Mutation = {
   confirmEquipmentAssignment: SchedulerSuccessResponseWrap;
   createApiAccessToken: PermissionsWithAccessToken;
   createCall: Call;
+  createEmailTemplate: EmailTemplate;
   createEquipment: EquipmentResponseWrap;
   createExperimentSafety: ExperimentSafety;
   createExperimentSafetyPdfTemplate: ExperimentSafetyPdfTemplate;
@@ -1336,6 +1370,7 @@ export type Mutation = {
   createWorkflow: Workflow;
   deleteApiAccessToken: Scalars['Boolean']['output'];
   deleteCall: Call;
+  deleteEmailTemplate: EmailTemplate;
   deleteEquipmentAssignment: Scalars['Boolean']['output'];
   deleteExperimentSafetyPdfTemplate: ExperimentSafetyPdfTemplate;
   deleteFap: Fap;
@@ -1422,6 +1457,7 @@ export type Mutation = {
   updateCall: Call;
   updateCallOrder: Scalars['Boolean']['output'];
   updateDataAccessUsers: Array<BasicUserDetails>;
+  updateEmailTemplate: EmailTemplate;
   updateEquipment: EquipmentResponseWrap;
   updateExperimentSafetyPdfTemplate: ExperimentSafetyPdfTemplate;
   updateExperimentSample: ExperimentHasSample;
@@ -1704,6 +1740,11 @@ export type MutationCreateCallArgs = {
 };
 
 
+export type MutationCreateEmailTemplateArgs = {
+  createEmailTemplateInput: CreateEmailTemplateInput;
+};
+
+
 export type MutationCreateEquipmentArgs = {
   newEquipmentInput: EquipmentInput;
 };
@@ -1903,6 +1944,11 @@ export type MutationDeleteApiAccessTokenArgs = {
 
 
 export type MutationDeleteCallArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type MutationDeleteEmailTemplateArgs = {
   id: Scalars['Int']['input'];
 };
 
@@ -2388,6 +2434,11 @@ export type MutationUpdateCallOrderArgs = {
 export type MutationUpdateDataAccessUsersArgs = {
   proposalPk: Scalars['Int']['input'];
   userIds: Array<Scalars['Int']['input']>;
+};
+
+
+export type MutationUpdateEmailTemplateArgs = {
+  updateEmailTemplateInput: UpdateEmailTemplateInput;
 };
 
 
@@ -3079,6 +3130,8 @@ export type Query = {
   checkToken: TokenResult;
   countries: Maybe<Array<Entry>>;
   dataAccessUsers: Array<BasicUserDetails>;
+  emailTemplate: Maybe<EmailTemplate>;
+  emailTemplates: Maybe<EmailTemplatesQueryResult>;
   equipment: Maybe<Equipment>;
   equipments: Array<Equipment>;
   eventLogs: Maybe<Array<EventLog>>;
@@ -3288,6 +3341,16 @@ export type QueryCheckTokenArgs = {
 
 export type QueryDataAccessUsersArgs = {
   proposalPk: Scalars['Int']['input'];
+};
+
+
+export type QueryEmailTemplateArgs = {
+  emailTemplateId: Scalars['Int']['input'];
+};
+
+
+export type QueryEmailTemplatesArgs = {
+  filter?: InputMaybe<EmailTemplatesFilter>;
 };
 
 
@@ -4590,6 +4653,15 @@ export type UpdateCallInput = {
   technicalReviewTemplateId?: InputMaybe<Scalars['Int']['input']>;
   templateId?: InputMaybe<Scalars['Int']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateEmailTemplateInput = {
+  body?: InputMaybe<Scalars['String']['input']>;
+  description: Scalars['String']['input'];
+  id: Scalars['Int']['input'];
+  name: Scalars['String']['input'];
+  subject?: InputMaybe<Scalars['String']['input']>;
+  useTemplateFile: Scalars['Boolean']['input'];
 };
 
 export type UpdateFapToCallInstrumentInput = {

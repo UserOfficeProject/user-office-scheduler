@@ -21,6 +21,6 @@ WORKDIR /e2e/user-office-scheduler-e2e
 RUN npm ci --silent
 
 # Install necessary dependencies for wait-for-frontend.sh
-RUN apt-get update && apt-get install curl -y
+RUN apt-get update && apt-get install --no-install-recommends curl -y && rm -rf /var/lib/apt/lists/*
 
 ENTRYPOINT ["npm", "run", "cy:run"]

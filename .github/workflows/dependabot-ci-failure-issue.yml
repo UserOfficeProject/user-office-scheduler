@@ -1,0 +1,219 @@
+name: Create Issue for Failed Dependabot CI
+
+# Triggered when "Build, Test and Push" or "Lint" finishes.
+# workflow_run always runs in the context of the base branch, so it has
+# full access to repository secrets even when the triggering PR came from
+# Dependabot (which otherwise gets a read-only GITHUB_TOKEN).
+on:
+  workflow_run:
+    workflows:
+      - "Build, Test and Push"
+      - "Lint"
+    types:
+      - completed
+
+jobs:
+  create-failure-issue:
+    runs-on: ubuntu-latest
+
+    # Only act when:
+    #  1. the workflow actually failed (not cancelled / skipped)
+    #  2. the triggering branch is a Dependabot branch
+    
+    # if: |
+    #   github.event.workflow_run.conclusion == 'failure' &&
+    #   startsWith(github.event.workflow_run.head_branch, 'dependabot/')
+
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+
+    steps:
+      # ------------------------------------------------------------------ #
+      # 1. Resolve which PR this Dependabot branch belongs to               #
+      # ------------------------------------------------------------------ #
+      - name: Find associated pull request
+        id: find-pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const headBranch = context.payload.workflow_run.head_branch;
+
+            // workflow_run includes a pull_requests array for same-repo PRs
+            const prs = context.payload.workflow_run.pull_requests;
+            if (prs && prs.length > 0) {
+              const pr = prs[0];
+              core.setOutput('pr-number', String(pr.number));
+              core.setOutput('pr-title',  pr.title  || '');
+              core.setOutput('pr-url',    pr.url    || '');
+              core.info(`Found PR via event payload: #${pr.number}`);
+              return;
+            }
+
+            // Fallback: query the API for an open PR from this branch
+            core.info(`pull_requests array empty — querying API for branch: ${headBranch}`);
+            const { data: openPRs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              head:  `${context.repo.owner}:${headBranch}`,
+              state: 'open',
+            });
+
+            if (openPRs.length > 0) {
+              const pr = openPRs[0];
+              core.setOutput('pr-number', String(pr.number));
+              core.setOutput('pr-title',  pr.title       || '');
+              core.setOutput('pr-url',    pr.html_url    || '');
+              core.info(`Found PR via API: #${pr.number}`);
+            } else {
+              core.warning(`No open PR found for branch ${headBranch} — skipping issue creation`);
+            }
+
+      # ------------------------------------------------------------------ #
+      # 2. Check whether an issue already exists for this PR (dedup)        #
+      # ------------------------------------------------------------------ #
+      - name: Check for existing open issue
+        id: check-existing
+        if: steps.find-pr.outputs.pr-number != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = '${{ steps.find-pr.outputs.pr-number }}';
+
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner:  context.repo.owner,
+              repo:   context.repo.repo,
+              labels: 'dependabot-ci-failure',
+              state:  'open',
+            });
+
+            const existing = issues.find(i => i.title.includes(`#${prNumber}`));
+            if (existing) {
+              core.info(`Existing issue found: #${existing.number}`);
+              core.setOutput('existing-issue-number', String(existing.number));
+            } else {
+              core.info('No existing issue — will create one');
+            }
+
+      # ------------------------------------------------------------------ #
+      # 3a. If a duplicate exists — add a comment noting the extra failure  #
+      # ------------------------------------------------------------------ #
+      - name: Comment on existing issue (duplicate guard)
+        if: |
+          steps.find-pr.outputs.pr-number != '' &&
+          steps.check-existing.outputs.existing-issue-number != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const workflowName = context.payload.workflow_run.name;
+            const runUrl       = context.payload.workflow_run.html_url;
+            const issueNumber  = parseInt('${{ steps.check-existing.outputs.existing-issue-number }}');
+
+            await github.rest.issues.createComment({
+              owner:        context.repo.owner,
+              repo:         context.repo.repo,
+              issue_number: issueNumber,
+              body: `⚠️ **${workflowName}** also failed on a new run: [View run](${runUrl})`,
+            });
+            core.info(`Comment added to issue #${issueNumber}`);
+
+      # ------------------------------------------------------------------ #
+      # 3b. If no duplicate — create a new issue                            #
+      # ------------------------------------------------------------------ #
+      - name: Create failure issue
+        id: create-issue
+        if: |
+          steps.find-pr.outputs.pr-number != '' &&
+          steps.check-existing.outputs.existing-issue-number == ''
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          script: |
+            const headBranch   = context.payload.workflow_run.head_branch;
+            const workflowName = context.payload.workflow_run.name;
+            const runUrl       = context.payload.workflow_run.html_url;
+            const prNumber     = '${{ steps.find-pr.outputs.pr-number }}';
+            const prTitle      = '${{ steps.find-pr.outputs.pr-title }}';
+            const prUrl        = '${{ steps.find-pr.outputs.pr-url }}';
+
+            // Extract human-readable package info from the branch name.
+            // Branch patterns: dependabot/npm_and_yarn/apps/backend/lodash-4.17.21
+            //                  dependabot/npm_and_yarn/lodash-4.17.21
+            const match = headBranch.match(/^dependabot\/[^/]+\/(.+)$/);
+            const packageInfo = match ? match[1] : headBranch;
+
+            const title = `⚠️ CI failure on Dependabot PR #${prNumber}: ${packageInfo}`;
+
+            const body = [
+              `### Dependabot CI failure detected`,
+              ``,
+              `A CI workflow failed on a Dependabot pull request. This likely means the dependency update introduced a breaking change that needs attention.`,
+              ``,
+              `| Field | Details |`,
+              `|---|---|`,
+              `| **PR** | [${prTitle || `#${prNumber}`}](${prUrl}) |`,
+              `| **Package** | \`${packageInfo}\` |`,
+              `| **Failed workflow** | [${workflowName}](${runUrl}) |`,
+              ``,
+              `### Next steps`,
+              ``,
+              `- Review the [failed run](${runUrl}) to understand what broke`,
+              `- Fix the breaking change introduced by this dependency update, **or**`,
+              `- Close the Dependabot PR if the update is incompatible and cannot be addressed now`,
+            ].join('\n');
+
+            const issue = await github.rest.issues.create({
+              owner:  context.repo.owner,
+              repo:   context.repo.repo,
+              title,
+              body,
+              labels: ['dependabot-ci-failure'],
+            });
+
+            core.info(`Issue created: #${issue.data.number} — ${issue.data.html_url}`);
+            core.setOutput('issue-node-id', issue.data.node_id);
+            core.setOutput('issue-number',  String(issue.data.number));
+
+      # ------------------------------------------------------------------ #
+      # 4. Add the new issue to GitHub Project #13                          #
+      # ------------------------------------------------------------------ #
+      - name: Add issue to GitHub Project #13
+        if: steps.create-issue.outputs.issue-node-id != ''
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          script: |
+            // Step A: resolve the project's internal node ID
+            const projectQuery = `
+              query($org: String!, $projectNum: Int!) {
+                organization(login: $org) {
+                  projectV2(number: $projectNum) {
+                    id
+                    title
+                  }
+                }
+              }
+            `;
+            const projectResult = await github.graphql(projectQuery, {
+              org:        context.repo.owner,
+              projectNum: 13,
+            });
+            const projectId    = projectResult.organization.projectV2.id;
+            const projectTitle = projectResult.organization.projectV2.title;
+            core.info(`Target project: "${projectTitle}" (id: ${projectId})`);
+
+            // Step B: add the issue to the project
+            const addMutation = `
+              mutation($projectId: ID!, $contentId: ID!) {
+                addProjectV2ItemById(input: { projectId: $projectId, contentId: $contentId }) {
+                  item { id }
+                }
+              }
+            `;
+            await github.graphql(addMutation, {
+              projectId,
+              contentId: '${{ steps.create-issue.outputs.issue-node-id }}',
+            });
+
+            core.info(`Issue #${{ steps.create-issue.outputs.issue-number }} added to project "${projectTitle}" (#13)`);

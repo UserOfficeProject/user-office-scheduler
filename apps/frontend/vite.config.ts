@@ -11,6 +11,7 @@ export default defineConfig(({ mode }) => {
       tsconfigPaths: true,
     },
     server: {
+      host: '0.0.0.0',
       port,
       proxy: {
         '/gateway': {

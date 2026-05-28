@@ -6,6 +6,5 @@ dist
 public
 
 src/serviceWorker.js
-src/setupProxy.js
 src/generated/sdk.ts
 server.js

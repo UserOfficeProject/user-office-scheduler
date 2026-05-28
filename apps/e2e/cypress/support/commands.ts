@@ -172,7 +172,6 @@ const login = (
   idOrCredentials: TestUserId | { email: string; password: string }
 ): Cypress.Chainable<ExternalTokenLoginMutation> => {
   const testUserId = getUserIdFromIdOrCredentials(idOrCredentials);
-  const baseUrl = Cypress.config('baseUrl') || 'http://localhost:33000';
   const request = getOauthExternalToken(testUserId).then(
     async (externalToken) => {
       const api = getE2EApi();
@@ -180,7 +179,7 @@ const login = (
       return api
         .externalTokenLogin({
           externalToken: externalToken as string,
-          redirectUri: `${baseUrl}/external-auth`, // has to be set because it is a required field
+          redirectUri: 'http://localhost:3000/external-auth', // has to be set because it is a required field
         })
         .then(async (resp) => {
           const token = resp.externalTokenLogin;

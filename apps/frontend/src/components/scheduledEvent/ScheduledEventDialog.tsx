@@ -27,6 +27,7 @@ import {
   TZ_LESS_DATE_TIME_LOW_PREC_FORMAT,
   toTzLessDateTime,
 } from 'utils/date';
+import { overlapsWithShutdown, SHUTDOWN_OVERLAP_WARNING } from 'utils/scheduledEvent';
 
 import ScheduledEventForm, {
   CalendarExplicitBookableTypes,
@@ -52,11 +53,18 @@ const createValidationSchema = createScheduledEventValidationSchema(
   CalendarExplicitBookableTypes
 );
 
+type CalendarBackgroundEvent = {
+  start: Date;
+  end: Date;
+  bookingType: ScheduledEventBookingType;
+};
+
 type ScheduledEventDialogProps = {
   selectedEvent: BackgroundEvent | SlotInfo | null;
   isDialogOpen: boolean;
   selectedInstrumentIds: number[];
   closeDialog: (shouldRefresh?: boolean) => void;
+  backgroundEvents?: CalendarBackgroundEvent[];
 };
 
 export default function ScheduledEventDialog({
@@ -64,6 +72,7 @@ export default function ScheduledEventDialog({
   isDialogOpen,
   selectedInstrumentIds,
   closeDialog,
+  backgroundEvents = [],
 }: ScheduledEventDialogProps) {
   const { enqueueSnackbar } = useSnackbar();
   const api = useDataApi();
@@ -155,48 +164,65 @@ export default function ScheduledEventDialog({
             return;
           }
 
-          if (isEdit) {
-            const {
-              updateScheduledEvent: { error },
-            } = await api().updateScheduledEvent({
-              input: {
-                scheduledEventId: selectedEvent.id,
-                instrumentId: +values.instrument,
-                bookingType: values.bookingType as ScheduledEventBookingType,
-                endsAt: toTzLessDateTime(values.endsAt),
-                startsAt: toTzLessDateTime(values.startsAt),
-                description: values.description || null,
-              },
-            });
-
-            if (error) {
-              enqueueSnackbar(getTranslation(error as ResourceId), {
-                variant: 'error',
+          const performSave = async () => {
+            if (isEdit) {
+              const {
+                updateScheduledEvent: { error },
+              } = await api().updateScheduledEvent({
+                input: {
+                  scheduledEventId: selectedEvent.id,
+                  instrumentId: +values.instrument,
+                  bookingType: values.bookingType as ScheduledEventBookingType,
+                  endsAt: toTzLessDateTime(values.endsAt),
+                  startsAt: toTzLessDateTime(values.startsAt),
+                  description: values.description || null,
+                },
               });
+
+              if (error) {
+                enqueueSnackbar(getTranslation(error as ResourceId), {
+                  variant: 'error',
+                });
+              } else {
+                closeDialog(true);
+              }
             } else {
-              closeDialog(true);
+              const {
+                createScheduledEvent: { error },
+              } = await api().createScheduledEvent({
+                input: {
+                  instrumentId: +values.instrument,
+                  // validation should take care about this
+                  bookingType: values.bookingType as ScheduledEventBookingType,
+                  endsAt: toTzLessDateTime(values.endsAt),
+                  startsAt: toTzLessDateTime(values.startsAt),
+                  description: values.description || null,
+                },
+              });
+
+              if (error) {
+                enqueueSnackbar(getTranslation(error as ResourceId), {
+                  variant: 'error',
+                });
+              } else {
+                closeDialog(true);
+              }
             }
+          };
+
+          if (
+            overlapsWithShutdown(
+              values.startsAt.toDate(),
+              values.endsAt.toDate(),
+              backgroundEvents
+            )
+          ) {
+            showConfirmation({
+              message: SHUTDOWN_OVERLAP_WARNING,
+              cb: performSave,
+            });
           } else {
-            const {
-              createScheduledEvent: { error },
-            } = await api().createScheduledEvent({
-              input: {
-                instrumentId: +values.instrument,
-                // validation should take care about this
-                bookingType: values.bookingType as ScheduledEventBookingType,
-                endsAt: toTzLessDateTime(values.endsAt),
-                startsAt: toTzLessDateTime(values.startsAt),
-                description: values.description || null,
-              },
-            });
-
-            if (error) {
-              enqueueSnackbar(getTranslation(error as ResourceId), {
-                variant: 'error',
-              });
-            } else {
-              closeDialog(true);
-            }
+            await performSave();
           }
         }}
       >

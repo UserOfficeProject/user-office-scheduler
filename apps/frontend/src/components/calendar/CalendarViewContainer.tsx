@@ -64,7 +64,11 @@ import {
   toTzLessDateTime,
   TZ_LESS_DATE_TIME_FORMAT,
 } from 'utils/date';
-import { hasOverlappingEvents } from 'utils/scheduledEvent';
+import {
+  hasOverlappingEvents,
+  overlapsWithShutdown,
+  SHUTDOWN_OVERLAP_WARNING,
+} from 'utils/scheduledEvent';
 
 import CalendarTodoBox, { DraggingEventType } from './common/CalendarTodoBox';
 import { CalendarScheduledEvent } from './common/Event';
@@ -443,25 +447,15 @@ export default function CalendarViewContainer() {
     refresh();
   };
 
-  const addAndOpenNewTimeSlot = async ({ start }: { start: stringOrDate }) => {
+  const createNewTimeSlot = async (
+    newEventStart: moment.Moment,
+    newEventEnd: moment.Moment
+  ) => {
     if (
       !draggingEventDetails?.proposalBookingId ||
       !draggingEventDetails.instrumentId
     ) {
       return;
-    }
-
-    setIsAddingOrResizingTimeSlot(true);
-
-    const newEventStart = moment(start);
-    const newEventEnd = moment(start).add(
-      draggingEventDetails.timeToAllocate,
-      'seconds'
-    );
-
-    if (view === Views.MONTH && newEventStart.hour() === 0) {
-      newEventStart.set({ hour: 9, minute: 0, second: 0 });
-      newEventEnd.set({ hour: 9, minute: 0, second: 0 });
     }
 
     const {
@@ -497,6 +491,38 @@ export default function CalendarViewContainer() {
     }
     setIsAddingOrResizingTimeSlot(false);
     setDraggingEventDetails(null);
+  };
+
+  const addAndOpenNewTimeSlot = async ({ start }: { start: stringOrDate }) => {
+    if (
+      !draggingEventDetails?.proposalBookingId ||
+      !draggingEventDetails.instrumentId
+    ) {
+      return;
+    }
+
+    setIsAddingOrResizingTimeSlot(true);
+
+    const newEventStart = moment(start);
+    const newEventEnd = moment(start).add(
+      draggingEventDetails.timeToAllocate,
+      'seconds'
+    );
+
+    if (view === Views.MONTH && newEventStart.hour() === 0) {
+      newEventStart.set({ hour: 9, minute: 0, second: 0 });
+      newEventEnd.set({ hour: 9, minute: 0, second: 0 });
+    }
+
+    if (overlapsWithShutdown(newEventStart, newEventEnd, backgroundEvents)) {
+      showConfirmation({
+        message: SHUTDOWN_OVERLAP_WARNING,
+        cb: () => createNewTimeSlot(newEventStart, newEventEnd),
+      });
+      setIsAddingOrResizingTimeSlot(false);
+    } else {
+      await createNewTimeSlot(newEventStart, newEventEnd);
+    }
   };
 
   const onDropFromOutside = async ({ start }: { start: stringOrDate }) => {
@@ -627,6 +653,13 @@ export default function CalendarViewContainer() {
         ),
         cb: async () => await updateScheduledEvent(updatedEvent),
       });
+    } else if (
+      overlapsWithShutdown(updatedEvent.start, updatedEvent.end, backgroundEvents)
+    ) {
+      showConfirmation({
+        message: SHUTDOWN_OVERLAP_WARNING,
+        cb: () => updateScheduledEvent(updatedEvent),
+      });
     } else {
       await updateScheduledEvent(updatedEvent);
     }
@@ -706,6 +739,7 @@ export default function CalendarViewContainer() {
                 selectedInstrumentIds={getArrayOfIdsFromQuery(queryInstrument)}
                 isDialogOpen={selectedEvent !== null}
                 closeDialog={closeDialog}
+                backgroundEvents={backgroundEvents}
               />
             )}
             {selectedProposalBooking.proposalBookingId !== null &&

@@ -447,7 +447,7 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
                 );
               }}
             />
-            <DateHeader />
+            <DateHeader labelFormat="dddd, DD MMM YYYY" />
           </TimelineHeaders>
         )}
       </Timeline>

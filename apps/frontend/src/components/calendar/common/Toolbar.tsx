@@ -1,5 +1,4 @@
 import moment from 'moment';
-import 'moment/locale/en-gb';
 import React from 'react';
 import { View, Views } from 'react-big-calendar';
 // @ts-expect-error Using the toolbar from react-big-calendar but they are not exporting it.
@@ -37,11 +36,6 @@ const calendarNavigationToolbarViewOptions = [
   Views.MONTH,
 ];
 
-export const getStartOfSchedulerPeriod = (
-  date: moment.MomentInput,
-  view: SchedulerViewPeriod
-) => moment(date).startOf(view === Views.WEEK ? 'isoWeek' : view);
-
 export const getLabelText = (
   queryView: SchedulerViewPeriod,
   startsAt: string
@@ -50,8 +44,8 @@ export const getLabelText = (
     case 'day':
       return moment(startsAt).format('dddd, D MMMM YYYY');
     case 'week':
-      const startDate = getStartOfSchedulerPeriod(startsAt, queryView);
-      const endDate = moment(startDate).add(6, 'days');
+      const startDate = moment(startsAt);
+      const endDate = moment(startsAt).add(1, queryView);
       const sameStartAndEndMonth = startDate.month() === endDate.month();
 
       const intervalEndDateFormat = sameStartAndEndMonth ? 'DD' : 'MMMM DD';
@@ -100,21 +94,19 @@ const Toolbar = ({
 
             switch (direction) {
               case 'PREV':
-                newStartsAt = getStartOfSchedulerPeriod(
-                  moment(startsAt).subtract(1, queryView),
-                  queryView
-                );
+                newStartsAt = moment(startsAt)
+                  .subtract(1, queryView)
+                  .startOf(queryView);
                 break;
 
               case 'TODAY':
-                newStartsAt = getStartOfSchedulerPeriod(moment(), queryView);
+                newStartsAt = moment().startOf(queryView);
                 break;
 
               default:
-                newStartsAt = getStartOfSchedulerPeriod(
-                  moment(startsAt).add(1, queryView),
-                  queryView
-                );
+                newStartsAt = moment(startsAt)
+                  .add(1, queryView)
+                  .startOf(queryView);
                 break;
             }
 
@@ -123,17 +115,14 @@ const Toolbar = ({
           }}
           onView={(view: View) => {
             if (isSchedulerViewPeriod(view)) {
-              let newStartsAt = getStartOfSchedulerPeriod(startsAt, view);
+              let newStartsAt = moment(startsAt).startOf(view);
 
               // NOTE: If startsAt is in the current month then navigate to todays date view, else navigate to the middle of the month view.
               if (view !== Views.MONTH) {
                 if (isStartDateInCurrentMonth(startsAt)) {
-                  newStartsAt = getStartOfSchedulerPeriod(moment(), view);
+                  newStartsAt = moment().startOf(view);
                 } else {
-                  newStartsAt = getStartOfSchedulerPeriod(
-                    getMiddleOfTheMonth(startsAt),
-                    view
-                  );
+                  newStartsAt = getMiddleOfTheMonth(startsAt).startOf(view);
                 }
               }
 

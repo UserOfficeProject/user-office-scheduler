@@ -72,17 +72,17 @@ jobs:
               GATEWAY_TAGS=$((GATEWAY_TAGS+1))
           fi
 
-          if [[ "$CHECK_IF_FACTORY_IMAGE_EXISTS" == "null"  ]]; then 
+          if [[ "$CHECK_IF_FACTORY_IMAGE_EXISTS" == "null"  ]]; then
               FACTORY_TAGS=$((FACTORY_TAGS+1))
           fi
 
-          if [[ "$CHECK_IF_CORE_IMAGE_EXISTS" == "null"  ]]; then 
+          if [[ "$CHECK_IF_CORE_IMAGE_EXISTS" == "null"  ]]; then
               CORE_TAGS=$((CORE_TAGS+1))
           fi
 
           echo $CHECK_IF_GATEWAY_IMAGE_EXISTS
 
-          if [[ "$CHECK_IF_GATEWAY_IMAGE_EXISTS" == "null"  ]]; then 
+          if [[ "$CHECK_IF_GATEWAY_IMAGE_EXISTS" == "null"  ]]; then
               GATEWAY_TAGS=$((GATEWAY_TAGS+1))
           fi
 

@@ -1,5 +1,4 @@
 import moment from 'moment';
-import 'moment/locale/en-gb';
 import React, { ComponentType, useContext, useEffect, useState } from 'react';
 import {
   Calendar as BigCalendar,
@@ -31,7 +30,6 @@ import {
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import 'styles/react-big-calendar.css';
-import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 
 import {
   CalendarScheduledEventWithUniqueId,
@@ -41,7 +39,14 @@ import {
 import Event, { eventPropGetter, getBookingTypeStyle } from '../common/Event';
 import Toolbar, { getStartOfSchedulerPeriod } from '../common/Toolbar';
 
-moment.locale('en-gb');
+const CALENDAR_CULTURE = 'en-gb';
+
+moment.updateLocale(CALENDAR_CULTURE, {
+  week: {
+    dow: 1,
+    doy: 4,
+  },
+});
 const localizer = momentLocalizer(moment);
 
 function slotPropGetter(date: Date) {
@@ -250,7 +255,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         popup
         selectable
         resizable
-        culture="en-gb"
+        culture={CALENDAR_CULTURE}
         className={classes.calendar}
         localizer={localizer}
         backgroundEvents={backgroundEvents}
@@ -286,12 +291,12 @@ const CalendarView: React.FC<CalendarViewProps> = ({
           event: Event,
           week: {
             header: ({ date, localizer }) => (
-              <>{localizer.format(date, 'dddd', '')}</>
+              <>{localizer.format(date, 'dddd', CALENDAR_CULTURE)}</>
             ),
           },
           month: {
             header: ({ date, localizer }) => (
-              <>{localizer.format(date, 'dddd', '')}</>
+              <>{localizer.format(date, 'dddd', CALENDAR_CULTURE)}</>
             ),
           },
         }}

@@ -28,10 +28,7 @@ import {
 } from '../CalendarViewContainer';
 import { getBookingTypeStyle } from '../common/Event';
 import 'moment/locale/en-gb';
-import Toolbar, {
-  getLabelText,
-  getStartOfSchedulerPeriod,
-} from '../common/Toolbar';
+import Toolbar, { getLabelText } from '../common/Toolbar';
 
 type TimeLineViewProps = {
   events: CalendarScheduledEventWithUniqueId[];
@@ -190,12 +187,7 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
   >([]);
 
   const initialVisibleTimeStart = moment
-    .utc(
-      queryStartsAt ||
-        getStartOfSchedulerPeriod(moment(), queryView).format(
-          TZ_LESS_DATE_TIME_FORMAT
-        )
-    )
+    .utc(queryStartsAt || moment().startOf(queryView))
     .local();
   const initialVisibleTimeEnd = moment(initialVisibleTimeStart).add(
     1,
@@ -447,7 +439,7 @@ const TimeLineView: React.FC<TimeLineViewProps> = ({
                 );
               }}
             />
-            <DateHeader labelFormat="dddd, DD MMM YYYY" />
+            <DateHeader />
           </TimelineHeaders>
         )}
       </Timeline>

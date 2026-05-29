@@ -30,6 +30,7 @@ import {
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import 'styles/react-big-calendar.css';
+import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 
 import {
   CalendarScheduledEventWithUniqueId,
@@ -37,16 +38,8 @@ import {
   SchedulerViewPeriod,
 } from '../CalendarViewContainer';
 import Event, { eventPropGetter, getBookingTypeStyle } from '../common/Event';
-import Toolbar, { getStartOfSchedulerPeriod } from '../common/Toolbar';
+import Toolbar from '../common/Toolbar';
 
-const CALENDAR_CULTURE = 'en-gb';
-
-moment.updateLocale(CALENDAR_CULTURE, {
-  week: {
-    dow: 1,
-    doy: 4,
-  },
-});
 const localizer = momentLocalizer(moment);
 
 function slotPropGetter(date: Date) {
@@ -130,9 +123,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   const [view, setView] = useState<SchedulerViewPeriod>(
     queryView || Views.WEEK
   );
-  const [startsAt, setStartsAt] = useState(
-    getStartOfSchedulerPeriod(moment(), view).toDate()
-  );
+  const [startsAt, setStartsAt] = useState(moment().startOf(view).toDate());
 
   useEffect(() => {
     if (queryStartsAt) {
@@ -148,7 +139,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
       if (queryLatestView === Views.DAY && queryLatestView !== newView) {
         setView(queryLatestView);
       } else {
-        newStartDate = getStartOfSchedulerPeriod(newStartDate, newView);
+        newStartDate = newStartDate.startOf(newView);
         setView(newView);
       }
 
@@ -160,17 +151,14 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   const onViewChange = (newView: View) => {
     if (isSchedulerViewPeriod(newView)) {
       query.set('viewPeriod', newView);
-      let newStartsAt = getStartOfSchedulerPeriod(startsAt, newView);
+      let newStartsAt = moment(startsAt).startOf(newView);
 
       // NOTE: If startsAt is in the current month then navigate to todays date view, else navigate to the middle of the month view.
       if (newView !== Views.MONTH) {
         if (isStartDateInCurrentMonth(startsAt)) {
-          newStartsAt = getStartOfSchedulerPeriod(moment(), newView);
+          newStartsAt = moment().startOf(newView);
         } else {
-          newStartsAt = getStartOfSchedulerPeriod(
-            getMiddleOfTheMonth(startsAt),
-            newView
-          );
+          newStartsAt = getMiddleOfTheMonth(startsAt).startOf(newView);
         }
       }
 
@@ -255,7 +243,6 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         popup
         selectable
         resizable
-        culture={CALENDAR_CULTURE}
         className={classes.calendar}
         localizer={localizer}
         backgroundEvents={backgroundEvents}
@@ -291,12 +278,12 @@ const CalendarView: React.FC<CalendarViewProps> = ({
           event: Event,
           week: {
             header: ({ date, localizer }) => (
-              <>{localizer.format(date, 'dddd', CALENDAR_CULTURE)}</>
+              <>{localizer.format(date, 'dddd', '')}</>
             ),
           },
           month: {
             header: ({ date, localizer }) => (
-              <>{localizer.format(date, 'dddd', CALENDAR_CULTURE)}</>
+              <>{localizer.format(date, 'dddd', '')}</>
             ),
           },
         }}

@@ -57,4 +57,3 @@ Please refer to the [Contribution guide](CONTRIBUTING.md) to get information abo
 Happy coding! 👨‍💻
 
 For additional questions reach out to Fredrik Bolmsten (fredrik.bolmsten@ess.eu)
-

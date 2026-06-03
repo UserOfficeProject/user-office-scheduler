@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@faker-js/faker": "^7.5.0",
-    "cypress": "^13.2.0",
+    "cypress": "^15.16.0",
     "cypress-real-events": "^1.10.3",
     "dotenv": "^8.6.0",
     "graphql": "^16.8.1",

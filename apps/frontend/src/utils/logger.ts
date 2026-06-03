@@ -13,7 +13,10 @@ export const logger = {
   error(message: string, error?: unknown): void {
     // Keep console output for local development; the message string
     // gives enough context to locate the source.
-    console.error(`[Scheduler] ${message}`, ...(error !== undefined ? [error] : []));
+    console.error(
+      `[Scheduler] ${message}`,
+      ...(error !== undefined ? [error] : [])
+    );
   },
 
   /** Log a warning. */

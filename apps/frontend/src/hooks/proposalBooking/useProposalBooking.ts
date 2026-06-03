@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 
 import { GetProposalBookingQuery } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
+import { logger } from 'utils/logger';
 
 export type DetailedProposalBooking = Pick<
   NonNullable<GetProposalBookingQuery['proposalBooking']>,
@@ -53,7 +54,9 @@ export default function useProposalBooking(id: number) {
 
         setLoading(false);
       })
-      .catch(console.error);
+      .catch((error) => {
+        logger.error('Failed to load proposal booking', error);
+      });
 
     return () => {
       unmount = true;

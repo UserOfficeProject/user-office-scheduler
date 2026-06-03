@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 
 import { GetInstrumentProposalBookingsQuery } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
+import { logger } from 'utils/logger';
 
 export type InstrumentProposalBooking =
   GetInstrumentProposalBookingsQuery['instrumentProposalBookings'][0];
@@ -59,7 +60,9 @@ export default function useInstrumentProposalBookings(
 
         setLoading(false);
       })
-      .catch(console.error);
+      .catch((error) => {
+        logger.error('Failed to load instrument proposal bookings', error);
+      });
 
     return () => {
       unmount = true;

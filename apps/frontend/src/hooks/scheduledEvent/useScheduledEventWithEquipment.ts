@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 
 import { GetScheduledEventWithEquipmentsQuery } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
+import { logger } from 'utils/logger';
 
 export type ScheduledEventEquipment = NonNullable<
   GetScheduledEventWithEquipmentsQuery['proposalBookingScheduledEvent']
@@ -51,7 +52,9 @@ export default function useScheduledEventWithEquipments({
 
         setLoading(false);
       })
-      .catch(console.error);
+      .catch((error) => {
+        logger.error('Failed to load scheduled event with equipments', error);
+      });
 
     return () => {
       unmount = true;

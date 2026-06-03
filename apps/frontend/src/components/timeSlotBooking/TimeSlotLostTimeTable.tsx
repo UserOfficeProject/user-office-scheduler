@@ -24,6 +24,7 @@ import {
   TZ_LESS_DATE_TIME_LOW_PREC_FORMAT,
   toTzLessDateTime,
 } from 'utils/date';
+import { logger } from 'utils/logger';
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -109,8 +110,7 @@ function TimeSlotLostTimeTable({
         addedLostTime && setLostTimes([...lostTimes, addedLostTime]);
       }
     } catch (e) {
-      // TODO
-      console.error(e);
+      logger.error('Failed to add lost time', e);
     } finally {
       setIsLoading(false);
     }

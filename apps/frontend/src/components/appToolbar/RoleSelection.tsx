@@ -78,7 +78,6 @@ const RoleSelection: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         onClose();
       }, 500);
     } catch (error) {
-      // TODO: This should be removed once we do error handling refactor
       const [graphQLError] = (error as ClientError).response?.errors ?? [];
 
       enqueueSnackbar(graphQLError?.message ?? 'Login failed.', {

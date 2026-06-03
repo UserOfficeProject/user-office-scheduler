@@ -17,6 +17,7 @@ import {
   ScheduledEventFilter,
 } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
+import { logger } from 'utils/logger';
 
 import { CalendarScheduledEventWithUniqueId } from '../CalendarViewContainer';
 import { getBookingTypeStyle } from '../common/Event';
@@ -147,7 +148,7 @@ const TableView: React.FC<TableViewProps> = ({
         refresh();
       }
     } catch (e) {
-      console.error(e);
+      logger.error('Failed to activate experiment times', e);
     }
   };
 

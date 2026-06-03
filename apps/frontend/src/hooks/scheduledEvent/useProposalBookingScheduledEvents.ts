@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 
 import { BasicUserDetailsFragment, ScheduledEvent } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
+import { logger } from 'utils/logger';
 
 export type ProposalBookingScheduledEvent = Pick<
   ScheduledEvent,
@@ -44,7 +45,9 @@ export default function useProposalBookingScheduledEvents(
 
         setLoading(false);
       })
-      .catch(console.error);
+      .catch((error) => {
+        logger.error('Failed to load proposal booking scheduled events', error);
+      });
 
     return () => {
       unmount = true;

@@ -9,6 +9,7 @@ import { useCallback, useContext } from 'react';
 import { SettingsContext } from 'context/SettingsContextProvider';
 import { UserContext } from 'context/UserContext';
 import { getSdk, SettingsId } from 'generated/sdk';
+import { logger } from 'utils/logger';
 import { RequestQuery } from 'utils/utilTypes';
 
 const BACKEND_ENDPOINT = process.env.REACT_APP_API_URL || '';
@@ -26,7 +27,7 @@ const notificationWithClientLog = async (
     preventDuplicate: true,
   });
 
-  console.error({ message, error });
+  logger.error(message, error);
 
   if (error) {
     let stringifiedError: string;
@@ -56,7 +57,7 @@ const notificationWithClientLog = async (
         ).addClientLog({ error: stringifiedError });
       } catch (e) {
         // if this fails we can't do anything
-        console.error('Failed to log client error', e);
+        logger.error('Failed to log client error', e);
       }
     }
   }
@@ -141,7 +142,6 @@ class AuthorizedGraphQLClient extends GraphQLClient {
         this.setHeader('authorization', `Bearer ${newToken}`);
         this.tokenRenewed && this.tokenRenewed(newToken as string);
       } catch (error) {
-        // TODO: This should be removed once we do error handling refactor
         const [graphQLError] = (error as ClientError).response?.errors ?? [];
 
         notificationWithClientLog(

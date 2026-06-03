@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 
 import { GetEquipmentQuery } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
+import { logger } from 'utils/logger';
 
 export default function useEquipment(id?: number) {
   const [loading, setLoading] = useState(true);
@@ -27,7 +28,9 @@ export default function useEquipment(id?: number) {
 
           setLoading(false);
         })
-        .catch(console.error);
+        .catch((error) => {
+          logger.error('Failed to load equipment', error);
+        });
     }
 
     return () => {

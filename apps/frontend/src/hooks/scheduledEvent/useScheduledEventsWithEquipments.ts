@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 
 import { GetScheduledEventsWithEquipmentsQuery } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
+import { logger } from 'utils/logger';
 
 export default function useScheduledEventsWithEquipments(
   proposalBookingId: number
@@ -42,7 +43,9 @@ export default function useScheduledEventsWithEquipments(
 
         setLoading(false);
       })
-      .catch(console.error);
+      .catch((error) => {
+        logger.error('Failed to load scheduled events with equipments', error);
+      });
 
     return () => {
       unmount = true;

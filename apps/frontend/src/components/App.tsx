@@ -18,6 +18,7 @@ import { SettingsContextProvider } from 'context/SettingsContextProvider';
 import { UserContextProvider, UserContext } from 'context/UserContext';
 import { getUnauthorizedApi } from 'hooks/common/useDataApi';
 import clearSession from 'utils/clearSession';
+import { logger } from 'utils/logger';
 
 import Dashboard from './Dashboard';
 import ExternalAuth from './ExternalAuth';
@@ -52,7 +53,7 @@ const PrivateRoute: React.FC<RouteProps> = ({
 class App extends React.Component {
   state = { errorUserInformation: '' };
   static getDerivedStateFromError(error: Error) {
-    console.error('getDerivedStateFromError', error);
+    logger.error('Unhandled render error', error);
     const user = localStorage.getItem('user');
     const errorUserInformation = {
       id: user ? JSON.parse(user).id : 'Not logged in',

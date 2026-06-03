@@ -64,6 +64,7 @@ import {
   toTzLessDateTime,
   TZ_LESS_DATE_TIME_FORMAT,
 } from 'utils/date';
+import { logger } from 'utils/logger';
 import { hasOverlappingEvents } from 'utils/scheduledEvent';
 
 import CalendarTodoBox, { DraggingEventType } from './common/CalendarTodoBox';
@@ -567,7 +568,7 @@ export default function CalendarViewContainer() {
         setProposalBookings(updatedProposalBookings);
       }
     } catch (error) {
-      console.error(error);
+      logger.error('Failed to update scheduled event', error);
     }
   };
 

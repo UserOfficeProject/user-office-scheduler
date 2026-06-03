@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 
 import { GetEquipmentScheduledEventsQuery, Scalars } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
+import { logger } from 'utils/logger';
 
 export default function useEquipmentScheduledEvents({
   equipmentIds,
@@ -58,7 +59,9 @@ export default function useEquipmentScheduledEvents({
 
         setLoading(false);
       })
-      .catch(console.error);
+      .catch((error) => {
+        logger.error('Failed to load equipment scheduled events', error);
+      });
 
     return () => {
       unmounted = true;

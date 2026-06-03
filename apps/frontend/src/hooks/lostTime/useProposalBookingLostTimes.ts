@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 
 import { GetProposalBookingLostTimesQuery } from 'generated/sdk';
 import { useDataApi } from 'hooks/common/useDataApi';
+import { logger } from 'utils/logger';
 
 export type ProposalBookingLostTime =
   GetProposalBookingLostTimesQuery['proposalBookingLostTimes'][0];
@@ -37,7 +38,9 @@ export default function useProposalBookingLostTimes(
 
         setLoading(false);
       })
-      .catch(console.error);
+      .catch((error) => {
+        logger.error('Failed to load proposal booking lost times', error);
+      });
 
     return () => {
       unmount = true;

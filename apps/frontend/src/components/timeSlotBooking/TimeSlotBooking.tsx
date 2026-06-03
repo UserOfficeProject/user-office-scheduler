@@ -31,6 +31,7 @@ import {
 } from 'hooks/proposalBooking/useProposalBooking';
 import useScheduledEventEquipments from 'hooks/scheduledEvent/useScheduledEventEquipments';
 import { toTzLessDateTime } from 'utils/date';
+import { logger } from 'utils/logger';
 import { hasOverlappingEvents } from 'utils/scheduledEvent';
 
 import TimeSlotDetails from './TimeSlotDetails';
@@ -202,8 +203,7 @@ export default function TimeSlotBooking({
             });
           }
         } catch (e) {
-          // TODO
-          console.error(e);
+          logger.error('Failed to finalize scheduled event', e);
         }
 
         setIsLoading(false);
@@ -302,8 +302,7 @@ export default function TimeSlotBooking({
       }
       setIsDirty(false);
     } catch (e) {
-      // TODO
-      console.error(e);
+      logger.error('Failed to update scheduled event', e);
     }
     setIsLoading(false);
   };
@@ -381,8 +380,7 @@ export default function TimeSlotBooking({
             });
           }
         } catch (e) {
-          // TODO
-          console.error(e);
+          logger.error('Failed to activate scheduled event', e);
         }
 
         setIsDirty(false);
@@ -452,8 +450,7 @@ export default function TimeSlotBooking({
             });
           }
         } catch (e) {
-          // TODO
-          console.error(e);
+          logger.error('Failed to reopen scheduled event', e);
         }
 
         setIsLoading(false);

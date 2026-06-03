@@ -11,7 +11,6 @@ export function rejection(reason: ResourceId): Rejection {
   return { [REJECTION]: true, reason };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function isRejection(value: any): value is Rejection {
+export function isRejection(value: unknown): value is Rejection {
   return REJECTION in Object(value);
 }

@@ -32,6 +32,6 @@ export function rejection(
   return new Rejection(reason, context, exception);
 }
 
-export function isRejection(value: any): value is Rejection {
+export function isRejection(value: unknown): value is Rejection {
   return value instanceof Rejection;
 }

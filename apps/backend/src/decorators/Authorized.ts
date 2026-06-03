@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { GraphQLError } from 'graphql';
 
 import { ResolverContext } from '../context';
@@ -7,17 +6,11 @@ import { Roles } from '../types/shared';
 import { hasRole } from '../utils/authorization';
 
 const Authorized = (roles: Roles[] = []) => {
-  return (
-    target: any,
-    name: string,
-    descriptor: {
-      value?: (ctx: ResolverContext, ...args: any[]) => Promise<any>;
-    }
-  ) => {
+  return (target: object, name: string, descriptor: PropertyDescriptor) => {
     const originalMethod = descriptor.value;
 
-    descriptor.value = async function (...args) {
-      const [ctx] = args;
+    descriptor.value = async function (...args: unknown[]) {
+      const ctx = args[0] as ResolverContext;
       const isMutation = target.constructor.name.includes('Mutation');
 
       if (ctx.user?.isApiAccessToken) {

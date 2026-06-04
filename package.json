@@ -44,7 +44,7 @@
     "monorepo"
   ],
   "dependencies": {
-    "concurrently": "^9.2.1",
+    "concurrently": "^10.0.3",
     "wait-on": "^9.0.10"
   },
   "devDependencies": {

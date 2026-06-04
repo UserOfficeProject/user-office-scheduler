@@ -14,8 +14,8 @@ To be able to start both backend and frontend locally you will need to:
 2. Start the application using `npm run dev` or `npm run start`
 
 ## Check the .env file
-If .env file is not preset during startup of the project, it will be created using example.env file template
-The `example.env` and `.env` files are located in `apps/backend` and `apps/frontend` accordingly.
+If .env file is not present during startup of the project, it will be created using example.env file template
+The `example.env` and `.env` files are located in `apps/backend` and `apps/frontend` respectively.
 
 ## Running with docker compose
 
@@ -42,12 +42,12 @@ Runs the app in the development mode.<br>
 
 - Open [http://localhost:4200](http://localhost:4200) to view the GraphQL playground and schema in the browser.
 - Open [http://localhost:33000](http://localhost:33000) to view the app in the browser.
-- Open [http://localhost:4100](http://localhost:4200) to view the federated(core + scheduler) GraphQL playground and schema in the browser.
+- Open [http://localhost:4100](http://localhost:4100) to view the federated (core + scheduler) GraphQL playground and schema in the browser.
 - Open [http://localhost:3000](http://localhost:3000) to view the core app in the browser.
 
 ### `npm run lint`
 
-Lints typescript code and log if there are any errors.<br>
+Lints TypeScript code and logs if there are any errors.<br>
 `npm run lint:fix` should be used if you want to fix all auto-fixable errors and warnings.
 
 ## Contribution and release versioning
@@ -57,4 +57,3 @@ Please refer to the [Contribution guide](CONTRIBUTING.md) to get information abo
 Happy coding! 👨‍💻
 
 For additional questions reach out to Fredrik Bolmsten (fredrik.bolmsten@ess.eu)
-

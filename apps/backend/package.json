@@ -23,7 +23,7 @@
   "license": "ISC",
   "dependencies": {
     "@apollo/server": "^5.5.0",
-    "@apollo/subgraph": "^2.4.8",
+    "@apollo/subgraph": "^2.13.3",
     "@as-integrations/express4": "^1.1.2",
     "@graphql-tools/utils": "^10.0.1",
     "@user-office-software/duo-localisation": "^1.2.0",

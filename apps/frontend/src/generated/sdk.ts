@@ -151,7 +151,7 @@ export type BasicUserDetails = {
   institution: Scalars['String']['output'];
   institutionId: Scalars['Int']['output'];
   lastname: Scalars['String']['output'];
-  oidc_sub: Maybe<Scalars['String']['output']>;
+  oidcSub: Maybe<Scalars['String']['output']>;
   preferredname: Maybe<Scalars['String']['output']>;
 };
 
@@ -196,7 +196,6 @@ export type Call = {
   startNotify: Scalars['DateTime']['output'];
   startReview: Scalars['DateTime']['output'];
   submissionMessage: Maybe<Scalars['String']['output']>;
-  surveyComment: Scalars['String']['output'];
   tags: Tag;
   technicalReviewTemplateId: Maybe<Scalars['Int']['output']>;
   template: Template;
@@ -226,7 +225,6 @@ export type CallsFilter = {
   isEnded?: InputMaybe<Scalars['Boolean']['input']>;
   isEndedInternal?: InputMaybe<Scalars['Boolean']['input']>;
   isFapReviewEnded?: InputMaybe<Scalars['Boolean']['input']>;
-  isOrdered?: InputMaybe<Scalars['Boolean']['input']>;
   isReviewEnded?: InputMaybe<Scalars['Boolean']['input']>;
   proposalPdfTemplateIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   proposalStatusShortCode?: InputMaybe<Scalars['String']['input']>;
@@ -318,10 +316,17 @@ export type CreateCallInput = {
   startNotify: Scalars['DateTime']['input'];
   startReview: Scalars['DateTime']['input'];
   submissionMessage?: InputMaybe<Scalars['String']['input']>;
-  surveyComment: Scalars['String']['input'];
   technicalReviewTemplateId?: InputMaybe<Scalars['Int']['input']>;
   templateId: Scalars['Int']['input'];
   title?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CreateEmailTemplateInput = {
+  body?: InputMaybe<Scalars['String']['input']>;
+  description: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  subject?: InputMaybe<Scalars['String']['input']>;
+  useTemplateFile: Scalars['Boolean']['input'];
 };
 
 export type CreateInternalReviewInput = {
@@ -491,6 +496,28 @@ export type EmailStatusActionRecipientsWithTemplate = {
   recipient: EmailStatusActionRecipient;
 };
 
+export type EmailTemplate = {
+  body: Maybe<Scalars['String']['output']>;
+  createdByUserId: Scalars['Int']['output'];
+  description: Maybe<Scalars['String']['output']>;
+  id: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+  subject: Maybe<Scalars['String']['output']>;
+  useTemplateFile: Scalars['Boolean']['output'];
+};
+
+export type EmailTemplatesFilter = {
+  emailTemplateIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type EmailTemplatesQueryResult = {
+  emailTemplates: Array<EmailTemplate>;
+  totalCount: Scalars['Int']['output'];
+};
+
 export type EmbellishmentConfig = {
   html: Scalars['String']['output'];
   omitFromPdf: Scalars['Boolean']['output'];
@@ -583,6 +610,9 @@ export enum Event {
   CALL_FAP_REVIEW_ENDED = 'CALL_FAP_REVIEW_ENDED',
   CALL_REVIEW_ENDED = 'CALL_REVIEW_ENDED',
   DATA_ACCESS_USERS_UPDATED = 'DATA_ACCESS_USERS_UPDATED',
+  EMAIL_TEMPLATE_CREATED = 'EMAIL_TEMPLATE_CREATED',
+  EMAIL_TEMPLATE_DELETED = 'EMAIL_TEMPLATE_DELETED',
+  EMAIL_TEMPLATE_UPDATED = 'EMAIL_TEMPLATE_UPDATED',
   EXPERIMENT_ESF_APPROVED_BY_ESR = 'EXPERIMENT_ESF_APPROVED_BY_ESR',
   EXPERIMENT_ESF_APPROVED_BY_IS = 'EXPERIMENT_ESF_APPROVED_BY_IS',
   EXPERIMENT_ESF_REJECTED_BY_ESR = 'EXPERIMENT_ESF_REJECTED_BY_ESR',
@@ -818,6 +848,7 @@ export type Fap = {
   numberRatingsRequired: Scalars['Float']['output'];
   proposalCount: Scalars['Int']['output'];
   proposalCurrentCount: Scalars['Int']['output'];
+  reviewVisibility: Scalars['Int']['output'];
 };
 
 export type FapAssignment = {
@@ -914,6 +945,12 @@ export type FapReviewTemplatesFilter = {
   isArchived?: InputMaybe<Scalars['Boolean']['input']>;
   templateIds?: InputMaybe<Array<Scalars['Int']['input']>>;
 };
+
+export enum FapReviewVisibility {
+  PROPOSAL_REVIEWS_COMPLETE = 'PROPOSAL_REVIEWS_COMPLETE',
+  REVIEWS_VISIBLE = 'REVIEWS_VISIBLE',
+  REVIEWS_VISIBLE_FAP_ENDED = 'REVIEWS_VISIBLE_FAP_ENDED'
+}
 
 export type FapReviewer = {
   fapId: Scalars['Int']['output'];
@@ -1093,6 +1130,16 @@ export type Institution = {
   id: Scalars['Int']['output'];
   name: Scalars['String']['output'];
   rorId: Maybe<Scalars['String']['output']>;
+};
+
+export type InstitutionInput = {
+  institutionData?: InputMaybe<InstitutionManualInput>;
+  rorId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type InstitutionManualInput = {
+  country: Scalars['String']['input'];
+  name: Scalars['String']['input'];
 };
 
 export type InstitutionsFilter = {
@@ -1292,6 +1339,7 @@ export type Mutation = {
   confirmEquipmentAssignment: SchedulerSuccessResponseWrap;
   createApiAccessToken: PermissionsWithAccessToken;
   createCall: Call;
+  createEmailTemplate: EmailTemplate;
   createEquipment: EquipmentResponseWrap;
   createExperimentSafety: ExperimentSafety;
   createExperimentSafetyPdfTemplate: ExperimentSafetyPdfTemplate;
@@ -1322,6 +1370,7 @@ export type Mutation = {
   createWorkflow: Workflow;
   deleteApiAccessToken: Scalars['Boolean']['output'];
   deleteCall: Call;
+  deleteEmailTemplate: EmailTemplate;
   deleteEquipmentAssignment: Scalars['Boolean']['output'];
   deleteExperimentSafetyPdfTemplate: ExperimentSafetyPdfTemplate;
   deleteFap: Fap;
@@ -1408,6 +1457,7 @@ export type Mutation = {
   updateCall: Call;
   updateCallOrder: Scalars['Boolean']['output'];
   updateDataAccessUsers: Array<BasicUserDetails>;
+  updateEmailTemplate: EmailTemplate;
   updateEquipment: EquipmentResponseWrap;
   updateExperimentSafetyPdfTemplate: ExperimentSafetyPdfTemplate;
   updateExperimentSample: ExperimentHasSample;
@@ -1690,6 +1740,11 @@ export type MutationCreateCallArgs = {
 };
 
 
+export type MutationCreateEmailTemplateArgs = {
+  createEmailTemplateInput: CreateEmailTemplateInput;
+};
+
+
 export type MutationCreateEquipmentArgs = {
   newEquipmentInput: EquipmentInput;
 };
@@ -1717,6 +1772,7 @@ export type MutationCreateFapArgs = {
   description: Scalars['String']['input'];
   gradeGuide?: InputMaybe<Scalars['String']['input']>;
   numberRatingsRequired?: Scalars['Int']['input'];
+  reviewVisibility: Scalars['Int']['input'];
 };
 
 
@@ -1888,6 +1944,11 @@ export type MutationDeleteApiAccessTokenArgs = {
 
 
 export type MutationDeleteCallArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type MutationDeleteEmailTemplateArgs = {
   id: Scalars['Int']['input'];
 };
 
@@ -2376,6 +2437,11 @@ export type MutationUpdateDataAccessUsersArgs = {
 };
 
 
+export type MutationUpdateEmailTemplateArgs = {
+  updateEmailTemplateInput: UpdateEmailTemplateInput;
+};
+
+
 export type MutationUpdateEquipmentArgs = {
   id: Scalars['Int']['input'];
   updateEquipmentInput: EquipmentInput;
@@ -2408,6 +2474,7 @@ export type MutationUpdateFapArgs = {
   gradeGuide?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['Int']['input'];
   numberRatingsRequired?: Scalars['Int']['input'];
+  reviewVisibility?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -2443,7 +2510,7 @@ export type MutationUpdateGenericTemplateArgs = {
 
 
 export type MutationUpdateInstitutionArgs = {
-  country: Scalars['Int']['input'];
+  country?: InputMaybe<Scalars['Int']['input']>;
   id: Scalars['Int']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   rorId?: InputMaybe<Scalars['String']['input']>;
@@ -2616,7 +2683,7 @@ export type MutationUpdateUserArgs = {
   lastname?: InputMaybe<Scalars['String']['input']>;
   preferredname?: InputMaybe<Scalars['String']['input']>;
   roles?: InputMaybe<Array<Scalars['Int']['input']>>;
-  user_title?: InputMaybe<Scalars['String']['input']>;
+  userTitle?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -2655,9 +2722,7 @@ export type MutationUpdateWorkflowStatusArgs = {
 export type MutationUpsertUserByOidcSubArgs = {
   email: Scalars['String']['input'];
   firstName: Scalars['String']['input'];
-  institutionCountry: Scalars['String']['input'];
-  institutionName: Scalars['String']['input'];
-  institutionRoRId: Scalars['String']['input'];
+  institution: InstitutionInput;
   lastName: Scalars['String']['input'];
   oidcSub: Scalars['String']['input'];
   preferredName?: InputMaybe<Scalars['String']['input']>;
@@ -2998,6 +3063,7 @@ export type ProposalViewTechnique = {
 
 export type ProposalsFilter = {
   callId?: InputMaybe<Scalars['Int']['input']>;
+  callIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   dateFilter?: InputMaybe<DateFilterInput>;
   excludeProposalStatusIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   instrumentFilter?: InputMaybe<InstrumentFilterInput>;
@@ -3058,11 +3124,14 @@ export type Query = {
   call: Maybe<Call>;
   calls: Maybe<Array<Call>>;
   callsByInstrumentScientist: Maybe<Array<Call>>;
+  callsOfReviewer: Maybe<Array<Call>>;
   checkEmailExist: Maybe<Scalars['Boolean']['output']>;
   checkExternalToken: ExternalTokenResult;
   checkToken: TokenResult;
   countries: Maybe<Array<Entry>>;
   dataAccessUsers: Array<BasicUserDetails>;
+  emailTemplate: Maybe<EmailTemplate>;
+  emailTemplates: Maybe<EmailTemplatesQueryResult>;
   equipment: Maybe<Equipment>;
   equipments: Array<Equipment>;
   eventLogs: Maybe<Array<EventLog>>;
@@ -3079,6 +3148,7 @@ export type Query = {
   fapProposals: Maybe<Array<FapProposal>>;
   fapProposalsByInstrument: Maybe<Array<FapProposal>>;
   fapReviewTemplates: Maybe<Array<FapReviewTemplate>>;
+  fapReviewVisibilityOptions: Maybe<Array<ReviewVisibility>>;
   fapReviewers: Maybe<Array<FapReviewer>>;
   faps: Maybe<FapsQueryResult>;
   features: Array<Feature>;
@@ -3091,6 +3161,7 @@ export type Query = {
   genericTemplatesOnCopy: Maybe<Array<GenericTemplate>>;
   getCallByAnswerId: Maybe<Call>;
   getDynamicMultipleChoiceOptions: Maybe<Array<Scalars['String']['output']>>;
+  getInstrumentsOfReviewer: Maybe<Array<Instrument>>;
   healthCheck: HealthStats;
   institutions: Maybe<Array<Institution>>;
   instrument: Maybe<Instrument>;
@@ -3243,6 +3314,8 @@ export type QueryCallArgs = {
 
 export type QueryCallsArgs = {
   filter?: InputMaybe<CallsFilter>;
+  sortDirection?: InputMaybe<PaginationSortDirection>;
+  sortField?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -3268,6 +3341,16 @@ export type QueryCheckTokenArgs = {
 
 export type QueryDataAccessUsersArgs = {
   proposalPk: Scalars['Int']['input'];
+};
+
+
+export type QueryEmailTemplateArgs = {
+  emailTemplateId: Scalars['Int']['input'];
+};
+
+
+export type QueryEmailTemplatesArgs = {
+  filter?: InputMaybe<EmailTemplatesFilter>;
 };
 
 
@@ -3491,7 +3574,6 @@ export type QueryPreviousCollaboratorsArgs = {
   sortDirection?: InputMaybe<PaginationSortDirection>;
   sortField?: InputMaybe<Scalars['String']['input']>;
   subtractUsers?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-  userId: Scalars['Int']['input'];
   userRole?: InputMaybe<UserRole>;
 };
 
@@ -3910,6 +3992,12 @@ export enum ReviewStatus {
   DRAFT = 'DRAFT',
   SUBMITTED = 'SUBMITTED'
 }
+
+export type ReviewVisibility = {
+  description: Scalars['String']['output'];
+  reviewVisibilityId: Scalars['Int']['output'];
+  visibility: FapReviewVisibility;
+};
 
 export enum ReviewerFilter {
   ALL = 'ALL',
@@ -4562,10 +4650,18 @@ export type UpdateCallInput = {
   startNotify?: InputMaybe<Scalars['DateTime']['input']>;
   startReview?: InputMaybe<Scalars['DateTime']['input']>;
   submissionMessage?: InputMaybe<Scalars['String']['input']>;
-  surveyComment?: InputMaybe<Scalars['String']['input']>;
   technicalReviewTemplateId?: InputMaybe<Scalars['Int']['input']>;
   templateId?: InputMaybe<Scalars['Int']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateEmailTemplateInput = {
+  body?: InputMaybe<Scalars['String']['input']>;
+  description: Scalars['String']['input'];
+  id: Scalars['Int']['input'];
+  name: Scalars['String']['input'];
+  subject?: InputMaybe<Scalars['String']['input']>;
+  useTemplateFile: Scalars['Boolean']['input'];
 };
 
 export type UpdateFapToCallInstrumentInput = {
@@ -4649,6 +4745,7 @@ export type User = {
   faps: Array<Fap>;
   firstname: Scalars['String']['output'];
   id: Scalars['Int']['output'];
+  institution: Institution;
   institutionId: Scalars['Int']['output'];
   instruments: Array<Instrument>;
   lastname: Scalars['String']['output'];
@@ -4659,7 +4756,7 @@ export type User = {
   reviews: Array<Review>;
   roles: Array<Role>;
   updated: Scalars['String']['output'];
-  user_title: Scalars['String']['output'];
+  userTitle: Scalars['String']['output'];
 };
 
 

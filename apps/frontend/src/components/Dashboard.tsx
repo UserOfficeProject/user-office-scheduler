@@ -7,6 +7,7 @@ import {
   List,
   useMediaQuery,
 } from '@mui/material';
+import moment from 'moment';
 import React, { useEffect } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import { makeStyles } from 'tss-react/mui';
@@ -74,6 +75,24 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 export default function Dashboard() {
+  const CALENDAR_CULTURE = 'en-gb';
+  const localeData = moment.localeData(CALENDAR_CULTURE);
+
+  moment.updateLocale(CALENDAR_CULTURE, {
+    week: {
+      dow: 1,
+      doy: 4,
+    },
+    longDateFormat: {
+      LT: localeData.longDateFormat('LT'),
+      LTS: localeData.longDateFormat('LTS'),
+      L: localeData.longDateFormat('L'),
+      LL: 'MMMM D YYYY',
+      LLL: localeData.longDateFormat('LLL'),
+      LLLL: localeData.longDateFormat('LLLL'),
+    },
+  });
+
   const isTabletOrMobile = useMediaQuery('(max-width: 1224px)');
   const { classes, cx } = useStyles();
   const [open, setOpen] = React.useState(

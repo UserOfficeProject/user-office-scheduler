@@ -40,7 +40,6 @@ import {
 import Event, { eventPropGetter, getBookingTypeStyle } from '../common/Event';
 import Toolbar from '../common/Toolbar';
 
-moment.locale('en-gb');
 const localizer = momentLocalizer(moment);
 
 function slotPropGetter(date: Date) {

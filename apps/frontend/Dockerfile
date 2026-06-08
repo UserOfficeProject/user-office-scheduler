@@ -5,8 +5,6 @@ RUN apk add --update python3 make g++ && rm -rf /var/cache/apk/*
 
 WORKDIR /app
 
-RUN echo "GENERATE_SOURCEMAP=false" >> .env
-
 COPY package*.json /app/
 
 RUN npm ci --verbose --no-fund
@@ -17,7 +15,7 @@ RUN npm run build
 
 # Stage 1, based on Nginx, to have only the compiled app, ready for production with Nginx
 FROM nginxinc/nginx-unprivileged:1.25-alpine
-COPY --from=build-stage --chown=nginx:nginx /app/build /usr/share/nginx/html/scheduler
+COPY --from=build-stage --chown=nginx:nginx /app/dist /usr/share/nginx/html/scheduler
 
 ARG BUILD_VERSION=<unknown>
 RUN echo $BUILD_VERSION > /usr/share/nginx/html/scheduler/build-version.txt

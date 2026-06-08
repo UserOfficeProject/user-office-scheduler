@@ -3,7 +3,7 @@ import { Check as CheckIcon, Clear as ClearIcon } from '@mui/icons-material';
 import { Grid } from '@mui/material';
 import moment, { Moment } from 'moment';
 import { useSnackbar } from 'notistack';
-import React, { useState, useEffect, useContext } from 'react';
+import React, { JSX, useState, useEffect, useContext } from 'react';
 
 import Loader from 'components/common/Loader';
 import { tableIcons } from 'components/common/TableIcons';

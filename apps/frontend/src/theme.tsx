@@ -10,7 +10,7 @@ import { useEffect } from 'react';
 import { SettingsContext } from 'context/SettingsContextProvider';
 import { SettingsId } from 'generated/sdk';
 
-const ThemeWrapper: React.FC = (props) => {
+const ThemeWrapper: React.FC<React.PropsWithChildren> = (props) => {
   const { settings } = useContext(SettingsContext);
   const defaultTheme = useTheme();
 

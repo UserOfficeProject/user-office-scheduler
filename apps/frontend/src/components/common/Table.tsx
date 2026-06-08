@@ -16,7 +16,7 @@ import {
   Typography,
   LabelDisplayedRowsArgs,
 } from '@mui/material';
-import React, { useState, useEffect } from 'react';
+import React, { JSX, useState, useEffect } from 'react';
 import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({

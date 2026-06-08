@@ -30,7 +30,7 @@ export const InstrumentAndEquipmentContext =
     initialInstrumentAndEquipmentData
   );
 
-export const InstrumentAndEquipmentContextProvider: React.FC = (props) => {
+export const InstrumentAndEquipmentContextProvider: React.FC<React.PropsWithChildren> = (props) => {
   const { instruments, loading: loadingInstruments } = useUserInstruments();
   const { equipments, loading: loadingEquipments } = useEquipments();
   const { usersData, loadingUsersData } = useUsersData({

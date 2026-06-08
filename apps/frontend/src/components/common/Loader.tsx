@@ -1,5 +1,5 @@
 import { CircularProgress, Grid, Container, Paper } from '@mui/material';
-import React from 'react';
+import React, { JSX } from 'react';
 import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({

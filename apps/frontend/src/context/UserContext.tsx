@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import jwtDecode from 'jwt-decode';
-import React, { useCallback, useContext } from 'react';
+import React, { JSX, useCallback, useContext } from 'react';
 
 import { Role, UserRole, SettingsId, UserJwt, User } from 'generated/sdk';
 import { useUnauthorizedApi } from 'hooks/common/useDataApi';

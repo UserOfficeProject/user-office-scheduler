@@ -1,6 +1,6 @@
 import { StyledEngineProvider } from '@mui/material/styles';
 import { SnackbarProvider } from 'notistack';
-import React, { ErrorInfo, useContext } from 'react';
+import React, { ErrorInfo, JSX, useContext } from 'react';
 import { CookiesProvider } from 'react-cookie';
 import {
   BrowserRouter as Router,
@@ -74,7 +74,7 @@ class App extends React.Component {
     try {
       errorMessage = JSON.stringify({
         error: error.toString(),
-        errorInfo: errorInfo.componentStack.toString(),
+        errorInfo: errorInfo.componentStack?.toString(),
         user: this.state.errorUserInformation,
       });
     } catch (e) {

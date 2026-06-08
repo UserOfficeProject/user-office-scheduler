@@ -24,6 +24,7 @@
     "@typescript-eslint",
     "react",
     "react-hooks",
+    "react-compiler",
     "import",
     "unused-imports"
   ],
@@ -91,6 +92,7 @@
     ],
     "@typescript-eslint/ban-ts-comment": "warn",
     "@typescript-eslint/explicit-module-boundary-types": "off",
-    "unused-imports/no-unused-imports-ts": "error"
+    "unused-imports/no-unused-imports-ts": "error",
+    "react-compiler/react-compiler": "error"
   }
 }

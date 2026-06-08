@@ -1,7 +1,7 @@
 import BugReportIcon from '@mui/icons-material/BugReport';
 import Lock from '@mui/icons-material/Lock';
 import { Button } from '@mui/material';
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { JSX, useContext, useEffect, useRef } from 'react';
 import { useHistory } from 'react-router';
 import { StringParam, useQueryParams } from 'use-query-params';
 

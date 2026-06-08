@@ -66,12 +66,12 @@ const FormikColorPicker = ({
             value={colorValue}
             type="color"
             // NOTE: Using onInput instead of onChage because for some reason cypress is not triggering the change event properly: https://github.com/cypress-io/cypress/issues/1570
-            onInput={(event: React.ChangeEvent<HTMLInputElement>) => {
+            onInput={(event: React.FormEvent<HTMLDivElement>) => {
               handleColorChange(
                 setColorValue,
                 form,
                 field.name,
-                event.target.value
+                (event.target as HTMLInputElement).value
               );
             }}
           />

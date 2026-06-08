@@ -22,10 +22,16 @@ export const StyledPaper = styled(Paper, {
   shouldForwardProp: (prop) => prop !== 'margin' && prop !== 'padding',
 })<StyledPaperProps>(({ margin, padding, theme }) => {
   const marginValue: string | number | undefined = Array.isArray(margin)
-    ? getValueFromArrayProperty(margin, theme)
+    ? getValueFromArrayProperty(
+        margin as [number, number?, number?, number?],
+        theme
+      )
     : margin;
   const paddingValue: string | number | undefined = Array.isArray(padding)
-    ? getValueFromArrayProperty(padding, theme)
+    ? getValueFromArrayProperty(
+        padding as [number, number?, number?, number?],
+        theme
+      )
     : padding;
 
   return {
@@ -47,7 +53,10 @@ export const StyledContainer = styled(Container, {
   shouldForwardProp: (prop) => prop !== 'margin' && prop !== 'padding',
 })<StyledContainerProps>(({ padding, theme }) => {
   const paddingValue: string | number | undefined = Array.isArray(padding)
-    ? getValueFromArrayProperty(padding, theme)
+    ? getValueFromArrayProperty(
+        padding as [number, number?, number?, number?],
+        theme
+      )
     : padding;
 
   return {

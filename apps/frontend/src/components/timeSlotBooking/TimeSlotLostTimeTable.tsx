@@ -176,7 +176,8 @@ function TimeSlotLostTimeTable({
   };
 
   // NOTE: Using useCallback to avoid console warning(https://github.com/material-table-core/core/issues/286)
-  const validateInput = useCallback((data) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const validateInput = useCallback((data: any) => {
     if (moment(data.startsAt).isSameOrAfter(moment(data.endsAt))) {
       return {
         isValid: false,

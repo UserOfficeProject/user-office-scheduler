@@ -1,6 +1,6 @@
 import MaterialTable, { Query, Options, Column } from '@material-table/core';
 import Button from '@mui/material/Button';
-import React, { useState, useEffect } from 'react';
+import React, { JSX, useState, useEffect } from 'react';
 import { makeStyles } from 'tss-react/mui';
 
 import { ActionButtonContainer } from 'components/common/ActionButtonContainer';

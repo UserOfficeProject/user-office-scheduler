@@ -6,7 +6,13 @@ export default defineConfig(({ mode }) => {
   const port = Number(env.PORT || 33000);
 
   return {
-    plugins: [react()],
+    plugins: [
+      react({
+        babel: {
+          plugins: ['babel-plugin-react-compiler'],
+        },
+      }),
+    ],
     resolve: {
       tsconfigPaths: true,
     },

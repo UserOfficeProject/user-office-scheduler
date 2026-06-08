@@ -23,6 +23,11 @@ import Dashboard from './Dashboard';
 import ExternalAuth from './ExternalAuth';
 import { PATH_ROOT, EXTERNAL_AUTH } from './paths';
 
+const routerBasename =
+  import.meta.env.BASE_URL === '/'
+    ? ''
+    : import.meta.env.BASE_URL.replace(/\/$/, '');
+
 const PrivateRoute: React.FC<RouteProps> = ({
   component,
   ...rest
@@ -91,7 +96,7 @@ class App extends React.Component {
               <Theme>
                 <UserContextProvider>
                   <AppContextProvider>
-                    <Router basename={process.env.PUBLIC_URL}>
+                    <Router basename={routerBasename}>
                       <QueryParamProvider adapter={ReactRouter5Adapter}>
                         <div className="App">
                           <Switch>

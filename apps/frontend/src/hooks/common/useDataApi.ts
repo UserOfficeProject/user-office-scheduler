@@ -11,7 +11,7 @@ import { UserContext } from 'context/UserContext';
 import { getSdk, SettingsId } from 'generated/sdk';
 import { RequestQuery } from 'utils/utilTypes';
 
-const BACKEND_ENDPOINT = process.env.REACT_APP_API_URL || '';
+const BACKEND_ENDPOINT = import.meta.env.VITE_API_URL || '';
 
 const endpoint = BACKEND_ENDPOINT + '/gateway';
 

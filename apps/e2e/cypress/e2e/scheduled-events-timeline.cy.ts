@@ -135,7 +135,7 @@ context('Scheduled events timeline tests', () => {
 
       cy.contains(newScheduledEvent1.endsAt);
 
-      cy.contains(getFormattedDateAfter('dddd, D MMMM YYYY'));
+      cy.contains(getFormattedDateAfter('MMMM D YYYY'));
 
       cy.get('[data-cy="calendar-timeline-view"]').should(
         'not.contain',
@@ -242,7 +242,7 @@ context('Scheduled events timeline tests', () => {
       cy.get('.rbc-toolbar button').contains('Day').click();
       cy.get('.rbc-toolbar button').contains('Today').click();
 
-      cy.contains(getFormattedDateAfter('dddd, D MMMM YYYY'));
+      cy.contains(getFormattedDateAfter('MMMM D YYYY'));
     });
 
     it('should be able to click and open events in timeline view', () => {
@@ -300,13 +300,13 @@ context('Scheduled events timeline tests', () => {
       cy.get('.rbc-toolbar button').contains('Day').click();
       cy.get('.rbc-toolbar button').contains('Today').click();
 
-      cy.contains(getFormattedDateAfter('dddd, D MMMM YYYY'));
+      cy.contains(getFormattedDateAfter('MMMM D YYYY'));
 
       cy.reload();
 
       cy.finishedLoading();
 
-      cy.contains(getFormattedDateAfter('dddd, D MMMM YYYY'));
+      cy.contains(getFormattedDateAfter('MMMM D YYYY'));
 
       cy.get('.rbc-toolbar button.rbc-active').contains('Day').click();
 

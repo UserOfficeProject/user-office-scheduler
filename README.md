@@ -38,7 +38,7 @@ In the project directory, you can run:
 
 ### `npm run dev`
 
-Runs the app in the development mode.<br>
+Runs the backend plus the Vite frontend development server.<br>
 
 - Open [http://localhost:4200](http://localhost:4200) to view the GraphQL playground and schema in the browser.
 - Open [http://localhost:33000](http://localhost:33000) to view the app in the browser.

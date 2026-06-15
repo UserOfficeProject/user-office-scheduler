@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { GraphQLClient } from 'graphql-request';
 import { ClientError, RequestOptions, Variables } from 'graphql-request';
 import { VariablesAndRequestHeadersArgs } from 'graphql-request/build/esm/types';
@@ -10,6 +9,11 @@ import { SettingsContext } from 'context/SettingsContextProvider';
 import { UserContext } from 'context/UserContext';
 import { getSdk, SettingsId } from 'generated/sdk';
 import { RequestQuery } from 'utils/utilTypes';
+
+interface JwtPayload {
+  exp: number;
+  iat: number;
+}
 
 const BACKEND_ENDPOINT = import.meta.env.VITE_API_URL || '';
 
@@ -184,7 +188,9 @@ class AuthorizedGraphQLClient extends GraphQLClient {
             false
           );
           this.onSessionExpired();
-        } else if ((jwtDecode(this.token) as any).exp < nowTimestampSeconds) {
+        } else if (
+          (jwtDecode(this.token) as JwtPayload).exp < nowTimestampSeconds
+        ) {
           notificationWithClientLog(
             this.enqueueSnackbar,
             'Your session has expired, you will need to log in again.',
@@ -209,7 +215,7 @@ class AuthorizedGraphQLClient extends GraphQLClient {
   private getRenewalDate(token: string): number {
     const after = 8 * 3600;
 
-    return (jwtDecode(token) as any).iat + after;
+    return (jwtDecode(token) as JwtPayload).iat + after;
   }
 }
 

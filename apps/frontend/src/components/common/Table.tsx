@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Checkbox,
   IconButton,
@@ -56,10 +55,10 @@ function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
 
 type Order = 'asc' | 'desc';
 
-function getComparator<Key extends keyof any>(
+function getComparator<Key extends PropertyKey>(
   order: Order,
   orderBy: Key | null
-): (a: { [key in Key]: any }, b: { [key in Key]: any }) => number {
+): (a: { [key in Key]: unknown }, b: { [key in Key]: unknown }) => number {
   if (orderBy === null) {
     return () => 0;
   }
@@ -90,7 +89,7 @@ export interface HeadCell<T> {
 
 interface EnhancedTableProps<T> {
   headCells: HeadCell<T>[];
-  classes: any;
+  classes: Record<string, string>;
   numSelected: number;
   order: Order;
   orderBy: keyof T | null;
@@ -122,7 +121,7 @@ function EnhancedTableHead<T>(props: EnhancedTableProps<T>) {
   const columns: HeadCell<T>[] = hasActions
     ? [
         {
-          id: 'id' as any, // TODO: use generic solution
+          id: 'id' as keyof T,
           numeric: false,
           label: 'Actions',
           padding: 'normal',
@@ -290,7 +289,7 @@ const labelDisplayedRows = ({ from, to, count }: LabelDisplayedRowsArgs) => {
  * TODO: Maybe we should replace this Table component with @material-table/core.
  * To be consistent with the core-frontend and because now it is included in the scheduler-frontend anyway.
  */
-export default function Table<T extends { [k: string]: any }>({
+export default function Table<T extends Record<string, unknown>>({
   headCells,
   rows,
   tableTitle,
@@ -468,7 +467,11 @@ export default function Table<T extends { [k: string]: any }>({
                       <Checkbox
                         checked={isItemSelected}
                         onClick={(event) => handleClick(event, extractKey(row))}
-                        inputProps={{ 'data-cy': labelId } as any}
+                        inputProps={
+                          {
+                            'data-cy': labelId,
+                          } as React.InputHTMLAttributes<HTMLInputElement>
+                        }
                       />
                     </TableCell>
                   )}

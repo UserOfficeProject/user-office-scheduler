@@ -1,12 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ResourceId } from '@user-office-software/duo-localisation';
 import * as Yup from 'yup';
 
-import { Rejection, rejection } from '../rejection';
+import { rejection } from '../rejection';
 
 const schemaValidation = async (
   schema: Yup.AnyObjectSchema,
-  inputArgs: any
+  inputArgs: unknown
 ) => {
   try {
     await schema.validate(inputArgs, { abortEarly: false });
@@ -18,18 +17,13 @@ const schemaValidation = async (
 };
 
 const ValidateArgs = (...schemas: Yup.AnyObjectSchema[]) => {
-  return (
-    target: any,
-    name: string,
-    descriptor: {
-      value?: (...args: any[]) => Promise<Rejection | any>;
-    }
-  ) => {
+  return (_target: object, _name: string, descriptor: PropertyDescriptor) => {
     const originalMethod = descriptor.value;
 
-    descriptor.value = async function (...args) {
-      let inputArgs;
-      if (args[0]?.isContext === true) {
+    descriptor.value = async function (...args: unknown[]) {
+      let inputArgs: unknown[];
+      const firstArg = args[0] as Record<string, unknown> | undefined;
+      if (firstArg?.isContext === true) {
         [, ...inputArgs] = args;
       } else {
         inputArgs = args;

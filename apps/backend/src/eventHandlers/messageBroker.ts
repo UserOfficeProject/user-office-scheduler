@@ -117,7 +117,9 @@ export async function createListenToRabbitMQHandler({
           }
         );
 
-        await proposalBookingDataSource.delete((message as any).proposalPk);
+        await proposalBookingDataSource.delete(
+          (message as Record<string, unknown>).proposalPk as number
+        );
 
         return;
       case Event.INSTRUMENT_DELETED:
@@ -233,7 +235,7 @@ export async function createPostToRabbitMQHandler({
       }
       case Event.PROPOSAL_BOOKING_TIME_SLOTS_REMOVED:
         {
-          const scheduledevents: ScheduledEvent[] = (event as any)[event.key];
+          const scheduledevents: ScheduledEvent[] = event.scheduledevents;
 
           // NOTE: We check the first scheduled event because all of them have the same proposal booking id.
           if (!scheduledevents[0].proposalBookingId) {

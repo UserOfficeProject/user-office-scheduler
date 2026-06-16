@@ -4,31 +4,30 @@ import { ResolverContext } from '../context';
 import { eventBus } from '../events';
 import { ApplicationEvent } from '../events/applicationEvents';
 import { Event } from '../generated/sdk';
-import { Rejection, isRejection } from '../models/Rejection';
+import { isRejection } from '../models/Rejection';
 
 const EventBusDecorator = (eventType: Event) => {
-  return (
-    target: any,
-    name: string,
-    descriptor: {
-      value?: (ctx: ResolverContext, args: any) => Promise<Rejection | any>;
-    }
-  ) => {
+  return (_target: object, _name: string, descriptor: PropertyDescriptor) => {
     const originalMethod = descriptor.value;
 
-    descriptor.value = async function (...args) {
-      const [ctx] = args;
+    descriptor.value = async function (...args: unknown[]) {
+      const ctx = args[0] as ResolverContext;
 
       let loggedInUser = ctx.user;
 
-      const result = await originalMethod?.apply(this, args);
+      const result = (await originalMethod?.apply(this, args)) as Record<
+        string,
+        unknown
+      >;
 
       // NOTE: Get the name of the object or class like: 'SEP', 'USER', 'Proposal' and lowercase it.
-      const resultKey = (result.constructor.name as string).toLowerCase();
+      const resultKey = (
+        result.constructor as { name: string }
+      ).name.toLowerCase();
 
       // NOTE: This needs to be checked because there are mutations where we don't have loggedIn user. Example: ResetPasswordEmailMutation.
       if (!loggedInUser) {
-        loggedInUser = result.user;
+        loggedInUser = (result as { user?: ResolverContext['user'] }).user;
       }
 
       const event = {
@@ -37,7 +36,7 @@ const EventBusDecorator = (eventType: Event) => {
         key: resultKey,
         loggedInUserId: loggedInUser ? loggedInUser.id : null,
         isRejection: isRejection(result),
-      } as ApplicationEvent;
+      } as unknown as ApplicationEvent;
 
       // NOTE: Do not log the event in testing environment.
       if (process.env.NODE_ENV !== 'test') {

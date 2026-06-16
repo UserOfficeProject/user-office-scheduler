@@ -15,8 +15,8 @@ export async function wrapResponse<T>(
   if (responseFieldName) {
     isRejection(result)
       ? (wrapper.error = result.reason)
-      : // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ((wrapper as any)[responseFieldName] = result);
+      : ((wrapper as unknown as Record<string, unknown>)[responseFieldName] =
+          result);
   } else {
     wrapper.error = `No response fields found in '${ResponseWrapper.name}'`;
     logger.logError(wrapper.error, { wrapper }); // print out for easier debugging, most likely missing @Response() decorator

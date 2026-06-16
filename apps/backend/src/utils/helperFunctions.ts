@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ProposalMessageData } from '../types/shared';
 
 export function isSetAndPopulated<T>(
@@ -24,7 +23,7 @@ export const hasTriggerStatus = (
 };
 
 export function validateProposalMessage(
-  proposalMessage: any
+  proposalMessage: Record<string, unknown>
 ): ProposalMessageData {
   if (!proposalMessage.title) {
     throw new Error('Proposal title is missing');
@@ -46,7 +45,8 @@ export function validateProposalMessage(
     throw new Error('Proposal instruments are missing');
   }
 
-  proposalMessage.instruments.forEach((instrument: any) => {
+  const instruments = proposalMessage.instruments as Record<string, unknown>[];
+  instruments.forEach((instrument: Record<string, unknown>) => {
     if (!instrument.id) {
       throw new Error('Instrument id is missing');
     }
@@ -60,5 +60,5 @@ export function validateProposalMessage(
     }
   });
 
-  return proposalMessage as ProposalMessageData;
+  return proposalMessage as unknown as ProposalMessageData;
 }

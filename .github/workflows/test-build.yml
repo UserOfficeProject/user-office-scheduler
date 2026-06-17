@@ -29,64 +29,61 @@ jobs:
             local branch=$1
             local found=0
             shift
-            for endpoint in $@; do
-              local json=$(curl -s $endpoint)
-              local branch_found=$(echo $json | jq -c ".[] | select(.name==\"$branch\") | .name")
+            for endpoint in "$@"; do
+              local json=$(curl -fsSL "$endpoint")
+              local branch_found=$(echo "$json" | jq -r --arg branch "$branch" '.[] | select(.name == $branch) | .name')
               # to track what we found
               >&2 echo "$endpoint -> $branch_found"
-              if [[ $branch_found != "" ]]; then
+              if [[ -n $branch_found ]]; then
                 found=$((found += 1))
               fi
             done
             echo $found
           }
 
-          FACTORY_TAGS=$(check_feature ${{ github.head_ref }} \
-            https://api.github.com/repos/UserOfficeProject/user-office-factory/branches?per_page=100
+          FACTORY_TAGS=$(check_feature "${{ github.head_ref }}" \
+            "https://api.github.com/repos/UserOfficeProject/user-office-factory/branches?per_page=100"
           )
 
-          CORE_TAGS=$(check_feature ${{ github.head_ref }} \
-            https://api.github.com/repos/UserOfficeProject/user-office-core/branches?per_page=100
+          CORE_TAGS=$(check_feature "${{ github.head_ref }}" \
+            "https://api.github.com/repos/UserOfficeProject/user-office-core/branches?per_page=100"
           )
 
           # GATEWAY_TAGS=$(check_feature ${{ github.head_ref }} \
           #   https://api.github.com/repos/UserOfficeProject/user-office-gateway/branches?per_page=100
           # )
 
-          GHCR_TOKEN=$(echo ${{ secrets.GITHUB_TOKEN }} | base64)
+          GATEWAY_TAGS=0
+          GHCR_TOKEN="${{ secrets.GITHUB_TOKEN }}"
 
-          CHECK_IF_FACTORY_IMAGE_EXISTS=$(curl -H "Authorization: Bearer $GHCR_TOKEN" https://ghcr.io/v2/userofficeproject/user-office-factory/tags/list | jq --arg TAG ${{ github.head_ref }} '.tags as $t | $TAG | IN($t[])')
-          CHECK_IF_CORE_IMAGE_EXISTS=$(curl -H "Authorization: Bearer $GHCR_TOKEN" https://ghcr.io/v2/userofficeproject/user-office-backend/tags/list | jq --arg TAG ${{ github.head_ref }} '.tags as $t | $TAG | IN($t[])')
-          CHECK_IF_GATEWAY_IMAGE_EXISTS=$(curl -H "Authorization: Bearer $GHCR_TOKEN" https://ghcr.io/v2/userofficeproject/user-office-gateway/tags/list | jq --arg TAG ${{ github.head_ref }} '.tags as $t | $TAG | IN($t[])')
+          CHECK_IF_FACTORY_IMAGE_EXISTS=$(curl -fsSL -H "Authorization: Bearer $GHCR_TOKEN" "https://ghcr.io/v2/userofficeproject/user-office-factory/tags/list" | jq -r --arg TAG "${{ github.head_ref }}" '.tags | index($TAG) != null')
+          CHECK_IF_CORE_IMAGE_EXISTS=$(curl -fsSL -H "Authorization: Bearer $GHCR_TOKEN" "https://ghcr.io/v2/userofficeproject/user-office-backend/tags/list" | jq -r --arg TAG "${{ github.head_ref }}" '.tags | index($TAG) != null')
+          CHECK_IF_GATEWAY_IMAGE_EXISTS=$(curl -fsSL -H "Authorization: Bearer $GHCR_TOKEN" "https://ghcr.io/v2/userofficeproject/user-office-gateway/tags/list" | jq -r --arg TAG "${{ github.head_ref }}" '.tags | index($TAG) != null')
 
-          echo "CHECK_IF_FACTORY_IMAGE_EXISTS" >> $CHECK_IF_FACTORY_IMAGE_EXISTS
-
-          if [[ $CHECK_IF_FACTORY_IMAGE_EXISTS == true ]]; then
+          if [[ "$CHECK_IF_FACTORY_IMAGE_EXISTS" == "true" ]]; then
               FACTORY_TAGS=$((FACTORY_TAGS+1))
           fi
 
-          echo "CHECK_IF_CORE_IMAGE_EXISTS" >> $CHECK_IF_CORE_IMAGE_EXISTS
-
-          if [[ $CHECK_IF_CORE_IMAGE_EXISTS == true ]]; then
+          if [[ "$CHECK_IF_CORE_IMAGE_EXISTS" == "true" ]]; then
               CORE_TAGS=$((CORE_TAGS+1))
           fi
 
-          if [[ $CHECK_IF_GATEWAY_IMAGE_EXISTS == true ]]; then
+          if [[ "$CHECK_IF_GATEWAY_IMAGE_EXISTS" == "true" ]]; then
               GATEWAY_TAGS=$((GATEWAY_TAGS+1))
           fi
 
-          if [[ $CHECK_IF_FACTORY_IMAGE_EXISTS == null  ]]; then 
+          if [[ "$CHECK_IF_FACTORY_IMAGE_EXISTS" == "null"  ]]; then 
               FACTORY_TAGS=$((FACTORY_TAGS+1))
           fi
 
-          if [[ $CHECK_IF_CORE_IMAGE_EXISTS == null  ]]; then 
+          if [[ "$CHECK_IF_CORE_IMAGE_EXISTS" == "null"  ]]; then 
               CORE_TAGS=$((CORE_TAGS+1))
           fi
 
           echo $CHECK_IF_GATEWAY_IMAGE_EXISTS
 
-          if [[ $CHECK_IF_GATEWAY_IMAGE_EXISTS == null  ]]; then 
-              CORE_TAGS=$((CORE_TAGS+1))
+          if [[ "$CHECK_IF_GATEWAY_IMAGE_EXISTS" == "null"  ]]; then 
+              GATEWAY_TAGS=$((GATEWAY_TAGS+1))
           fi
 
           FACTORY_TAG=develop

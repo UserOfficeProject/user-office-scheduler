@@ -14,8 +14,7 @@ const db = Knex({
   },
 });
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-db.on('query-error', function (error: any, obj: any) {
+db.on('query-error', function (error: Error, obj: unknown) {
   logger.logError('QUERY ERROR', { error, obj });
 });
 

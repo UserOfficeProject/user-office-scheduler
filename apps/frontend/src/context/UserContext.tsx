@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import jwtDecode from 'jwt-decode';
 import React, { useCallback, useContext } from 'react';
 
@@ -13,11 +12,15 @@ export type AuthenticatedUser = Pick<
   'id' | 'email' | 'firstname' | 'lastname'
 >;
 
-interface UserContextData {
+interface UserState {
   user: UserJwt;
   token: string;
   roles: Role[];
   currentRole: UserRole | null;
+  expToken?: number;
+}
+
+interface UserContextData extends UserState {
   handleLogin: React.Dispatch<string | null | undefined>;
   handleNewToken: React.Dispatch<string | null | undefined>;
   handleLogout: () => Promise<void>;
@@ -39,7 +42,45 @@ enum ActionType {
   LOGOFFUSER = 'logOffUser',
 }
 
-const initUserData: UserContextData = {
+type SetUserFromLocalStorageAction = {
+  type: ActionType.SETUSERFROMLOCALSTORAGE;
+  payload: {
+    user: UserJwt;
+    roles: Role[];
+    currentRole: string;
+    token: string;
+    expToken: number;
+  };
+};
+
+type LoginUserAction = {
+  type: ActionType.LOGINUSER;
+  payload: string | null | undefined;
+};
+
+type SetTokenAction = {
+  type: ActionType.SETTOKEN;
+  payload: string | null | undefined;
+};
+
+type SelectRoleAction = {
+  type: ActionType.SELECTROLE;
+  payload: string;
+};
+
+type LogoffUserAction = {
+  type: ActionType.LOGOFFUSER;
+  payload: null;
+};
+
+type UserAction =
+  | SetUserFromLocalStorageAction
+  | LoginUserAction
+  | SetTokenAction
+  | SelectRoleAction
+  | LogoffUserAction;
+
+const initUserState: UserState = {
   user: {
     id: 0,
     email: '',
@@ -53,6 +94,10 @@ const initUserData: UserContextData = {
   token: '',
   roles: [],
   currentRole: null,
+};
+
+const initUserData: UserContextData = {
+  ...initUserState,
   handleLogin: (value) => value,
   handleNewToken: (value) => value,
   handleLogout: async () => {
@@ -67,11 +112,8 @@ export const getCurrentUser = () =>
   jwtDecode(localStorage.token) as DecodedTokenData | null;
 
 const checkLocalStorage = (
-  dispatch: React.Dispatch<{
-    type: ActionType;
-    payload: any;
-  }>,
-  state: UserContextData
+  dispatch: React.Dispatch<UserAction>,
+  state: UserState
 ): void => {
   if (!state.token && localStorage.token && localStorage.currentRole) {
     const decoded = getCurrentUser();
@@ -95,51 +137,48 @@ const checkLocalStorage = (
 
 export const UserContext = React.createContext<UserContextData>(initUserData);
 
-const reducer = (
-  state: UserContextData,
-  action: { type: ActionType; payload: any }
-): any => {
+const reducer = (state: UserState, action: UserAction): UserState => {
   switch (action.type) {
     case ActionType.SETUSERFROMLOCALSTORAGE:
       return {
-        currentRole: action.payload.currentRole,
+        currentRole: action.payload.currentRole as UserRole,
         user: action.payload.user,
         roles: action.payload.roles,
         token: action.payload.token,
         expToken: action.payload.expToken,
       };
     case ActionType.LOGINUSER: {
+      const token = action.payload as string;
       const { user, exp, roles, currentRole } = jwtDecode(
-        action.payload
+        token
       ) as DecodedTokenData;
       localStorage.user = JSON.stringify(user);
-      localStorage.token = action.payload;
+      localStorage.token = token;
       localStorage.expToken = exp;
       localStorage.currentRole = currentRole.shortCode.toUpperCase();
 
       return {
         ...state,
-        token: action.payload,
+        token,
         user: user,
         expToken: exp,
         roles: roles,
-        currentRole: roles[0].shortCode.toUpperCase(),
+        currentRole: roles[0].shortCode.toUpperCase() as UserRole,
       };
     }
     case ActionType.SETTOKEN: {
-      const { currentRole, roles, exp } = jwtDecode(
-        action.payload
-      ) as DecodedTokenData;
-      localStorage.token = action.payload;
+      const token = action.payload as string;
+      const { currentRole, roles, exp } = jwtDecode(token) as DecodedTokenData;
+      localStorage.token = token;
       localStorage.expToken = exp;
       localStorage.currentRole = currentRole.shortCode.toUpperCase();
 
       return {
         ...state,
         roles: roles,
-        token: action.payload,
+        token,
         expToken: exp,
-        currentRole: currentRole.shortCode.toUpperCase(),
+        currentRole: currentRole.shortCode.toUpperCase() as UserRole,
       };
     }
     case ActionType.SELECTROLE:
@@ -147,11 +186,11 @@ const reducer = (
 
       return {
         ...state,
-        currentRole: action.payload.toUpperCase(),
+        currentRole: action.payload.toUpperCase() as UserRole,
       };
     case ActionType.LOGOFFUSER:
       return {
-        ...initUserData,
+        ...initUserState,
       };
 
     default:
@@ -162,7 +201,7 @@ const reducer = (
 export const UserContextProvider = (props: {
   children: React.ReactNode;
 }): JSX.Element => {
-  const [state, dispatch] = React.useReducer(reducer, initUserData);
+  const [state, dispatch] = React.useReducer(reducer, initUserState);
   const unauthorizedApi = useUnauthorizedApi();
   const settingsContext = useContext(SettingsContext);
 

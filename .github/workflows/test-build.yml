@@ -11,7 +11,6 @@ env:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-
   resolve_dep:
     runs-on: ubuntu-latest
     outputs:
@@ -282,7 +281,6 @@ jobs:
         if: steps.cached-node-modules-e2e.outputs.cache-hit != 'true'
         run: npm run install:e2e
 
-
       - name: Run e2e tests
         env:
           SVC_ACC_TOKEN: ${{ secrets.SVC_ACC_TOKEN }}
@@ -300,7 +298,7 @@ jobs:
           CYPRESS_CACHE_FOLDER: .cache/Cypress
           CYPRES_SPEC_PATTERN: ${{ matrix.pattern }}
           BUILD_TAG: ${{ github.sha }}
-        
+
         run: |
           REPO_DIR_NAME=$(basename $GITHUB_WORKSPACE)
 

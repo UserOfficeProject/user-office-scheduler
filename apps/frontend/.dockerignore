@@ -5,4 +5,6 @@
 !public
 !package*
 !tsconfig.json
+!vite.config.ts
+!index.html
 !default.conf.template

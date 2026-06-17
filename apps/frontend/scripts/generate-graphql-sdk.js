@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-require('dotenv').config();
-
 const path = require('path');
 
 const { generate, loadContext } = require('@graphql-codegen/cli');

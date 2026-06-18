@@ -11,7 +11,6 @@ env:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-
   resolve_dep:
     runs-on: ubuntu-latest
     outputs:
@@ -196,10 +195,6 @@ jobs:
           path: apps/frontend/node_modules
           key: node-modules-frontend-${{ hashFiles('apps/frontend/package-lock.json') }}-${{ env.NODE_VERSION }}
 
-      - name: Install root dependencies if cache miss
-        if: steps.cached-node-modules-root.outputs.cache-hit != 'true'
-        run: npm ci --ignore-scripts
-
       - run: npm run build
         env:
           NODE_ENV: development
@@ -280,24 +275,11 @@ jobs:
           path: apps/frontend/node_modules
           key: node-modules-frontend-${{ hashFiles('apps/frontend/package-lock.json') }}-${{ env.NODE_VERSION }}
 
-      - name: Install root dependencies if cache miss
-        if: steps.cached-node-modules-root.outputs.cache-hit != 'true'
-        run: npm ci --ignore-scripts
-
-      - name: Install backend dependencies if cache miss
-        if: steps.cached-node-modules-backend.outputs.cache-hit != 'true'
-        run: npm run install:backend
-
-      - name: Install frontend dependencies if cache miss
-        if: steps.cached-node-modules-frontend.outputs.cache-hit != 'true'
-        run: npm run install:frontend
-
       - name: Install e2e dependencies
         env:
           CYPRESS_CACHE_FOLDER: .cache/Cypress
         if: steps.cached-node-modules-e2e.outputs.cache-hit != 'true'
         run: npm run install:e2e
-
 
       - name: Run e2e tests
         env:
@@ -316,7 +298,7 @@ jobs:
           CYPRESS_CACHE_FOLDER: .cache/Cypress
           CYPRES_SPEC_PATTERN: ${{ matrix.pattern }}
           BUILD_TAG: ${{ github.sha }}
-        
+
         run: |
           REPO_DIR_NAME=$(basename $GITHUB_WORKSPACE)
 

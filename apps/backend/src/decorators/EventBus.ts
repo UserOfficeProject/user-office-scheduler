@@ -43,7 +43,7 @@ const EventBusDecorator = (eventType: Event) => {
         eventBus
           .publish(event)
           .catch((e) =>
-            logger.logError(`EventBus publish failed ${event.type}`, e)
+            logger.logException(`EventBus publish failed ${event.type}`, e)
           );
       }
 

@@ -1,5 +1,4 @@
-import { GraphQLClient } from 'graphql-request';
-import { GraphQLClientRequestHeaders } from 'graphql-request/build/cjs/types';
+import { GraphQLClient, type RequestOptions } from 'graphql-request';
 import gql from 'graphql-tag';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -8,6 +7,7 @@ export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: 
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
 export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+type GraphQLClientRequestHeaders = RequestOptions['requestHeaders'];
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: { input: string; output: string; }
@@ -24,20 +24,16 @@ export type ActivateScheduledEventsInput = {
   ids: Array<Scalars['Int']['input']>;
 };
 
-export type AddConnectionStatusActionsInput = {
-  actions: Array<ConnectionHasActionsInput>;
-  connectionId: Scalars['Int']['input'];
-  workflowId: Scalars['Int']['input'];
-};
-
 export type AddLostTimeInput = {
   lostTime: SimpleLostTimeInput;
   proposalBookingId: Scalars['Int']['input'];
 };
 
-export type AddStatusChangingEventsToConnectionInput = {
-  statusChangingEvents: Array<Scalars['String']['input']>;
-  workflowConnectionId: Scalars['Int']['input'];
+export type AddStatusToWorkflowInput = {
+  posX: Scalars['Int']['input'];
+  posY: Scalars['Int']['input'];
+  statusId: Scalars['String']['input'];
+  workflowId: Scalars['Int']['input'];
 };
 
 export type AddTechnicalReviewInput = {
@@ -51,17 +47,6 @@ export type AddTechnicalReviewInput = {
   status?: InputMaybe<TechnicalReviewStatus>;
   submitted?: InputMaybe<Scalars['Boolean']['input']>;
   timeAllocation?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export type AddWorkflowStatusInput = {
-  nextStatusId?: InputMaybe<Scalars['Int']['input']>;
-  posX: Scalars['Int']['input'];
-  posY: Scalars['Int']['input'];
-  prevConnectionId?: InputMaybe<Scalars['Int']['input']>;
-  prevStatusId?: InputMaybe<Scalars['Int']['input']>;
-  sortOrder: Scalars['Int']['input'];
-  statusId: Scalars['Int']['input'];
-  workflowId: Scalars['Int']['input'];
 };
 
 export type AllQuestionsFilter = {
@@ -78,6 +63,7 @@ export type AllQuestionsQueryResult = {
 export enum AllocationTimeUnits {
   DAY = 'Day',
   HOUR = 'Hour',
+  SHIFT = 'Shift',
   WEEK = 'Week'
 }
 
@@ -88,6 +74,7 @@ export type Answer = {
   dependenciesOperator: Maybe<DependenciesLogicOperator>;
   question: Question;
   sortOrder: Scalars['Int']['output'];
+  templateId: Scalars['Int']['output'];
   topicId: Scalars['Int']['output'];
   value: Maybe<Scalars['IntStringDateBoolArray']['output']>;
 };
@@ -227,7 +214,7 @@ export type CallsFilter = {
   isFapReviewEnded?: InputMaybe<Scalars['Boolean']['input']>;
   isReviewEnded?: InputMaybe<Scalars['Boolean']['input']>;
   proposalPdfTemplateIds?: InputMaybe<Array<Scalars['Int']['input']>>;
-  proposalStatusShortCode?: InputMaybe<Scalars['String']['input']>;
+  proposalStatus?: InputMaybe<Scalars['String']['input']>;
   shortCode?: InputMaybe<Scalars['String']['input']>;
   technicalReviewTemplateIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   templateIds?: InputMaybe<Array<Scalars['Int']['input']>>;
@@ -238,9 +225,16 @@ export type CancelVisitRegistrationInput = {
   visitId: Scalars['Int']['input'];
 };
 
+export type ChangeExperimentsSafetyStatusInput = {
+  experimentSafetyPks: Array<Scalars['Int']['input']>;
+  statusActionsWorkflowConnectionId?: InputMaybe<Scalars['Int']['input']>;
+  workflowStatusId: Scalars['Int']['input'];
+};
+
 export type ChangeProposalsStatusInput = {
   proposalPks: Array<Scalars['Int']['input']>;
-  statusId: Scalars['Int']['input'];
+  statusActionsWorkflowConnectionId?: InputMaybe<Scalars['Int']['input']>;
+  workflowStatusId: Scalars['Int']['input'];
 };
 
 export type CloneProposalsInput = {
@@ -343,11 +337,25 @@ export type CreatePredefinedMessageInput = {
   title: Scalars['String']['input'];
 };
 
+export type CreateRoleArgs = {
+  config?: InputMaybe<RoleConfigInput>;
+  description: Scalars['String']['input'];
+  shortCode: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+};
+
 export type CreateStatusInput = {
   description: Scalars['String']['input'];
   entityType: WorkflowType;
+  id: Scalars['String']['input'];
   name: Scalars['String']['input'];
-  shortCode: Scalars['String']['input'];
+};
+
+export type CreateWorkflowConnectionInput = {
+  nextWorkflowStatusId: Scalars['Int']['input'];
+  prevWorkflowStatusId: Scalars['Int']['input'];
+  sourceHandle: Scalars['String']['input'];
+  targetHandle: Scalars['String']['input'];
 };
 
 export type CreateWorkflowInput = {
@@ -359,6 +367,7 @@ export type CreateWorkflowInput = {
 export enum DataType {
   BOOLEAN = 'BOOLEAN',
   DATE = 'DATE',
+  DATE_TIME_RANGE = 'DATE_TIME_RANGE',
   DYNAMIC_MULTIPLE_CHOICE = 'DYNAMIC_MULTIPLE_CHOICE',
   EMBELLISHMENT = 'EMBELLISHMENT',
   EXPERIMENT_SAFETY_REVIEW_BASIS = 'EXPERIMENT_SAFETY_REVIEW_BASIS',
@@ -400,6 +409,14 @@ export type DateFilterInput = {
   to?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type DateTimeRangeConfig = {
+  defaultDate: Maybe<Scalars['String']['output']>;
+  readPermissions: Array<Scalars['String']['output']>;
+  required: Scalars['Boolean']['output'];
+  small_label: Scalars['String']['output'];
+  tooltip: Scalars['String']['output'];
+};
+
 export type DbStat = {
   state: Maybe<Scalars['String']['output']>;
   total: Scalars['Float']['output'];
@@ -435,9 +452,7 @@ export type DeleteScheduledEventsInput = {
 };
 
 export type DeleteWorkflowStatusInput = {
-  sortOrder: Scalars['Int']['input'];
-  statusId: Scalars['Int']['input'];
-  workflowId: Scalars['Int']['input'];
+  workflowStatusId: Scalars['Int']['input'];
 };
 
 export enum DependenciesLogicOperator {
@@ -455,6 +470,7 @@ export type DynamicMultipleChoiceConfig = {
   small_label: Scalars['String']['output'];
   tooltip: Scalars['String']['output'];
   url: Scalars['String']['output'];
+  useBaseDomain: Scalars['Boolean']['output'];
   variant: Scalars['String']['output'];
 };
 
@@ -499,11 +515,39 @@ export type EmailStatusActionRecipientsWithTemplate = {
 export type EmailTemplate = {
   body: Maybe<Scalars['String']['output']>;
   createdByUserId: Scalars['Int']['output'];
-  description: Maybe<Scalars['String']['output']>;
+  description: Scalars['String']['output'];
   id: Scalars['Int']['output'];
   name: Scalars['String']['output'];
   subject: Maybe<Scalars['String']['output']>;
   useTemplateFile: Scalars['Boolean']['output'];
+};
+
+export type EmailTemplatePreview = {
+  body: Maybe<Scalars['String']['output']>;
+  error: Maybe<EmailTemplatePreviewError>;
+  sourceBody: Maybe<Scalars['String']['output']>;
+  sourceSubject: Maybe<Scalars['String']['output']>;
+  subject: Maybe<Scalars['String']['output']>;
+};
+
+export type EmailTemplatePreviewError = {
+  column: Maybe<Scalars['Int']['output']>;
+  line: Maybe<Scalars['Int']['output']>;
+  message: Scalars['String']['output'];
+  source: Scalars['String']['output'];
+};
+
+export type EmailTemplatePreviewInput = {
+  body?: InputMaybe<Scalars['String']['input']>;
+  emailTemplateId?: InputMaybe<Scalars['Int']['input']>;
+  subject?: InputMaybe<Scalars['String']['input']>;
+  useTemplateFile?: Scalars['Boolean']['input'];
+  variables?: Array<EmailTemplatePreviewVariableInput>;
+};
+
+export type EmailTemplatePreviewVariableInput = {
+  key: Scalars['String']['input'];
+  value: Scalars['String']['input'];
 };
 
 export type EmailTemplatesFilter = {
@@ -620,8 +664,10 @@ export enum Event {
   EXPERIMENT_ESF_SUBMITTED = 'EXPERIMENT_ESF_SUBMITTED',
   EXPERIMENT_SAFETY_MANAGEMENT_DECISION_SUBMITTED_BY_ESR = 'EXPERIMENT_SAFETY_MANAGEMENT_DECISION_SUBMITTED_BY_ESR',
   EXPERIMENT_SAFETY_MANAGEMENT_DECISION_SUBMITTED_BY_IS = 'EXPERIMENT_SAFETY_MANAGEMENT_DECISION_SUBMITTED_BY_IS',
+  EXPERIMENT_SAFETY_STATUS_ACTION_EXECUTED = 'EXPERIMENT_SAFETY_STATUS_ACTION_EXECUTED',
   EXPERIMENT_SAFETY_STATUS_CHANGED_BY_USER = 'EXPERIMENT_SAFETY_STATUS_CHANGED_BY_USER',
   EXPERIMENT_SAFETY_STATUS_CHANGED_BY_WORKFLOW = 'EXPERIMENT_SAFETY_STATUS_CHANGED_BY_WORKFLOW',
+  EXPERIMENT_UPDATED = 'EXPERIMENT_UPDATED',
   FAP_ALL_MEETINGS_SUBMITTED = 'FAP_ALL_MEETINGS_SUBMITTED',
   FAP_CREATED = 'FAP_CREATED',
   FAP_MEMBERS_ASSIGNED = 'FAP_MEMBERS_ASSIGNED',
@@ -649,6 +695,7 @@ export enum Event {
   PROPOSAL_ALL_FAP_REVIEWS_SUBMITTED = 'PROPOSAL_ALL_FAP_REVIEWS_SUBMITTED',
   PROPOSAL_ALL_FEASIBILITY_REVIEWS_FEASIBLE = 'PROPOSAL_ALL_FEASIBILITY_REVIEWS_FEASIBLE',
   PROPOSAL_ALL_FEASIBILITY_REVIEWS_SUBMITTED = 'PROPOSAL_ALL_FEASIBILITY_REVIEWS_SUBMITTED',
+  PROPOSAL_ALL_FEASIBILITY_REVIEWS_UNFEASIBLE = 'PROPOSAL_ALL_FEASIBILITY_REVIEWS_UNFEASIBLE',
   PROPOSAL_ALL_REVIEWS_SUBMITTED_FOR_ALL_FAPS = 'PROPOSAL_ALL_REVIEWS_SUBMITTED_FOR_ALL_FAPS',
   PROPOSAL_ASSIGNED_TO_TECHNIQUES = 'PROPOSAL_ASSIGNED_TO_TECHNIQUES',
   PROPOSAL_BOOKING_TIME_ACTIVATED = 'PROPOSAL_BOOKING_TIME_ACTIVATED',
@@ -703,7 +750,8 @@ export enum Event {
   USER_UPDATED = 'USER_UPDATED',
   VISIT_CREATED = 'VISIT_CREATED',
   VISIT_REGISTRATION_APPROVED = 'VISIT_REGISTRATION_APPROVED',
-  VISIT_REGISTRATION_CANCELLED = 'VISIT_REGISTRATION_CANCELLED'
+  VISIT_REGISTRATION_CANCELLED = 'VISIT_REGISTRATION_CANCELLED',
+  VISIT_REGISTRATION_UPDATED = 'VISIT_REGISTRATION_UPDATED'
 }
 
 export type EventLog = {
@@ -737,6 +785,7 @@ export type Experiment = {
   status: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
   visit: Maybe<Visit>;
+  visitPerms: VisitPerms;
 };
 
 export type ExperimentHasSample = {
@@ -768,8 +817,9 @@ export type ExperimentSafety = {
   safetyReviewQuestionaryId: Maybe<Scalars['Float']['output']>;
   samples: Array<ExperimentHasSample>;
   status: Maybe<Status>;
-  statusId: Maybe<Scalars['Float']['output']>;
+  statusId: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
+  workflowStatusId: Scalars['Float']['output'];
 };
 
 export type ExperimentSafetyPdfTemplate = {
@@ -812,6 +862,14 @@ export enum ExperimentStatus {
   ACTIVE = 'ACTIVE',
   COMPLETED = 'COMPLETED',
   DRAFT = 'DRAFT'
+}
+
+/** Experiment table columns that support sorting */
+export enum ExperimentTableSortField {
+  ENDSAT = 'endsAt',
+  EXPERIMENTID = 'experimentId',
+  PROPOSALID = 'proposalId',
+  STARTSAT = 'startsAt'
 }
 
 export type ExperimentsFilter = {
@@ -1051,7 +1109,7 @@ export type FieldConditionInput = {
   params: Scalars['String']['input'];
 };
 
-export type FieldConfig = BooleanConfig | DateConfig | DynamicMultipleChoiceConfig | EmbellishmentConfig | ExperimentSafetyReviewBasisConfig | FapReviewBasisConfig | FeedbackBasisConfig | FileUploadConfig | GenericTemplateBasisConfig | InstrumentPickerConfig | IntervalConfig | NumberInputConfig | ProposalBasisConfig | ProposalEsiBasisConfig | RichTextInputConfig | SampleBasisConfig | SampleDeclarationConfig | SampleEsiBasisConfig | SelectionFromOptionsConfig | ShipmentBasisConfig | SubTemplateConfig | TechnicalReviewBasisConfig | TechniquePickerConfig | TextInputConfig | VisitBasisConfig;
+export type FieldConfig = BooleanConfig | DateConfig | DateTimeRangeConfig | DynamicMultipleChoiceConfig | EmbellishmentConfig | ExperimentSafetyReviewBasisConfig | FapReviewBasisConfig | FeedbackBasisConfig | FileUploadConfig | GenericTemplateBasisConfig | InstrumentPickerConfig | IntervalConfig | NumberInputConfig | ProposalBasisConfig | ProposalEsiBasisConfig | RichTextInputConfig | SampleBasisConfig | SampleDeclarationConfig | SampleEsiBasisConfig | SelectionFromOptionsConfig | ShipmentBasisConfig | SubTemplateConfig | TechnicalReviewBasisConfig | TechniquePickerConfig | TextInputConfig | VisitBasisConfig;
 
 export type FieldDependency = {
   condition: FieldCondition;
@@ -1165,7 +1223,7 @@ export type InstrumentFapMappingInput = {
 };
 
 export type InstrumentFilterInput = {
-  instrumentId?: InputMaybe<Scalars['Int']['input']>;
+  instrumentIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   showAllProposals: Scalars['Boolean']['input'];
   showMultiInstrumentProposals: Scalars['Boolean']['input'];
 };
@@ -1301,15 +1359,13 @@ export type Mutation = {
   activateProposalBooking: ProposalBookingResponseWrap;
   activateScheduledEvents: ScheduledEventsResponseWrap;
   addClientLog: Scalars['Boolean']['output'];
-  addConnectionStatusActions: Maybe<Array<ConnectionStatusAction>>;
   addLostTime: LostTimeResponseWrap;
   addSampleToExperiment: ExperimentHasSample;
   addSamplesToShipment: Shipment;
-  addStatusChangingEventsToConnection: Array<StatusChangingEvent>;
+  addStatusToWorkflow: WorkflowStatus;
   addTechnicalReview: TechnicalReview;
   addUserForReview: Review;
   addUserRole: Scalars['Boolean']['output'];
-  addWorkflowStatus: WorkflowConnection;
   administrationProposal: Proposal;
   answerTopic: Array<AnswerBasic>;
   applyPatches: Array<Scalars['String']['output']>;
@@ -1329,6 +1385,7 @@ export type Mutation = {
   assignTechniqueProposalsToInstruments: Scalars['Boolean']['output'];
   assignToScheduledEvents: Scalars['Boolean']['output'];
   cancelVisitRegistration: VisitRegistration;
+  changeExperimentsSafetyStatus: Scalars['Boolean']['output'];
   changeProposalsStatus: Scalars['Boolean']['output'];
   changeTechniqueProposalsStatus: Scalars['Boolean']['output'];
   cloneExperimentSample: ExperimentHasSample;
@@ -1336,6 +1393,7 @@ export type Mutation = {
   cloneProposals: Array<Proposal>;
   cloneSample: Sample;
   cloneTemplate: Template;
+  cloneWorkflow: Workflow;
   confirmEquipmentAssignment: SchedulerSuccessResponseWrap;
   createApiAccessToken: PermissionsWithAccessToken;
   createCall: Call;
@@ -1352,10 +1410,12 @@ export type Mutation = {
   createPredefinedMessage: PredefinedMessage;
   createProposal: Proposal;
   createProposalPdfTemplate: ProposalPdfTemplate;
+  createProposalRejectionComment: ProposalRejectionComment;
   createProposalScientistComment: ProposalScientistComment;
   createQuestion: Question;
   createQuestionTemplateRelation: Template;
   createQuestionary: Questionary;
+  createRole: Role;
   createSample: Sample;
   createScheduledEvent: ScheduledEventResponseWrap;
   createShipment: Shipment;
@@ -1368,6 +1428,7 @@ export type Mutation = {
   createVisit: Visit;
   createVisitRegistration: VisitRegistration;
   createWorkflow: Workflow;
+  createWorkflowConnection: WorkflowConnection;
   deleteApiAccessToken: Scalars['Boolean']['output'];
   deleteCall: Call;
   deleteEmailTemplate: EmailTemplate;
@@ -1386,6 +1447,7 @@ export type Mutation = {
   deleteProposalScientistComment: ProposalScientistComment;
   deleteQuestion: Question;
   deleteQuestionTemplateRelation: Template;
+  deleteRole: Role;
   deleteSample: Sample;
   deleteScheduledEvents: ScheduledEventsResponseWrap;
   deleteShipment: Shipment;
@@ -1425,7 +1487,6 @@ export type Mutation = {
   reopenProposalBooking: ProposalBookingResponseWrap;
   reopenScheduledEvent: ScheduledEventResponseWrap;
   reorderFapMeetingDecisionProposals: FapMeetingDecision;
-  replayStatusActionsLog: Scalars['Boolean']['output'];
   replayStatusActionsLogs: ReplayStatusActionsLogsResult;
   requestFeedback: FeedbackRequest;
   requestVisitRegistrationChanges: VisitRegistration;
@@ -1438,6 +1499,8 @@ export type Mutation = {
   setCoProposerInvites: Array<Invite>;
   setInstrumentAvailabilityTime: Scalars['Boolean']['output'];
   setPageContent: Page;
+  setStatusActionsOnConnection: Maybe<Array<ConnectionStatusAction>>;
+  setStatusChangingEventsOnConnection: Array<StatusChangingEvent>;
   setUserNotPlaceholder: User;
   submitExperimentSafety: ExperimentSafety;
   submitExperimentSafetyReviewerExperimentSafetyReview: ExperimentSafety;
@@ -1479,6 +1542,8 @@ export type Mutation = {
   updateQuestionTemplateRelation: Template;
   updateQuestionTemplateRelationSettings: Template;
   updateReview: Review;
+  updateRole: UpdateRoleResponse;
+  updateRoleTags: Role;
   updateSample: Sample;
   updateScheduledEvent: ScheduledEventResponseWrap;
   updateSettings: Settings;
@@ -1494,7 +1559,7 @@ export type Mutation = {
   updateVisit: Visit;
   updateVisitRegistration: VisitRegistration;
   updateWorkflow: Workflow;
-  updateWorkflowStatus: WorkflowConnection;
+  updateWorkflowStatus: WorkflowStatus;
   upsertUserByOidcSub: User;
   validateTemplateImport: TemplateValidation;
   validateUnitsImport: UnitsImportWithValidation;
@@ -1526,11 +1591,6 @@ export type MutationAddClientLogArgs = {
 };
 
 
-export type MutationAddConnectionStatusActionsArgs = {
-  newConnectionStatusActionsInput: AddConnectionStatusActionsInput;
-};
-
-
 export type MutationAddLostTimeArgs = {
   addLostTimeInput: AddLostTimeInput;
 };
@@ -1548,8 +1608,8 @@ export type MutationAddSamplesToShipmentArgs = {
 };
 
 
-export type MutationAddStatusChangingEventsToConnectionArgs = {
-  addStatusChangingEventsToConnectionInput: AddStatusChangingEventsToConnectionInput;
+export type MutationAddStatusToWorkflowArgs = {
+  newWorkflowStatusInput: AddStatusToWorkflowInput;
 };
 
 
@@ -1571,17 +1631,12 @@ export type MutationAddUserRoleArgs = {
 };
 
 
-export type MutationAddWorkflowStatusArgs = {
-  newWorkflowStatusInput: AddWorkflowStatusInput;
-};
-
-
 export type MutationAdministrationProposalArgs = {
   commentForManagement?: InputMaybe<Scalars['String']['input']>;
   commentForUser?: InputMaybe<Scalars['String']['input']>;
-  finalStatus: ProposalEndStatus;
+  finalStatus?: InputMaybe<ProposalEndStatus>;
   managementDecisionSubmitted?: InputMaybe<Scalars['Boolean']['input']>;
-  managementTimeAllocations: Array<ManagementTimeAllocationsInput>;
+  managementTimeAllocations?: InputMaybe<Array<ManagementTimeAllocationsInput>>;
   proposalPk: Scalars['Int']['input'];
 };
 
@@ -1685,6 +1740,11 @@ export type MutationCancelVisitRegistrationArgs = {
 };
 
 
+export type MutationChangeExperimentsSafetyStatusArgs = {
+  changeExperimentsSafetyStatusInput: ChangeExperimentsSafetyStatusInput;
+};
+
+
 export type MutationChangeProposalsStatusArgs = {
   changeProposalsStatusInput: ChangeProposalsStatusInput;
 };
@@ -1722,6 +1782,11 @@ export type MutationCloneSampleArgs = {
 
 export type MutationCloneTemplateArgs = {
   templateId: Scalars['Int']['input'];
+};
+
+
+export type MutationCloneWorkflowArgs = {
+  workflowId: Scalars['Int']['input'];
 };
 
 
@@ -1832,6 +1897,12 @@ export type MutationCreateProposalPdfTemplateArgs = {
 };
 
 
+export type MutationCreateProposalRejectionCommentArgs = {
+  comment: Scalars['String']['input'];
+  proposalPk: Scalars['Int']['input'];
+};
+
+
 export type MutationCreateProposalScientistCommentArgs = {
   comment: Scalars['String']['input'];
   proposalPk: Scalars['Int']['input'];
@@ -1854,6 +1925,11 @@ export type MutationCreateQuestionTemplateRelationArgs = {
 
 export type MutationCreateQuestionaryArgs = {
   templateId: Scalars['Int']['input'];
+};
+
+
+export type MutationCreateRoleArgs = {
+  args: CreateRoleArgs;
 };
 
 
@@ -1935,6 +2011,11 @@ export type MutationCreateVisitRegistrationArgs = {
 
 export type MutationCreateWorkflowArgs = {
   newWorkflowInput: CreateWorkflowInput;
+};
+
+
+export type MutationCreateWorkflowConnectionArgs = {
+  newWorkflowConnectionInput: CreateWorkflowConnectionInput;
 };
 
 
@@ -2029,6 +2110,11 @@ export type MutationDeleteQuestionTemplateRelationArgs = {
 };
 
 
+export type MutationDeleteRoleArgs = {
+  roleId: Scalars['Int']['input'];
+};
+
+
 export type MutationDeleteSampleArgs = {
   sampleId: Scalars['Int']['input'];
 };
@@ -2045,7 +2131,7 @@ export type MutationDeleteShipmentArgs = {
 
 
 export type MutationDeleteStatusArgs = {
-  id: Scalars['Int']['input'];
+  id: Scalars['String']['input'];
 };
 
 
@@ -2118,7 +2204,7 @@ export type MutationGetTokenForUserArgs = {
 
 
 export type MutationImportProposalArgs = {
-  abstract?: InputMaybe<Scalars['String']['input']>;
+  abstract: Scalars['String']['input'];
   callId: Scalars['Int']['input'];
   created?: InputMaybe<Scalars['DateTime']['input']>;
   instrumentId?: InputMaybe<Scalars['Int']['input']>;
@@ -2127,7 +2213,7 @@ export type MutationImportProposalArgs = {
   submittedDate: Scalars['DateTime']['input'];
   submitterId: Scalars['Int']['input'];
   techniqueIds?: InputMaybe<Array<Scalars['Int']['input']>>;
-  title?: InputMaybe<Scalars['String']['input']>;
+  title: Scalars['String']['input'];
   users?: InputMaybe<Array<Scalars['Int']['input']>>;
 };
 
@@ -2255,11 +2341,6 @@ export type MutationReorderFapMeetingDecisionProposalsArgs = {
 };
 
 
-export type MutationReplayStatusActionsLogArgs = {
-  statusActionsLogId: Scalars['Int']['input'];
-};
-
-
 export type MutationReplayStatusActionsLogsArgs = {
   statusActionsLogIds: Array<Scalars['Int']['input']>;
 };
@@ -2325,6 +2406,16 @@ export type MutationSetInstrumentAvailabilityTimeArgs = {
 export type MutationSetPageContentArgs = {
   id: PageName;
   text: Scalars['String']['input'];
+};
+
+
+export type MutationSetStatusActionsOnConnectionArgs = {
+  input: SetStatusActionsOnConnectionInput;
+};
+
+
+export type MutationSetStatusChangingEventsOnConnectionArgs = {
+  setStatusChangingEventsOnConnectionInput: SetStatusChangingEventsOnConnectionInput;
 };
 
 
@@ -2545,11 +2636,11 @@ export type MutationUpdatePredefinedMessageArgs = {
 
 
 export type MutationUpdateProposalArgs = {
-  abstract?: InputMaybe<Scalars['String']['input']>;
+  abstract: Scalars['String']['input'];
   created?: InputMaybe<Scalars['DateTime']['input']>;
   proposalPk: Scalars['Int']['input'];
   proposerId?: InputMaybe<Scalars['Int']['input']>;
-  title?: InputMaybe<Scalars['String']['input']>;
+  title: Scalars['String']['input'];
   users?: InputMaybe<Array<Scalars['Int']['input']>>;
 };
 
@@ -2603,6 +2694,17 @@ export type MutationUpdateReviewArgs = {
   questionaryID: Scalars['Int']['input'];
   reviewID: Scalars['Int']['input'];
   status: ReviewStatus;
+};
+
+
+export type MutationUpdateRoleArgs = {
+  args: UpdateRoleArgs;
+};
+
+
+export type MutationUpdateRoleTagsArgs = {
+  roleId: Scalars['Int']['input'];
+  tagIds: Array<Scalars['Int']['input']>;
 };
 
 
@@ -2749,6 +2851,10 @@ export type NewScheduledEventInput = {
 };
 
 export type NumberInputConfig = {
+  numberMax: Maybe<Scalars['Float']['output']>;
+  numberMaxInclusive: Maybe<Scalars['Boolean']['output']>;
+  numberMin: Maybe<Scalars['Float']['output']>;
+  numberMinInclusive: Maybe<Scalars['Boolean']['output']>;
   numberValueConstraint: Maybe<NumberValueConstraint>;
   readPermissions: Array<Scalars['String']['output']>;
   required: Scalars['Boolean']['output'];
@@ -2838,7 +2944,7 @@ export type Proposal = {
   reviews: Maybe<Array<Review>>;
   samples: Maybe<Array<Sample>>;
   status: Maybe<Status>;
-  statusId: Scalars['Int']['output'];
+  statusId: Scalars['String']['output'];
   submitted: Scalars['Boolean']['output'];
   submittedDate: Maybe<Scalars['DateTime']['output']>;
   technicalReviews: Array<TechnicalReview>;
@@ -2847,6 +2953,7 @@ export type Proposal = {
   updated: Scalars['DateTime']['output'];
   users: Array<BasicUserDetails>;
   visits: Maybe<Array<Visit>>;
+  workflowStatusId: Scalars['Int']['output'];
 };
 
 
@@ -2972,6 +3079,26 @@ export enum ProposalPublicStatus {
   UNKNOWN = 'unknown'
 }
 
+export type ProposalReaderRoleConfig = {
+  hasAdminAccess: Scalars['Boolean']['output'];
+  hasFapAccess: Scalars['Boolean']['output'];
+  hasLogAccess: Scalars['Boolean']['output'];
+  hasTechnicalReviewAccess: Scalars['Boolean']['output'];
+};
+
+export type ProposalReaderRoleConfigInput = {
+  hasAdminAccess: Scalars['Boolean']['input'];
+  hasFapAccess: Scalars['Boolean']['input'];
+  hasLogAccess: Scalars['Boolean']['input'];
+  hasTechnicalReviewAccess: Scalars['Boolean']['input'];
+};
+
+export type ProposalRejectionComment = {
+  comment: Scalars['String']['output'];
+  commentId: Scalars['Int']['output'];
+  proposalPk: Scalars['Int']['output'];
+};
+
 export type ProposalScientistComment = {
   comment: Scalars['String']['output'];
   commentId: Scalars['Int']['output'];
@@ -3016,7 +3143,7 @@ export type ProposalView = {
   principalInvestigatorId: Scalars['Int']['output'];
   proposalId: Scalars['String']['output'];
   statusDescription: Scalars['String']['output'];
-  statusId: Scalars['Int']['output'];
+  statusId: Scalars['String']['output'];
   statusName: Scalars['String']['output'];
   submitted: Scalars['Boolean']['output'];
   submittedDate: Maybe<Scalars['DateTime']['output']>;
@@ -3024,6 +3151,7 @@ export type ProposalView = {
   techniques: Maybe<Array<ProposalViewTechnique>>;
   title: Scalars['String']['output'];
   workflowId: Scalars['Int']['output'];
+  workflowStatusId: Scalars['Int']['output'];
 };
 
 export type ProposalViewFap = {
@@ -3065,10 +3193,10 @@ export type ProposalsFilter = {
   callId?: InputMaybe<Scalars['Int']['input']>;
   callIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   dateFilter?: InputMaybe<DateFilterInput>;
-  excludeProposalStatusIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  excludeProposalStatusIds?: InputMaybe<Array<Scalars['String']['input']>>;
   instrumentFilter?: InputMaybe<InstrumentFilterInput>;
   instrumentId?: InputMaybe<Scalars['Int']['input']>;
-  proposalStatusId?: InputMaybe<Scalars['Int']['input']>;
+  proposalStatusId?: InputMaybe<Scalars['String']['input']>;
   questionFilter?: InputMaybe<QuestionFilterInput>;
   questionaryIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   referenceNumbers?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -3110,6 +3238,7 @@ export type QueriesMutationsAndServices = {
 };
 
 export type Query = {
+  ServerConfig: ServerConfig;
   accessTokenAndPermissions: Maybe<PermissionsWithAccessToken>;
   activeTemplateId: Maybe<Scalars['Int']['output']>;
   allAccessTokensAndPermissions: Maybe<Array<PermissionsWithAccessToken>>;
@@ -3131,6 +3260,7 @@ export type Query = {
   countries: Maybe<Array<Entry>>;
   dataAccessUsers: Array<BasicUserDetails>;
   emailTemplate: Maybe<EmailTemplate>;
+  emailTemplatePreview: Maybe<EmailTemplatePreview>;
   emailTemplates: Maybe<EmailTemplatesQueryResult>;
   equipment: Maybe<Equipment>;
   equipments: Array<Equipment>;
@@ -3193,6 +3323,7 @@ export type Query = {
   proposalReviews: Maybe<Array<Review>>;
   proposalScientistComment: Maybe<ProposalScientistComment>;
   proposalTemplates: Maybe<Array<ProposalTemplate>>;
+  proposalTimeRequested: Scalars['Float']['output'];
   proposals: Maybe<ProposalsQueryResult>;
   proposalsView: Maybe<ProposalsViewQueryResult>;
   quantities: Array<Quantity>;
@@ -3216,7 +3347,7 @@ export type Query = {
   status: Maybe<Status>;
   statusActions: Maybe<Array<StatusAction>>;
   statusActionsLogs: Maybe<StatusActionsLogQueryResult>;
-  statuses: Maybe<Array<Status>>;
+  statuses: Array<Status>;
   tag: Maybe<Tag>;
   tags: Array<Tag>;
   technicalReview: Maybe<TechnicalReview>;
@@ -3242,6 +3373,8 @@ export type Query = {
   visitRegistration: Maybe<VisitRegistration>;
   visits: Array<Visit>;
   workflow: Maybe<Workflow>;
+  workflowStatus: Maybe<WorkflowStatus>;
+  workflowStatuses: Array<WorkflowStatus>;
   workflows: Maybe<Array<Workflow>>;
 };
 
@@ -3262,7 +3395,7 @@ export type QueryAllExperimentsArgs = {
   offset?: InputMaybe<Scalars['Int']['input']>;
   searchText?: InputMaybe<Scalars['String']['input']>;
   sortDirection?: InputMaybe<PaginationSortDirection>;
-  sortField?: InputMaybe<Scalars['String']['input']>;
+  sortField?: InputMaybe<ExperimentTableSortField>;
 };
 
 
@@ -3346,6 +3479,11 @@ export type QueryDataAccessUsersArgs = {
 
 export type QueryEmailTemplateArgs = {
   emailTemplateId: Scalars['Int']['input'];
+};
+
+
+export type QueryEmailTemplatePreviewArgs = {
+  emailTemplatePreviewInput: EmailTemplatePreviewInput;
 };
 
 
@@ -3484,6 +3622,7 @@ export type QueryGetCallByAnswerIdArgs = {
 
 export type QueryGetDynamicMultipleChoiceOptionsArgs = {
   questionId: Scalars['String']['input'];
+  templateId?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -3636,6 +3775,12 @@ export type QueryProposalTemplatesArgs = {
 };
 
 
+export type QueryProposalTimeRequestedArgs = {
+  instrumentId: Scalars['Int']['input'];
+  proposalPk: Scalars['Int']['input'];
+};
+
+
 export type QueryProposalsArgs = {
   filter?: InputMaybe<ProposalsFilter>;
   first?: InputMaybe<Scalars['Int']['input']>;
@@ -3716,7 +3861,7 @@ export type QueryShipmentsArgs = {
 
 
 export type QueryStatusArgs = {
-  statusId: Scalars['Int']['input'];
+  statusId: Scalars['String']['input'];
 };
 
 
@@ -3840,6 +3985,16 @@ export type QueryWorkflowArgs = {
 };
 
 
+export type QueryWorkflowStatusArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type QueryWorkflowStatusesArgs = {
+  workflowId: Scalars['Int']['input'];
+};
+
+
 export type QueryWorkflowsArgs = {
   entityType: WorkflowType;
 };
@@ -3897,6 +4052,7 @@ export type QuestionTemplateRelation = {
   dependenciesOperator: Maybe<DependenciesLogicOperator>;
   question: Question;
   sortOrder: Scalars['Int']['output'];
+  templateId: Scalars['Int']['output'];
   topicId: Scalars['Int']['output'];
 };
 
@@ -4028,10 +4184,20 @@ export type RichTextInputConfig = {
 };
 
 export type Role = {
+  config: Maybe<RoleConfig>;
   description: Scalars['String']['output'];
   id: Scalars['Int']['output'];
+  isRootRole: Scalars['Boolean']['output'];
   shortCode: Scalars['String']['output'];
+  tags: Maybe<Array<Tag>>;
   title: Scalars['String']['output'];
+};
+
+export type RoleConfig = ProposalReaderRoleConfig | UserRoleConfig;
+
+export type RoleConfigInput = {
+  proposalReader?: InputMaybe<ProposalReaderRoleConfigInput>;
+  user?: InputMaybe<UserRoleConfigInput>;
 };
 
 export type Sample = {
@@ -4162,9 +4328,24 @@ export type SelectionFromOptionsConfig = {
   variant: Scalars['String']['output'];
 };
 
+export type ServerConfig = {
+  baseURL: Scalars['String']['output'];
+};
+
 export type SetCoProposerInvitesInput = {
   emails: Array<Scalars['String']['input']>;
   proposalPk: Scalars['Int']['input'];
+};
+
+export type SetStatusActionsOnConnectionInput = {
+  actions: Array<ConnectionHasActionsInput>;
+  connectionId: Scalars['Int']['input'];
+  workflowId: Scalars['Int']['input'];
+};
+
+export type SetStatusChangingEventsOnConnectionInput = {
+  statusChangingEvents: Array<Scalars['String']['input']>;
+  workflowConnectionId: Scalars['Int']['input'];
 };
 
 export type Settings = {
@@ -4181,6 +4362,7 @@ export enum SettingsId {
   DISPLAY_FAQ_LINK = 'DISPLAY_FAQ_LINK',
   DISPLAY_PRIVACY_STATEMENT_LINK = 'DISPLAY_PRIVACY_STATEMENT_LINK',
   EXPERIMENT_SAFETY_REVIEW_EMAIL = 'EXPERIMENT_SAFETY_REVIEW_EMAIL',
+  EXTERNAL_AUTH_HOMEPAGE_URL = 'EXTERNAL_AUTH_HOMEPAGE_URL',
   EXTERNAL_AUTH_LOGIN_URL = 'EXTERNAL_AUTH_LOGIN_URL',
   EXTERNAL_AUTH_LOGOUT_URL = 'EXTERNAL_AUTH_LOGOUT_URL',
   FAP_SECS_EDIT_TECH_REVIEWS = 'FAP_SECS_EDIT_TECH_REVIEWS',
@@ -4260,10 +4442,9 @@ export type SimpleLostTimeInput = {
 export type Status = {
   description: Scalars['String']['output'];
   entityType: WorkflowType;
-  id: Scalars['Int']['output'];
+  id: Scalars['String']['output'];
   isDefault: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
-  shortCode: Scalars['String']['output'];
 };
 
 export type StatusAction = {
@@ -4312,7 +4493,6 @@ export type StatusActionsLogsFilter = {
 
 export type StatusChangingEvent = {
   statusChangingEvent: Scalars['String']['output'];
-  statusChangingEventId: Scalars['Int']['output'];
   workflowConnectionId: Scalars['Int']['output'];
 };
 
@@ -4697,6 +4877,19 @@ export type UpdatePredefinedMessageInput = {
   title: Scalars['String']['input'];
 };
 
+export type UpdateRoleArgs = {
+  config?: InputMaybe<RoleConfigInput>;
+  description: Scalars['String']['input'];
+  roleID: Scalars['Int']['input'];
+  shortCode: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+};
+
+export type UpdateRoleResponse = {
+  role: Maybe<Role>;
+  success: Scalars['Boolean']['output'];
+};
+
 export type UpdateScheduledEventInput = {
   bookingType?: InputMaybe<ScheduledEventBookingType>;
   description?: InputMaybe<Scalars['String']['input']>;
@@ -4715,10 +4908,8 @@ export type UpdateSettingsInput = {
 
 export type UpdateStatusInput = {
   description?: InputMaybe<Scalars['String']['input']>;
-  id: Scalars['Int']['input'];
-  isDefault?: InputMaybe<Scalars['Boolean']['input']>;
+  id: Scalars['String']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
-  shortCode?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateWorkflowInput = {
@@ -4729,12 +4920,9 @@ export type UpdateWorkflowInput = {
 };
 
 export type UpdateWorkflowStatusInput = {
-  id: Scalars['Int']['input'];
-  nextStatusId?: InputMaybe<Scalars['Int']['input']>;
   posX?: InputMaybe<Scalars['Int']['input']>;
   posY?: InputMaybe<Scalars['Int']['input']>;
-  prevConnectionId?: InputMaybe<Scalars['Int']['input']>;
-  prevStatusId?: InputMaybe<Scalars['Int']['input']>;
+  workflowStatusId: Scalars['Int']['input'];
 };
 
 export type User = {
@@ -4751,6 +4939,7 @@ export type User = {
   lastname: Scalars['String']['output'];
   oauthRefreshToken: Maybe<Scalars['String']['output']>;
   oidcSub: Maybe<Scalars['String']['output']>;
+  paginatedProposals: UserProposalsResult;
   preferredname: Maybe<Scalars['String']['output']>;
   proposals: Array<Proposal>;
   reviews: Array<Review>;
@@ -4762,6 +4951,13 @@ export type User = {
 
 export type UserExperimentsArgs = {
   filter?: InputMaybe<UserExperimentsFilter>;
+};
+
+
+export type UserPaginatedProposalsArgs = {
+  filter?: InputMaybe<UserProposalsFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -4801,6 +4997,11 @@ export type UserProposalsFilter = {
   managementDecisionSubmitted?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
+export type UserProposalsResult = {
+  totalCount: Scalars['Int']['output'];
+  userProposals: Array<Proposal>;
+};
+
 export type UserQueryResult = {
   totalCount: Scalars['Int']['output'];
   users: Array<BasicUserDetails>;
@@ -4813,9 +5014,18 @@ export enum UserRole {
   FAP_SECRETARY = 'FAP_SECRETARY',
   INSTRUMENT_SCIENTIST = 'INSTRUMENT_SCIENTIST',
   INTERNAL_REVIEWER = 'INTERNAL_REVIEWER',
+  PROPOSAL_READER = 'PROPOSAL_READER',
   USER = 'USER',
   USER_OFFICER = 'USER_OFFICER'
 }
+
+export type UserRoleConfig = {
+  note: Scalars['String']['output'];
+};
+
+export type UserRoleConfigInput = {
+  note: Scalars['String']['input'];
+};
 
 export type Visit = {
   creatorId: Scalars['Int']['output'];
@@ -4837,8 +5047,15 @@ export type VisitBasisConfig = {
   tooltip: Scalars['String']['output'];
 };
 
+export type VisitPerms = {
+  createable: Scalars['Boolean']['output'];
+  readable: Scalars['Boolean']['output'];
+  writeable: Scalars['Boolean']['output'];
+};
+
 export type VisitRegistration = {
   endsAt: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['String']['output'];
   questionary: Questionary;
   registrationQuestionaryId: Maybe<Scalars['Int']['output']>;
   startsAt: Maybe<Scalars['DateTime']['output']>;
@@ -4865,31 +5082,39 @@ export type VisitsFilter = {
 
 export type Workflow = {
   connectionLineType: Scalars['String']['output'];
+  connections: Array<WorkflowConnection>;
   description: Scalars['String']['output'];
   entityType: WorkflowType;
   id: Scalars['Int']['output'];
   name: Scalars['String']['output'];
-  workflowConnections: Array<WorkflowConnection>;
+  statuses: Array<WorkflowStatus>;
 };
 
 export type WorkflowConnection = {
   id: Scalars['Int']['output'];
-  nextStatusId: Maybe<Scalars['Int']['output']>;
-  posX: Scalars['Int']['output'];
-  posY: Scalars['Int']['output'];
-  prevConnectionId: Maybe<Scalars['Int']['output']>;
-  prevStatusId: Maybe<Scalars['Int']['output']>;
-  sortOrder: Scalars['Int']['output'];
-  status: Status;
+  nextStatus: WorkflowStatus;
+  nextWorkflowStatusId: Scalars['Int']['output'];
+  prevStatus: WorkflowStatus;
+  prevWorkflowStatusId: Scalars['Int']['output'];
+  sourceHandle: Scalars['String']['output'];
   statusActions: Maybe<Array<ConnectionStatusAction>>;
   statusChangingEvents: Maybe<Array<StatusChangingEvent>>;
-  statusId: Scalars['Int']['output'];
+  targetHandle: Scalars['String']['output'];
   workflowId: Scalars['Int']['output'];
 };
 
 export type WorkflowEvent = {
   description: Maybe<Scalars['String']['output']>;
   name: Event;
+};
+
+export type WorkflowStatus = {
+  posX: Scalars['Int']['output'];
+  posY: Scalars['Int']['output'];
+  status: Status;
+  statusId: Scalars['String']['output'];
+  workflowId: Scalars['Int']['output'];
+  workflowStatusId: Scalars['Int']['output'];
 };
 
 export enum WorkflowType {
@@ -5084,7 +5309,10 @@ export type ActivateScheduledEventsMutationVariables = Exact<{
 }>;
 
 
-export type ActivateScheduledEventsMutation = { activateScheduledEvents: { error: string | null, scheduledEvents: Array<{ reason: string } | { id: number, startsAt: string, endsAt: string }> } };
+export type ActivateScheduledEventsMutation = { activateScheduledEvents: { error: string | null, scheduledEvents: Array<
+      | { reason: string }
+      | { id: number, startsAt: string, endsAt: string }
+    > } };
 
 export type CreateScheduledEventMutationVariables = Exact<{
   input: NewScheduledEventInput;
@@ -5098,7 +5326,10 @@ export type DeleteScheduledEventsMutationVariables = Exact<{
 }>;
 
 
-export type DeleteScheduledEventsMutation = { deleteScheduledEvents: { error: string | null, scheduledEvents: Array<{ reason: string } | { id: number, startsAt: string, endsAt: string }> } };
+export type DeleteScheduledEventsMutation = { deleteScheduledEvents: { error: string | null, scheduledEvents: Array<
+      | { reason: string }
+      | { id: number, startsAt: string, endsAt: string }
+    > } };
 
 export type FinalizeScheduledEventMutationVariables = Exact<{
   input: FinalizeScheduledEventInput;
@@ -5111,7 +5342,10 @@ type ScheduledEventWithRejection_Rejection_Fragment = { reason: string };
 
 type ScheduledEventWithRejection_ScheduledEvent_Fragment = { id: number, startsAt: string, endsAt: string };
 
-export type ScheduledEventWithRejectionFragment = ScheduledEventWithRejection_Rejection_Fragment | ScheduledEventWithRejection_ScheduledEvent_Fragment;
+export type ScheduledEventWithRejectionFragment =
+  | ScheduledEventWithRejection_Rejection_Fragment
+  | ScheduledEventWithRejection_ScheduledEvent_Fragment
+;
 
 export type GetEquipmentScheduledEventsQueryVariables = Exact<{
   equipmentIds: Array<Scalars['Int']['input']> | Scalars['Int']['input'];
@@ -5894,141 +6128,141 @@ export const SelectRoleDocument = gql`
 }
     `;
 
-export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string, operationType?: string) => Promise<T>;
+export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string, operationType?: string, variables?: any) => Promise<T>;
 
 
-const defaultWrapper: SdkFunctionWrapper = (action, _operationName, _operationType) => action();
+const defaultWrapper: SdkFunctionWrapper = (action, _operationName, _operationType, _variables) => action();
 
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
-    getSettings(variables?: GetSettingsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<GetSettingsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetSettingsQuery>(GetSettingsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getSettings', 'query');
+    getSettings(variables?: GetSettingsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetSettingsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetSettingsQuery>({ document: GetSettingsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'getSettings', 'query', variables);
     },
-    prepareDB(variables: PrepareDbMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<PrepareDbMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<PrepareDbMutation>(PrepareDbDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'prepareDB', 'mutation');
+    prepareDB(variables: PrepareDbMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<PrepareDbMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<PrepareDbMutation>({ document: PrepareDbDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'prepareDB', 'mutation', variables);
     },
-    prepareSchedulerDB(variables: PrepareSchedulerDbMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<PrepareSchedulerDbMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<PrepareSchedulerDbMutation>(PrepareSchedulerDbDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'prepareSchedulerDB', 'mutation');
+    prepareSchedulerDB(variables: PrepareSchedulerDbMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<PrepareSchedulerDbMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<PrepareSchedulerDbMutation>({ document: PrepareSchedulerDbDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'prepareSchedulerDB', 'mutation', variables);
     },
-    checkToken(variables: CheckTokenQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CheckTokenQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<CheckTokenQuery>(CheckTokenDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'checkToken', 'query');
+    checkToken(variables: CheckTokenQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<CheckTokenQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<CheckTokenQuery>({ document: CheckTokenDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'checkToken', 'query', variables);
     },
-    assignEquipmentToScheduledEvent(variables: AssignEquipmentToScheduledEventMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<AssignEquipmentToScheduledEventMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<AssignEquipmentToScheduledEventMutation>(AssignEquipmentToScheduledEventDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'assignEquipmentToScheduledEvent', 'mutation');
+    assignEquipmentToScheduledEvent(variables: AssignEquipmentToScheduledEventMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AssignEquipmentToScheduledEventMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<AssignEquipmentToScheduledEventMutation>({ document: AssignEquipmentToScheduledEventDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'assignEquipmentToScheduledEvent', 'mutation', variables);
     },
-    confirmEquipmentAssignment(variables: ConfirmEquipmentAssignmentMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ConfirmEquipmentAssignmentMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ConfirmEquipmentAssignmentMutation>(ConfirmEquipmentAssignmentDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'confirmEquipmentAssignment', 'mutation');
+    confirmEquipmentAssignment(variables: ConfirmEquipmentAssignmentMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<ConfirmEquipmentAssignmentMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ConfirmEquipmentAssignmentMutation>({ document: ConfirmEquipmentAssignmentDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'confirmEquipmentAssignment', 'mutation', variables);
     },
-    createEquipment(variables: CreateEquipmentMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateEquipmentMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<CreateEquipmentMutation>(CreateEquipmentDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'createEquipment', 'mutation');
+    createEquipment(variables: CreateEquipmentMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<CreateEquipmentMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<CreateEquipmentMutation>({ document: CreateEquipmentDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'createEquipment', 'mutation', variables);
     },
-    deleteEquipmentAssignment(variables: DeleteEquipmentAssignmentMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DeleteEquipmentAssignmentMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<DeleteEquipmentAssignmentMutation>(DeleteEquipmentAssignmentDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'deleteEquipmentAssignment', 'mutation');
+    deleteEquipmentAssignment(variables: DeleteEquipmentAssignmentMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<DeleteEquipmentAssignmentMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<DeleteEquipmentAssignmentMutation>({ document: DeleteEquipmentAssignmentDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'deleteEquipmentAssignment', 'mutation', variables);
     },
-    getAvailableEquipments(variables: GetAvailableEquipmentsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<GetAvailableEquipmentsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetAvailableEquipmentsQuery>(GetAvailableEquipmentsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getAvailableEquipments', 'query');
+    getAvailableEquipments(variables: GetAvailableEquipmentsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetAvailableEquipmentsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetAvailableEquipmentsQuery>({ document: GetAvailableEquipmentsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'getAvailableEquipments', 'query', variables);
     },
-    getEquipment(variables: GetEquipmentQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<GetEquipmentQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetEquipmentQuery>(GetEquipmentDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getEquipment', 'query');
+    getEquipment(variables: GetEquipmentQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetEquipmentQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetEquipmentQuery>({ document: GetEquipmentDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'getEquipment', 'query', variables);
     },
-    getEquipments(variables?: GetEquipmentsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<GetEquipmentsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetEquipmentsQuery>(GetEquipmentsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getEquipments', 'query');
+    getEquipments(variables?: GetEquipmentsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetEquipmentsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetEquipmentsQuery>({ document: GetEquipmentsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'getEquipments', 'query', variables);
     },
-    updateEquipment(variables: UpdateEquipmentMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateEquipmentMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<UpdateEquipmentMutation>(UpdateEquipmentDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'updateEquipment', 'mutation');
+    updateEquipment(variables: UpdateEquipmentMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<UpdateEquipmentMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<UpdateEquipmentMutation>({ document: UpdateEquipmentDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'updateEquipment', 'mutation', variables);
     },
-    getCalls(variables?: GetCallsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<GetCallsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetCallsQuery>(GetCallsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getCalls', 'query');
+    getCalls(variables?: GetCallsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetCallsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetCallsQuery>({ document: GetCallsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'getCalls', 'query', variables);
     },
-    getUserInstruments(variables?: GetUserInstrumentsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<GetUserInstrumentsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetUserInstrumentsQuery>(GetUserInstrumentsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getUserInstruments', 'query');
+    getUserInstruments(variables?: GetUserInstrumentsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetUserInstrumentsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetUserInstrumentsQuery>({ document: GetUserInstrumentsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'getUserInstruments', 'query', variables);
     },
-    addLostTime(variables: AddLostTimeMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<AddLostTimeMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<AddLostTimeMutation>(AddLostTimeDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'addLostTime', 'mutation');
+    addLostTime(variables: AddLostTimeMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AddLostTimeMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<AddLostTimeMutation>({ document: AddLostTimeDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'addLostTime', 'mutation', variables);
     },
-    deleteLostTime(variables: DeleteLostTimeMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DeleteLostTimeMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<DeleteLostTimeMutation>(DeleteLostTimeDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'deleteLostTime', 'mutation');
+    deleteLostTime(variables: DeleteLostTimeMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<DeleteLostTimeMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<DeleteLostTimeMutation>({ document: DeleteLostTimeDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'deleteLostTime', 'mutation', variables);
     },
-    getProposalBookingLostTimes(variables: GetProposalBookingLostTimesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<GetProposalBookingLostTimesQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetProposalBookingLostTimesQuery>(GetProposalBookingLostTimesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getProposalBookingLostTimes', 'query');
+    getProposalBookingLostTimes(variables: GetProposalBookingLostTimesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetProposalBookingLostTimesQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetProposalBookingLostTimesQuery>({ document: GetProposalBookingLostTimesDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'getProposalBookingLostTimes', 'query', variables);
     },
-    updateLostTime(variables: UpdateLostTimeMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateLostTimeMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<UpdateLostTimeMutation>(UpdateLostTimeDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'updateLostTime', 'mutation');
+    updateLostTime(variables: UpdateLostTimeMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<UpdateLostTimeMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<UpdateLostTimeMutation>({ document: UpdateLostTimeDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'updateLostTime', 'mutation', variables);
     },
-    addClientLog(variables: AddClientLogMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<AddClientLogMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<AddClientLogMutation>(AddClientLogDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'addClientLog', 'mutation');
+    addClientLog(variables: AddClientLogMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AddClientLogMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<AddClientLogMutation>({ document: AddClientLogDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'addClientLog', 'mutation', variables);
     },
-    getRefreshedToken(variables: GetRefreshedTokenMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<GetRefreshedTokenMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetRefreshedTokenMutation>(GetRefreshedTokenDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getRefreshedToken', 'mutation');
+    getRefreshedToken(variables: GetRefreshedTokenMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetRefreshedTokenMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetRefreshedTokenMutation>({ document: GetRefreshedTokenDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'getRefreshedToken', 'mutation', variables);
     },
-    serverHealthCheck(variables?: ServerHealthCheckQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ServerHealthCheckQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ServerHealthCheckQuery>(ServerHealthCheckDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'serverHealthCheck', 'query');
+    serverHealthCheck(variables?: ServerHealthCheckQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<ServerHealthCheckQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ServerHealthCheckQuery>({ document: ServerHealthCheckDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'serverHealthCheck', 'query', variables);
     },
-    activateProposalBooking(variables: ActivateProposalBookingMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ActivateProposalBookingMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ActivateProposalBookingMutation>(ActivateProposalBookingDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'activateProposalBooking', 'mutation');
+    activateProposalBooking(variables: ActivateProposalBookingMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<ActivateProposalBookingMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ActivateProposalBookingMutation>({ document: ActivateProposalBookingDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'activateProposalBooking', 'mutation', variables);
     },
-    finalizeProposalBooking(variables: FinalizeProposalBookingMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<FinalizeProposalBookingMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<FinalizeProposalBookingMutation>(FinalizeProposalBookingDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'finalizeProposalBooking', 'mutation');
+    finalizeProposalBooking(variables: FinalizeProposalBookingMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<FinalizeProposalBookingMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<FinalizeProposalBookingMutation>({ document: FinalizeProposalBookingDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'finalizeProposalBooking', 'mutation', variables);
     },
-    getInstrumentProposalBookings(variables: GetInstrumentProposalBookingsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<GetInstrumentProposalBookingsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetInstrumentProposalBookingsQuery>(GetInstrumentProposalBookingsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getInstrumentProposalBookings', 'query');
+    getInstrumentProposalBookings(variables: GetInstrumentProposalBookingsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetInstrumentProposalBookingsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetInstrumentProposalBookingsQuery>({ document: GetInstrumentProposalBookingsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'getInstrumentProposalBookings', 'query', variables);
     },
-    getProposalBooking(variables: GetProposalBookingQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<GetProposalBookingQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetProposalBookingQuery>(GetProposalBookingDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getProposalBooking', 'query');
+    getProposalBooking(variables: GetProposalBookingQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetProposalBookingQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetProposalBookingQuery>({ document: GetProposalBookingDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'getProposalBooking', 'query', variables);
     },
-    reopenProposalBooking(variables: ReopenProposalBookingMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ReopenProposalBookingMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ReopenProposalBookingMutation>(ReopenProposalBookingDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'reopenProposalBooking', 'mutation');
+    reopenProposalBooking(variables: ReopenProposalBookingMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<ReopenProposalBookingMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ReopenProposalBookingMutation>({ document: ReopenProposalBookingDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'reopenProposalBooking', 'mutation', variables);
     },
-    activateScheduledEvents(variables: ActivateScheduledEventsMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ActivateScheduledEventsMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ActivateScheduledEventsMutation>(ActivateScheduledEventsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'activateScheduledEvents', 'mutation');
+    activateScheduledEvents(variables: ActivateScheduledEventsMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<ActivateScheduledEventsMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ActivateScheduledEventsMutation>({ document: ActivateScheduledEventsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'activateScheduledEvents', 'mutation', variables);
     },
-    createScheduledEvent(variables: CreateScheduledEventMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateScheduledEventMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<CreateScheduledEventMutation>(CreateScheduledEventDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'createScheduledEvent', 'mutation');
+    createScheduledEvent(variables: CreateScheduledEventMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<CreateScheduledEventMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<CreateScheduledEventMutation>({ document: CreateScheduledEventDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'createScheduledEvent', 'mutation', variables);
     },
-    deleteScheduledEvents(variables: DeleteScheduledEventsMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DeleteScheduledEventsMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<DeleteScheduledEventsMutation>(DeleteScheduledEventsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'deleteScheduledEvents', 'mutation');
+    deleteScheduledEvents(variables: DeleteScheduledEventsMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<DeleteScheduledEventsMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<DeleteScheduledEventsMutation>({ document: DeleteScheduledEventsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'deleteScheduledEvents', 'mutation', variables);
     },
-    finalizeScheduledEvent(variables: FinalizeScheduledEventMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<FinalizeScheduledEventMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<FinalizeScheduledEventMutation>(FinalizeScheduledEventDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'finalizeScheduledEvent', 'mutation');
+    finalizeScheduledEvent(variables: FinalizeScheduledEventMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<FinalizeScheduledEventMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<FinalizeScheduledEventMutation>({ document: FinalizeScheduledEventDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'finalizeScheduledEvent', 'mutation', variables);
     },
-    getEquipmentScheduledEvents(variables: GetEquipmentScheduledEventsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<GetEquipmentScheduledEventsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetEquipmentScheduledEventsQuery>(GetEquipmentScheduledEventsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getEquipmentScheduledEvents', 'query');
+    getEquipmentScheduledEvents(variables: GetEquipmentScheduledEventsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetEquipmentScheduledEventsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetEquipmentScheduledEventsQuery>({ document: GetEquipmentScheduledEventsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'getEquipmentScheduledEvents', 'query', variables);
     },
-    getProposalBookingScheduledEvents(variables: GetProposalBookingScheduledEventsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<GetProposalBookingScheduledEventsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetProposalBookingScheduledEventsQuery>(GetProposalBookingScheduledEventsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getProposalBookingScheduledEvents', 'query');
+    getProposalBookingScheduledEvents(variables: GetProposalBookingScheduledEventsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetProposalBookingScheduledEventsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetProposalBookingScheduledEventsQuery>({ document: GetProposalBookingScheduledEventsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'getProposalBookingScheduledEvents', 'query', variables);
     },
-    getScheduledEventEquipments(variables: GetScheduledEventEquipmentsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<GetScheduledEventEquipmentsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetScheduledEventEquipmentsQuery>(GetScheduledEventEquipmentsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getScheduledEventEquipments', 'query');
+    getScheduledEventEquipments(variables: GetScheduledEventEquipmentsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetScheduledEventEquipmentsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetScheduledEventEquipmentsQuery>({ document: GetScheduledEventEquipmentsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'getScheduledEventEquipments', 'query', variables);
     },
-    getScheduledEventWithEquipments(variables: GetScheduledEventWithEquipmentsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<GetScheduledEventWithEquipmentsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetScheduledEventWithEquipmentsQuery>(GetScheduledEventWithEquipmentsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getScheduledEventWithEquipments', 'query');
+    getScheduledEventWithEquipments(variables: GetScheduledEventWithEquipmentsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetScheduledEventWithEquipmentsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetScheduledEventWithEquipmentsQuery>({ document: GetScheduledEventWithEquipmentsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'getScheduledEventWithEquipments', 'query', variables);
     },
-    getScheduledEvents(variables: GetScheduledEventsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<GetScheduledEventsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetScheduledEventsQuery>(GetScheduledEventsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getScheduledEvents', 'query');
+    getScheduledEvents(variables: GetScheduledEventsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetScheduledEventsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetScheduledEventsQuery>({ document: GetScheduledEventsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'getScheduledEvents', 'query', variables);
     },
-    getScheduledEventsWithEquipments(variables: GetScheduledEventsWithEquipmentsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<GetScheduledEventsWithEquipmentsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetScheduledEventsWithEquipmentsQuery>(GetScheduledEventsWithEquipmentsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getScheduledEventsWithEquipments', 'query');
+    getScheduledEventsWithEquipments(variables: GetScheduledEventsWithEquipmentsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetScheduledEventsWithEquipmentsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetScheduledEventsWithEquipmentsQuery>({ document: GetScheduledEventsWithEquipmentsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'getScheduledEventsWithEquipments', 'query', variables);
     },
-    reopenScheduledEvent(variables: ReopenScheduledEventMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ReopenScheduledEventMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ReopenScheduledEventMutation>(ReopenScheduledEventDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'reopenScheduledEvent', 'mutation');
+    reopenScheduledEvent(variables: ReopenScheduledEventMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<ReopenScheduledEventMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ReopenScheduledEventMutation>({ document: ReopenScheduledEventDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'reopenScheduledEvent', 'mutation', variables);
     },
-    updateScheduledEvent(variables: UpdateScheduledEventMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateScheduledEventMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<UpdateScheduledEventMutation>(UpdateScheduledEventDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'updateScheduledEvent', 'mutation');
+    updateScheduledEvent(variables: UpdateScheduledEventMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<UpdateScheduledEventMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<UpdateScheduledEventMutation>({ document: UpdateScheduledEventDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'updateScheduledEvent', 'mutation', variables);
     },
-    externalTokenLogin(variables: ExternalTokenLoginMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ExternalTokenLoginMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ExternalTokenLoginMutation>(ExternalTokenLoginDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'externalTokenLogin', 'mutation');
+    externalTokenLogin(variables: ExternalTokenLoginMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<ExternalTokenLoginMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ExternalTokenLoginMutation>({ document: ExternalTokenLoginDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'externalTokenLogin', 'mutation', variables);
     },
-    getMyRoles(variables?: GetMyRolesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<GetMyRolesQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetMyRolesQuery>(GetMyRolesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getMyRoles', 'query');
+    getMyRoles(variables?: GetMyRolesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetMyRolesQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetMyRolesQuery>({ document: GetMyRolesDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'getMyRoles', 'query', variables);
     },
-    getUsers(variables?: GetUsersQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<GetUsersQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetUsersQuery>(GetUsersDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getUsers', 'query');
+    getUsers(variables?: GetUsersQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetUsersQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetUsersQuery>({ document: GetUsersDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'getUsers', 'query', variables);
     },
-    logout(variables: LogoutMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<LogoutMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<LogoutMutation>(LogoutDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'logout', 'mutation');
+    logout(variables: LogoutMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<LogoutMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<LogoutMutation>({ document: LogoutDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'logout', 'mutation', variables);
     },
-    selectRole(variables: SelectRoleMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<SelectRoleMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<SelectRoleMutation>(SelectRoleDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'selectRole', 'mutation');
+    selectRole(variables: SelectRoleMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<SelectRoleMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<SelectRoleMutation>({ document: SelectRoleDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'selectRole', 'mutation', variables);
     }
   };
 }

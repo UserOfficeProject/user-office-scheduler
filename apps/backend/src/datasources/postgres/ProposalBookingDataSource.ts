@@ -22,23 +22,21 @@ export default class PostgresProposalBookingDataSource
   async upsert(message: ProposalMessageData): Promise<void> {
     if (message.instruments?.length) {
       await Promise.all(
-        message.instruments.map(
-          (instrument) =>
-            instrument.allocatedTime &&
-            database<CreateFields>(this.tableName)
-              .insert({
-                proposal_pk: message.proposalPk,
-                call_id: message.callId,
-                status: ProposalBookingStatusCore.DRAFT,
-                allocated_time: instrument.allocatedTime,
-                instrument_id: instrument.id,
-              })
-              .onConflict(['proposal_pk', 'call_id', 'instrument_id'])
-              .merge({
-                allocated_time: instrument.allocatedTime,
-                instrument_id: instrument.id,
-              })
-              .returning<ProposalBookingRecord>(['*'])
+        message.instruments.map((instrument) =>
+          database<CreateFields>(this.tableName)
+            .insert({
+              proposal_pk: message.proposalPk,
+              call_id: message.callId,
+              status: ProposalBookingStatusCore.DRAFT,
+              allocated_time: instrument.allocatedTime,
+              instrument_id: instrument.id,
+            })
+            .onConflict(['proposal_pk', 'call_id', 'instrument_id'])
+            .merge({
+              allocated_time: instrument.allocatedTime,
+              instrument_id: instrument.id,
+            })
+            .returning<ProposalBookingRecord>(['*'])
         )
       );
     }

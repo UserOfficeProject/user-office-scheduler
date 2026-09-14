@@ -1,7 +1,7 @@
 import {
-  CalendarToday as CalendarTodayIcon,
-  Build as BuildIcon,
-  LibraryAddCheck as LibraryAddCheckIcon,
+  CalendarMonth as CalendarMonthIcon,
+  Handyman as HandymanIcon,
+  AssignmentTurnedIn as AssignmentTurnedInIcon,
 } from '@mui/icons-material';
 import { ListItem, ListItemIcon, ListItemText } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
@@ -135,19 +135,19 @@ export default function MenuItems() {
     <>
       <ListItem component={NavLink} to={calendarPath} button>
         <ListItemIcon>
-          <CalendarTodayIcon />
+          <CalendarMonthIcon />
         </ListItemIcon>
         <ListItemText primary="Calendar" />
       </ListItem>
       <ListItem component={NavLink} to={PATH_EQUIPMENTS} button>
         <ListItemIcon>
-          <BuildIcon />
+          <HandymanIcon />
         </ListItemIcon>
         <ListItemText primary="Equipment list" />
       </ListItem>
       <ListItem component={NavLink} to={PATH_REQUESTS} button>
         <ListItemIcon>
-          <LibraryAddCheckIcon />
+          <AssignmentTurnedInIcon />
         </ListItemIcon>
         <ListItemText primary="Equipment requests" />
       </ListItem>

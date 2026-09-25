@@ -33,8 +33,6 @@ const AgentChat = () => {
       return;
     }
 
-    // The chat widget keeps these objects and serialises them on every request,
-    // so the getters forward the latest (renewed) token to the agent.
     const metadata = {
       get token() {
         return tokenRef.current;
@@ -54,14 +52,11 @@ const AgentChat = () => {
       mode: 'window',
       loadPreviousSession: false,
       showWelcomeScreen: false,
-      initialMessages: [
-        'Hi! I can book experiment time, set local contacts and approve visits. Which proposal and user should I help with?',
-      ],
+      initialMessages: ['Hi! How can I help you today?'],
       i18n: {
         en: {
-          title: 'Scheduler Assistant',
-          subtitle:
-            'Book experiment time, set local contacts and approve visits.',
+          title: 'Assistant',
+          subtitle: 'Ask me anything about your work in the Scheduler.',
           footer: '',
           getStarted: 'New conversation',
           inputPlaceholder: 'Type your question...',
@@ -73,7 +68,6 @@ const AgentChat = () => {
     return () => {
       chat.unmount();
       document.getElementById(CHAT_TARGET_ID)?.remove();
-      // Start a fresh conversation (and agent memory) for the next user or role.
       localStorage.removeItem(CHAT_SESSION_STORAGE_KEY);
     };
   }, [isEnabled, webhookUrl, user.id]);

@@ -12,6 +12,7 @@ import React, { useEffect } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import { makeStyles } from 'tss-react/mui';
 
+import AgentChat from './agentChat/AgentChat';
 import AppToolbar, { drawerWidth } from './appToolbar/AppToolbar';
 import CalendarViewContainer from './calendar/CalendarViewContainer';
 import CreateEditEquipment from './equipment/CreateEditEquipment';
@@ -175,6 +176,7 @@ export default function Dashboard() {
           </Route>
         </Switch>
       </main>
+      <AgentChat />
     </div>
   );
 }

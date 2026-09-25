@@ -1,5 +1,3 @@
-// @n8n/chat points its "types" field at a file it does not ship, so declare the
-// part of the API we use. See node_modules/@n8n/chat/dist/src/types/options.d.ts
 declare module '@n8n/chat' {
   export interface ChatOptions {
     webhookUrl: string;

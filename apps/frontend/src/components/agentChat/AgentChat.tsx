@@ -19,8 +19,7 @@ const AgentChat = () => {
   const webhookUrl = settings.get(
     SettingsId.N8N_CHAT_WEBHOOK_URL
   )?.settingsValue;
-  const isEnabled =
-    !!webhookUrl && currentRole === UserRole.INSTRUMENT_SCIENTIST;
+  const isEnabled = !!webhookUrl && currentRole === UserRole.USER_OFFICER;
 
   const tokenRef = useRef(token);
 

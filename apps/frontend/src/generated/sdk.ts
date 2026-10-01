@@ -5445,7 +5445,19 @@ export type ExternalTokenLoginMutation = { externalTokenLogin: string };
 export type GetMyRolesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetMyRolesQuery = { me: { firstname: string, lastname: string, roles: Array<{ id: number, shortCode: string, title: string, description: string }> } | null };
+export type GetMyRolesQuery = { me: { firstname: string, lastname: string, roles: Array<{ id: number, shortCode: string, title: string, description: string, isRootRole: boolean, config:
+        | { hasLogAccess: boolean, hasTechnicalReviewAccess: boolean, hasFapAccess: boolean, hasAdminAccess: boolean }
+        | { note: string }
+       | null, tags: Array<{ id: number, name: string }> | null }> } | null };
+
+type RoleConfig_ProposalReaderRoleConfig_Fragment = { hasLogAccess: boolean, hasTechnicalReviewAccess: boolean, hasFapAccess: boolean, hasAdminAccess: boolean };
+
+type RoleConfig_UserRoleConfig_Fragment = { note: string };
+
+export type RoleConfigFragment =
+  | RoleConfig_ProposalReaderRoleConfig_Fragment
+  | RoleConfig_UserRoleConfig_Fragment
+;
 
 export type GetUsersQueryVariables = Exact<{
   searchText?: InputMaybe<Scalars['String']['input']>;
@@ -5515,6 +5527,19 @@ export const BasicUserDetailsFragmentDoc = gql`
   firstname
   lastname
   institution
+}
+    `;
+export const RoleConfigFragmentDoc = gql`
+    fragment roleConfig on RoleConfig {
+  ... on UserRoleConfig {
+    note
+  }
+  ... on ProposalReaderRoleConfig {
+    hasLogAccess
+    hasTechnicalReviewAccess
+    hasFapAccess
+    hasAdminAccess
+  }
 }
     `;
 export const GetSettingsDocument = gql`
@@ -6119,10 +6144,18 @@ export const GetMyRolesDocument = gql`
       shortCode
       title
       description
+      isRootRole
+      config {
+        ...roleConfig
+      }
+      tags {
+        id
+        name
+      }
     }
   }
 }
-    `;
+    ${RoleConfigFragmentDoc}`;
 export const GetUsersDocument = gql`
     query getUsers($searchText: String, $first: Int, $offset: Int, $userRole: UserRole, $subtractUsers: [Int!]) {
   users(

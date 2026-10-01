@@ -18,10 +18,7 @@ const columns = [
   { title: 'Role', field: 'title' },
 ];
 
-export type RoleRow = Pick<
-  Role,
-  'id' | 'shortCode' | 'title' | 'description' | 'isRootRole' | 'config'
->;
+export type RoleRow = Pick<Role, 'id' | 'shortCode' | 'title' | 'description'>;
 
 const RoleSelection: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const { currentRole, token, handleNewToken } = useContext(UserContext);

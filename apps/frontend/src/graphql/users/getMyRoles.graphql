@@ -7,26 +7,6 @@ query getMyRoles {
       shortCode
       title
       description
-      isRootRole
-      config {
-        ...roleConfig
-      }
-      tags {
-        id
-        name
-      }
     }
-  }
-}
-
-fragment roleConfig on RoleConfig {
-  ... on UserRoleConfig {
-    note
-  }
-  ... on ProposalReaderRoleConfig {
-    hasLogAccess
-    hasTechnicalReviewAccess
-    hasFapAccess
-    hasAdminAccess
   }
 }

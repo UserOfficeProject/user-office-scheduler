@@ -48,7 +48,7 @@
     "interactjs": "^1.10.17",
     "jwt-decode": "^3.1.2",
     "lodash": "^4.18.1",
-    "moment": "^2.29.4",
+    "moment": "^2.31.0",
     "notistack": "^2.0.5",
     "react": "^17.0.2",
     "react-big-calendar": "^1.8.2",

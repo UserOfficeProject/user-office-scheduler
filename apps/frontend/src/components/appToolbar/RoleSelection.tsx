@@ -18,12 +18,14 @@ const columns = [
   { title: 'Role', field: 'title' },
 ];
 
+export type RoleRow = Pick<Role, 'id' | 'shortCode' | 'title' | 'description'>;
+
 const RoleSelection: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const { currentRole, token, handleNewToken } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const api = useDataApi();
   const history = useHistory();
-  const [roles, setRoles] = useState<Role[]>([]);
+  const [roles, setRoles] = useState<RoleRow[]>([]);
   const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
@@ -56,7 +58,7 @@ const RoleSelection: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     return <Redirect to="/SignIn" />;
   }
 
-  const selectUserRole = async (role: Role) => {
+  const selectUserRole = async (role: RoleRow) => {
     if (!token) {
       return;
     }
@@ -87,7 +89,7 @@ const RoleSelection: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     }
   };
 
-  const RoleAction = (rowData: Role) => (
+  const RoleAction = (rowData: RoleRow) => (
     <>
       {rowData.shortCode.toUpperCase() === currentRole?.valueOf() ? (
         <Button variant="text" disabled>

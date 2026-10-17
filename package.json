@@ -45,11 +45,11 @@
   ],
   "dependencies": {
     "concurrently": "^10.0.5",
-    "wait-on": "^9.0.10"
+    "wait-on": "^9.5.1"
   },
   "devDependencies": {
     "husky": "^9.1.7",
-    "lint-staged": "^17.5.1"
+    "lint-staged": "^17.6.0"
   },
   "engines": {
     "npm": ">=10.9.2",

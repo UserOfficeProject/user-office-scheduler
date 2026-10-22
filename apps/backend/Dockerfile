@@ -1,4 +1,4 @@
-FROM node:22.14.0-alpine AS build-stage
+FROM node:22.23.4-alpine AS build-stage
 
 # NOTE: This is needed for multi-platform builds
 RUN apk add --update python3 make g++ && rm -rf /var/cache/apk/*
@@ -18,7 +18,7 @@ COPY --chown=node:node . .
 
 RUN npm run build
 
-FROM node:22.14.0-alpine
+FROM node:22.23.4-alpine
 
 USER node
 

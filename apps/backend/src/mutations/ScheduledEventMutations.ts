@@ -24,7 +24,7 @@ import {
   CalendarExplicitBookableTypes,
   ScheduledEventBookingType,
 } from '../models/ScheduledEvent';
-import { rejection, Rejection } from '../rejection';
+import { rejection, Rejection, isRejection } from '../rejection';
 import {
   DeleteScheduledEventsInput,
   FinalizeScheduledEventInput,
@@ -263,6 +263,10 @@ export default class ScheduledEventMutations {
         return rejection('INTERNAL_ERROR');
       });
 
+    if (isRejection(result)) {
+      return result;
+    }
+
     await this.handleProposalBookingStatusChange(
       scheduledEvent.proposalBookingId,
       action
@@ -277,7 +281,7 @@ export default class ScheduledEventMutations {
       isRejection: false,
       key: 'scheduledevent',
       loggedInUserId: +ctx.user!.id,
-      scheduledevent: scheduledEvent,
+      scheduledevent: result,
     });
 
     return result;

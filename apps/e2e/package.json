@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "@faker-js/faker": "^7.5.0",
+    "@faker-js/faker": "^10.5.0",
     "cypress": "^13.2.0",
     "cypress-real-events": "^1.10.3",
     "dotenv": "^8.6.0",

@@ -72,17 +72,15 @@ export default class ProposalBookingMutations {
           )
       );
 
-      if (result.length === allScheduledEvents.length) {
-        result.map((scheduledEvent) => {
-          eventBus.publish({
-            type: Event.PROPOSAL_BOOKING_TIME_COMPLETED,
-            isRejection: false,
-            key: 'scheduledevent',
-            loggedInUserId: +ctx.user!.id,
-            scheduledevent: scheduledEvent,
-          });
+      result.forEach((scheduledEvent) => {
+        eventBus.publish({
+          type: Event.PROPOSAL_BOOKING_TIME_COMPLETED,
+          isRejection: false,
+          key: 'scheduledevent',
+          loggedInUserId: +ctx.user!.id,
+          scheduledevent: scheduledEvent,
         });
-      }
+      });
     }
 
     return result;
